@@ -1,0 +1,15 @@
+
+Features to be implemented:
+
+- Load file by passing in filename as parameter
+- Undo and redo
+- Syntax highlighting
+- Support multiple files
+- Save feature (as opposed to save as)
+- Help screen
+- Spell checker Support
+- Copy and paste
+- git integration
+- Menu system
+- Customizable configuration
+- Command to delete current line

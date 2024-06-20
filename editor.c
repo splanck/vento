@@ -295,8 +295,14 @@ void load_file(const char *filename) {
     getch();
     mvprintw(LINES - 2, 2, "                            "); // Clear the line after loading
     refresh();
-    werase(text_win);
+    //werase(text_win);
+    text_win = newwin(LINES - 2, COLS, 1, 0);  // Adjusted to ensure proper window size
+    keypad(text_win, TRUE);
+    meta(text_win, TRUE);  // Enable meta keys
+
     box(text_win, 0, 0);
+    wmove(text_win, 1, 1);
+
     draw_text_buffer(text_win);
     wrefresh(text_win);
 }
@@ -323,3 +329,4 @@ void new_file() {
 
     run_editor();
 }
+ 
