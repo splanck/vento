@@ -12,6 +12,8 @@ char *text_buffer[MAX_LINES];
 int line_count = 0;
 int start_line = 0;
 
+char current_filename[256] = "";
+
 WINDOW *text_win;
 
 void initialize() {
@@ -49,6 +51,8 @@ void run_editor() {
     int ch;
     int cursor_x = 1, cursor_y = 1;
 
+    wmove(text_win, cursor_x, cursor_y);  // Move cursor after "Input: "
+
     while ((ch = wgetch(text_win)) != 27) { // Exit on ESC key
         switch (ch) {
             case KEY_UP:
@@ -79,6 +83,15 @@ void run_editor() {
             case KEY_NPAGE: // Page Down key
                 handle_key_page_down(&cursor_y, &start_line);
                 break;
+            case 8: // CTRL-H
+                show_help();
+                // Restore the text window context
+                werase(text_win);
+                box(text_win, 0, 0);
+                draw_text_buffer(text_win);
+                wmove(text_win, cursor_y, cursor_x);
+                wrefresh(text_win);
+                break;
             case 12: // CTRL-L
                 load_file(NULL);
                 // Restore the text window context
@@ -89,6 +102,15 @@ void run_editor() {
                 wrefresh(text_win);
                 break;
             case 15: // CTRL-O
+                save_file_as();
+                // Restore the text window context
+                werase(text_win);
+                box(text_win, 0, 0);
+                draw_text_buffer(text_win);
+                wmove(text_win, cursor_y, cursor_x);
+                wrefresh(text_win);
+                break;
+            case 16: // CTRL-P
                 save_file();
                 // Restore the text window context
                 werase(text_win);
@@ -101,15 +123,6 @@ void run_editor() {
                 clear_text_buffer();
                 cursor_x = 1;
                 cursor_y = 1;
-                break;
-            case 8: // CTRL-H
-                show_help();
-                // Restore the text window context
-                werase(text_win);
-                box(text_win, 0, 0);
-                draw_text_buffer(text_win);
-                wmove(text_win, cursor_y, cursor_x);
-                wrefresh(text_win);
                 break;
             case KEY_CTRL_LEFT:  // Handle CTRL-Left arrow
                 handle_ctrl_key_left(&cursor_x);
@@ -144,7 +157,6 @@ void run_editor() {
 
     delwin(text_win);
 }
-
 
 void initialize_buffer() {
     for (int i = 0; i < MAX_LINES; ++i) {
@@ -207,6 +219,47 @@ void clear_text_buffer() {
     wrefresh(text_win);
 }
 
+void save_file() {
+    if (strlen(current_filename) == 0) {
+        save_file_as();
+    } else {
+        FILE *fp = fopen(current_filename, "w");
+        if (fp) {
+            for (int i = 0; i < line_count; ++i) {
+                fprintf(fp, "%s\n", text_buffer[i]);
+            }
+            fclose(fp);
+            mvprintw(LINES - 2, 2, "File saved as %s", current_filename);
+        } else {
+            mvprintw(LINES - 2, 2, "Error saving file!");
+        }
+        refresh();
+        getch();
+        mvprintw(LINES - 2, 2, "                            "); // Clear the line after saving
+        refresh();
+    }
+}
+
+void save_file_as() {
+    create_dialog("Save as", current_filename, 256);
+
+    FILE *fp = fopen(current_filename, "w");
+    if (fp) {
+        for (int i = 0; i < line_count; ++i) {
+            fprintf(fp, "%s\n", text_buffer[i]);
+        }
+        fclose(fp);
+        mvprintw(LINES - 2, 2, "File saved as %s", current_filename);
+    } else {
+        mvprintw(LINES - 2, 2, "Error saving file!");
+    }
+
+    refresh();
+    getch();
+    mvprintw(LINES - 2, 2, "                            "); // Clear the line after saving
+    refresh();
+}
+
 void create_dialog(const char *message, char *output, int max_input_len) {
     // Window size and position adjustments
     int win_y = LINES / 3;
@@ -255,27 +308,6 @@ void create_dialog(const char *message, char *output, int max_input_len) {
     wrefresh(dialog_win);
     delwin(dialog_win);
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
-}
-
-void save_file() {
-    char filename[256];
-    create_dialog("Save as", filename, 256);
-
-    FILE *fp = fopen(filename, "w");
-    if (fp) {
-        for (int i = 0; i < line_count; ++i) {
-            fprintf(fp, "%s\n", text_buffer[i]);
-        }
-        fclose(fp);
-        mvprintw(LINES - 2, 2, "File saved as %s", filename);
-    } else {
-        mvprintw(LINES - 2, 2, "Error saving file!");
-    }
-
-    refresh();
-    getch();
-    mvprintw(LINES - 2, 2, "                            "); // Clear the line after saving
-    refresh();
 }
 
 void load_file(const char *filename) {
@@ -327,7 +359,6 @@ void update_status_bar(int cursor_y, int cursor_x) {
 }
 
 void new_file() {
-    int ch;
     int cursor_x = 1, cursor_y = 1;
 
     initialize_buffer(); // Initialize the buffer

@@ -7,13 +7,13 @@ Features implemented:
 - Create new file
 - Scroll bar
 - Help screen
+- Save feature (as opposed to save as)
 
 Features to be implemented:
 
 - Undo and redo
 - Syntax highlighting
 - Support multiple files
-- Save feature (as opposed to save as)
 - Spell checker Support
 - Copy and paste
 - git integration
