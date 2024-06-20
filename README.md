@@ -34,6 +34,6 @@ We're not done yet! Here's what's coming soon:
 To get started with Vento, simply clone the repository and build the project:
 
 ```bash
-git clone https://github.com/yourusername/vento.git
+git clone https://github.com/splanck/vento.git
 cd vento
 make
