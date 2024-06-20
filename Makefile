@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99
 
-OBJS = vento.o editor.o input.o
-DEPS = editor.h input.h
+OBJS = vento.o editor.o input.o ui.o
+DEPS = editor.h input.h ui.h
 
 vento: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ -lncurses

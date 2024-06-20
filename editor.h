@@ -12,6 +12,7 @@
 #define KEY_CTRL_PGDN  1003
 #define KEY_CTRL_UP    1004
 #define KEY_CTRL_DOWN  1005
+#define KEY_CTRL_Q     1007 
 
 void initialize();
 void draw_text_buffer(WINDOW *win);

@@ -6,6 +6,7 @@
 #include <signal.h>
 #include "editor.h"
 #include "input.h"
+#include "ui.h"
 
 char *text_buffer[MAX_LINES];
 int line_count = 0;
@@ -23,6 +24,7 @@ void initialize() {
     init_pair(1, COLOR_WHITE, COLOR_BLUE);
     init_pair(2, COLOR_BLACK, COLOR_WHITE);
     init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(4, COLOR_WHITE, COLOR_BLUE); // White text on blue background
 
     bkgd(COLOR_PAIR(1));
     refresh();
@@ -100,6 +102,15 @@ void run_editor() {
                 cursor_x = 1;
                 cursor_y = 1;
                 break;
+            case 8: // CTRL-H
+                show_help();
+                // Restore the text window context
+                werase(text_win);
+                box(text_win, 0, 0);
+                draw_text_buffer(text_win);
+                wmove(text_win, cursor_y, cursor_x);
+                wrefresh(text_win);
+                break;
             case KEY_CTRL_LEFT:  // Handle CTRL-Left arrow
                 handle_ctrl_key_left(&cursor_x);
                 break;
@@ -134,6 +145,7 @@ void run_editor() {
     delwin(text_win);
 }
 
+
 void initialize_buffer() {
     for (int i = 0; i < MAX_LINES; ++i) {
         text_buffer[i] = (char *)calloc(COLS - 3, sizeof(char));
@@ -158,9 +170,9 @@ void draw_text_buffer(WINDOW *win) {
     // Draw scrollbar
     for (int i = 0; i < scrollbar_height; ++i) {
         if (i >= scrollbar_start && i < scrollbar_end) {
-            mvwprintw(win, i + 1, COLS - 2, "|");
+            mvwprintw(win, i + 1, COLS - 1, "|");
         } else {
-            mvwprintw(win, i + 1, COLS - 2, " ");
+            mvwprintw(win, i + 1, COLS - 1, " ");
         }
     }
 
@@ -329,4 +341,4 @@ void new_file() {
 
     run_editor();
 }
- 
+
