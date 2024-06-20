@@ -19,7 +19,6 @@ void draw_text_buffer(WINDOW *win);
 void clear_text_buffer();
 void run_editor();
 void initialize_buffer();
-void create_dialog(const char *message, char *output, int max_input_len);
 void save_file();
 void save_file_as();
 void load_file();
