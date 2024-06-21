@@ -2,6 +2,17 @@
 #include <stdlib.h>
 #include <signal.h>
 #include "editor.h"
+#include "input.h"
+
+void free_stack(Node *stack) {
+    while (stack) {
+        Node *next = stack->next;
+        free(stack->change.old_text);
+        free(stack->change.new_text);
+        free(stack);
+        stack = next;
+    }
+}
 
 int main(int argc, char *argv[]) {
     initialize();
@@ -16,6 +27,10 @@ int main(int argc, char *argv[]) {
     }
 
     run_editor();
+
+    free_stack(undo_stack);
+    free_stack(redo_stack);
+
     endwin();
     return 0;
 }

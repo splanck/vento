@@ -6,8 +6,8 @@
 
 void show_help() {
     // Window size and position adjustments
-    int win_height = 10;
-    int win_width = COLS - 4;
+    int win_height = 12;
+    int win_width = COLS - 40;
     int win_y = (LINES - win_height) / 2;
     int win_x = (COLS - win_width) / 2;
 
@@ -24,11 +24,12 @@ void show_help() {
 
     // Print the help information
     mvwprintw(help_win, 1, 2, "Help:");
-    mvwprintw(help_win, 2, 2, "CTRL-S: Save the file");
-    mvwprintw(help_win, 3, 2, "CTRL-O: Open a file");
-    mvwprintw(help_win, 4, 2, "CTRL-N: New file");
-    mvwprintw(help_win, 5, 2, "CTRL-Q: Quit");
-    mvwprintw(help_win, 6, 2, "CTRL-H: Show this help");
+    mvwprintw(help_win, 3, 2, "CTRL-S: Save the file");
+    mvwprintw(help_win, 4, 2, "CTRL-O: Open a file");
+    mvwprintw(help_win, 5, 2, "CTRL-N: New file");
+    mvwprintw(help_win, 6, 2, "CTRL-U: Undo");
+    mvwprintw(help_win, 7, 2, "CTRL-R: Redo");
+    mvwprintw(help_win, 8, 2, "CTRL-H: Show this help");
 
     // Wait for any keypress to close the dialog
     mvwprintw(help_win, win_height - 2, 2, "(Press any key to close)");

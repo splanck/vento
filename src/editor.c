@@ -9,6 +9,8 @@
 #include "ui.h"
 #include "syntax.h"
 
+char *strdup(const char *s);  // Explicitly declare strdup
+
 char *text_buffer[MAX_LINES];
 int line_count = 0;
 int start_line = 0;
@@ -16,6 +18,56 @@ int start_line = 0;
 char current_filename[256] = "";
 
 WINDOW *text_win;
+
+// Undo and redo stacks
+Node *undo_stack = NULL;
+Node *redo_stack = NULL;
+
+// Helper functions for undo and redo stacks
+void push(Node **stack, Change change) {
+    Node *new_node = (Node *)malloc(sizeof(Node));
+    new_node->change = change;
+    new_node->next = *stack;
+    *stack = new_node;
+}
+
+Change pop(Node **stack) {
+    Node *top = *stack;
+    Change change = top->change;
+    *stack = top->next;
+    free(top);
+    return change;
+}
+
+int is_empty(Node *stack) {
+    return stack == NULL;
+}
+
+void undo() {
+    if (!is_empty(undo_stack)) {
+        Change change = pop(&undo_stack);
+        push(&redo_stack, (Change){ change.line, strdup(text_buffer[change.line]), strdup(change.old_text) });
+        strcpy(text_buffer[change.line], change.old_text);
+        free(change.old_text);
+        free(change.new_text);
+        werase(text_win);
+        box(text_win, 0, 0);
+        draw_text_buffer(text_win);
+    }
+}
+
+void redo() {
+    if (!is_empty(redo_stack)) {
+        Change change = pop(&redo_stack);
+        push(&undo_stack, (Change){ change.line, strdup(text_buffer[change.line]), strdup(change.new_text) });
+        strcpy(text_buffer[change.line], change.new_text);
+        free(change.old_text);
+        free(change.new_text);
+        werase(text_win);
+        box(text_win, 0, 0);
+        draw_text_buffer(text_win);
+    }
+}
 
 void initialize() {
     initscr();
@@ -124,6 +176,12 @@ void run_editor() {
                 clear_text_buffer();
                 cursor_x = 1;
                 cursor_y = 1;
+                break;
+            case 18: // CTRL-R
+                redo();
+                break;
+            case 21: // CTRL-U
+                undo();
                 break;
             case KEY_CTRL_LEFT:  // Handle CTRL-Left arrow
                 handle_ctrl_key_left(&cursor_x);

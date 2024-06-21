@@ -6,6 +6,12 @@
 #include <ctype.h>
 #include "input.h"
 
+char *strdup(const char *s);  // Explicitly declare strdup
+
+void handle_ctrl_backtick() {
+    // Do nothing on CTRL+Backtick to avoid segmentation fault
+}
+
 void handle_key_up(int *cursor_y, int *start_line) {
     if (*cursor_y > 1) {
         (*cursor_y)--;
@@ -169,12 +175,18 @@ void handle_ctrl_key_right(int *cursor_x, int cursor_y) {
 void handle_default_key(int ch, int *cursor_x, int cursor_y) {
     if (*cursor_x < COLS - 6) {
         int len = strlen(text_buffer[cursor_y - 1 + start_line]);
+        char *old_text = strdup(text_buffer[cursor_y - 1 + start_line]);
+        
         if (*cursor_x <= len) {
             memmove(&text_buffer[cursor_y - 1 + start_line][*cursor_x], &text_buffer[cursor_y - 1 + start_line][*cursor_x - 1], len - *cursor_x + 1);
         }
         text_buffer[cursor_y - 1 + start_line][*cursor_x - 1] = ch;
         text_buffer[cursor_y - 1 + start_line][len + 1] = '\0';  // Ensure null termination
         (*cursor_x)++;
+
+        char *new_text = strdup(text_buffer[cursor_y - 1 + start_line]);
+        Change change = { cursor_y - 1 + start_line, old_text, new_text };
+        push(&undo_stack, change);
     }
     werase(text_win);
     box(text_win, 0, 0);

@@ -10,5 +10,13 @@ vento: $(OBJS)
 %.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+install: vento
+	install -d $(PREFIX)/bin
+	install -m 755 vento $(PREFIX)/bin
+
+uninstall:
+	rm -f $(PREFIX)/bin/vento
+
 clean:
 	rm -f $(OBJS) vento
+

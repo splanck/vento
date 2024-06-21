@@ -1,6 +1,7 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+void handle_ctrl_backtick();
 void handle_key_up(int *cursor_y, int *start_line);
 void handle_key_down(int *cursor_y, int *start_line);
 void handle_key_left(int *cursor_x);
