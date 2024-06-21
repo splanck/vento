@@ -1,39 +1,57 @@
 # Vento Text Editor
 
-Welcome to Vento, the lightweight text editor designed to make coding and editing simple and efficient. Whether you're editing code, jotting down notes, or writing your next novel, Vento is here to provide a straightforward, no-frills editing experience.
+Welcome to Vento, the lightweight text editor that's all about keeping things simple and easy to use. Whether you're coding, jotting down notes, or working on your next big writing project, Vento has got you covered.
 
-## Features Implemented
+## Features We've Got So Far
 
-Here's what we've got so far:
+Here's what Vento can do right now:
 
-- **Basic Editor**: The core functionality is here! Open up Vento and start typing away.
-- **Load Files**: Open and edit existing files with ease.
-- **Save As**: Save your work with a specified filename.
-- **Status Bar**: Always know your position in the document with our handy status bar.
-- **Create New File**: Quickly start fresh with a new file.
-- **Scroll Bar**: Visualize your position within the document using the built-in scroll bar.
-- **Help Screen**: Press `CTRL-H` for a helpful guide on Vento's commands and features.
-- **Save Feature**: Save changes without needing to specify the filename every time.
+- **Basic Editor**: The essentials are here. Open up Vento and start typing away.
+- **Load Files**: Open and edit your existing files without any hassle.
+- **Save As**: Save your work with a new filename whenever you need to.
+- **Status Bar**: Keep track of where you are in your document with our handy status bar.
+- **Create New File**: Start fresh with a new file in just a few keystrokes.
+- **Scroll Bar**: See how far you've scrolled through your document.
+- **Help Screen**: Press `CTRL-H` for a quick guide to Vento's features.
+- **Save Feature**: Save your changes without having to re-enter the filename every time.
 
-## Features to be Implemented
+## What's Coming Up (Maybe)
 
-We're not done yet! Here's what's coming soon:
+We've got some cool ideas on our to-do list. No promises, but here's what we're thinking:
 
-- **Undo and Redo**: Mistakes happen. You'll soon be able to undo and redo changes.
-- **Syntax Highlighting**: Make your code easier to read with syntax highlighting for various programming languages.
-- **Support Multiple Files**: Open and work on multiple files simultaneously.
-- **Spell Checker Support**: Catch those typos with integrated spell checking.
-- **Copy and Paste**: Use clipboard functionalities to copy and paste text.
+- **Undo and Redo**: Because mistakes happen, and fixing them should be easy.
+- **Syntax Highlighting**: Make your code pop with colors for different syntax elements.
+- **Support Multiple Files**: Work on several files at once without breaking a sweat.
+- **Spell Checker Support**: Catch those pesky typos automatically.
+- **Copy and Paste**: Basic clipboard functionality to move text around.
 - **Git Integration**: Seamlessly integrate with Git for version control.
-- **Menu System**: Navigate Vento's features through an intuitive menu system.
-- **Customizable Configuration**: Tailor Vento to fit your personal preferences and workflow.
-- **Command to Delete Current Line**: Quickly remove lines of text with a single command.
+- **Menu System**: Navigate Vento's features through an intuitive menu.
+- **Customizable Configuration**: Tailor Vento to your liking with custom settings.
+- **Command to Delete Current Line**: Quickly delete lines you don't need.
+
+## Prerequisites
+
+Before you can compile Vento, make sure you have the following installed:
+
+- **GCC**: The GNU Compiler Collection for compiling the source code.
+- **Binutils**: A collection of binary tools.
+- **Ncurses Dev Libraries**: Development libraries for Ncurses (necessary for text-based user interfaces).
+
+On Debian-based systems, you can install these with:
+
+```bash
+sudo apt update
+sudo apt install build-essential libncurses5-dev libncursesw5-dev
+```
 
 ## Getting Started
 
-To get started with Vento, simply clone the repository and build the project:
+Ready to give Vento a try? Here's how to get started:
 
 ```bash
-git clone https://github.com/splanck/vento.git
+git clone https://github.com/yourusername/vento.git
 cd vento
 make
+```
+
+Thanks for checking out Vento! Happy editing!
