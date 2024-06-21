@@ -8,6 +8,7 @@
 #include "input.h"
 #include "ui.h"
 #include "syntax.h"
+#include "config.h"
 
 char *strdup(const char *s);  // Explicitly declare strdup
 

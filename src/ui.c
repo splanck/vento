@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include "config.h"
 
 void show_help() {
     // Window size and position adjustments
