@@ -7,6 +7,7 @@
 #include "editor.h"
 #include "input.h"
 #include "ui.h"
+#include "syntax.h"
 
 char *text_buffer[MAX_LINES];
 int line_count = 0;
@@ -171,7 +172,7 @@ void draw_text_buffer(WINDOW *win) {
     box(win, 0, 0);
     int max_lines = LINES - 4;  // Adjust for the status bar
     for (int i = 0; i < max_lines && i + start_line < line_count; ++i) {
-        mvwprintw(win, i + 1, 1, "%-*s", COLS - 3, text_buffer[i + start_line]);  // Adjust for scrollbar
+        apply_syntax_highlighting(win, text_buffer[i + start_line], i + 1);
     }
 
     // Calculate scrollbar position and size
@@ -182,14 +183,15 @@ void draw_text_buffer(WINDOW *win) {
     // Draw scrollbar
     for (int i = 0; i < scrollbar_height; ++i) {
         if (i >= scrollbar_start && i < scrollbar_end) {
-            mvwprintw(win, i + 1, COLS - 1, "|");
+            mvwprintw(win, i + 1, COLS - 2, "|");
         } else {
-            mvwprintw(win, i + 1, COLS - 1, " ");
+            mvwprintw(win, i + 1, COLS - 2, " ");
         }
     }
 
     wrefresh(win);
 }
+
 
 void handle_resize(int sig) {
     (void)sig;  // Cast to void to suppress unused parameter warning

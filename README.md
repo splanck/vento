@@ -14,13 +14,13 @@ Here's what Vento can do right now:
 - **Scroll Bar**: See how far you've scrolled through your document.
 - **Help Screen**: Press `CTRL-H` for a quick guide to Vento's features.
 - **Save Feature**: Save your changes without having to re-enter the filename every time.
+- **Syntax Highlighting**: Make your code pop with colors for different syntax elements.
 
 ## What's Coming Up (Maybe)
 
 We've got some cool ideas on our to-do list. No promises, but here's what we're thinking:
 
 - **Undo and Redo**: Because mistakes happen, and fixing them should be easy.
-- **Syntax Highlighting**: Make your code pop with colors for different syntax elements.
 - **Support Multiple Files**: Work on several files at once without breaking a sweat.
 - **Spell Checker Support**: Catch those pesky typos automatically.
 - **Copy and Paste**: Basic clipboard functionality to move text around.
