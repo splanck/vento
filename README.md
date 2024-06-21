@@ -51,8 +51,9 @@ Ready to give Vento a try? Here's how to get started:
 
 ```bash
 git clone https://github.com/yourusername/vento.git
-cd vento
+cd vento/src
 make
+make install
 ```
 
 Thanks for checking out Vento! Happy editing!
