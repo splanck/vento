@@ -260,8 +260,6 @@ void save_file_as() {
     refresh();
 }
 
-
-
 void load_file(const char *filename) {
     char file_to_load[256];
 
