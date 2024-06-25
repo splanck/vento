@@ -55,7 +55,6 @@ git clone https://github.com/yourusername/vento.git
 cd vento
 make
 make install
-sudo make install
 ```
 
 Thanks for checking out Vento! Happy editing!
