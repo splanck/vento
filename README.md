@@ -52,7 +52,7 @@ Ready to give Vento a try? Here's how to get started:
 
 ```bash
 git clone https://github.com/yourusername/vento.git
-cd vento/src
+cd vento
 make
 make install
 sudo make install
