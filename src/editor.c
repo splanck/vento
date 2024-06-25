@@ -20,6 +20,12 @@ char current_filename[256] = "";
 
 WINDOW *text_win;
 
+// Global clipboard
+char *clipboard;
+bool selection_mode = false;
+int sel_start_x = 0, sel_start_y = 0;
+int sel_end_x = 0, sel_end_y = 0;
+
 // Undo and redo stacks
 Node *undo_stack = NULL;
 Node *redo_stack = NULL;
@@ -70,6 +76,81 @@ void redo() {
     }
 }
 
+void start_selection_mode(int cursor_x, int cursor_y) {
+    selection_mode = true;
+    sel_start_x = cursor_x;
+    sel_start_y = cursor_y;
+    sel_end_x = cursor_x;
+    sel_end_y = cursor_y;
+}
+
+void end_selection_mode() {
+    selection_mode = false;
+    copy_selection();
+}
+
+void copy_selection() {
+    int start_y = sel_start_y < sel_end_y ? sel_start_y : sel_end_y;
+    int end_y = sel_start_y > sel_end_y ? sel_start_y : sel_end_y;
+    int start_x = sel_start_x;
+    int end_x = sel_end_x;
+
+    clipboard[0] = '\0';  // Clear clipboard
+    for (int y = start_y; y <= end_y; y++) {
+        if (y == start_y) {
+            strncat(clipboard, &text_buffer[y - 1 + start_line][start_x - 1], end_x - start_x + 1);
+        } else {
+            strcat(clipboard, "\n");
+            strcat(clipboard, text_buffer[y - 1 + start_line]);
+        }
+    }
+}
+
+void paste_clipboard(int *cursor_x, int *cursor_y) {
+    char *line = strtok(clipboard, "\n");
+    while (line) {
+        int len = strlen(line);
+        memmove(&text_buffer[*cursor_y - 1 + start_line][*cursor_x - 1 + len], &text_buffer[*cursor_y - 1 + start_line][*cursor_x - 1], strlen(&text_buffer[*cursor_y - 1 + start_line][*cursor_x - 1]) + 1);
+        memcpy(&text_buffer[*cursor_y - 1 + start_line][*cursor_x - 1], line, len);
+        line = strtok(NULL, "\n");
+        (*cursor_y)++;
+        *cursor_x = 1;
+    }
+}
+
+void handle_selection_mode(int ch, int *cursor_x, int *cursor_y) {
+    switch (ch) {
+        case KEY_UP:
+            if (*cursor_y > 1) (*cursor_y)--;
+            sel_end_y = *cursor_y;
+            break;
+        case KEY_DOWN:
+            if (*cursor_y < LINES - 4) (*cursor_y)++;
+            sel_end_y = *cursor_y;
+            break;
+        case KEY_LEFT:
+            if (*cursor_x > 1) (*cursor_x)--;
+            sel_end_x = *cursor_x;
+            break;
+        case KEY_RIGHT:
+            if (*cursor_x < COLS - 6) (*cursor_x)++;
+            sel_end_x = *cursor_x;
+            break;
+        case 10: // CTRL-J to end selection mode
+            end_selection_mode();
+            break;
+        default:
+            break;
+    }
+}
+
+void disable_ctrl_c_z() {
+    // Ignore SIGINT (CTRL-C)
+    signal(SIGINT, SIG_IGN);
+    // Ignore SIGTSTP (CTRL-Z)
+    signal(SIGTSTP, SIG_IGN);
+}
+
 void initialize() {
     initscr();
     start_color();
@@ -87,6 +168,8 @@ void initialize() {
 
     // Handle window resizing
     signal(SIGWINCH, handle_resize);
+    
+    disable_ctrl_c_z();
 
     // Map escape sequences for CTRL-Left and CTRL-Right to custom key constants
     define_key("\033[1;5D", KEY_CTRL_LEFT); // Escape sequence for CTRL-Left
@@ -108,105 +191,12 @@ void run_editor() {
     wmove(text_win, cursor_x, cursor_y);  // Move cursor after "Input: "
 
     while ((ch = wgetch(text_win)) != 27) { // Exit on ESC key
-        switch (ch) {
-            case KEY_UP:
-                handle_key_up(&cursor_y, &start_line);
-                break;
-            case KEY_DOWN:
-                handle_key_down(&cursor_y, &start_line);
-                break;
-            case KEY_LEFT:
-                handle_key_left(&cursor_x);
-                break;
-            case KEY_RIGHT:
-                handle_key_right(&cursor_x, cursor_y);
-                break;
-            case KEY_BACKSPACE:
-            case 127:
-                handle_key_backspace(&cursor_x, &cursor_y, &start_line);
-                break;
-            case KEY_DC: // Delete key
-                handle_key_delete(&cursor_x, cursor_y);
-                break;
-            case '\n':
-                handle_key_enter(&cursor_x, &cursor_y, &start_line);
-                break;
-            case KEY_PPAGE: // Page Up key
-                handle_key_page_up(&cursor_y, &start_line);
-                break;
-            case KEY_NPAGE: // Page Down key
-                handle_key_page_down(&cursor_y, &start_line);
-                break;
-            case 8: // CTRL-H
-                show_help();
-                // Restore the text window context
-                werase(text_win);
-                box(text_win, 0, 0);
-                draw_text_buffer(text_win);
-                wmove(text_win, cursor_y, cursor_x);
-                wrefresh(text_win);
-                break;
-            case 12: // CTRL-L
-                load_file(NULL);
-                // Restore the text window context
-                werase(text_win);
-                box(text_win, 0, 0);
-                draw_text_buffer(text_win);
-                wmove(text_win, cursor_y, cursor_x);
-                wrefresh(text_win);
-                break;
-            case 15: // CTRL-O
-                save_file_as();
-                // Restore the text window context
-                werase(text_win);
-                box(text_win, 0, 0);
-                draw_text_buffer(text_win);
-                wmove(text_win, cursor_y, cursor_x);
-                wrefresh(text_win);
-                break;
-            case 16: // CTRL-P
-                save_file();
-                // Restore the text window context
-                werase(text_win);
-                box(text_win, 0, 0);
-                draw_text_buffer(text_win);
-                wmove(text_win, cursor_y, cursor_x);
-                wrefresh(text_win);
-                break;
-            case 14: // CTRL-N
-                clear_text_buffer();
-                cursor_x = 1;
-                cursor_y = 1;
-                break;
-            case 18: // CTRL-R
-                redo();
-                break;
-            case 21: // CTRL-U
-                undo();
-                break;
-            case KEY_CTRL_LEFT:  // Handle CTRL-Left arrow
-                handle_ctrl_key_left(&cursor_x);
-                break;
-            case KEY_CTRL_RIGHT: // Handle CTRL-Right arrow
-                handle_ctrl_key_right(&cursor_x, cursor_y);
-                break;
-            case KEY_CTRL_PGUP:  // Handle CTRL-Page Up
-                handle_ctrl_key_pgup(&cursor_y, &start_line);
-                break;
-            case KEY_CTRL_PGDN:  // Handle CTRL-Page Down
-                handle_ctrl_key_pgdn(&cursor_y, &start_line);
-                break;
-            case KEY_CTRL_UP:  // Handle CTRL-Up
-                handle_ctrl_key_up(&cursor_y);
-                break;
-            case KEY_CTRL_DOWN:  // Handle CTRL-Down
-                handle_ctrl_key_down(&cursor_y);
-                break;
-            default:
-                handle_default_key(ch, &cursor_x, cursor_y);
-                break;
+        if (selection_mode) {
+            handle_selection_mode(ch, &cursor_x, &cursor_y);
+        } else {
+            handle_regular_mode(ch, &cursor_x, &cursor_y);
         }
-        update_status_bar(cursor_y, cursor_x);
+        update_status_bar(cursor_y + start_line, cursor_x); // Update status bar with absolute line number
         wmove(text_win, cursor_y, cursor_x);  // Restore cursor position
         wrefresh(text_win);
     }
@@ -251,6 +241,127 @@ void draw_text_buffer(WINDOW *win) {
     wrefresh(win);
 }
 
+void handle_regular_mode(int ch, int *cursor_x, int *cursor_y) {
+    switch (ch) {
+        case KEY_UP:
+            handle_key_up(cursor_y, &start_line);
+            break;
+        case KEY_DOWN:
+            handle_key_down(cursor_y, &start_line);
+            break;
+        case KEY_LEFT:
+            handle_key_left(cursor_x);
+            break;
+        case KEY_RIGHT:
+            handle_key_right(cursor_x, *cursor_y);
+            break;
+        case KEY_BACKSPACE:
+        case 127:
+            handle_key_backspace(cursor_x, cursor_y, &start_line);
+            break;
+        case KEY_DC: // Delete key
+            handle_key_delete(cursor_x, *cursor_y);
+            break;
+        case '\n':
+            handle_key_enter(cursor_x, cursor_y, &start_line);
+            break;
+        case KEY_PPAGE: // Page Up key
+            handle_key_page_up(cursor_y, &start_line);
+            break;
+        case KEY_NPAGE: // Page Down key
+            handle_key_page_down(cursor_y, &start_line);
+            break;
+        case 8: // CTRL-H
+            show_help();
+            // Restore the text window context
+            werase(text_win);
+            box(text_win, 0, 0);
+            draw_text_buffer(text_win);
+            wmove(text_win, *cursor_y, *cursor_x);
+            wrefresh(text_win);
+            break;
+        case 1: // CTRL-A
+            show_about();
+            // Restore the text window context
+            werase(text_win);
+            box(text_win, 0, 0);
+            draw_text_buffer(text_win);
+            wmove(text_win, *cursor_y, *cursor_x);
+            wrefresh(text_win);
+            break;
+        case 12: // CTRL-L
+            load_file(NULL);
+            // Restore the text window context
+            werase(text_win);
+            box(text_win, 0, 0);
+            draw_text_buffer(text_win);
+            wmove(text_win, *cursor_y, *cursor_x);
+            wrefresh(text_win);
+            break;
+        case 15: // CTRL-O
+            save_file_as();
+            // Restore the text window context
+            werase(text_win);
+            box(text_win, 0, 0);
+            draw_text_buffer(text_win);
+            wmove(text_win, *cursor_y, *cursor_x);
+            wrefresh(text_win);
+            break;
+        case 16: // CTRL-P
+            save_file();
+            // Restore the text window context
+            werase(text_win);
+            box(text_win, 0, 0);
+            draw_text_buffer(text_win);
+            wmove(text_win, *cursor_y, *cursor_x);
+            wrefresh(text_win);
+            break;
+        case 13: // CTRL-; to start/stop selection mode
+            if (selection_mode) {
+                end_selection_mode();
+            } else {
+                start_selection_mode(*cursor_x, *cursor_y);
+            }
+            break;
+        case 11: // CTRL-K to paste clipboard
+            paste_clipboard(cursor_x, cursor_y);
+            break;
+        case 14: // CTRL-N
+            clear_text_buffer();
+            *cursor_x = 1;
+            *cursor_y = 1;
+            break;
+        case 18: // CTRL-R
+            redo();
+            break;
+        case 21: // CTRL-U
+            undo();
+            break;
+        case 24: // CTRL-X to quit
+            return;
+        case KEY_CTRL_LEFT:  // Handle CTRL-Left arrow
+            handle_ctrl_key_left(cursor_x);
+            break;
+        case KEY_CTRL_RIGHT: // Handle CTRL-Right arrow
+            handle_ctrl_key_right(cursor_x, *cursor_y);
+            break;
+        case KEY_CTRL_PGUP:  // Handle CTRL-Page Up
+            handle_ctrl_key_pgup(cursor_y, &start_line);
+            break;
+        case KEY_CTRL_PGDN:  // Handle CTRL-Page Down
+            handle_ctrl_key_pgdn(cursor_y, &start_line);
+            break;
+        case KEY_CTRL_UP:  // Handle CTRL-Up
+            handle_ctrl_key_up(cursor_y);
+            break;
+        case KEY_CTRL_DOWN:  // Handle CTRL-Down
+            handle_ctrl_key_down(cursor_y);
+            break;
+        default:
+            handle_default_key(ch, cursor_x, *cursor_y);
+            break;
+    }
+}
 
 void handle_resize(int sig) {
     (void)sig;  // Cast to void to suppress unused parameter warning
@@ -365,7 +476,8 @@ void load_file(const char *filename) {
 void update_status_bar(int cursor_y, int cursor_x) {
     move(LINES - 1, 0);
     clrtoeol();
-    mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", line_count, cursor_y, cursor_x);
+    int actual_line_number = cursor_y + start_line - 1; // Calculate actual line number
+    mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", line_count, actual_line_number, cursor_x);
     refresh();
 }
 

@@ -29,6 +29,7 @@ We've got some cool ideas on our to-do list. No promises, but here's what we're 
 - **Menu System**: Navigate Vento's features through an intuitive menu.
 - **Customizable Configuration**: Tailor Vento to your liking with custom settings.
 - **Command to Delete Current Line**: Quickly delete lines you don't need.
+- **Extensions API**: Create plugins to enhance the editor.
 
 ## Prerequisites
 

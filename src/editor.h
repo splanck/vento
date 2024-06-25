@@ -27,6 +27,23 @@ typedef struct Node {
 #define KEY_CTRL_Q          1007
 #define KEY_CTRL_BACKTICK   30
 
+extern WINDOW *text_win;
+extern char *text_buffer[MAX_LINES];
+extern int line_count;
+extern int start_line;
+extern Node *undo_stack;
+extern Node *redo_stack;
+extern char *clipboard;
+extern bool selection_mode;
+extern int sel_start_x, sel_start_y;
+extern int sel_end_x, sel_end_y;
+
+void start_selection_mode(int cursor_x, int cursor_y);
+void end_selection_mode();
+void copy_selection();
+void paste_clipboard(int *cursor_x, int *cursor_y);
+void handle_selection_mode(int ch, int *cursor_x, int *cursor_y);
+void handle_regular_mode(int ch, int *cursor_x, int *cursor_y);
 void initialize();
 void draw_text_buffer(WINDOW *win);
 void clear_text_buffer();
@@ -46,12 +63,5 @@ void push(Node **stack, Change change);
 Change pop(Node **stack);
 int is_empty(Node *stack);
 void free_stack(Node *stack);
-
-extern WINDOW *text_win;
-extern char *text_buffer[MAX_LINES];
-extern int line_count;
-extern int start_line;
-extern Node *undo_stack;
-extern Node *redo_stack;
 
 #endif

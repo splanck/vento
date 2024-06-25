@@ -44,6 +44,42 @@ void show_help() {
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
 }
 
+void show_about() {
+    // Window size and position adjustments
+    int win_height = 10;
+    int win_width = COLS - 20;
+    int win_y = (LINES - win_height) / 2;
+    int win_x = (COLS - win_width) / 2;
+
+    // Create a temporary window for the about dialog
+    WINDOW *about_win = newwin(win_height, win_width, win_y, win_x);
+    keypad(about_win, TRUE);  // Enable keyboard input for the about dialog
+
+    // Set color pair for the about window
+    wbkgd(about_win, COLOR_PAIR(1));  // Use the defined color pair
+    wrefresh(stdscr);  // Refresh the main screen before drawing the dialog
+
+    // Draw the about dialog borders
+    box(about_win, 0, 0);
+
+    // Print the about information
+    mvwprintw(about_win, 1, 2, "Vento Text Editor");
+    mvwprintw(about_win, 2, 2, "Version: %s", VERSION);
+    mvwprintw(about_win, 3, 2, "License: GPL v3");
+    mvwprintw(about_win, 4, 2, "Vento is open-source software licensed under the GPL v3.");
+
+    // Wait for any keypress to close the dialog
+    mvwprintw(about_win, win_height - 2, 2, "(Press any key to close)");
+    wrefresh(about_win);
+    wgetch(about_win);
+
+    // Clean up the about window
+    wclear(about_win);
+    wrefresh(about_win);
+    delwin(about_win);
+    wrefresh(stdscr);  // Refresh the main screen after closing the dialog
+}
+
 void create_dialog(const char *message, char *output, int max_input_len) {
     // Window size and position adjustments
     int win_y = LINES / 3;
