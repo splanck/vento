@@ -98,68 +98,84 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
     }
 }
 
-void highlight_html_syntax(WINDOW *win, const char *line, int y) {
-    // Example: HTML syntax highlighting
-    // Highlight tags, attributes, etc.
-    int color_set = 0;
-    if (strstr(line, "<") && strstr(line, ">")) {
-        wattron(win, COLOR_PAIR(3));
-        color_set = 1;
-    }
-    mvwprintw(win, y, 1, "%s", line);
-    if (color_set) {
-        wattroff(win, COLOR_PAIR(3));
-    }
-}
-
 void highlight_no_syntax(WINDOW *win, const char *line, int y) {
     mvwprintw(win, y, 1, "%s", line);
 }
 
-void apply_syntax_highlighting_old(WINDOW *win, const char *line, int y) {
+void highlight_html_syntax(WINDOW *win, const char *line, int y) {
     int x = 1;
-    while (*line) {
-        if (strncmp(line, "//", 2) == 0) {
-            wattron(win, COLOR_PAIR(3)); // Use yellow for comments
-            mvwprintw(win, y, x, "%s", line);
-            wattroff(win, COLOR_PAIR(3));
-            break;
-        } else if (*line == '"') {
-            wattron(win, COLOR_PAIR(2)); // Use white for strings
-            mvwaddch(win, y, x, *line);
-            x++;
-            line++;
-            while (*line && *line != '"') {
-                mvwaddch(win, y, x, *line);
-                x++;
-                line++;
-            }
-            if (*line == '"') {
-                mvwaddch(win, y, x, *line);
-                x++;
-                line++;
-            }
-            wattroff(win, COLOR_PAIR(2));
-        } else if (isalpha(*line) || *line == '_') {
-            char word[64];
-            int i = 0;
-            while ((isalpha(*line) || isdigit(*line) || *line == '_') && i < 63) {
-                word[i++] = *line;
-                x++;
-                line++;
-            }
-            word[i] = '\0';
-            if (strcmp(word, "int") == 0 || strcmp(word, "return") == 0 || strcmp(word, "if") == 0) {
-                wattron(win, COLOR_PAIR(1)); // Use blue for keywords
-                mvwprintw(win, y, x - i, "%s", word);
-                wattroff(win, COLOR_PAIR(1));
+    int i = 0;
+    int len = strlen(line);
+
+    while (i < len) {
+        if (isspace(line[i])) {
+            // Print spaces as is
+            mvwprintw(win, y, x++, "%c", line[i++]);
+        } else if (line[i] == '<') {
+            // Highlight tags and comments
+            if (line[i+1] == '!' && line[i+2] == '-' && line[i+3] == '-') {
+                // Comment
+                wattron(win, COLOR_PAIR(5));
+                mvwprintw(win, y, x++, "%c", line[i++]);
+                mvwprintw(win, y, x++, "%c", line[i++]);
+                mvwprintw(win, y, x++, "%c", line[i++]);
+                while (i < len && !(line[i] == '-' && line[i+1] == '-' && line[i+2] == '>')) {
+                    mvwprintw(win, y, x++, "%c", line[i++]);
+                }
+                if (i < len) {
+                    mvwprintw(win, y, x++, "%c", line[i++]);
+                    mvwprintw(win, y, x++, "%c", line[i++]);
+                    mvwprintw(win, y, x++, "%c", line[i++]);
+                }
+                wattroff(win, COLOR_PAIR(5));
             } else {
-                mvwprintw(win, y, x - i, "%s", word);
+                // Tag
+                wattron(win, COLOR_PAIR(2));
+                mvwprintw(win, y, x++, "%c", line[i++]);
+                while (i < len && !isspace(line[i]) && line[i] != '>' && line[i] != '/') {
+                    mvwprintw(win, y, x++, "%c", line[i++]);
+                }
+                wattroff(win, COLOR_PAIR(2));
+
+                // Attributes and values within the tag
+                while (i < len && line[i] != '>') {
+                    if (isspace(line[i])) {
+                        mvwprintw(win, y, x++, "%c", line[i++]);
+                    } else if (isalpha(line[i])) {
+                        // Attribute
+                        wattron(win, COLOR_PAIR(3));
+                        while (i < len && (isalnum(line[i]) || line[i] == '-' || line[i] == '_')) {
+                            mvwprintw(win, y, x++, "%c", line[i++]);
+                        }
+                        wattroff(win, COLOR_PAIR(3));
+                    } else if (line[i] == '=') {
+                        mvwprintw(win, y, x++, "%c", line[i++]);
+                        // Value
+                        if (line[i] == '"' || line[i] == '\'') {
+                            char quote = line[i];
+                            wattron(win, COLOR_PAIR(4));
+                            mvwprintw(win, y, x++, "%c", line[i++]);
+                            while (i < len && line[i] != quote) {
+                                mvwprintw(win, y, x++, "%c", line[i++]);
+                            }
+                            if (i < len) {
+                                mvwprintw(win, y, x++, "%c", line[i++]);
+                            }
+                            wattroff(win, COLOR_PAIR(4));
+                        }
+                    } else {
+                        mvwprintw(win, y, x++, "%c", line[i++]);
+                    }
+                }
+                if (i < len) {
+                    wattron(win, COLOR_PAIR(2));
+                    mvwprintw(win, y, x++, "%c", line[i++]);
+                    wattroff(win, COLOR_PAIR(2));
+                }
             }
         } else {
-            mvwaddch(win, y, x, *line);
-            x++;
-            line++;
+            // Print any other characters as is
+            mvwprintw(win, y, x++, "%c", line[i++]);
         }
     }
 }
