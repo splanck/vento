@@ -14,7 +14,7 @@ Here's what Vento can do right now:
 - **Scroll Bar**: See how far you've scrolled through your document.
 - **Help Screen**: Press `CTRL-H` for a quick guide to Vento's features.
 - **Save Feature**: Save your changes without having to re-enter the filename every time.
-- **Basic Syntax Highlighting**: Enjoy very basic poorly implemented syntax highlighting.
+- **Basic Syntax Highlighting**: Enjoy very basic C and HTML syntax highlighting.
 - **Undo and Redo**: Because mistakes happen, and fixing them should be easy.
 
 ## What's Coming Up (Maybe)
@@ -54,7 +54,7 @@ Ready to give Vento a try? Here's how to get started:
 git clone https://github.com/yourusername/vento.git
 cd vento
 make
-make install
+sudo make install
 ```
 
 Thanks for checking out Vento! Happy editing!
