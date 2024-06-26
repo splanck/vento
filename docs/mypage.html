@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syntax Highlighting Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border: 1px solid #ccc;
+            overflow: auto;
+        }
+        .keyword {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .string {
+            color: #28a745;
+        }
+        .comment {
+            color: #6c757d;
+            font-style: italic;
+        }
+        .number {
+            color: #e83e8c;
+        }
+    </style>
+</head>
+<body>
+    <h1>Syntax Highlighting Test</h1>
+    <p>This is a simple HTML document to test syntax highlighting.</p>
+    <pre>
+        <code>
+            <span class="comment">&lt;!-- This is an HTML comment --&gt;</span>
+            <span class="keyword">&lt;!DOCTYPE html&gt;</span>
+            <span class="keyword">&lt;html&gt;</span>
+            <span class="keyword">&lt;head&gt;</span>
+            <span class="keyword">&lt;title&gt;</span>Syntax Highlighting Test<span class="keyword">&lt;/title&gt;</span>
+            <span class="keyword">&lt;style&gt;</span>
+            body {<br>
+                <span class="keyword">font-family:</span> Arial, sans-serif;<br>
+                <span class="keyword">margin:</span> <span class="number">20px</span>;<br>
+            }<br>
+            <span class="keyword">&lt;/style&gt;</span>
+            <span class="keyword">&lt;/head&gt;</span>
+            <span class="keyword">&lt;body&gt;</span>
+            <span class="keyword">&lt;h1&gt;</span>Hello, World!<span class="keyword">&lt;/h1&gt;</span><br>
+            <span class="keyword">&lt;p&gt;</span>This is a paragraph.<span class="keyword">&lt;/p&gt;</span><br>
+            <span class="keyword">&lt;pre&gt;</span><span class="keyword">&lt;code&gt;</span><br>
+            <span class="comment">// This is a comment in JavaScript</span><br>
+            <span class="keyword">const</span> message = <span class="string">'Hello, Syntax Highlighting!'</span>;<br>
+            <span class="keyword">console.log</span>(message);<br>
+            <span class="keyword">&lt;/code&gt;</span><span class="keyword">&lt;/pre&gt;</span><br>
+            <span class="keyword">&lt;/body&gt;</span>
+            <span class="keyword">&lt;/html&gt;</span>
+        </code>
+    </pre>
+</body>
+</html>

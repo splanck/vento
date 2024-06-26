@@ -158,12 +158,10 @@ void initialize() {
     noecho();
     keypad(stdscr, TRUE);
 
-    init_pair(1, COLOR_WHITE, COLOR_BLUE);   // Background color
-    init_pair(2, COLOR_CYAN, COLOR_BLACK);   // Keywords
-    init_pair(3, COLOR_GREEN, COLOR_BLACK);  // Comments
-    init_pair(4, COLOR_YELLOW, COLOR_BLACK); // Strings
-    init_pair(5, COLOR_MAGENTA, COLOR_BLACK); // Types
-    init_pair(6, COLOR_RED, COLOR_BLACK);    // Symbols (braces, parentheses)
+    init_pair(1, COLOR_WHITE, COLOR_BLUE);
+    init_pair(2, COLOR_BLACK, COLOR_WHITE);
+    init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(4, COLOR_WHITE, COLOR_BLUE); // White text on blue background
 
     bkgd(COLOR_PAIR(1));
     refresh();
@@ -434,21 +432,6 @@ void save_file_as() {
     refresh();
 }
 
-void set_syntax_mode(const char *filename) {
-    const char *ext = strrchr(filename, '.');
-    if (ext) {
-        if (strcmp(ext, ".c") == 0 || strcmp(ext, ".h") == 0) {
-            current_syntax_mode = C_SYNTAX;
-        } else if (strcmp(ext, ".html") == 0 || strcmp(ext, ".htm") == 0) {
-            current_syntax_mode = HTML_SYNTAX;
-        } else {
-            current_syntax_mode = NO_SYNTAX;
-        }
-    } else {
-        current_syntax_mode = NO_SYNTAX;
-    }
-}
-
 void load_file(const char *filename) {
     char file_to_load[256];
 
@@ -458,7 +441,6 @@ void load_file(const char *filename) {
         filename = file_to_load;
     }
 
-    set_syntax_mode(filename);
     initialize_buffer();  // Ensure buffer is initialized
 
     FILE *fp = fopen(filename, "r");
@@ -507,7 +489,7 @@ void load_file(const char *filename) {
 void update_status_bar(int cursor_y, int cursor_x) {
     move(LINES - 1, 0);
     clrtoeol();
-    int actual_line_number = cursor_y + start_line; // Calculate actual line number
+    int actual_line_number = cursor_y + start_line - 1; // Calculate actual line number
     mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", line_count, actual_line_number, cursor_x);
     refresh();
 }

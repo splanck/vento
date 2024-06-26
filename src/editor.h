@@ -44,6 +44,7 @@ void copy_selection();
 void paste_clipboard(int *cursor_x, int *cursor_y);
 void handle_selection_mode(int ch, int *cursor_x, int *cursor_y);
 void handle_regular_mode(int ch, int *cursor_x, int *cursor_y);
+void set_syntax_mode(const char *filename);
 void initialize();
 void draw_text_buffer(WINDOW *win);
 void clear_text_buffer();
