@@ -192,3 +192,62 @@ void handle_default_key(int ch, int *cursor_x, int cursor_y) {
     box(text_win, 0, 0);
     draw_text_buffer(text_win);
 }
+
+void move_forward_to_next_word(int *cursor_x, int *cursor_y) {
+    while (*cursor_y - 1 + start_line < line_count) {
+        char *line = text_buffer[*cursor_y - 1 + start_line];
+        int len = strlen(line);
+
+        // Move cursor to the end of the current word
+        while (*cursor_x < len && isalnum(line[*cursor_x - 1])) {
+            (*cursor_x)++;
+        }
+
+        // Move cursor to the beginning of the next word
+        while (*cursor_x < len && !isalnum(line[*cursor_x - 1])) {
+            (*cursor_x)++;
+        }
+
+        // If the cursor is within the line, break the loop
+        if (*cursor_x < len) {
+            return;
+        }
+
+        // Move to the start of the next line
+        *cursor_x = 1;
+        (*cursor_y)++;
+    }
+}
+
+void move_backward_to_previous_word(int *cursor_x, int *cursor_y) {
+    while (*cursor_y - 1 + start_line >= 0) {
+        char *line = text_buffer[*cursor_y - 1 + start_line];
+
+        // Move cursor to the beginning of the current word
+        while (*cursor_x > 1 && isalnum(line[*cursor_x - 2])) {
+            (*cursor_x)--;
+        }
+
+        // Move cursor to the beginning of the previous word
+        while (*cursor_x > 1 && !isalnum(line[*cursor_x - 2])) {
+            (*cursor_x)--;
+        }
+
+        // If the cursor is within the line, break the loop
+        if (*cursor_x > 1) {
+            return;
+        }
+
+        // Move to the end of the previous line
+        if (*cursor_y > 1) {
+            (*cursor_y)--;
+            line = text_buffer[*cursor_y - 1 + start_line];
+            *cursor_x = strlen(line) + 1;
+        } else {
+            *cursor_x = 1;
+            break;
+        }
+    }
+}
+
+

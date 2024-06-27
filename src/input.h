@@ -18,5 +18,7 @@ void handle_ctrl_key_pgdn(int *cursor_y, int *start_line);
 void handle_ctrl_key_up(int *cursor_y);
 void handle_ctrl_key_down(int *cursor_y);
 void handle_default_key(int ch, int *cursor_x, int cursor_y);
+void move_forward_to_next_word(int *cursor_x, int *cursor_y);
+void move_backward_to_previous_word(int *cursor_x, int *cursor_y);
 
 #endif

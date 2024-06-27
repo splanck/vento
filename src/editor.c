@@ -39,6 +39,10 @@ void push(Node **stack, Change change) {
 }
 
 Change pop(Node **stack) {
+    if (*stack == NULL) {
+        Change empty_change = {0, NULL, NULL};
+        return empty_change;
+    }
     Node *top = *stack;
     Change change = top->change;
     *stack = top->next;
@@ -51,29 +55,39 @@ int is_empty(Node *stack) {
 }
 
 void undo() {
-    if (!is_empty(undo_stack)) {
-        Change change = pop(&undo_stack);
-        push(&redo_stack, (Change){ change.line, strdup(text_buffer[change.line]), strdup(change.old_text) });
+    if (undo_stack == NULL) return;
+    Change change = pop(&undo_stack);
+    
+    if (change.old_text) {
+        // Shift lines down to make space for the restored line
+        for (int i = line_count; i > change.line; --i) {
+            strcpy(text_buffer[i], text_buffer[i - 1]);
+        }
+        line_count++;
+
+        // Restore the old state
         strcpy(text_buffer[change.line], change.old_text);
+        push(&redo_stack, (Change){change.line, strdup(change.old_text), NULL});
         free(change.old_text);
-        free(change.new_text);
-        werase(text_win);
-        box(text_win, 0, 0);
-        draw_text_buffer(text_win);
     }
+
+    werase(text_win);
+    box(text_win, 0, 0);
+    draw_text_buffer(text_win);
 }
 
 void redo() {
-    if (!is_empty(redo_stack)) {
-        Change change = pop(&redo_stack);
-        push(&undo_stack, (Change){ change.line, strdup(text_buffer[change.line]), strdup(change.new_text) });
+    if (redo_stack == NULL) return;
+    Change change = pop(&redo_stack);
+    if (change.new_text) {
+        // Restore the new state
+        push(&undo_stack, (Change){change.line, strdup(text_buffer[change.line]), strdup(change.new_text)});
         strcpy(text_buffer[change.line], change.new_text);
-        free(change.old_text);
         free(change.new_text);
-        werase(text_win);
-        box(text_win, 0, 0);
-        draw_text_buffer(text_win);
     }
+    werase(text_win);
+    box(text_win, 0, 0);
+    draw_text_buffer(text_win);
 }
 
 void start_selection_mode(int cursor_x, int cursor_y) {
@@ -142,6 +156,42 @@ void handle_selection_mode(int ch, int *cursor_x, int *cursor_y) {
         default:
             break;
     }
+}
+
+void delete_current_line(int *cursor_y, int *start_line) {
+    if (line_count == 0) {
+        return;
+    }
+
+    int line_to_delete = *cursor_y - 1 + *start_line;
+
+    // Push the current state to the undo stack
+    push(&undo_stack, (Change){line_to_delete, strdup(text_buffer[line_to_delete]), NULL});
+
+    // Shift lines up to delete the current line
+    for (int i = line_to_delete; i < line_count - 1; ++i) {
+        strcpy(text_buffer[i], text_buffer[i + 1]);
+    }
+
+    // Clear the last line
+    memset(text_buffer[line_count - 1], 0, COLS - 3);
+    line_count--;
+
+    // Move cursor to the next line if possible
+    if (*cursor_y < LINES - 4 && *cursor_y <= line_count) {
+        // Move to the next line
+    } else if (*start_line + *cursor_y > line_count) {
+        // Move up if at the end of the document
+        if (*cursor_y > 1) {
+            (*cursor_y)--;
+        } else if (*start_line > 0) {
+            (*start_line)--;
+        }
+    }
+
+    werase(text_win);
+    box(text_win, 0, 0);
+    draw_text_buffer(text_win);
 }
 
 void disable_ctrl_c_z() {
@@ -290,6 +340,15 @@ void handle_regular_mode(int ch, int *cursor_x, int *cursor_y) {
             draw_text_buffer(text_win);
             wmove(text_win, *cursor_y, *cursor_x);
             wrefresh(text_win);
+            break;
+        case 4: // CTRL-D to delete current line
+            delete_current_line(cursor_y, &start_line);
+            break;
+        case 6: // CTRL-F to move forward to the next word
+            move_forward_to_next_word(cursor_x, cursor_y);
+            break;
+        case 2: // CTRL-B to move backward to the previous word
+            move_backward_to_previous_word(cursor_x, cursor_y);
             break;
         case 12: // CTRL-L
             load_file(NULL);
