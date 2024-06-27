@@ -57,8 +57,9 @@ int is_empty(Node *stack) {
 void undo() {
     if (undo_stack == NULL) return;
     Change change = pop(&undo_stack);
-    
+
     if (change.old_text) {
+        // If old_text is not NULL, it means we are restoring a modified line
         // Shift lines down to make space for the restored line
         for (int i = line_count; i > change.line; --i) {
             strcpy(text_buffer[i], text_buffer[i - 1]);
@@ -69,12 +70,23 @@ void undo() {
         strcpy(text_buffer[change.line], change.old_text);
         push(&redo_stack, (Change){change.line, strdup(change.old_text), NULL});
         free(change.old_text);
+    } else {
+        // If old_text is NULL, it means we are undoing an inserted line
+        // Shift lines up to remove the inserted line
+        for (int i = change.line; i < line_count - 1; ++i) {
+            strcpy(text_buffer[i], text_buffer[i + 1]);
+        }
+        text_buffer[line_count - 1][0] = '\0';
+        line_count--;
+        push(&redo_stack, change);
     }
 
     werase(text_win);
     box(text_win, 0, 0);
     draw_text_buffer(text_win);
+    wrefresh(text_win);
 }
+
 
 void redo() {
     if (redo_stack == NULL) return;
@@ -193,6 +205,52 @@ void delete_current_line(int *cursor_y, int *start_line) {
     box(text_win, 0, 0);
     draw_text_buffer(text_win);
 }
+
+void insert_new_line(int *cursor_x, int *cursor_y, int *start_line) {
+    if (line_count < MAX_LINES - 1) {
+        // Move lines below the cursor down by one
+        for (int i = line_count; i > *cursor_y + *start_line - 1; --i) {
+            strcpy(text_buffer[i], text_buffer[i - 1]);
+        }
+        line_count++;
+
+        // Insert a new empty line at the current cursor position
+        text_buffer[*cursor_y + *start_line - 1][0] = '\0';
+
+        // Record the change for undo
+        Change change;
+        change.line = *cursor_y + *start_line - 1;
+        change.old_text = NULL;
+        change.new_text = strdup("");
+
+        push(&undo_stack, change);
+
+        // Move cursor to the new line
+        *cursor_x = 1;
+
+        // Adjust cursor_y and start_line
+        if (*cursor_y == LINES - 4 && *start_line + LINES - 4 < line_count) {
+            (*start_line)++;
+        } else {
+            (*cursor_y)++;
+        }
+
+        // Clear and redraw the text window
+        werase(text_win);
+        box(text_win, 0, 0);
+        draw_text_buffer(text_win);
+        wmove(text_win, *cursor_y, *cursor_x);
+        wrefresh(text_win);
+
+        // Move the cursor up one line
+        if (*cursor_y > 1) {
+            (*cursor_y)--;
+        } else if (*start_line > 0) {
+            (*start_line)--;
+        }
+    }
+}
+
 
 void disable_ctrl_c_z() {
     // Ignore SIGINT (CTRL-C)
@@ -343,6 +401,9 @@ void handle_regular_mode(int ch, int *cursor_x, int *cursor_y) {
             break;
         case 4: // CTRL-D to delete current line
             delete_current_line(cursor_y, &start_line);
+            break;
+        case 9: // CTRL-I to insert a new line
+            insert_new_line(cursor_x, cursor_y, &start_line);
             break;
         case 6: // CTRL-F to move forward to the next word
             move_forward_to_next_word(cursor_x, cursor_y);
