@@ -16,6 +16,9 @@ Here's what Vento can do right now:
 - **Save Feature**: Save your changes without having to re-enter the filename every time.
 - **Basic Syntax Highlighting**: Enjoy very basic C and HTML syntax highlighting.
 - **Undo and Redo**: Because mistakes happen, and fixing them should be easy.
+- **About Box**: Press `CTRL-A` to see information about the product, version, and GPL message.
+- **Delete Current Line**: Press `CTRL-D` to delete the current line.
+- **Word Navigation**: Use `CTRL-F` to move forward to the next word and `CTRL-B` to move backward to the previous word.
 
 ## What's Coming Up (Maybe)
 
@@ -28,7 +31,6 @@ We've got some cool ideas on our to-do list. No promises, but here's what we're 
 - **Git Integration**: Seamlessly integrate with Git for version control.
 - **Menu System**: Navigate Vento's features through an intuitive menu.
 - **Customizable Configuration**: Tailor Vento to your liking with custom settings.
-- **Command to Delete Current Line**: Quickly delete lines you don't need.
 - **Extensions API**: Create plugins to enhance the editor.
 
 ## Prerequisites
