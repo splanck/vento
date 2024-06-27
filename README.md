@@ -24,13 +24,13 @@ Here's what Vento can do right now:
 
 We've got some cool ideas on our to-do list. No promises, but here's what we're thinking:
 
-- **Syntax Highlighting**: Proper syntax highlighting support.
 - **Support Multiple Files**: Work on several files at once without breaking a sweat.
 - **Spell Checker Support**: Catch those pesky typos automatically.
 - **Copy and Paste**: Basic clipboard functionality to move text around.
 - **Git Integration**: Seamlessly integrate with Git for version control.
 - **Menu System**: Navigate Vento's features through an intuitive menu.
 - **Customizable Configuration**: Tailor Vento to your liking with custom settings.
+- **Macro Support**: Support for configurable keyboard macros.
 - **Extensions API**: Create plugins to enhance the editor.
 
 ## Prerequisites
