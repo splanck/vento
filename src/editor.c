@@ -273,6 +273,8 @@ void initialize() {
     init_pair(5, COLOR_MAGENTA, COLOR_BLACK); // Types
     init_pair(6, COLOR_RED, COLOR_BLACK);    // Symbols (braces, parentheses)
 
+    read_config_file();
+
     bkgd(COLOR_PAIR(1));
     refresh();
 
