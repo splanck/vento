@@ -19,6 +19,7 @@ Here's what Vento can do right now:
 - **About Box**: Press `CTRL-A` to see information about the product, version, and GPL message.
 - **Delete Current Line**: Press `CTRL-D` to delete the current line.
 - **Word Navigation**: Use `CTRL-F` to move forward to the next word and `CTRL-B` to move backward to the previous word.
+- **Customizable Configuration**: Tailor Vento to your liking with custom settings.
 
 ## What's Coming Up (Maybe)
 
@@ -29,7 +30,6 @@ We've got some cool ideas on our to-do list. No promises, but here's what we're 
 - **Copy and Paste**: Basic clipboard functionality to move text around.
 - **Git Integration**: Seamlessly integrate with Git for version control.
 - **Menu System**: Navigate Vento's features through an intuitive menu.
-- **Customizable Configuration**: Tailor Vento to your liking with custom settings.
 - **Macro Support**: Support for configurable keyboard macros.
 - **Extensions API**: Create plugins to enhance the editor.
 

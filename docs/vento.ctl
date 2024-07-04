@@ -1,4 +1,4 @@
-background_color=WHITE
+background_color=BLUE
 keyword_color=CYAN
 comment_color=GREEN
 string_color=YELLOW

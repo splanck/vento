@@ -261,7 +261,14 @@ void disable_ctrl_c_z() {
 
 void initialize() {
     initscr();
-    start_color();
+    read_config_file();
+
+    if (enable_color) {
+        start_color();
+        read_config_file();
+        bkgd(COLOR_PAIR(1));
+    }
+
     cbreak();
     noecho();
     keypad(stdscr, TRUE);
@@ -272,8 +279,6 @@ void initialize() {
     init_pair(4, COLOR_YELLOW, COLOR_BLACK); // Strings
     init_pair(5, COLOR_MAGENTA, COLOR_BLACK); // Types
     init_pair(6, COLOR_RED, COLOR_BLACK);    // Symbols (braces, parentheses)
-
-    read_config_file();
 
     bkgd(COLOR_PAIR(1));
     refresh();
