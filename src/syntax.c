@@ -10,6 +10,10 @@ void set_syntax_highlighting(int mode) {
     current_syntax_mode = mode;
 }
 
+void highlight_no_syntax(WINDOW *win, const char *line, int y) {
+    mvwprintw(win, y, 1, "%s", line);
+}
+
 void apply_syntax_highlighting(WINDOW *win, const char *line, int y) {
     switch (current_syntax_mode) {
         case C_SYNTAX:
@@ -96,10 +100,6 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
             mvwprintw(win, y, x++, "%c", line[i++]);
         }
     }
-}
-
-void highlight_no_syntax(WINDOW *win, const char *line, int y) {
-    mvwprintw(win, y, 1, "%s", line);
 }
 
 void highlight_html_syntax(WINDOW *win, const char *line, int y) {

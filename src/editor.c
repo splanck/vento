@@ -8,6 +8,7 @@
 #include "input.h"
 #include "ui.h"
 #include "syntax.h"
+#include "menu.h"
 #include "config.h"
 
 char *strdup(const char *s);  // Explicitly declare strdup
@@ -251,7 +252,6 @@ void insert_new_line(int *cursor_x, int *cursor_y, int *start_line) {
     }
 }
 
-
 void disable_ctrl_c_z() {
     // Ignore SIGINT (CTRL-C)
     signal(SIGINT, SIG_IGN);
@@ -265,13 +265,16 @@ void initialize() {
 
     if (enable_color) {
         start_color();
-        read_config_file();
-        bkgd(COLOR_PAIR(1));
     }
 
     cbreak();
     noecho();
     keypad(stdscr, TRUE);
+    meta(stdscr, TRUE);  // Enable 8-bit control characters
+    keypad(text_win, TRUE);
+    meta(text_win, TRUE);  // Enable 8-bit control characters for text_win
+
+    read_config_file();
 
     init_pair(1, COLOR_WHITE, COLOR_BLUE);   // Background color
     init_pair(2, COLOR_CYAN, COLOR_BLACK);   // Keywords
@@ -299,17 +302,41 @@ void initialize() {
     // Map escape sequences for CTRL-Up and CTRL-Down to custom key constants
     define_key("\033[1;5A", KEY_CTRL_UP);  // Escape sequence for CTRL-Up
     define_key("\033[1;5B", KEY_CTRL_DOWN);  // Escape sequence for CTRL-Down
+
+    // Map CTRL-T to custom key constant
+    define_key("\024", KEY_CTRL_T); // \024 is the octal for CTRL-T
+
+    initializeMenus();
 }
 
 void run_editor() {
     int ch;
     int cursor_x = 1, cursor_y = 1;
+    int currentMenu = 0;
+    int currentItem = 0;
 
     wmove(text_win, cursor_x, cursor_y);  // Move cursor after "Input: "
 
     while ((ch = wgetch(text_win)) != 27) { // Exit on ESC key
+        if (ch == ERR) {
+            continue; // Handle any errors or no input case
+        }
+
+        mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
+        refresh();
+        
         if (selection_mode) {
             handle_selection_mode(ch, &cursor_x, &cursor_y);
+        } else if (ch == KEY_CTRL_T) { // CTRL-T
+            mvprintw(LINES - 1, 0, "CTRL-T captured"); // Add this line for debugging
+            refresh();
+            handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
+            // Redraw the editor screen after closing the menu
+            werase(text_win);
+            box(text_win, 0, 0);
+            draw_text_buffer(text_win);
+            wmove(text_win, cursor_y, cursor_x);
+            wrefresh(text_win);
         } else {
             handle_regular_mode(ch, &cursor_x, &cursor_y);
         }

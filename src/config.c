@@ -39,7 +39,7 @@ void read_config_file() {
     struct passwd *pw = getpwuid(getuid());
     const char *homedir = pw->pw_dir;
     char filepath[256];
-    snprintf(filepath, sizeof(filepath), "%s/.ventorc", homedir);
+    snprintf(filepath, sizeof(filepath), "%s/ventorc", homedir);
 
     FILE *file = fopen(filepath, "r");
     if (!file) {
@@ -62,6 +62,7 @@ void read_config_file() {
             if (strcmp(key, "enable_color") == 0) {
                 if (strcmp(value, "true") == 0) {
                     enable_color = 1;
+                    start_color();
                 } else {
                     enable_color = 0;
                 }
@@ -94,6 +95,5 @@ void read_config_file() {
             }
         }
     }
-
     fclose(file);
 }

@@ -26,6 +26,7 @@ typedef struct Node {
 #define KEY_CTRL_DOWN       1005
 #define KEY_CTRL_Q          1007
 #define KEY_CTRL_BACKTICK   30
+#define KEY_CTRL_T          20
 
 extern WINDOW *text_win;
 extern char *text_buffer[MAX_LINES];
