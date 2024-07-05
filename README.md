@@ -2,36 +2,42 @@
 
 Welcome to Vento, the lightweight text editor that's all about keeping things simple and easy to use. Whether you're coding, jotting down notes, or working on your next big writing project, Vento has got you covered.
 
-## Features We've Got So Far
+> **DISCLAIMER:**
+> 
+> Vento is currently in development and should not be considered stable software. This project is under active construction, and as such, it likely contains bugs, incomplete features, and unstable behavior. Use at your own risk. We do not recommend relying on Vento for critical or production use at this time.
+>
+> We appreciate any feedback, bug reports, or contributions to help improve the project. Thank you for your understanding and support!
 
-Here's what Vento can do right now:
+## Current Features
 
-- **Basic Editor**: The essentials are here. Open up Vento and start typing away.
-- **Load Files**: Open and edit your existing files without any hassle.
-- **Save As**: Save your work with a new filename whenever you need to.
-- **Status Bar**: Keep track of where you are in your document with our handy status bar.
-- **Create New File**: Start fresh with a new file in just a few keystrokes.
-- **Scroll Bar**: See how far you've scrolled through your document.
-- **Help Screen**: Press `CTRL-H` for a quick guide to Vento's features.
-- **Save Feature**: Save your changes without having to re-enter the filename every time.
-- **Basic Syntax Highlighting**: Enjoy very basic C and HTML syntax highlighting.
-- **Undo and Redo**: Because mistakes happen, and fixing them should be easy.
-- **About Box**: Press `CTRL-A` to see information about the product, version, and GPL message.
+Vento currently supports the following features:
+
+- **Basic Editor**: Provides essential text editing capabilities.
+- **Load Files**: Open and edit existing files.
+- **Create New File**: Start a new document easily.
+- **Save As**: Save your work with a new filename.
+- **Save Feature**: Save changes without being prompted for a filename each time.
+- **Undo and Redo**: Undo and redo actions to correct mistakes.
 - **Delete Current Line**: Press `CTRL-D` to delete the current line.
-- **Word Navigation**: Use `CTRL-F` to move forward to the next word and `CTRL-B` to move backward to the previous word.
-- **Customizable Configuration**: Tailor Vento to your liking with custom settings.
+- **Word Navigation**: Use `CTRL-F` to move to the next word and `CTRL-B` to move to the previous word.
+- **Customizable Configuration**: Customize settings through a configuration file.
+- **Basic Syntax Highlighting**: Simple syntax highlighting for C and HTML files.
+- **Status Bar**: Displays the current line and column number.
+- **Scroll Bar**: Indicates your position within the document.
+- **Help Screen**: Press `CTRL-H` for a guide to Vento's features.
+- **About Box**: Press `CTRL-A` to view product information, version, and GPL message.
 
-## What's Coming Up (Maybe)
+## Planned Features
 
-We've got some cool ideas on our to-do list. No promises, but here's what we're thinking:
+The following features are planned for future releases:
 
-- **Support Multiple Files**: Work on several files at once without breaking a sweat.
-- **Spell Checker Support**: Catch those pesky typos automatically.
-- **Copy and Paste**: Basic clipboard functionality to move text around.
-- **Git Integration**: Seamlessly integrate with Git for version control.
-- **Menu System**: Navigate Vento's features through an intuitive menu.
-- **Macro Support**: Support for configurable keyboard macros.
-- **Extensions API**: Create plugins to enhance the editor.
+- **Support Multiple Files**: Work on multiple files simultaneously.
+- **Copy and Paste**: Enhanced clipboard functionality for text movement.
+- **Spell Checker Support**: Automatically detect and correct typos.
+- **Git Integration**: Integrate with Git for version control.
+- **Menu System**: Intuitive menu navigation for editor features.
+- **Macro Support**: Configurable keyboard macros for repetitive tasks.
+- **Extensions API**: Plugin support to extend editor capabilities.
 
 ## Prerequisites
 
