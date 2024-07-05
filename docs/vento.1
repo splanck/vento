@@ -1,4 +1,4 @@
-.TH VENTO 1 "June 2024" "1.0" "Vento Manual"
+.TH VENTO 1 "July 2024" "0.1" "Vento Manual"
 .SH NAME
 vento \- a simple text editor
 
@@ -36,6 +36,18 @@ Scroll bar: Visual indicator for navigation within the document.
 Help screen: Access help information with keyboard shortcuts.
 .IP \[bu] 2
 Save feature: Save the current document without prompting for a new filename if it has already been saved.
+.IP \[bu] 2
+Basic syntax highlighting: Basic highlighting for C and HTML files.
+.IP \[bu] 2
+Undo and redo: Support for undo and redo actions.
+.IP \[bu] 2
+About box: Display product name, version, and GPL message.
+.IP \[bu] 2
+Delete current line: Delete the current line and move the cursor to the next line if it exists.
+.IP \[bu] 2
+Word navigation: Move forward to the next word or backward to the previous word.
+.IP \[bu] 2
+Customizable configuration: Allow custom settings via a configuration file.
 
 .SH KEYBOARD SHORTCUTS
 .TP 
@@ -81,6 +93,9 @@ Move the cursor backward to the beginning of the previous word.
 .B CTRL-D
 Delete the current line and move the cursor to the next line if it exists.
 .TP 
+.B CTRL-T
+Activate the menu system.
+.TP 
 .B Arrow Keys
 Navigate through the text.
 .TP 
@@ -112,10 +127,6 @@ Open a file named "example.txt" for editing:
 
 .SH PLANNED FEATURES
 .IP \[bu] 2
-Undo and redo: Enhanced undo and redo functionality.
-.IP \[bu] 2
-Syntax highlighting: Color-coded text for programming languages.
-.IP \[bu] 2
 Support for multiple files: Open and manage multiple files simultaneously.
 .IP \[bu] 2
 Spell checker support: Integrated spell checking for documents.
@@ -126,7 +137,9 @@ Git integration: Version control integration with Git.
 .IP \[bu] 2
 Menu system: Graphical menu for easy access to features.
 .IP \[bu] 2
-Customizable configuration: User-defined settings and preferences.
+Macro support: Configurable keyboard macros.
+.IP \[bu] 2
+Extensions API: Create plugins to enhance the editor.
 
 .SH AUTHOR
 The Vento Team
