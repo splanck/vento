@@ -88,7 +88,6 @@ void undo() {
     wrefresh(text_win);
 }
 
-
 void redo() {
     if (redo_stack == NULL) return;
     Change change = pop(&redo_stack);
@@ -237,11 +236,7 @@ void insert_new_line(int *cursor_x, int *cursor_y, int *start_line) {
         }
 
         // Clear and redraw the text window
-        werase(text_win);
-        box(text_win, 0, 0);
-        draw_text_buffer(text_win);
-        wmove(text_win, *cursor_y, *cursor_x);
-        wrefresh(text_win);
+        redraw(cursor_x, cursor_y);
 
         // Move the cursor up one line
         if (*cursor_y > 1) {
@@ -332,11 +327,7 @@ void run_editor() {
             refresh();
             handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
             // Redraw the editor screen after closing the menu
-            werase(text_win);
-            box(text_win, 0, 0);
-            draw_text_buffer(text_win);
-            wmove(text_win, cursor_y, cursor_x);
-            wrefresh(text_win);
+            redraw(&cursor_x, &cursor_y);
         } else {
             handle_regular_mode(ch, &cursor_x, &cursor_y);
         }
@@ -414,24 +405,15 @@ void handle_regular_mode(int ch, int *cursor_x, int *cursor_y) {
             break;
         case KEY_NPAGE: // Page Down key
             handle_key_page_down(cursor_y, &start_line);
+            redraw(cursor_x, cursor_y);
             break;
         case 8: // CTRL-H
             show_help();
-            // Restore the text window context
-            werase(text_win);
-            box(text_win, 0, 0);
-            draw_text_buffer(text_win);
-            wmove(text_win, *cursor_y, *cursor_x);
-            wrefresh(text_win);
+            redraw(cursor_x, cursor_y);
             break;
         case 1: // CTRL-A
             show_about();
-            // Restore the text window context
-            werase(text_win);
-            box(text_win, 0, 0);
-            draw_text_buffer(text_win);
-            wmove(text_win, *cursor_y, *cursor_x);
-            wrefresh(text_win);
+            redraw(cursor_x, cursor_y);
             break;
         case 4: // CTRL-D to delete current line
             delete_current_line(cursor_y, &start_line);
@@ -447,30 +429,15 @@ void handle_regular_mode(int ch, int *cursor_x, int *cursor_y) {
             break;
         case 12: // CTRL-L
             load_file(NULL);
-            // Restore the text window context
-            werase(text_win);
-            box(text_win, 0, 0);
-            draw_text_buffer(text_win);
-            wmove(text_win, *cursor_y, *cursor_x);
-            wrefresh(text_win);
+            redraw(cursor_x, cursor_y);
             break;
         case 15: // CTRL-O
             save_file_as();
-            // Restore the text window context
-            werase(text_win);
-            box(text_win, 0, 0);
-            draw_text_buffer(text_win);
-            wmove(text_win, *cursor_y, *cursor_x);
-            wrefresh(text_win);
+            redraw(cursor_x, cursor_y);
             break;
         case 16: // CTRL-P
             save_file();
-            // Restore the text window context
-            werase(text_win);
-            box(text_win, 0, 0);
-            draw_text_buffer(text_win);
-            wmove(text_win, *cursor_y, *cursor_x);
-            wrefresh(text_win);
+            redraw(cursor_x, cursor_y);
             break;
         case 13: // CTRL-; to start/stop selection mode
             if (selection_mode) {
@@ -517,6 +484,14 @@ void handle_regular_mode(int ch, int *cursor_x, int *cursor_y) {
             handle_default_key(ch, cursor_x, *cursor_y);
             break;
     }
+}
+
+void redraw(int *cursor_x, int *cursor_y) {
+    werase(text_win);
+    box(text_win, 0, 0);
+    draw_text_buffer(text_win);
+    wmove(text_win, *cursor_y, *cursor_x);
+    wrefresh(text_win);
 }
 
 void handle_resize(int sig) {

@@ -57,6 +57,7 @@ void load_file();
 void new_file();
 void undo();
 void redo();
+void redraw(int *cursor_x, int *cursor_y);
 void delete_current_line(int *cursor_y, int *start_line);
 void insert_new_line(int *cursor_x, int *cursor_y, int *start_line);
 void update_status_bar(int cursor_y, int cursor_x);

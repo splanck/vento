@@ -125,18 +125,25 @@ void handle_key_page_up(int *cursor_y, int *start_line) {
 }
 
 void handle_key_page_down(int *cursor_y, int *start_line) {
-    int page_size = LINES - 4;
-    if (*start_line + page_size < line_count) {
-        *start_line += page_size;
-        if (*start_line + page_size > line_count) {
-            *start_line = line_count - page_size;
-            if (*start_line < 0) {
-                *start_line = 0;
-            }
-        }
-        draw_text_buffer(text_win);
+    int max_lines = LINES - 4; // Adjust for the status bar
+
+    // Move the starting line down
+    if (*start_line + max_lines < line_count) {
+        *start_line += max_lines;
     }
-    *cursor_y = 1;
+
+    // If this would scroll past the end of the file, adjust
+    if (*start_line + max_lines > line_count) {
+        *start_line = line_count - max_lines;
+    }
+
+    // Move the cursor to the bottom of the screen
+    *cursor_y = max_lines;
+
+    // Ensure the cursor doesn't go past the end of the file
+    if (*cursor_y + *start_line >= line_count) {
+        *cursor_y = line_count - *start_line;
+    }
 }
 
 void handle_ctrl_key_pgup(int *cursor_y, int *start_line) {
