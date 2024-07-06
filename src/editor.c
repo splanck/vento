@@ -302,6 +302,7 @@ void initialize() {
     define_key("\024", KEY_CTRL_T); // \024 is the octal for CTRL-T
 
     initializeMenus();
+    update_status_bar(0, 0);  
 }
 
 void run_editor() {
@@ -317,7 +318,8 @@ void run_editor() {
             continue; // Handle any errors or no input case
         }
 
-        mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
+        //mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
+        update_status_bar(cursor_x, cursor_y);        
         refresh();
         
         if (selection_mode) {
@@ -600,6 +602,8 @@ void load_file(const char *filename) {
         }
         fclose(fp);
         mvprintw(LINES - 2, 2, "File loaded: %s", filename);
+
+        strcpy(current_filename, filename);
     } else {
         mvprintw(LINES - 2, 2, "Error loading file!");
     }
@@ -634,10 +638,22 @@ void load_file(const char *filename) {
 }
 
 void update_status_bar(int cursor_y, int cursor_x) {
+    // Display the filename centered on line 2
+    move(0, 0);
+    //clrtoeol();
+    int filename_length = strlen(current_filename);
+    int center_position = (COLS - filename_length) / 2;
+    mvprintw(1, center_position, "%s", current_filename);
+
+    // Display the status bar at the bottom
     move(LINES - 1, 0);
     clrtoeol();
     int actual_line_number = cursor_y + start_line; // Calculate actual line number
     mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", line_count, actual_line_number, cursor_x);
+
+    // Display "CTRL-H - Help" at the bottom right
+    mvprintw(LINES - 1, COLS - 15, "CTRL-H - Help");
+
     refresh();
 }
 
