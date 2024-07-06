@@ -7,7 +7,7 @@
 
 void show_help() {
     // Window size and position adjustments
-    int win_height = 12;
+    int win_height = 15;
     int win_width = COLS - 40;
     int win_y = (LINES - win_height) / 2;
     int win_x = (COLS - win_width) / 2;
@@ -23,17 +23,32 @@ void show_help() {
     // Draw the help dialog borders
     box(help_win, 0, 0);
 
-    // Print the help information
+    // Print the help information in two columns
     mvwprintw(help_win, 1, 2, "Help:");
-    mvwprintw(help_win, 3, 2, "CTRL-S: Save the file");
-    mvwprintw(help_win, 4, 2, "CTRL-O: Open a file");
-    mvwprintw(help_win, 5, 2, "CTRL-N: New file");
-    mvwprintw(help_win, 6, 2, "CTRL-U: Undo");
-    mvwprintw(help_win, 7, 2, "CTRL-R: Redo");
-    mvwprintw(help_win, 8, 2, "CTRL-H: Show this help");
+    mvwprintw(help_win, 3, 2, "CTRL-H: Show this help");
+    mvwprintw(help_win, 4, 2, "CTRL-A: About");
+    mvwprintw(help_win, 5, 2, "CTRL-L: Load a new file");
+    mvwprintw(help_win, 6, 2, "CTRL-O: Save as");
+    mvwprintw(help_win, 7, 2, "CTRL-P: Save");
+    mvwprintw(help_win, 8, 2, "CTRL-J: Start/Stop selection mode");
+    mvwprintw(help_win, 9, 2, "CTRL-K: Paste from clipboard");
+    mvwprintw(help_win, 10, 2, "CTRL-N: New file");
+    mvwprintw(help_win, 11, 2, "CTRL-R: Redo");
+    mvwprintw(help_win, 12, 2, "CTRL-U: Undo");
+
+    mvwprintw(help_win, 3, win_width / 2, "CTRL-X: Quit");
+    mvwprintw(help_win, 4, win_width / 2, "CTRL-F: Move forward to next word");
+    mvwprintw(help_win, 5, win_width / 2, "CTRL-B: Move backward to previous word");
+    mvwprintw(help_win, 6, win_width / 2, "CTRL-D: Delete current line");
+    mvwprintw(help_win, 7, win_width / 2, "Arrow Keys: Navigate text");
+    mvwprintw(help_win, 8, win_width / 2, "Page Up/Down: Scroll document");
+    mvwprintw(help_win, 9, win_width / 2, "CTRL-Left: Move to line start");
+    mvwprintw(help_win, 10, win_width / 2, "CTRL-Right: Move to line end");
+    mvwprintw(help_win, 11, win_width / 2, "CTRL-PgUp: Move to top of doc");
+    mvwprintw(help_win, 12, win_width / 2, "CTRL-PgDn: Move to end of doc");
 
     // Wait for any keypress to close the dialog
-    mvwprintw(help_win, win_height - 2, 2, "(Press any key to close)");
+    mvwprintw(help_win, win_height - 1, (win_width - strlen("(Press any key to close)")) / 2, "(Press any key to close)");
     wrefresh(help_win);
     wgetch(help_win);
 

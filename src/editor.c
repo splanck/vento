@@ -12,6 +12,7 @@
 #include "config.h"
 
 char *strdup(const char *s);  // Explicitly declare strdup
+int exiting = 0;
 
 char *text_buffer[MAX_LINES];
 int line_count = 0;
@@ -255,6 +256,10 @@ void disable_ctrl_c_z() {
 }
 
 void initialize() {
+    for (int i = 0; i < MAX_LINES; ++i) {
+        text_buffer[i] = (char *)malloc(sizeof(char));
+    }
+
     initscr();
     read_config_file();
 
@@ -302,6 +307,7 @@ void initialize() {
     define_key("\024", KEY_CTRL_T); // \024 is the octal for CTRL-T
 
     initializeMenus();
+    update_status_bar(0, 0);  
 }
 
 void run_editor() {
@@ -312,12 +318,13 @@ void run_editor() {
 
     wmove(text_win, cursor_x, cursor_y);  // Move cursor after "Input: "
 
-    while ((ch = wgetch(text_win)) != 27) { // Exit on ESC key
+    while ((ch = wgetch(text_win)) != 27 && exiting == 0) { // Exit on ESC key
         if (ch == ERR) {
             continue; // Handle any errors or no input case
         }
 
-        mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
+        //mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
+        update_status_bar(cursor_x, cursor_y);        
         refresh();
         
         if (selection_mode) {
@@ -331,13 +338,24 @@ void run_editor() {
         } else {
             handle_regular_mode(ch, &cursor_x, &cursor_y);
         }
+
+        if (exiting == 1)
+            break;
+
         update_status_bar(cursor_y + start_line, cursor_x); // Update status bar with absolute line number
         wmove(text_win, cursor_y, cursor_x);  // Restore cursor position
         wrefresh(text_win);
     }
 
+    cleanup_on_exit();
+}
+
+void cleanup_on_exit() {
     for (int i = 0; i < MAX_LINES; ++i) {
-        free(text_buffer[i]);
+        if (text_buffer[i] != NULL) {  // Check for NULL pointer
+            free(text_buffer[i]);
+            text_buffer[i] = NULL;  // Set to NULL to avoid double free
+        }
     }
 
     delwin(text_win);
@@ -461,7 +479,8 @@ void handle_regular_mode(int ch, int *cursor_x, int *cursor_y) {
             undo();
             break;
         case 24: // CTRL-X to quit
-            return;
+            exiting = 1;
+            break;
         case KEY_CTRL_LEFT:  // Handle CTRL-Left arrow
             handle_ctrl_key_left(cursor_x);
             break;
@@ -600,6 +619,8 @@ void load_file(const char *filename) {
         }
         fclose(fp);
         mvprintw(LINES - 2, 2, "File loaded: %s", filename);
+
+        strcpy(current_filename, filename);
     } else {
         mvprintw(LINES - 2, 2, "Error loading file!");
     }
@@ -634,10 +655,21 @@ void load_file(const char *filename) {
 }
 
 void update_status_bar(int cursor_y, int cursor_x) {
+    // Display the filename centered on line 2
+    move(0, 0);
+    int filename_length = strlen(current_filename);
+    int center_position = (COLS - filename_length) / 2;
+    mvprintw(1, center_position, "%s", current_filename);
+
+    // Display the status bar at the bottom
     move(LINES - 1, 0);
     clrtoeol();
     int actual_line_number = cursor_y + start_line; // Calculate actual line number
     mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", line_count, actual_line_number, cursor_x);
+
+    // Display "CTRL-H - Help" at the bottom right
+    mvprintw(LINES - 1, COLS - 15, "CTRL-H - Help");
+
     refresh();
 }
 

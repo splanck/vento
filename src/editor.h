@@ -62,6 +62,7 @@ void delete_current_line(int *cursor_y, int *start_line);
 void insert_new_line(int *cursor_x, int *cursor_y, int *start_line);
 void update_status_bar(int cursor_y, int cursor_x);
 void handle_resize(int sig);
+void cleanup_on_exit();
 
 // Stack functions for undo and redo
 void push(Node **stack, Change change);
