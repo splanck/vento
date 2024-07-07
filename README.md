@@ -59,7 +59,7 @@ sudo apt install build-essential libncurses5-dev libncursesw5-dev
 Ready to give Vento a try? Here's how to get started:
 
 ```bash
-git clone https://github.com/yourusername/vento.git
+git clone https://github.com/splanck/vento.git
 cd vento
 make
 sudo make install
