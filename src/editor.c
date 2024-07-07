@@ -657,6 +657,10 @@ void load_file(const char *filename) {
 void update_status_bar(int cursor_y, int cursor_x) {
     // Display the filename centered on line 2
     move(0, 0);
+<<<<<<< HEAD
+=======
+    //clrtoeol();
+>>>>>>> 8d293951aac7e37cfe7e31925ab1a968a61544a1
     int filename_length = strlen(current_filename);
     int center_position = (COLS - filename_length) / 2;
     mvprintw(1, center_position, "%s", current_filename);
