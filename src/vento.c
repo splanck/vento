@@ -8,12 +8,12 @@ void free_stack(Node *stack) {
     while (stack) {
         Node *next = stack->next;
         if (stack->change.old_text) {
-            printf("Freeing old_text at address: %p\n", (void*)stack->change.old_text);
+            //printf("Freeing old_text at address: %p\n", (void*)stack->change.old_text);
             free(stack->change.old_text);
             stack->change.old_text = NULL; // Prevent double free
         }
         if (stack->change.new_text) {
-            printf("Freeing new_text at address: %p\n", (void*)stack->change.new_text);
+            //printf("Freeing new_text at address: %p\n", (void*)stack->change.new_text);
             free(stack->change.new_text);
             stack->change.new_text = NULL; // Prevent double free
         }
@@ -37,13 +37,15 @@ int main(int argc, char *argv[]) {
 
     run_editor();
 
-    printf("Freeing undo stack\n");
+    endwin();
+
+    //printf("Freeing undo stack\n");
     free_stack(undo_stack);
     undo_stack = NULL; // Prevent double free
-    printf("Freeing redo stack\n");
+    //printf("Freeing redo stack\n");
     free_stack(redo_stack);
     redo_stack = NULL; // Prevent double free
 
-    endwin();
+    cleanup_on_exit();
     return 0;
 }

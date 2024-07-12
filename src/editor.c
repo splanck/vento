@@ -17,6 +17,7 @@ int exiting = 0;
 char *text_buffer[MAX_LINES];
 int line_count = 0;
 int start_line = 0;
+int runeditor = 0;
 
 char current_filename[256] = "";
 
@@ -311,6 +312,11 @@ void initialize() {
 }
 
 void run_editor() {
+    if (runeditor == 0)
+        runeditor = 1;
+    else
+        return;
+
     int ch;
     int cursor_x = 1, cursor_y = 1;
     int currentMenu = 0;
@@ -347,7 +353,7 @@ void run_editor() {
         wrefresh(text_win);
     }
 
-    cleanup_on_exit();
+    delwin(text_win);
 }
 
 void cleanup_on_exit() {
@@ -358,12 +364,17 @@ void cleanup_on_exit() {
         }
     }
 
-    delwin(text_win);
+    //printf("Buffer freed.\n");
 }
 
 void initialize_buffer() {
     for (int i = 0; i < MAX_LINES; ++i) {
         text_buffer[i] = (char *)calloc(COLS - 3, sizeof(char));
+        if (text_buffer[i] == NULL) {
+            // Handle allocation failure
+            fprintf(stderr, "Memory allocation failed for text_buffer[%d]\n", i);
+            exit(1);
+        }
     }
     line_count = 1;
     start_line = 0;
@@ -657,10 +668,6 @@ void load_file(const char *filename) {
 void update_status_bar(int cursor_y, int cursor_x) {
     // Display the filename centered on line 2
     move(0, 0);
-<<<<<<< HEAD
-=======
-    //clrtoeol();
->>>>>>> 8d293951aac7e37cfe7e31925ab1a968a61544a1
     int filename_length = strlen(current_filename);
     int center_position = (COLS - filename_length) / 2;
     mvprintw(1, center_position, "%s", current_filename);
