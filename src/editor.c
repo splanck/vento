@@ -138,8 +138,7 @@ void paste_clipboard(int *cursor_x, int *cursor_y) {
     char *line = strtok(clipboard, "\n");
     while (line) {
         int len = strlen(line);
-        memmove(&text_buffer[*cursor_y - 1 + start_line][*cursor_x - 1 + len], &text_buffer[*cursor_y - 1 + start_li
-ne][*cursor_x - 1], strlen(&text_buffer[*cursor_y - 1 + start_line][*cursor_x - 1]) + 1);
+        memmove(&text_buffer[*cursor_y - 1 + start_line][*cursor_x - 1 + len], &text_buffer[*cursor_y - 1 + start_line][*cursor_x - 1], strlen(&text_buffer[*cursor_y - 1 + start_line][*cursor_x - 1]) + 1);
         memcpy(&text_buffer[*cursor_y - 1 + start_line][*cursor_x - 1], line, len);
         line = strtok(NULL, "\n");
         (*cursor_y)++;
