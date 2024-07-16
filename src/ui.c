@@ -96,27 +96,37 @@ void show_about() {
 }
 
 void create_dialog(const char *message, char *output, int max_input_len) {
+    // Define colors
+    start_color();
+    init_pair(1, COLOR_WHITE, COLOR_BLUE); // Background color for dialog
+    init_pair(2, COLOR_YELLOW, COLOR_BLACK); // Input text color
+
     // Window size and position adjustments
     int win_y = LINES / 3;
-    int win_x = (COLS - strlen(message) - 8) / 2;
+    int win_x = (COLS - strlen(message) - 30) / 2;
     int win_width = strlen(message) + 30;
-    int win_height = 5;
+    int win_height = 7;
 
     // Create a temporary window for the dialog
     WINDOW *dialog_win = newwin(win_height, win_width, win_y, win_x);
     keypad(dialog_win, TRUE);  // Enable keyboard input for the dialog
+    wbkgd(dialog_win, COLOR_PAIR(1)); // Set background color
     wrefresh(stdscr);  // Refresh the main screen before drawing the dialog
 
     // Draw the dialog borders
     box(dialog_win, 0, 0);
 
     // Print the message at the center
+    wattron(dialog_win, A_BOLD); // Bold the message
     mvwprintw(dialog_win, 1, (win_width - strlen(message)) / 2, message);
+    wattroff(dialog_win, A_BOLD);
 
     // Input field and cursor position
-    int input_x = 2;  // Adjust as needed for message positioning
+    int input_x = 2; // Adjust as needed for message positioning
     int input_y = 3;
+    wattron(dialog_win, COLOR_PAIR(2)); // Set input text color
     mvwprintw(dialog_win, input_y, input_x, "Input: ");
+    wattroff(dialog_win, COLOR_PAIR(2));
     wmove(dialog_win, input_y, input_x + 7);  // Move cursor after "Input: "
 
     // Get user input with maximum length check
@@ -126,6 +136,7 @@ void create_dialog(const char *message, char *output, int max_input_len) {
             mvwprintw(dialog_win, input_y, input_x + 7 + input_len, "%c", ch);
             output[input_len] = ch;
             input_len++;
+            wmove(dialog_win, input_y, input_x + 7 + input_len);
             wrefresh(dialog_win);
         } else if (ch == KEY_BACKSPACE || ch == 127) {
             if (input_len > 0) {
