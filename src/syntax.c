@@ -4,14 +4,19 @@
 #include "syntax.h"
 #include "editor.h"
 
+#define PYTHON_KEYWORDS_COUNT 35
+
+const char *PYTHON_KEYWORDS[PYTHON_KEYWORDS_COUNT] = {
+    "False", "None", "True", "and", "as", "assert", "async", "await", "break",
+    "class", "continue", "def", "del", "elif", "else", "except", "finally",
+    "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal",
+    "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"
+};
+
 int current_syntax_mode = NO_SYNTAX;
 
 void set_syntax_highlighting(int mode) {
     current_syntax_mode = mode;
-}
-
-void highlight_no_syntax(WINDOW *win, const char *line, int y) {
-    mvwprintw(win, y, 1, "%s", line);
 }
 
 void apply_syntax_highlighting(WINDOW *win, const char *line, int y) {
@@ -22,12 +27,73 @@ void apply_syntax_highlighting(WINDOW *win, const char *line, int y) {
         case HTML_SYNTAX:
             highlight_html_syntax(win, line, y);
             break;
-        case NO_SYNTAX:
+        case PYTHON_SYNTAX:
+            highlight_python_syntax(win, line, y);
+            break;
         default:
             highlight_no_syntax(win, line, y);
             break;
     }
 }
+
+void highlight_no_syntax(WINDOW *win, const char *line, int y) {
+    mvwprintw(win, y, 1, "%s", line);
+}
+
+void highlight_python_syntax(WINDOW *win, const char *line, int y) {
+    int length = strlen(line);
+    int start = 0;
+    int i = 0;
+    int x = 1; // Start at 1 to match the original display position
+
+    while (i < length) {
+        if (isalpha(line[i]) || line[i] == '_') {
+            start = i;
+            while (isalnum(line[i]) || line[i] == '_') i++;
+            int word_length = i - start;
+            char word[word_length + 1];
+            strncpy(word, &line[start], word_length);
+            word[word_length] = '\0';
+
+            int is_keyword = 0;
+            for (int j = 0; j < PYTHON_KEYWORDS_COUNT; j++) {
+                if (strcmp(word, PYTHON_KEYWORDS[j]) == 0) {
+                    wattron(win, COLOR_PAIR(2));
+                    mvwprintw(win, y, x, "%s", word);
+                    wattroff(win, COLOR_PAIR(2));
+                    x += word_length;
+                    is_keyword = 1;
+                    break;
+                }
+            }
+            if (!is_keyword) {
+                mvwprintw(win, y, x, "%s", word);
+                x += word_length;
+            }
+        } else if (line[i] == '#') {
+            wattron(win, COLOR_PAIR(3));
+            mvwprintw(win, y, x, "%s", &line[i]);
+            wattroff(win, COLOR_PAIR(3));
+            break;
+        } else if (line[i] == '"' || line[i] == '\'') {
+            char quote = line[i];
+            start = i;
+            i++;
+            while (i < length && line[i] != quote) i++;
+            if (i < length) i++;
+            wattron(win, COLOR_PAIR(4));
+            mvwprintw(win, y, x, "%.*s", i - start, &line[start]);
+            wattroff(win, COLOR_PAIR(4));
+            x += i - start;
+        } else {
+            mvwprintw(win, y, x, "%c", line[i]);
+            x++;
+            i++;
+        }
+    }
+    wrefresh(win);
+}
+
 
 void highlight_c_syntax(WINDOW *win, const char *line, int y) {
     int x = 1;

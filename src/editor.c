@@ -390,8 +390,13 @@ void draw_text_buffer(WINDOW *win) {
 
     // Calculate scrollbar position and size
     int scrollbar_height = max_lines;
-    int scrollbar_start = (start_line * scrollbar_height) / line_count;
-    int scrollbar_end = ((start_line + max_lines) * scrollbar_height) / line_count;
+    int scrollbar_start = 0;
+    int scrollbar_end = 0;
+
+    if (line_count > 0) {
+        scrollbar_start = (start_line * scrollbar_height) / line_count;
+        scrollbar_end = ((start_line + max_lines) * scrollbar_height) / line_count;
+    }
 
     // Draw scrollbar
     for (int i = 0; i < scrollbar_height; ++i) {
@@ -641,8 +646,10 @@ void load_file(const char *filename) {
     if (ext != NULL) {
         if (strcmp(ext, ".c") == 0 || strcmp(ext, ".h") == 0) {
             set_syntax_highlighting(C_SYNTAX);
-        } else if (strcmp(ext, ".html") == 0) {
+        } else if (strcmp(ext, ".html") == 0 || strcmp(ext, ".htm") == 0) {
             set_syntax_highlighting(HTML_SYNTAX);
+        } else if (strcmp(ext, ".py") == 0) {
+            set_syntax_highlighting(PYTHON_SYNTAX);
         } else {
             set_syntax_highlighting(NO_SYNTAX);
         }
