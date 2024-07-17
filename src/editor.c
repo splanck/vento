@@ -277,12 +277,15 @@ void initialize() {
 
     read_config_file();
 
-    init_pair(1, COLOR_WHITE, COLOR_BLUE);   // Background color
-    init_pair(2, COLOR_CYAN, COLOR_BLACK);   // Keywords
-    init_pair(3, COLOR_GREEN, COLOR_BLACK);  // Comments
-    init_pair(4, COLOR_YELLOW, COLOR_BLACK); // Strings
-    init_pair(5, COLOR_MAGENTA, COLOR_BLACK); // Types
-    init_pair(6, COLOR_RED, COLOR_BLACK);    // Symbols (braces, parentheses)
+    if (has_colors() && can_change_color()) {
+        start_color();
+        init_pair(1, COLOR_WHITE, COLOR_BLUE);     // Background color
+        init_pair(2, COLOR_CYAN, COLOR_BLACK);     // Keywords
+        init_pair(3, COLOR_GREEN, COLOR_BLACK);    // Comments
+        init_pair(4, COLOR_YELLOW, COLOR_BLACK);   // Strings
+        init_pair(5, COLOR_MAGENTA, COLOR_BLACK);  // Types
+        init_pair(6, COLOR_BLUE, COLOR_BLACK);      // Symbols (braces, parentheses)
+    }
 
     bkgd(COLOR_PAIR(1));
     refresh();
@@ -708,4 +711,3 @@ void new_file() {
     wmove(text_win, cursor_y, cursor_x);
     wrefresh(text_win);
 }
-
