@@ -658,7 +658,12 @@ void load_file(const char *filename) {
     }
 
     refresh();
-    getch();
+    
+    // Wait for a brief moment to display the message, without requiring Enter
+    timeout(100); // Wait for 500 milliseconds
+    getch();      // Consume any key press if available
+    timeout(-1);  // Reset to blocking mode
+
     mvprintw(LINES - 2, 2, "                            "); // Clear the line after loading
     refresh();
     text_win = newwin(LINES - 2, COLS, 1, 0);  // Adjusted to ensure proper window size
@@ -702,7 +707,5 @@ void new_file() {
     box(text_win, 0, 0);
     wmove(text_win, cursor_y, cursor_x);
     wrefresh(text_win);
-
-    run_editor();
 }
 

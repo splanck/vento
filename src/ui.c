@@ -155,3 +155,43 @@ void create_dialog(const char *message, char *output, int max_input_len) {
     delwin(dialog_win);
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
 }
+
+void show_warning_dialog() {
+    int win_height = 7;
+    int win_width = COLS - 20;
+    int win_y = (LINES - win_height) / 2;
+    int win_x = (COLS - win_width) / 2;
+
+    // Create a temporary window for the warning dialog
+    WINDOW *warning_win = newwin(win_height, win_width, win_y, win_x);
+    keypad(warning_win, TRUE);  // Enable keyboard input for the warning dialog
+
+    // Set color pair for the warning window
+    wbkgd(warning_win, COLOR_PAIR(1));
+    wrefresh(stdscr);  // Refresh the main screen before drawing the dialog
+
+    // Draw the warning dialog borders
+    box(warning_win, 0, 0);
+
+    // Print the warning message centered
+    char *message1 = "Warning: This is experimental software.";
+    char *message2 = "It is under development and not intended for production use.";
+    char *message3 = "(Press any key to dismiss)";
+
+    mvwprintw(warning_win, 2, (win_width - strlen(message1)) / 2, "%s", message1);
+    mvwprintw(warning_win, 3, (win_width - strlen(message2)) / 2, "%s", message2);
+    mvwprintw(warning_win, 5, (win_width - strlen(message3)) / 2, "%s", message3);
+
+    wrefresh(warning_win);
+
+    // Wait for any keypress to close the dialog
+    wgetch(warning_win);
+
+    // Refresh the entire screen
+    werase(text_win);
+    box(text_win, 0, 0);
+    draw_text_buffer(text_win);
+    wrefresh(text_win);
+    update_status_bar(1, 1);
+    wrefresh(stdscr);  // Refresh the main screen after closing the dialog
+}

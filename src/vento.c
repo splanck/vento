@@ -3,6 +3,7 @@
 #include <signal.h>
 #include "editor.h"
 #include "input.h"
+#include "ui.h"
 
 void free_stack(Node *stack) {
     while (stack) {
@@ -35,8 +36,10 @@ int main(int argc, char *argv[]) {
         new_file();
     }
 
-    run_editor();
+    // Show the warning dialog before entering the main editor loop
+    show_warning_dialog();
 
+    run_editor();
     endwin();
 
     //printf("Freeing undo stack\n");

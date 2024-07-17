@@ -4,5 +4,6 @@
 void show_help();
 void show_about();
 void create_dialog(const char *message, char *output, int max_input_len);
+void show_warning_dialog();
 
 #endif // UI_H
