@@ -23,7 +23,7 @@ Vento currently supports the following features:
 - **Delete Current Line**: Press `CTRL-D` to delete the current line.
 - **Word Navigation**: Use `CTRL-F` to move to the next word and `CTRL-B` to move to the previous word.
 - **Customizable Configuration**: Customize settings through a configuration file.
-- **Basic Syntax Highlighting**: Simple syntax highlighting for C and HTML files.
+- **Basic Syntax Highlighting**: Simple syntax highlighting for C, HTML, and Python files.
 - **Status Bar**: Displays the current line and column number.
 - **Scroll Bar**: Indicates your position within the document.
 - **Help Screen**: Press `CTRL-H` for a guide to Vento's features.
