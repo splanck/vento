@@ -73,11 +73,6 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
             default:
                 break;
         }
-
-        // Clear only the area of the menu items
-        for (int i = 1; i < LINES; ++i) {
-            mvprintw(i, 0, "                                        ");
-        }
     }
 }
 
@@ -115,5 +110,5 @@ void saveFile() {
 }
 
 void quitEditor() {
-    // Implementation of quitEditor
+    close_editor();
 }

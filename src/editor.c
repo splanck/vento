@@ -332,6 +332,10 @@ void run_editor() {
             continue; // Handle any errors or no input case
         }
 
+        if (exiting == 1) {
+            break;
+        }
+
         //mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
         update_status_bar(cursor_x, cursor_y);        
         refresh();
@@ -339,7 +343,7 @@ void run_editor() {
         if (selection_mode) {
             handle_selection_mode(ch, &cursor_x, &cursor_y);
         } else if (ch == KEY_CTRL_T) { // CTRL-T
-            mvprintw(LINES - 1, 0, "CTRL-T captured"); // Add this line for debugging
+            mvprintw(LINES - 1, 0, "CTRL-T captured"); 
             refresh();
             handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
             // Redraw the editor screen after closing the menu
@@ -366,8 +370,10 @@ void cleanup_on_exit() {
             text_buffer[i] = NULL;  // Set to NULL to avoid double free
         }
     }
+}
 
-    //printf("Buffer freed.\n");
+void close_editor() {
+    exiting = 1;
 }
 
 void initialize_buffer() {

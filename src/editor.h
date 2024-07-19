@@ -48,6 +48,7 @@ void handle_regular_mode(int ch, int *cursor_x, int *cursor_y);
 void set_syntax_mode(const char *filename);
 void initialize();
 void draw_text_buffer(WINDOW *win);
+void close_editor();
 void clear_text_buffer();
 void run_editor();
 void initialize_buffer();

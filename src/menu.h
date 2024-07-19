@@ -1,7 +1,5 @@
 #ifndef MENU_H
 #define MENU_H
-
-
 typedef struct MenuItem {
     const char *label;
     void (*action)();
