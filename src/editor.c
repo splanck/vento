@@ -327,7 +327,7 @@ void run_editor() {
 
     wmove(text_win, cursor_x, cursor_y);  // Move cursor after "Input: "
 
-    while ((ch = wgetch(text_win)) != 27 && exiting == 0) { // Exit on ESC key
+    while ((ch = wgetch(text_win)) && exiting == 0) { // Exit on ESC key
         if (ch == ERR) {
             continue; // Handle any errors or no input case
         }
@@ -701,6 +701,7 @@ void update_status_bar(int cursor_y, int cursor_x) {
 
 void new_file() {
     int cursor_x = 1, cursor_y = 1;
+    strcpy(current_filename, "");
 
     initialize_buffer(); // Initialize the buffer
 
