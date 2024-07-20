@@ -11,16 +11,16 @@ void initializeMenus() {
     menus = malloc(menuCount * sizeof(Menu));
 
     MenuItem *fileMenuItems = malloc(4 * sizeof(MenuItem));
-    fileMenuItems[0] = (MenuItem){"New File", newFile};
-    fileMenuItems[1] = (MenuItem){"Load File", loadFile};
-    fileMenuItems[2] = (MenuItem){"Save File", saveFile};
-    fileMenuItems[3] = (MenuItem){"Quit", quitEditor};
+    fileMenuItems[0] = (MenuItem){"New File", menuNewFile};
+    fileMenuItems[1] = (MenuItem){"Load File", menuLoadFile};
+    fileMenuItems[2] = (MenuItem){"Save File", menuSaveFile};
+    fileMenuItems[3] = (MenuItem){"Quit", menuQuitEditor};
 
     Menu fileMenu = {"File", fileMenuItems, 4};
 
     MenuItem *editMenuItems = malloc(2 * sizeof(MenuItem));
-    editMenuItems[0] = (MenuItem){"Undo", undo};
-    editMenuItems[1] = (MenuItem){"Redo", redo};
+    editMenuItems[0] = (MenuItem){"Undo", menuUndo};
+    editMenuItems[1] = (MenuItem){"Redo", menuRedo};
 
     Menu editMenu = {"Edit", editMenuItems, 2};
 
@@ -97,18 +97,26 @@ void drawMenu(Menu *menu, int currentItem, int startX, int startY) {
     delwin(menuWin);
 }
 
-void newFile() {
+void menuNewFile() {
     new_file();
 }
 
-void loadFile() {
+void menuLoadFile() {
     load_file();
 }
 
-void saveFile() {
+void menuSaveFile() {
     save_file();
 }
 
-void quitEditor() {
+void menuQuitEditor() {
     close_editor();
+}
+
+void menuUndo() {
+    undo();
+}
+
+void menuRedo() {
+    redo();
 }

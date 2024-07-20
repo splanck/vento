@@ -14,10 +14,12 @@ typedef struct Menu {
 void initializeMenus();
 void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *currentItem);
 void drawMenu(Menu *menu, int currentItem, int startX, int startY);
-void newFile();
-void loadFile();
-void saveFile();
-void quitEditor();
+void menuNewFile();
+void menuLoadFile();
+void menuSaveFile();
+void menuQuitEditor();
+void menuUndo();
+void menuRedo();
 
 extern Menu *menus;
 extern int menuCount;

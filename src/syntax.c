@@ -1,8 +1,16 @@
 #include <ncurses.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include "syntax.h"
 #include "editor.h"
+
+// Define color pairs as constants for readability
+#define COLOR_COMMENT 5
+#define COLOR_TAG 2
+#define COLOR_ATTRIBUTE 3
+#define COLOR_VALUE 4
+#define COLOR_NORMAL 1
 
 #define PYTHON_KEYWORDS_COUNT 35
 
@@ -198,76 +206,75 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
     }
 }
 
+// Helper function to print a character with specific attributes
+void print_char_with_attr(WINDOW *win, int y, int *x, char c, int attr) {
+    wattron(win, attr);
+    mvwprintw(win, y, (*x)++, "%c", c);
+    wattroff(win, attr);
+}
+
+// Function to handle HTML comments
+void handle_html_comment(WINDOW *win, const char *line, int *i, int y, int *x) {
+    int len = strlen(line);
+    print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_COMMENT) | A_BOLD); // Print the initial '<'
+    while (*i < len && !(line[*i] == '-' && line[*i + 1] == '-' && line[*i + 2] == '>')) {
+        print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_COMMENT) | A_BOLD);
+    }
+    if (*i < len) { // Also print the closing '>'
+        print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_COMMENT) | A_BOLD);
+        (*i) += 2; // Skip over '-->'
+    }
+}
+
+// Function to handle HTML tags (opening, closing, and self-closing)
+void handle_html_tag(WINDOW *win, const char *line, int *i, int y, int *x) {
+    int len = strlen(line);
+    bool inAttribute = false;
+    while (*i < len && line[*i] != '>') {
+        if (line[*i] == ' ' && !inAttribute) {
+            // Space outside of attributes, might be the start of an attribute
+            inAttribute = true;
+            print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_TAG) | A_BOLD);
+        } else if (line[*i] == '=') {
+            // Equal sign, attribute value follows
+            print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_ATTRIBUTE) | A_BOLD);
+            if (line[*i] == '"' || line[*i] == '\'') { // Attribute value enclosed in quotes
+                char quoteType = line[(*i)++];
+                print_char_with_attr(win, y, x, quoteType, COLOR_PAIR(COLOR_VALUE) | A_BOLD);
+                while (*i < len && line[*i] != quoteType) {
+                    print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_VALUE) | A_BOLD);
+                }
+                if (*i < len) {
+                    print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_VALUE) | A_BOLD); // Print the closing quote
+                }
+            }
+        } else {
+            // Regular character within the tag
+            int color = inAttribute ? COLOR_PAIR(COLOR_ATTRIBUTE) | A_BOLD : COLOR_PAIR(COLOR_TAG) | A_BOLD;
+            print_char_with_attr(win, y, x, line[(*i)++], color);
+        }
+    }
+    if (*i < len) { // Print the closing '>'
+        print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_TAG) | A_BOLD);
+    }
+}
+
+// Main function to highlight HTML syntax
 void highlight_html_syntax(WINDOW *win, const char *line, int y) {
-    int x = 1;
+    if (!win || !line) return; // Basic error handling
+
+    int x = 0; // Start from the beginning of the line
     int i = 0;
     int len = strlen(line);
 
     while (i < len) {
         if (isspace(line[i])) {
-            // Print spaces as is
-            mvwprintw(win, y, x++, "%c", line[i++]);
+            mvwprintw(win, y, x++, "%c", line[i++]); // Print spaces as is
         } else if (line[i] == '<') {
-            // Highlight tags and comments
-            if (line[i+1] == '!' && line[i+2] == '-' && line[i+3] == '-') {
-                // Comment
-                wattron(win, COLOR_PAIR(5) | A_BOLD);
-                mvwprintw(win, y, x++, "%c", line[i++]);
-                mvwprintw(win, y, x++, "%c", line[i++]);
-                mvwprintw(win, y, x++, "%c", line[i++]);
-                while (i < len && !(line[i] == '-' && line[i+1] == '-' && line[i+2] == '>')) {
-                    mvwprintw(win, y, x++, "%c", line[i++]);
-                }
-                if (i < len) {
-                    mvwprintw(win, y, x++, "%c", line[i++]);
-                    mvwprintw(win, y, x++, "%c", line[i++]);
-                    mvwprintw(win, y, x++, "%c", line[i++]);
-                }
-                wattroff(win, COLOR_PAIR(5) | A_BOLD);
+            if (strncmp(&line[i], "<!--", 4) == 0) {
+                handle_html_comment(win, line, &i, y, &x); // Handle comments
             } else {
-                // Tag
-                wattron(win, COLOR_PAIR(2) | A_BOLD);
-                mvwprintw(win, y, x++, "%c", line[i++]);
-                while (i < len && !isspace(line[i]) && line[i] != '>' && line[i] != '/') {
-                    mvwprintw(win, y, x++, "%c", line[i++]);
-                }
-                wattroff(win, COLOR_PAIR(2) | A_BOLD);
-
-                // Attributes and values within the tag
-                while (i < len && line[i] != '>') {
-                    if (isspace(line[i])) {
-                        mvwprintw(win, y, x++, "%c", line[i++]);
-                    } else if (isalpha(line[i])) {
-                        // Attribute
-                        wattron(win, COLOR_PAIR(3) | A_BOLD);
-                        while (i < len && (isalnum(line[i]) || line[i] == '-' || line[i] == '_')) {
-                            mvwprintw(win, y, x++, "%c", line[i++]);
-                        }
-                        wattroff(win, COLOR_PAIR(3) | A_BOLD);
-                    } else if (line[i] == '=') {
-                        mvwprintw(win, y, x++, "%c", line[i++]);
-                        // Value
-                        if (line[i] == '"' || line[i] == '\'') {
-                            char quote = line[i];
-                            wattron(win, COLOR_PAIR(4) | A_BOLD);
-                            mvwprintw(win, y, x++, "%c", line[i++]);
-                            while (i < len && line[i] != quote) {
-                                mvwprintw(win, y, x++, "%c", line[i++]);
-                            }
-                            if (i < len) {
-                                mvwprintw(win, y, x++, "%c", line[i++]);
-                            }
-                            wattroff(win, COLOR_PAIR(4) | A_BOLD);
-                        }
-                    } else {
-                        mvwprintw(win, y, x++, "%c", line[i++]);
-                    }
-                }
-                if (i < len) {
-                    wattron(win, COLOR_PAIR(2) | A_BOLD);
-                    mvwprintw(win, y, x++, "%c", line[i++]);
-                    wattroff(win, COLOR_PAIR(2) | A_BOLD);
-                }
+                handle_html_tag(win, line, &i, y, &x); // Handle tags
             }
         } else {
             // Print any other characters as is

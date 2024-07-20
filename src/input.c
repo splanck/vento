@@ -13,20 +13,27 @@ void handle_ctrl_backtick() {
 }
 
 void handle_key_up(int *cursor_y, int *start_line) {
+    // Move cursor up within the visible text area
     if (*cursor_y > 1) {
         (*cursor_y)--;
-    } else if (*start_line > 0) {
+    }
+    // Scroll the text buffer up when the cursor is at the top of the window
+    else if (*start_line > 0) {
         (*start_line)--;
+        // Redraw the text buffer to reflect the new view
         draw_text_buffer(text_win);
     }
 }
 
 void handle_key_down(int *cursor_y, int *start_line) {
-    if (*cursor_y < LINES - 4 && *cursor_y < line_count) {
+    // Check if the cursor can move down within the visible area
+    if (*cursor_y < LINES - BOTTOM_MARGIN && *cursor_y < line_count) {
         (*cursor_y)++;
-    } else if (*start_line + *cursor_y < line_count) {
+    }
+    // Scroll the text buffer if there's more content below the current view
+    else if (*start_line + *cursor_y < line_count) {
         (*start_line)++;
-        draw_text_buffer(text_win);
+        draw_text_buffer(text_win); // Consider optimizing this operation
     }
 }
 

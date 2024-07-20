@@ -1,6 +1,8 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#define BOTTOM_MARGIN 4 // Define the bottom UI margin
+
 void handle_ctrl_backtick();
 void handle_key_up(int *cursor_y, int *start_line);
 void handle_key_down(int *cursor_y, int *start_line);
