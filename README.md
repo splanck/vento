@@ -28,6 +28,7 @@ Vento currently supports the following features:
 - **Scroll Bar**: Indicates your position within the document.
 - **Help Screen**: Press `CTRL-H` for a guide to Vento's features.
 - **About Box**: Press `CTRL-A` to view product information, version, and GPL message.
+- **Menu System**: Intuitive menu navigation for editor features.
 
 ## Planned Features
 
@@ -37,7 +38,6 @@ The following features are planned for future releases:
 - **Copy and Paste**: Enhanced clipboard functionality for text movement.
 - **Spell Checker Support**: Automatically detect and correct typos.
 - **Git Integration**: Integrate with Git for version control.
-- **Menu System**: Intuitive menu navigation for editor features.
 - **Macro Support**: Configurable keyboard macros for repetitive tasks.
 - **Extensions API**: Plugin support to extend editor capabilities.
 
