@@ -560,7 +560,7 @@ void clear_text_buffer() {
         memset(text_buffer[i], 0, COLS - 3);
     }
     line_count = 1;
-    start_line = 0;
+    start_line = 1;
     werase(text_win);
     box(text_win, 0, 0);
     wrefresh(text_win);
