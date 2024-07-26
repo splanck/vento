@@ -2,12 +2,12 @@
 #include <stdlib.h>
 #include "menu.h"
 #include "editor.h"
+#include "ui.h"
 
 Menu *menus = NULL;
 int menuCount = 0;
-
 void initializeMenus() {
-    menuCount = 2;
+    menuCount = 3;
     menus = malloc(menuCount * sizeof(Menu));
 
     MenuItem *fileMenuItems = malloc(4 * sizeof(MenuItem));
@@ -24,8 +24,15 @@ void initializeMenus() {
 
     Menu editMenu = {"Edit", editMenuItems, 2};
 
+    MenuItem *helpMenuItems = malloc(2 * sizeof(MenuItem));
+    helpMenuItems[0] = (MenuItem){"About Vento", menuAbout};
+    helpMenuItems[1] = (MenuItem){"Help Screen", menuHelp};
+
+    Menu helpMenu = {"Help", helpMenuItems, 2};
+
     menus[0] = fileMenu;
     menus[1] = editMenu;
+    menus[2] = helpMenu;
 }
 
 void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *currentItem) {
@@ -119,4 +126,12 @@ void menuUndo() {
 
 void menuRedo() {
     redo();
+}
+
+void menuAbout() {
+    show_about();
+}
+
+void menuHelp() {
+    show_help();
 }

@@ -20,6 +20,8 @@ void menuSaveFile();
 void menuQuitEditor();
 void menuUndo();
 void menuRedo();
+void menuAbout();
+void menuHelp();
 
 extern Menu *menus;
 extern int menuCount;
