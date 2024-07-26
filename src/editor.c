@@ -343,7 +343,6 @@ void run_editor() {
         if (selection_mode) {
             handle_selection_mode(ch, &cursor_x, &cursor_y);
         } else if (ch == KEY_CTRL_T) { // CTRL-T
-            mvprintw(LINES - 1, 0, "CTRL-T captured"); 
             refresh();
             handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
             // Redraw the editor screen after closing the menu
@@ -614,6 +613,8 @@ void set_syntax_mode(const char *filename) {
             current_syntax_mode = C_SYNTAX;
         } else if (strcmp(ext, ".html") == 0 || strcmp(ext, ".htm") == 0) {
             current_syntax_mode = HTML_SYNTAX;
+        } else if (strcmp(ext, ".py") == 0) {
+            current_syntax_mode = PYTHON_SYNTAX;
         } else {
             current_syntax_mode = NO_SYNTAX;
         }
@@ -648,22 +649,6 @@ void load_file(const char *filename) {
         strcpy(current_filename, filename);
     } else {
         mvprintw(LINES - 2, 2, "Error loading file!");
-    }
-
-    // Determine file extension and set highlighting mode
-    const char *ext = strrchr(filename, '.');
-    if (ext != NULL) {
-        if (strcmp(ext, ".c") == 0 || strcmp(ext, ".h") == 0) {
-            set_syntax_highlighting(C_SYNTAX);
-        } else if (strcmp(ext, ".html") == 0 || strcmp(ext, ".htm") == 0) {
-            set_syntax_highlighting(HTML_SYNTAX);
-        } else if (strcmp(ext, ".py") == 0) {
-            set_syntax_highlighting(PYTHON_SYNTAX);
-        } else {
-            set_syntax_highlighting(NO_SYNTAX);
-        }
-    } else {
-        set_syntax_highlighting(NO_SYNTAX);
     }
 
     refresh();
