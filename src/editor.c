@@ -389,6 +389,9 @@ void initialize_buffer() {
 }
 
 void draw_text_buffer(WINDOW *win) {
+    if (start_line < 0)
+        start_line = 0;
+        
     werase(win);
     box(win, 0, 0);
     int max_lines = LINES - 4;  // Adjust for the status bar

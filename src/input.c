@@ -137,11 +137,11 @@ void handle_key_page_down(int *cursor_y, int *start_line) {
     // Move the starting line down
     if (*start_line + max_lines < line_count) {
         *start_line += max_lines;
-    }
-
-    // If this would scroll past the end of the file, adjust
-    if (*start_line + max_lines > line_count) {
+    } else {
         *start_line = line_count - max_lines;
+        if (*start_line < 0) {
+            *start_line = 0;
+        }
     }
 
     // Move the cursor to the bottom of the screen
@@ -149,7 +149,11 @@ void handle_key_page_down(int *cursor_y, int *start_line) {
 
     // Ensure the cursor doesn't go past the end of the file
     if (*cursor_y + *start_line >= line_count) {
-        *cursor_y = line_count - *start_line;
+        if (line_count > 0) {
+            *cursor_y = line_count - *start_line;
+        } else {
+            *cursor_y = 1;
+        }
     }
 }
 
