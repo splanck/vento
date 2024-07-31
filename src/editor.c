@@ -391,7 +391,7 @@ void initialize_buffer() {
 void draw_text_buffer(WINDOW *win) {
     if (start_line < 0)
         start_line = 0;
-        
+
     werase(win);
     box(win, 0, 0);
     int max_lines = LINES - 4;  // Adjust for the status bar
@@ -412,10 +412,15 @@ void draw_text_buffer(WINDOW *win) {
     // Draw scrollbar
     for (int i = 0; i < scrollbar_height; ++i) {
         if (i >= scrollbar_start && i < scrollbar_end) {
-            mvwprintw(win, i + 1, COLS - 2, "|");
+            mvwprintw(win, i + 1, COLS - 1, "|");
         } else {
-            mvwprintw(win, i + 1, COLS - 2, " ");
+            mvwprintw(win, i + 1, COLS - 1, " ");
         }
+    }
+
+    // Draw scrollbar at the top if the cursor is at the very top of the document
+    if (start_line == 0 && scrollbar_start == 0 && scrollbar_end > 0) {
+        mvwprintw(win, 1, COLS - 1, "|");
     }
 
     wrefresh(win);
