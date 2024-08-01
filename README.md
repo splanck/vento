@@ -34,6 +34,7 @@ Vento currently supports the following features:
 
 The following features are planned for future releases:
 
+- **Large File Support**: Improved optimizations for handling large files.
 - **Support Multiple Files**: Work on multiple files simultaneously.
 - **Copy and Paste**: Enhanced clipboard functionality for text movement.
 - **Spell Checker Support**: Automatically detect and correct typos.
