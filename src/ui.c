@@ -3,7 +3,15 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <stdio.h>
 #include "config.h"
+#include "ui.h"
+
+// Ensure the correct prototypes are available
+char *strdup(const char *s);
 
 void show_help() {
     // Window size and position adjustments
@@ -186,6 +194,108 @@ void show_warning_dialog() {
 
     // Wait for any keypress to close the dialog
     wgetch(warning_win);
+
+    // Refresh the entire screen
+    werase(text_win);
+    box(text_win, 0, 0);
+    draw_text_buffer(text_win);
+    wrefresh(text_win);
+    update_status_bar(1, 1);
+    wrefresh(stdscr);  // Refresh the main screen after closing the dialog
+}
+
+void get_dir_contents(const char *dir_path, char ***choices, int *n_choices) {
+    DIR *dir;
+    struct dirent *entry;
+    int count = 0;
+
+    dir = opendir(dir_path);
+    if (!dir) {
+        *choices = NULL;
+        *n_choices = 0;
+        return;
+    }
+
+    // Count entries
+    while ((entry = readdir(dir)) != NULL) {
+        count++;
+    }
+    rewinddir(dir);
+
+    *choices = (char **)malloc(count * sizeof(char *));
+    int i = 0;
+    while ((entry = readdir(dir)) != NULL) {
+        (*choices)[i] = strdup(entry->d_name);
+        i++;
+    }
+    closedir(dir);
+
+    *n_choices = count;
+}
+
+void free_dir_contents(char **choices, int n_choices) {
+    for (int i = 0; i < n_choices; ++i) {
+        free(choices[i]);
+    }
+    free(choices);
+}
+
+int show_select_file(char *selected_path, int max_path_len) {
+    int highlight = 0;
+    // int choice = 0;
+    int ch;
+    char cwd[1024];
+    getcwd(cwd, sizeof(cwd));
+
+    while (1) {
+        clear();
+        mvprintw(0, 0, "Current Directory: %s", cwd);
+
+        char **choices = NULL;
+        int n_choices = 0;
+        get_dir_contents(cwd, &choices, &n_choices);
+
+        for (int i = 0; i < n_choices; ++i) {
+            if (i == highlight)
+                attron(A_REVERSE);
+            mvprintw(i + 1, 0, "%s", choices[i]);
+            attroff(A_REVERSE);
+        }
+
+        ch = getch();
+        switch (ch) {
+            case KEY_UP:
+                if (highlight > 0)
+                    --highlight;
+                break;
+            case KEY_DOWN:
+                if (highlight < n_choices - 1)
+                    ++highlight;
+                break;
+            case '\n':
+                if (n_choices > 0) {
+                    struct stat statbuf;
+                    char next_path[2048]; // Increase the buffer size to avoid truncation
+                    snprintf(next_path, sizeof(next_path), "%s/%s", cwd, choices[highlight]);
+                    if (stat(next_path, &statbuf) == 0 && S_ISDIR(statbuf.st_mode)) {
+                        strncpy(cwd, next_path, sizeof(cwd));
+                        cwd[sizeof(cwd) - 1] = '\0'; // Ensure null termination
+                        highlight = 0;
+                    } else {
+                        strncpy(selected_path, next_path, max_path_len);
+                        selected_path[max_path_len - 1] = '\0'; // Ensure null termination
+                        free_dir_contents(choices, n_choices);
+                        return 1;
+                    }
+                }
+                break;
+            case 27: // ESC key
+                free_dir_contents(choices, n_choices);
+                return 0;
+        }
+
+        free_dir_contents(choices, n_choices);
+    }
 
     // Refresh the entire screen
     werase(text_win);

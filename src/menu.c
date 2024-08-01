@@ -6,6 +6,7 @@
 
 Menu *menus = NULL;
 int menuCount = 0;
+
 void initializeMenus() {
     menuCount = 3;
     menus = malloc(menuCount * sizeof(Menu));
@@ -24,11 +25,12 @@ void initializeMenus() {
 
     Menu editMenu = {"Edit", editMenuItems, 2};
 
-    MenuItem *helpMenuItems = malloc(2 * sizeof(MenuItem));
+    MenuItem *helpMenuItems = malloc(3 * sizeof(MenuItem));
     helpMenuItems[0] = (MenuItem){"About Vento", menuAbout};
     helpMenuItems[1] = (MenuItem){"Help Screen", menuHelp};
+    helpMenuItems[2] = (MenuItem){"Test Window", menuTestwindow};
 
-    Menu helpMenu = {"Help", helpMenuItems, 2};
+    Menu helpMenu = {"Help", helpMenuItems, 3};
 
     menus[0] = fileMenu;
     menus[1] = editMenu;
@@ -135,3 +137,8 @@ void menuAbout() {
 void menuHelp() {
     show_help();
 }
+
+void menuTestwindow() {
+    show_select_file("/home/", 100);
+}
+

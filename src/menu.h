@@ -22,6 +22,7 @@ void menuUndo();
 void menuRedo();
 void menuAbout();
 void menuHelp();
+void menuTestwindow();
 
 extern Menu *menus;
 extern int menuCount;
