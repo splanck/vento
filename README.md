@@ -10,6 +10,11 @@ Welcome to Vento, the lightweight text editor that's all about keeping things si
 
 ![Vento Screenshot](images/ventoscreenshot2.jpg)
 
+## Current Version
+
+**Version 0.1.0**  
+We are currently in the initial development phase, focusing on building the core functionalities. This is a development release, and while there are no official stable releases, the source code is accessible on GitHub for download and building.
+
 ## Current Features
 
 Vento currently supports the following features:
@@ -34,13 +39,39 @@ Vento currently supports the following features:
 
 The following features are planned for future releases:
 
+- **Syntax Highlighting**: Support for more languages and improved highlighting.
 - **Large File Support**: Improved optimizations for handling large files.
 - **Support Multiple Files**: Work on multiple files simultaneously.
 - **Copy and Paste**: Enhanced clipboard functionality for text movement.
+- **Find and Replace**: Easily search for specific text and replace it with another.
+- **FTP Support**: Access files on FTP servers as if they were locally stored.
+- **Theme Support**: Multiple built in themes for easy visual customization.
 - **Spell Checker Support**: Automatically detect and correct typos.
 - **Git Integration**: Integrate with Git for version control.
 - **Macro Support**: Configurable keyboard macros for repetitive tasks.
 - **Extensions API**: Plugin support to extend editor capabilities.
+
+## Roadmap
+
+Here's a roadmap for Vento's development milestones:
+
+- **0.1.x - Initial Development Phase:**  
+  These versions are the foundation of Vento, focusing on building and stabilizing core features. We are currently in this phase. **Current Version: 0.1.0**
+
+- **0.2.x - Feature Incomplete Unstable Public Releases:**  
+  These releases will expand the feature set and refine existing capabilities, although they may still be unstable. They will serve as a platform for gathering user feedback as we enhance Vento's functionality.
+
+- **0.3.x - Near Feature Complete Unstable Versions:**  
+  These versions will showcase a more cohesive feature set, though some functionalities may still be under construction. We aim to gather community feedback to polish the editor.
+
+- **0.4.x - Feature Complete Test Builds:**  
+  Vento will be feature-complete, focusing on testing and fixing bugs. These builds will be more stable and are intended for users who want to try the full range of features before the official release.
+
+- **0.9.x - Feature Complete Release Candidates:**  
+  These are pre-release candidates, ready for broader testing. We'll focus on final optimizations, performance improvements, and ironing out any remaining issues.
+
+- **1.0 - Initial Version Final Release:**  
+  This will be the first official release of Vento, marking the culmination of development efforts. It will be stable, fully functional, and ready for general use, featuring a polished and reliable user experience.
 
 ## Prerequisites
 
