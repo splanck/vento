@@ -24,9 +24,24 @@ const char *PYTHON_KEYWORDS[PYTHON_KEYWORDS_COUNT] = {
 
 // List of C keywords
 const char *C_KEYWORDS[] = {
-    "auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", "inline", "int", "long", "register", "restrict", "return", "short", "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while", "_Alignas", "_Alignof", "_Atomic", "_Bool", "_Complex", "_Generic", "_Imaginary", "_Noreturn", "_Static_assert", "_Thread_local"
+    "auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else", "enum", "extern", "float", 
+    "for", "goto", "if", "inline", "int", "long", "register", "restrict", "return", "short", "signed", "sizeof", "static", 
+    "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while", "_Alignas", "_Alignof", "_Atomic", 
+    "_Bool", "_Complex", "_Generic", "_Imaginary", "_Noreturn", "_Static_assert", "_Thread_local"
 };
 const int C_KEYWORDS_COUNT = sizeof(C_KEYWORDS) / sizeof(C_KEYWORDS[0]);
+
+// List of C# keywords
+const char *CSHARP_KEYWORDS[] = {
+    "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked", "class", "const", "continue", 
+    "decimal", "default", "delegate", "do", "double", "else", "enum", "event", "explicit", "extern", "false", "finally", 
+    "fixed", "float", "for", "foreach", "goto", "if", "implicit", "in", "int", "interface", "internal", "is", "lock", 
+    "long", "namespace", "new", "null", "object", "operator", "out", "override", "params", "private", "protected", 
+    "public", "readonly", "ref", "return", "sbyte", "sealed", "short", "sizeof", "stackalloc", "static", "string", 
+    "struct", "switch", "this", "throw", "true", "try", "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort", 
+    "using", "virtual", "void", "volatile", "while"
+};
+const int CSHARP_KEYWORDS_COUNT = sizeof(CSHARP_KEYWORDS) / sizeof(CSHARP_KEYWORDS[0]);
 
 int current_syntax_mode = NO_SYNTAX;
 
@@ -177,6 +192,103 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
             int is_keyword = 0;
             for (int j = 0; j < C_KEYWORDS_COUNT; j++) {
                 if (strcmp(word, C_KEYWORDS[j]) == 0) {
+                    wattron(win, COLOR_PAIR(2) | A_BOLD);
+                    mvwprintw(win, y, x, "%s", word);
+                    wattroff(win, COLOR_PAIR(2) | A_BOLD);
+                    x += word_len;
+                    is_keyword = 1;
+                    break;
+                }
+            }
+            if (!is_keyword) {
+                mvwprintw(win, y, x, "%s", word);
+                x += word_len;
+            }
+        } else if (strchr("(){}[]<>", line[i])) {
+            // Highlight parentheses, braces, brackets, and angle brackets
+            wattron(win, COLOR_PAIR(6) | A_BOLD);
+            mvwprintw(win, y, x++, "%c", line[i++]);
+            wattroff(win, COLOR_PAIR(6) | A_BOLD);
+        } else if (strchr("+-*/%=!&|^~", line[i])) {
+            // Highlight operators
+            wattron(win, COLOR_PAIR(6) | A_BOLD);
+            mvwprintw(win, y, x++, "%c", line[i++]);
+            wattroff(win, COLOR_PAIR(6) | A_BOLD);
+        } else {
+            // Print any other characters as is
+            mvwprintw(win, y, x++, "%c", line[i++]);
+        }
+    }
+}
+
+void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
+    int x = 1;
+    int i = 0;
+    int len = strlen(line);
+    char word[256];
+    int word_len = 0;
+
+    while (i < len) {
+        if (isspace(line[i])) {
+            // Print spaces as is
+            mvwprintw(win, y, x++, "%c", line[i]);
+            i++;
+        } else if (isdigit(line[i])) {
+            // Highlight numbers
+            wattron(win, COLOR_PAIR(5) | A_BOLD);
+            while (i < len && (isdigit(line[i]) || line[i] == '.')) {
+                mvwprintw(win, y, x++, "%c", line[i]);
+                i++;
+            }
+            wattroff(win, COLOR_PAIR(5) | A_BOLD);
+        } else if (line[i] == '/' && (line[i + 1] == '/' || line[i + 1] == '*')) {
+            // Highlight comments
+            wattron(win, COLOR_PAIR(3) | A_BOLD);
+            if (line[i + 1] == '/') {
+                while (i < len) {
+                    mvwprintw(win, y, x++, "%c", line[i]);
+                    i++;
+                }
+            } else {
+                mvwprintw(win, y, x++, "%c", line[i++]);
+                mvwprintw(win, y, x++, "%c", line[i++]);
+                while (i < len && !(line[i] == '*' && line[i + 1] == '/')) {
+                    mvwprintw(win, y, x++, "%c", line[i]);
+                    i++;
+                }
+                if (i < len) {
+                    mvwprintw(win, y, x++, "%c", line[i++]);
+                    mvwprintw(win, y, x++, "%c", line[i++]);
+                }
+            }
+            wattroff(win, COLOR_PAIR(3) | A_BOLD);
+        } else if (line[i] == '"' || line[i] == '\'') {
+            // Highlight strings and character literals
+            char quote = line[i];
+            wattron(win, COLOR_PAIR(4) | A_BOLD);
+            mvwprintw(win, y, x++, "%c", line[i++]);
+            while (i < len && line[i] != quote) {
+                if (line[i] == '\\' && i + 1 < len) {
+                    mvwprintw(win, y, x++, "%c", line[i++]);
+                }
+                mvwprintw(win, y, x++, "%c", line[i++]);
+            }
+            if (i < len) {
+                mvwprintw(win, y, x++, "%c", line[i++]);
+            }
+            wattroff(win, COLOR_PAIR(4) | A_BOLD);
+        } else if (isalpha(line[i]) || line[i] == '_') {
+            // Collect keywords and identifiers
+            word_len = 0;
+            while (i < len && (isalnum(line[i]) || line[i] == '_')) {
+                word[word_len++] = line[i++];
+            }
+            word[word_len] = '\0';
+
+            // Check if the word is a keyword
+            int is_keyword = 0;
+            for (int j = 0; j < CSHARP_KEYWORDS_COUNT; j++) {
+                if (strcmp(word, CSHARP_KEYWORDS[j]) == 0) {
                     wattron(win, COLOR_PAIR(2) | A_BOLD);
                     mvwprintw(win, y, x, "%s", word);
                     wattroff(win, COLOR_PAIR(2) | A_BOLD);

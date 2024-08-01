@@ -8,7 +8,7 @@ Welcome to Vento, the lightweight text editor that's all about keeping things si
 >
 > We appreciate any feedback, bug reports, or contributions to help improve the project. Thank you for your understanding and support!
 
-![Vento Screenshot](images/ventoscreenshot2.jpg)
+![Vento Screenshot](images/ventoscreenshot3.jpg)
 
 ## Current Version
 
