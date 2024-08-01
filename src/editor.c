@@ -604,6 +604,8 @@ void set_syntax_mode(const char *filename) {
             current_syntax_mode = HTML_SYNTAX;
         } else if (strcmp(ext, ".py") == 0) {
             current_syntax_mode = PYTHON_SYNTAX;
+        } else if (strcmp(ext, ".cs") == 0) {
+            current_syntax_mode = CSHARP_SYNTAX;
         } else {
             current_syntax_mode = NO_SYNTAX;
         }

@@ -7,6 +7,7 @@
 #define C_SYNTAX 1
 #define HTML_SYNTAX 2
 #define PYTHON_SYNTAX 3
+#define CSHARP_SYNTAX 4
 
 extern int current_syntax_mode;
 
@@ -19,5 +20,6 @@ void handle_html_comment(WINDOW *win, const char *line, int *i, int y, int *x);
 void print_char_with_attr(WINDOW *win, int y, int *x, char c, int attr);
 void highlight_no_syntax(WINDOW *win, const char *line, int y);
 void highlight_python_syntax(WINDOW *win, const char *line, int y);
+void highlight_csharp_syntax(WINDOW *win, const char *line, int y);
 
 #endif // SYNTAX_H

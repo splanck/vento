@@ -60,6 +60,9 @@ void apply_syntax_highlighting(WINDOW *win, const char *line, int y) {
         case PYTHON_SYNTAX:
             highlight_python_syntax(win, line, y);
             break;
+        case CSHARP_SYNTAX:
+            highlight_csharp_syntax(win, line, y);
+            break;
         default:
             highlight_no_syntax(win, line, y);
             break;
