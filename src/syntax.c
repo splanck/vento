@@ -49,30 +49,56 @@ void set_syntax_highlighting(int mode) {
     current_syntax_mode = mode;
 }
 
+/**
+ * Applies syntax highlighting to a line of text based on the current syntax mode.
+ * 
+ * @param win The window to print the highlighted line to.
+ * @param line The line of text to be highlighted.
+ * @param y The y-coordinate of the line in the window.
+ */
 void apply_syntax_highlighting(WINDOW *win, const char *line, int y) {
     switch (current_syntax_mode) {
         case C_SYNTAX:
+            // Apply C syntax highlighting
             highlight_c_syntax(win, line, y);
             break;
         case HTML_SYNTAX:
+            // Apply HTML syntax highlighting
             highlight_html_syntax(win, line, y);
             break;
         case PYTHON_SYNTAX:
+            // Apply Python syntax highlighting
             highlight_python_syntax(win, line, y);
             break;
         case CSHARP_SYNTAX:
+            // Apply C# syntax highlighting
             highlight_csharp_syntax(win, line, y);
             break;
         default:
+            // No syntax highlighting
             highlight_no_syntax(win, line, y);
             break;
     }
 }
 
+/**
+ * Applies no syntax highlighting to a line of text.
+ * 
+ * @param win The window to print the line to.
+ * @param line The line of text to be printed.
+ * @param y The y-coordinate of the line in the window.
+ */
 void highlight_no_syntax(WINDOW *win, const char *line, int y) {
     mvwprintw(win, y, 1, "%s", line);
 }
 
+/**
+ * Applies syntax highlighting to a line of text based on the current syntax mode.
+ * 
+ * @param win The window to print the highlighted line to.
+ * @param line The line of text to be highlighted.
+ * @param y The y-coordinate of the line in the window.
+ */
 void highlight_python_syntax(WINDOW *win, const char *line, int y) {
     int length = strlen(line);
     int start = 0;
@@ -104,11 +130,13 @@ void highlight_python_syntax(WINDOW *win, const char *line, int y) {
                 x += word_length;
             }
         } else if (line[i] == '#') {
+            // Highlight comments
             wattron(win, COLOR_PAIR(3) | A_BOLD);
             mvwprintw(win, y, x, "%s", &line[i]);
             wattroff(win, COLOR_PAIR(3) | A_BOLD);
             break;
         } else if (line[i] == '"' || line[i] == '\'') {
+            // Highlight strings and character literals
             char quote = line[i];
             start = i;
             i++;
@@ -119,6 +147,7 @@ void highlight_python_syntax(WINDOW *win, const char *line, int y) {
             wattroff(win, COLOR_PAIR(4) | A_BOLD);
             x += i - start;
         } else {
+            // Print any other characters as is
             mvwprintw(win, y, x, "%c", line[i]);
             x++;
             i++;
@@ -127,6 +156,13 @@ void highlight_python_syntax(WINDOW *win, const char *line, int y) {
     wrefresh(win);
 }
 
+/**
+ * Highlights C syntax in a line of text.
+ * 
+ * @param win The window to print the highlighted line to.
+ * @param line The line of text to be highlighted.
+ * @param y The y-coordinate of the line in the window.
+ */
 void highlight_c_syntax(WINDOW *win, const char *line, int y) {
     int x = 1;
     int i = 0;
@@ -151,11 +187,13 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
             // Highlight comments
             wattron(win, COLOR_PAIR(3) | A_BOLD);
             if (line[i + 1] == '/') {
+                // Single-line comment
                 while (i < len) {
                     mvwprintw(win, y, x++, "%c", line[i]);
                     i++;
                 }
             } else {
+                // Multi-line comment
                 mvwprintw(win, y, x++, "%c", line[i++]);
                 mvwprintw(win, y, x++, "%c", line[i++]);
                 while (i < len && !(line[i] == '*' && line[i + 1] == '/')) {
@@ -195,6 +233,7 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
             int is_keyword = 0;
             for (int j = 0; j < C_KEYWORDS_COUNT; j++) {
                 if (strcmp(word, C_KEYWORDS[j]) == 0) {
+                    // Highlight keywords
                     wattron(win, COLOR_PAIR(2) | A_BOLD);
                     mvwprintw(win, y, x, "%s", word);
                     wattroff(win, COLOR_PAIR(2) | A_BOLD);
@@ -204,6 +243,7 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
                 }
             }
             if (!is_keyword) {
+                // Print identifiers as is
                 mvwprintw(win, y, x, "%s", word);
                 x += word_len;
             }
@@ -224,6 +264,13 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
     }
 }
 
+/**
+ * Highlights C# syntax in a line of text.
+ * 
+ * @param win The window to print the highlighted line to.
+ * @param line The line of text to be highlighted.
+ * @param y The y-coordinate of the line in the window.
+ */
 void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
     int x = 1;
     int i = 0;
@@ -248,11 +295,13 @@ void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
             // Highlight comments
             wattron(win, COLOR_PAIR(3) | A_BOLD);
             if (line[i + 1] == '/') {
+                // Single-line comment
                 while (i < len) {
                     mvwprintw(win, y, x++, "%c", line[i]);
                     i++;
                 }
             } else {
+                // Multi-line comment
                 mvwprintw(win, y, x++, "%c", line[i++]);
                 mvwprintw(win, y, x++, "%c", line[i++]);
                 while (i < len && !(line[i] == '*' && line[i + 1] == '/')) {
@@ -292,6 +341,7 @@ void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
             int is_keyword = 0;
             for (int j = 0; j < CSHARP_KEYWORDS_COUNT; j++) {
                 if (strcmp(word, CSHARP_KEYWORDS[j]) == 0) {
+                    // Highlight keywords
                     wattron(win, COLOR_PAIR(2) | A_BOLD);
                     mvwprintw(win, y, x, "%s", word);
                     wattroff(win, COLOR_PAIR(2) | A_BOLD);
@@ -301,6 +351,7 @@ void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
                 }
             }
             if (!is_keyword) {
+                // Print identifiers as is
                 mvwprintw(win, y, x, "%s", word);
                 x += word_len;
             }
@@ -321,30 +372,64 @@ void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
     }
 }
 
-// Helper function to print a character with specific attributes
+/**
+ * Helper function to print a character with specific attributes.
+ * 
+ * @param win The window to print the character to.
+ * @param y The y-coordinate of the character in the window.
+ * @param x A pointer to the x-coordinate of the character in the window.
+ * @param c The character to be printed.
+ * @param attr The attributes to be applied to the character.
+ */
 void print_char_with_attr(WINDOW *win, int y, int *x, char c, int attr) {
     wattron(win, attr);
     mvwprintw(win, y, (*x)++, "%c", c);
     wattroff(win, attr);
 }
 
-// Function to handle HTML comments
+/**
+ * Handles HTML comments in a line of text.
+ * 
+ * @param win The window to print the highlighted line to.
+ * @param line The line of text to be highlighted.
+ * @param i A pointer to the current index in the line.
+ * @param y The y-coordinate of the line in the window.
+ * @param x A pointer to the x-coordinate of the line in the window.
+ */
 void handle_html_comment(WINDOW *win, const char *line, int *i, int y, int *x) {
     int len = strlen(line);
     print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_COMMENT) | A_BOLD); // Print the initial '<'
+
+    // Loop until the end of the comment is reached
     while (*i < len && !(line[*i] == '-' && line[*i + 1] == '-' && line[*i + 2] == '>')) {
         print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_COMMENT) | A_BOLD);
     }
-    if (*i < len) { // Also print the closing '>'
+
+    // Print the closing '>'
+    if (*i < len) {
         print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_COMMENT) | A_BOLD);
         (*i) += 2; // Skip over '-->'
     }
 }
 
-// Function to handle HTML tags (opening, closing, and self-closing)
+/**
+ * Function to handle HTML tags (opening, closing, and self-closing).
+ * 
+ * This function is responsible for handling HTML tags in a line of text.
+ * It identifies the different parts of the tag (tag name, attributes, attribute values)
+ * and applies appropriate highlighting to each part.
+ * 
+ * @param win The window to print the highlighted line to.
+ * @param line The line of text to be highlighted.
+ * @param i A pointer to the current index in the line.
+ * @param y The y-coordinate of the line in the window.
+ * @param x A pointer to the x-coordinate of the line in the window.
+ */
 void handle_html_tag(WINDOW *win, const char *line, int *i, int y, int *x) {
     int len = strlen(line);
     bool inAttribute = false;
+
+    // Loop until the end of the tag is reached
     while (*i < len && line[*i] != '>') {
         if (line[*i] == ' ' && !inAttribute) {
             // Space outside of attributes, might be the start of an attribute
@@ -353,12 +438,16 @@ void handle_html_tag(WINDOW *win, const char *line, int *i, int y, int *x) {
         } else if (line[*i] == '=') {
             // Equal sign, attribute value follows
             print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_ATTRIBUTE) | A_BOLD);
+
             if (line[*i] == '"' || line[*i] == '\'') { // Attribute value enclosed in quotes
                 char quoteType = line[(*i)++];
                 print_char_with_attr(win, y, x, quoteType, COLOR_PAIR(COLOR_VALUE) | A_BOLD);
+
+                // Loop until the end of the attribute value is reached
                 while (*i < len && line[*i] != quoteType) {
                     print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_VALUE) | A_BOLD);
                 }
+
                 if (*i < len) {
                     print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_VALUE) | A_BOLD); // Print the closing quote
                 }
@@ -369,12 +458,23 @@ void handle_html_tag(WINDOW *win, const char *line, int *i, int y, int *x) {
             print_char_with_attr(win, y, x, line[(*i)++], color);
         }
     }
+
     if (*i < len) { // Print the closing '>'
         print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_TAG) | A_BOLD);
     }
 }
 
-// Main function to highlight HTML syntax
+
+/**
+ * Main function to highlight HTML syntax.
+ * 
+ * This function is responsible for highlighting HTML syntax in a line of text.
+ * It identifies HTML tags and comments and applies appropriate highlighting to each part.
+ * 
+ * @param win The window to print the highlighted line to.
+ * @param line The line of text to be highlighted.
+ * @param y The y-coordinate of the line in the window.
+ */
 void highlight_html_syntax(WINDOW *win, const char *line, int y) {
     if (!win || !line) return; // Basic error handling
 
@@ -397,3 +497,4 @@ void highlight_html_syntax(WINDOW *win, const char *line, int y) {
         }
     }
 }
+

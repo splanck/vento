@@ -9,15 +9,16 @@
 int enable_color = 1; // Default to enabled
 
 // Function to map color names to ncurses color constants
+// Returns the corresponding color code for the given color name
 short get_color_code(const char *color_name) {
-    if (strcmp(color_name, "BLACK") == 0) return COLOR_BLACK;
-    if (strcmp(color_name, "RED") == 0) return COLOR_RED;
-    if (strcmp(color_name, "GREEN") == 0) return COLOR_GREEN;
-    if (strcmp(color_name, "YELLOW") == 0) return COLOR_YELLOW;
-    if (strcmp(color_name, "BLUE") == 0) return COLOR_BLUE;
-    if (strcmp(color_name, "MAGENTA") == 0) return COLOR_MAGENTA;
-    if (strcmp(color_name, "CYAN") == 0) return COLOR_CYAN;
-    if (strcmp(color_name, "WHITE") == 0) return COLOR_WHITE;
+    if (strcmp(color_name, "BLACK") == 0) return COLOR_BLACK; // Black color
+    if (strcmp(color_name, "RED") == 0) return COLOR_RED; // Red color
+    if (strcmp(color_name, "GREEN") == 0) return COLOR_GREEN; // Green color
+    if (strcmp(color_name, "YELLOW") == 0) return COLOR_YELLOW; // Yellow color
+    if (strcmp(color_name, "BLUE") == 0) return COLOR_BLUE; // Blue color
+    if (strcmp(color_name, "MAGENTA") == 0) return COLOR_MAGENTA; // Magenta color
+    if (strcmp(color_name, "CYAN") == 0) return COLOR_CYAN; // Cyan color
+    if (strcmp(color_name, "WHITE") == 0) return COLOR_WHITE; // White color
     return -1; // Invalid color
 }
 
@@ -35,12 +36,20 @@ void create_default_config(const char *filepath) {
     }
 }
 
+/**
+ * Reads the configuration file and applies the settings.
+ * If the file doesn't exist, it creates a default configuration file.
+ */
 void read_config_file() {
+    // Get the user's home directory
     struct passwd *pw = getpwuid(getuid());
     const char *homedir = pw->pw_dir;
+
+    // Create the file path
     char filepath[256];
     snprintf(filepath, sizeof(filepath), "%s/ventorc", homedir);
 
+    // Open the configuration file for reading
     FILE *file = fopen(filepath, "r");
     if (!file) {
         // Create default config if file doesn't exist

@@ -13,6 +13,9 @@
 // Ensure the correct prototypes are available
 char *strdup(const char *s);
 
+/**
+ * Displays the help dialog with a list of available commands and their corresponding keybindings.
+ */
 void show_help() {
     // Window size and position adjustments
     int win_height = 15;
@@ -32,7 +35,11 @@ void show_help() {
     box(help_win, 0, 0);
 
     // Print the help information in two columns
+
+    // Print the title
     mvwprintw(help_win, 1, 2, "Help:");
+
+    // Print the command and keybinding for each command
     mvwprintw(help_win, 3, 2, "CTRL-H: Show this help");
     mvwprintw(help_win, 4, 2, "CTRL-A: About");
     mvwprintw(help_win, 5, 2, "CTRL-L: Load a new file");
@@ -44,6 +51,7 @@ void show_help() {
     mvwprintw(help_win, 11, 2, "CTRL-R: Redo");
     mvwprintw(help_win, 12, 2, "CTRL-U: Undo");
 
+    // Print the second column of commands and keybindings
     mvwprintw(help_win, 3, win_width / 2, "CTRL-X: Quit");
     mvwprintw(help_win, 4, win_width / 2, "CTRL-F: Move forward to next word");
     mvwprintw(help_win, 5, win_width / 2, "CTRL-B: Move backward to previous word");
@@ -67,6 +75,9 @@ void show_help() {
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
 }
 
+/**
+ * Displays the about dialog with information about the Vento Text Editor.
+ */
 void show_about() {
     // Window size and position adjustments
     int win_height = 10;
@@ -86,9 +97,17 @@ void show_about() {
     box(about_win, 0, 0);
 
     // Print the about information
+
+    // Print the title
     mvwprintw(about_win, 1, 2, "Vento Text Editor");
+
+    // Print the version
     mvwprintw(about_win, 2, 2, "Version: %s", VERSION);
+
+    // Print the license
     mvwprintw(about_win, 3, 2, "License: GPL v3");
+
+    // Print the description
     mvwprintw(about_win, 4, 2, "Vento is open-source software licensed under the GPL v3.");
 
     // Wait for any keypress to close the dialog
@@ -103,6 +122,15 @@ void show_about() {
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
 }
 
+/**
+ * Creates a dialog window with a message and an input field for the user to enter text.
+ * The entered text is stored in the 'output' parameter.
+ * The maximum length of the input is specified by 'max_input_len'.
+ *
+ * @param message The message to display in the dialog window.
+ * @param output  The buffer to store the user's input.
+ * @param max_input_len The maximum length of the user's input.
+ */
 void create_dialog(const char *message, char *output, int max_input_len) {
     // Define colors
     start_color();
@@ -164,6 +192,10 @@ void create_dialog(const char *message, char *output, int max_input_len) {
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
 }
 
+/**
+ * Displays a warning dialog to inform the user that the software is experimental and not intended for production use.
+ * The dialog will be dismissed when any key is pressed.
+ */
 void show_warning_dialog() {
     int win_height = 7;
     int win_width = COLS - 20;
