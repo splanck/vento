@@ -354,6 +354,12 @@ void initialize() {
     keypad(text_win, TRUE);  // Enable special keys for text_win
     meta(text_win, TRUE);  // Enable 8-bit control characters for text_win
 
+    // Initialize mouse support
+    mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
+    
+    // Set timeout to 100 milliseconds
+    timeout(10); 
+
     // Read the configuration file again (in case it was modified)
     read_config_file();
 
@@ -422,8 +428,9 @@ void run_editor() {
     int cursor_x = 1, cursor_y = 1;
     int currentMenu = 0;
     int currentItem = 0;
+    MEVENT event; // Mouse event structure
 
-    wmove(text_win, cursor_x, cursor_y);  // Move cursor after "Input: "
+    wmove(text_win, cursor_x, cursor_y);
 
     while ((ch = wgetch(text_win)) && exiting == 0) { // Exit on ESC key
         if (ch == ERR) {
@@ -445,6 +452,20 @@ void run_editor() {
             handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
             // Redraw the editor screen after closing the menu
             redraw(&cursor_x, &cursor_y);
+        } else if (ch == KEY_MOUSE) {
+            if (getmouse(&event) == OK) {
+                // Check if the mouse event is a click within the text window
+                if (event.bstate & BUTTON1_PRESSED) {
+                    int new_x = event.x;
+                    int new_y = event.y;
+
+                    // Convert the mouse position to cursor position
+                    if (new_x < COLS - 2 && new_y < LINES - 3) {
+                        cursor_x = new_x;
+                        cursor_y = new_y;
+                    }
+                }
+            }
         } else {
             handle_regular_mode(ch, &cursor_x, &cursor_y);
         }

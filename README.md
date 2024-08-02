@@ -42,6 +42,7 @@ The following features are planned for future releases:
 - **Syntax Highlighting**: Support for more languages and improved highlighting.
 - **Large File Support**: Improved optimizations for handling large files.
 - **Support Multiple Files**: Work on multiple files simultaneously.
+- **Mouse Support**: Navigate the user interface and files using a mouse.
 - **Copy and Paste**: Enhanced clipboard functionality for text movement.
 - **Find and Replace**: Easily search for specific text and replace it with another.
 - **FTP Support**: Access files on FTP servers as if they were locally stored.
