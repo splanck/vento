@@ -462,7 +462,7 @@ void run_editor() {
                     // Convert the mouse position to cursor position
                     if (new_x < COLS - 2 && new_y < LINES - 3) {
                         cursor_x = new_x;
-                        cursor_y = new_y;
+                        cursor_y = new_y - 1;
                     }
                 }
             }
