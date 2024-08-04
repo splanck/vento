@@ -442,6 +442,7 @@ void run_editor() {
         }
 
         //mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
+        drawBar();
         update_status_bar(cursor_x, cursor_y);        
         refresh();
         

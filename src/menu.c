@@ -7,6 +7,22 @@
 Menu *menus = NULL;
 int menuCount = 0;
 
+void drawMenuBar(Menu *menus, int menuCount) {
+    // Clear the top row
+    move(0, 0);
+    clrtoeol();
+
+    // Draw the menu bar
+    for (int i = 0; i < menuCount; ++i) {
+        mvprintw(0, i * 10, menus[i].label);
+    }
+    refresh();
+}
+
+void drawBar() {
+    drawMenuBar(menus, menuCount);
+}
+
 /**
  * Initializes the menus.
  */
@@ -48,6 +64,8 @@ void initializeMenus() {
     menus[0] = fileMenu;
     menus[1] = editMenu;
     menus[2] = helpMenu;
+
+    drawMenuBar(menus, menuCount);
 }
 
 /**
@@ -171,5 +189,6 @@ void menuHelp() {
 
 void menuTestwindow() {
     show_select_file("/home/", 100);
+    drawBar();
 }
 

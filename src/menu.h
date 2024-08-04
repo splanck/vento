@@ -23,6 +23,7 @@ void menuRedo();
 void menuAbout();
 void menuHelp();
 void menuTestwindow();
+void drawBar();
 
 extern Menu *menus;
 extern int menuCount;
