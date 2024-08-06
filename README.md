@@ -57,7 +57,7 @@ The following features are planned for future releases:
 Here's a roadmap for Vento's development milestones:
 
 - **0.1.x - Initial Development Phase:**  
-  These versions are the foundation of Vento, focusing on building and stabilizing core features. We are currently in this phase. **Current Version: 0.1.0**
+  These versions are the foundation of Vento, focusing on building and stabilizing core features. We are currently in this phase. **Current Version: 0.1.1**
 
 - **0.2.x - Feature Incomplete Unstable Public Releases:**  
   These releases will expand the feature set and refine existing capabilities, although they may still be unstable. They will serve as a platform for gathering user feedback as we enhance Vento's functionality.
