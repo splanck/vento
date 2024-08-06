@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define VERSION "0.1.0"
+#define VERSION "0.1.1"
 
 extern int enable_color;
 
