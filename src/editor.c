@@ -171,10 +171,17 @@ void end_selection_mode() {
 }
 
 void copy_selection() {
-    int start_y = sel_start_y < sel_end_y ? sel_start_y : sel_end_y;
-    int end_y = sel_start_y > sel_end_y ? sel_start_y : sel_end_y;
     int start_x = sel_start_x;
     int end_x = sel_end_x;
+    int start_y, end_y;
+    
+    if (sel_start_y < sel_end_y) {
+        start_y = sel_start_y;
+        end_y = sel_end_y;
+    } else {
+        start_y = sel_end_y;
+        end_y = sel_start_y;
+    }
 
     clipboard[0] = '\0';  // Clear clipboard
     for (int y = start_y; y <= end_y; y++) {
