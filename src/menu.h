@@ -20,6 +20,7 @@ void menuSaveFile();
 void menuQuitEditor();
 void menuUndo();
 void menuRedo();
+void menuFind();
 void menuAbout();
 void menuHelp();
 void menuTestwindow();

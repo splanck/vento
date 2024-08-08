@@ -44,12 +44,13 @@ void initializeMenus() {
     Menu fileMenu = {"File", fileMenuItems, 4};
 
     // Create the edit menu
-    MenuItem *editMenuItems = malloc(2 * sizeof(MenuItem));
+    MenuItem *editMenuItems = malloc(3 * sizeof(MenuItem));
     editMenuItems[0] = (MenuItem){"Undo", menuUndo};
     editMenuItems[1] = (MenuItem){"Redo", menuRedo};
+    editMenuItems[2] = (MenuItem){"Find", menuFind};
 
     // Initialize the edit menu
-    Menu editMenu = {"Edit", editMenuItems, 2};
+    Menu editMenu = {"Edit", editMenuItems, 3};
 
     // Create the help menu
     MenuItem *helpMenuItems = malloc(3 * sizeof(MenuItem));
@@ -177,6 +178,10 @@ void menuUndo() {
 
 void menuRedo() {
     redo();
+}
+
+void menuFind() {
+
 }
 
 void menuAbout() {

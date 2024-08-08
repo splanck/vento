@@ -407,3 +407,5 @@ void show_find_dialog(char *output, int max_input_len) {
     delwin(dialog_win);
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
 }
+
+
