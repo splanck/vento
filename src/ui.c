@@ -18,7 +18,7 @@ char *strdup(const char *s);
  */
 void show_help() {
     // Window size and position adjustments
-    int win_height = 15;
+    int win_height = 16;
     int win_width = COLS - 40;
     int win_y = (LINES - win_height) / 2;
     int win_x = (COLS - win_width) / 2;
@@ -50,10 +50,11 @@ void show_help() {
     mvwprintw(help_win, 10, 2, "CTRL-N: New file");
     mvwprintw(help_win, 11, 2, "CTRL-R: Redo");
     mvwprintw(help_win, 12, 2, "CTRL-U: Undo");
+    mvwprintw(help_win, 13, 2, "CTRL-F: Search for text string");
 
     // Print the second column of commands and keybindings
     mvwprintw(help_win, 3, win_width / 2, "CTRL-X: Quit");
-    mvwprintw(help_win, 4, win_width / 2, "CTRL-F: Move forward to next word");
+    mvwprintw(help_win, 4, win_width / 2, "CTRL-W: Move forward to next word");
     mvwprintw(help_win, 5, win_width / 2, "CTRL-B: Move backward to previous word");
     mvwprintw(help_win, 6, win_width / 2, "CTRL-D: Delete current line");
     mvwprintw(help_win, 7, win_width / 2, "Arrow Keys: Navigate text");
