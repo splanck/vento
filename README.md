@@ -12,8 +12,8 @@ Welcome to Vento, the lightweight text editor that's all about keeping things si
 
 ## Current Version
 
-**Version 0.1.1**  
-We are currently in the initial development phase, focusing on building the core functionalities. This is a development release, and while there are no official stable releases, the source code is accessible on GitHub for download and building.
+**Version 0.1.2**  
+We are currently in the initial development phase, focusing on building the core functionalities. This is a development version, and while there are no official releases at this time, the source code is accessible on GitHub for download and building.
 
 ## Current Features
 
@@ -25,8 +25,9 @@ Vento currently supports the following features:
 - **Save As**: Save your work with a new filename.
 - **Save Feature**: Save changes without being prompted for a filename each time.
 - **Undo and Redo**: Undo and redo actions to correct mistakes.
+- **Find**: Search for the next occurrance of a word.
 - **Delete Current Line**: Press `CTRL-D` to delete the current line.
-- **Word Navigation**: Use `CTRL-F` to move to the next word and `CTRL-B` to move to the previous word.
+- **Word Navigation**: Use `CTRL-W` to move to the next word and `CTRL-B` to move to the previous word.
 - **Customizable Configuration**: Customize settings through a configuration file.
 - **Basic Syntax Highlighting**: Simple syntax highlighting for C, HTML, and Python files.
 - **Status Bar**: Displays the current line and column number.
@@ -44,7 +45,7 @@ The following features are planned for future releases:
 - **Support Multiple Files**: Work on multiple files simultaneously.
 - **Mouse Support**: Navigate the user interface and files using a mouse.
 - **Copy and Paste**: Enhanced clipboard functionality for text movement.
-- **Find and Replace**: Easily search for specific text and replace it with another.
+- **Replace**: Easily search for specific text and replace it with another.
 - **FTP Support**: Access files on FTP servers as if they were locally stored.
 - **Theme Support**: Multiple built in themes for easy visual customization.
 - **Spell Checker Support**: Automatically detect and correct typos.
@@ -57,7 +58,7 @@ The following features are planned for future releases:
 Here's a roadmap for Vento's development milestones:
 
 - **0.1.x - Initial Development Phase:**  
-  These versions are the foundation of Vento, focusing on building and stabilizing core features. We are currently in this phase. **Current Version: 0.1.1**
+  These versions are the foundation of Vento, focusing on building and stabilizing core features. We are currently in this phase. Although this version number is occasionally incremented, there are no actual releases during this phase. **Current Version: 0.1.1**
 
 - **0.2.x - Feature Incomplete Unstable Public Releases:**  
   These releases will expand the feature set and refine existing capabilities, although they may still be unstable. They will serve as a platform for gathering user feedback as we enhance Vento's functionality.

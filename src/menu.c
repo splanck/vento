@@ -161,7 +161,7 @@ void menuNewFile() {
 }
 
 void menuLoadFile() {
-    load_file();
+    load_file(NULL);
 }
 
 void menuSaveFile() {
@@ -181,7 +181,7 @@ void menuRedo() {
 }
 
 void menuFind() {
-
+    find(1);
 }
 
 void menuAbout() {

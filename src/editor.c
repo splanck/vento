@@ -13,6 +13,7 @@
 
 char *strdup(const char *s);  // Explicitly declare strdup
 int exiting = 0;
+int cursor_x = 1, cursor_y = 1;
 
 char *text_buffer[MAX_LINES];  // Array of strings to store the lines of text
 int line_count = 0;  // Number of lines in the text buffer
@@ -20,6 +21,7 @@ int start_line = 0;  // Index of the first visible line in the text window
 int runeditor = 0;  // Flag to control the main loop of the editor
 
 char current_filename[256] = "";  // Name of the current file being edited
+char search_text[256] = "";
 
 WINDOW *text_win;  // Pointer to the ncurses window for displaying the text
 
@@ -27,7 +29,7 @@ int key_help = 8;  // Key code for the help command
 int key_about = 1;  // Key code for the about command
 int key_delete_line = 4;  // Key code for the delete line command
 int key_insert_line = 9;  // Key code for the insert line command
-int key_move_forward = 6;  // Key code for the move forward command
+int key_move_forward = 23;  // Key code for the move forward command (CTRL-w)
 int key_move_backward = 2;  // Key code for the move backward command
 int key_load_file = 12;  // Key code for the load file command
 int key_save_as = 15;  // Key code for the save as command
@@ -38,6 +40,7 @@ int key_clear_buffer = 14;  // Key code for clearing the text buffer
 int key_redo = 18;  // Key code for the redo command
 int key_undo = 21;  // Key code for the undo command
 int key_quit = 24;  // Key code for quitting the editor
+int key_find = 6;  // Key code for finding next word
 
 // Global clipboard
 char *clipboard;
@@ -320,6 +323,97 @@ void insert_new_line(int *cursor_x, int *cursor_y, int *start_line) {
     }
 }
 
+void find_next_occurrence(const char *word, int *cursor_x, int *cursor_y) {
+    int word_len = strlen(word);
+    int found = 0;
+    int lines_per_screen = LINES - 3;  // Lines available in a single screen view
+    int middle_line = lines_per_screen / 2; // Calculate middle line position
+    int start_search = *cursor_y + start_line;
+
+    // Search from the current cursor position to the end of the document
+    for (int line = start_search; line < line_count; ++line) {
+        const char *line_text = text_buffer[line];
+        const char *found_position = strstr(line == start_search ? line_text + *cursor_x : line_text, word);
+
+        if (found_position != NULL) {
+            // Calculate new cursor positions
+            *cursor_y = line - start_line + 1;
+            *cursor_x = found_position - line_text + 1;
+
+            // Adjust start_line based on document size and found line position
+            if (line_count <= lines_per_screen) {
+                start_line = 0;  // The entire document fits on one screen
+            } else {
+                if (line < middle_line) {
+                    start_line = 0;  // Avoid scrolling past the top
+                } else if (line > line_count - middle_line) {
+                    start_line = line_count - lines_per_screen;  // Keep the last line visible
+                } else {
+                    start_line = line - middle_line;  // Center the found line
+                }
+            }
+
+            // Update cursor position to the line in the middle of the screen
+            *cursor_y = line - start_line + 1;
+
+            found = 1;
+            break;
+        }
+    }
+
+    // If not found, wrap around and search from the start to the initial cursor position
+    if (!found) {
+        for (int line = 0; line < start_search; ++line) {
+            const char *line_text = text_buffer[line];
+            const char *found_position = strstr(line_text, word);
+
+            if (found_position != NULL) {
+                // Calculate new cursor positions
+                *cursor_y = line - start_line + 1;
+                *cursor_x = found_position - line_text + 1;
+
+                // Adjust start_line based on document size and found line position
+                if (line_count <= lines_per_screen) {
+                    start_line = 0;  // The entire document fits on one screen
+                } else {
+                    if (line < middle_line) {
+                        start_line = 0;  // Avoid scrolling past the top
+                    } else if (line > line_count - middle_line) {
+                        start_line = line_count - lines_per_screen;  // Keep the last line visible
+                    } else {
+                        start_line = line - middle_line;  // Center the found line
+                    }
+                }
+
+                // Update cursor position to the line in the middle of the screen
+                *cursor_y = line - start_line + 1;
+
+                found = 1;
+                break;
+            }
+        }
+    }
+
+    if (!found) {
+        mvprintw(LINES - 2, 0, "Word not found.");
+    } else {
+        mvprintw(LINES - 2, 0, "Found at Line: %d, Column: %d", *cursor_y + start_line + 1, *cursor_x + 1);
+    }
+    refresh();
+    wmove(text_win, *cursor_y, *cursor_x);
+    wrefresh(text_win);
+}
+
+
+void find(int new_search)
+{
+    char *output = malloc(256 * sizeof(char));
+    *output = '\0';
+    show_find_dialog(output, 20);
+
+    find_next_occurrence(output, &cursor_x, &cursor_y);
+}
+
 /**
  * Disables the handling of CTRL-C and CTRL-Z signals.
  * This function ignores the SIGINT (CTRL-C) and SIGTSTP (CTRL-Z) signals.
@@ -432,7 +526,6 @@ void run_editor() {
         return;
 
     int ch;
-    int cursor_x = 1, cursor_y = 1;
     int currentMenu = 0;
     int currentItem = 0;
     MEVENT event; // Mouse event structure
@@ -640,6 +733,9 @@ void handle_regular_mode(int ch, int *cursor_x, int *cursor_y) {
         redraw(cursor_x, cursor_y); // Redraw the editor screen after displaying the help menu
     } else if (ch == key_about) {
         show_about(); // Display information about the editor
+        redraw(cursor_x, cursor_y); // Redraw the editor screen after displaying the about information
+    } else if (ch == key_find) {
+        find(1);
         redraw(cursor_x, cursor_y); // Redraw the editor screen after displaying the about information
     } else if (ch == key_delete_line) {
         delete_current_line(cursor_y, &start_line); // Delete the current line

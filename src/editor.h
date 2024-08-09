@@ -15,7 +15,7 @@ typedef struct Node {
     struct Node *next;
 } Node;
 
-#define MAX_LINES 1000
+#define MAX_LINES 5000
 
 // Define custom key constants for CTRL-Left, CTRL-Right, CTRL-Page Up, CTRL-Page Down
 #define KEY_CTRL_LEFT       1000
@@ -54,10 +54,11 @@ void run_editor();
 void initialize_buffer();
 void save_file();
 void save_file_as();
-void load_file();
+void load_file(const char *filename);
 void new_file();
 void undo();
 void redo();
+void find(int new_search);
 void redraw(int *cursor_x, int *cursor_y);
 void delete_current_line(int *cursor_y, int *start_line);
 void insert_new_line(int *cursor_x, int *cursor_y, int *start_line);

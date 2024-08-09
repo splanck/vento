@@ -384,19 +384,28 @@ void show_find_dialog(char *output, int max_input_len) {
     // Get user input with maximum length check
     int ch, input_len = 0;
     while ((ch = wgetch(dialog_win)) != '\n' && input_len < max_input_len - 1) {
-        if (isprint(ch)) {
-            mvwprintw(dialog_win, input_y, input_x + 7 + input_len, "%c", ch);
-            output[input_len] = ch;
-            input_len++;
-            wmove(dialog_win, input_y, input_x + 7 + input_len);
-            wrefresh(dialog_win);
-        } else if (ch == KEY_BACKSPACE || ch == 127) {
-            if (input_len > 0) {
-                input_len--;
-                mvwprintw(dialog_win, input_y, input_x + 7 + input_len, " ");
+        if (dialog_win != NULL) {
+            if (isprint(ch)) {
+                if (input_len >= max_input_len - 3)
+                    continue;
+
+                mvwprintw(dialog_win, input_y, input_x + 7 + input_len, "%c", ch);
+                output[input_len] = ch;
+                input_len++;
                 wmove(dialog_win, input_y, input_x + 7 + input_len);
                 wrefresh(dialog_win);
+            } else if (ch == KEY_BACKSPACE || ch == 127) {
+                if (input_len > 0) {
+                    input_len--;
+                    mvwprintw(dialog_win, input_y, input_x + 7 + input_len, " ");
+                    wmove(dialog_win, input_y, input_x + 7 + input_len);
+                    wrefresh(dialog_win);
+                }
+            } else if (ch == 27) { // ESC key
+                break;
             }
+        } else {
+            break;
         }
     }
     output[input_len] = '\0';  // Add null terminator to the input string
