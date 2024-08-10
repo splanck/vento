@@ -101,4 +101,8 @@ make
 sudo make install
 ```
 
+## Contributing to Vento
+
+While I am not actively seeking contributors for the Vento project, if the project interests you and you would like to contribute, please feel free to reach out. You can email me at splanck@tutamail.com.
+
 Thanks for checking out Vento! Happy editing!
