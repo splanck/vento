@@ -11,19 +11,28 @@
 #include "menu.h"
 #include "config.h"
 
-char *strdup(const char *s);  // Explicitly declare strdup
-int exiting = 0;
 int cursor_x = 1, cursor_y = 1;
-
+char current_filename[256] = "";  // Name of the current file being edited
 char *text_buffer[MAX_LINES];  // Array of strings to store the lines of text
 int line_count = 0;  // Number of lines in the text buffer
 int start_line = 0;  // Index of the first visible line in the text window
 int runeditor = 0;  // Flag to control the main loop of the editor
-
-char current_filename[256] = "";  // Name of the current file being edited
-char search_text[256] = "";
-
 WINDOW *text_win;  // Pointer to the ncurses window for displaying the text
+
+// Global clipboard
+char *clipboard;
+bool selection_mode = false;
+int sel_start_x = 0, sel_start_y = 0;
+int sel_end_x = 0, sel_end_y = 0;
+
+// Undo and redo stacks
+Node *undo_stack = NULL;
+Node *redo_stack = NULL;
+
+char *strdup(const char *s);  // Explicitly declare strdup
+int exiting = 0;
+
+char search_text[256] = "";
 
 int key_help = 8;  // Key code for the help command
 int key_about = 1;  // Key code for the about command
@@ -41,16 +50,6 @@ int key_redo = 18;  // Key code for the redo command
 int key_undo = 21;  // Key code for the undo command
 int key_quit = 24;  // Key code for quitting the editor
 int key_find = 6;  // Key code for finding next word
-
-// Global clipboard
-char *clipboard;
-bool selection_mode = false;
-int sel_start_x = 0, sel_start_y = 0;
-int sel_end_x = 0, sel_end_y = 0;
-
-// Undo and redo stacks
-Node *undo_stack = NULL;
-Node *redo_stack = NULL;
 
 /**
  * Pushes a new change onto the stack.
