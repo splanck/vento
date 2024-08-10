@@ -1,4 +1,7 @@
+#include <stdlib.h>
 #include "files.h"
+#include "editor.h"
+#include "syntax.h"
 
 // Function to initialize a new FileState for a given filename
 FileState *initialize_file_state(const char *filename, int max_lines, int max_cols) {
@@ -25,4 +28,31 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     file_state->text_win = newwin(LINES - 2, COLS, 1, 0); // Create a new window for the file
 
     return file_state;
+}
+
+// Function to free allocated resources in FileState
+void free_file_state(FileState *file_state, int max_lines) {
+    for (int i = 0; i < max_lines; i++) {
+        free(file_state->text_buffer[i]);
+    }
+    free(file_state->text_buffer);
+    delwin(file_state->text_win);
+    free(file_state);
+}
+
+// Function to load file content into the text buffer
+int load_file_into_buffer(FileState *file_state) {
+    FILE *fp = fopen(file_state->filename, "r");
+    if (!fp) {
+        return -1; // Return error if file cannot be opened
+    }
+
+    char line[1024];
+    while (fgets(line, sizeof(line), fp)) {
+        // Copy line to text buffer
+        strncpy(file_state->text_buffer[file_state->line_count], line, strlen(line) - 1);
+        file_state->line_count++;
+    }
+    fclose(fp);
+    return 0; // Success
 }

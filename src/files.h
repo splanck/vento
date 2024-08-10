@@ -2,6 +2,7 @@
 #define FILES_H
 
 #include <ncurses.h>
+#include "editor.h"
 
 typedef struct {
     char filename[256];
@@ -20,5 +21,7 @@ typedef struct {
 } FileState;
 
 FileState *initialize_file_state(const char *filename, int max_lines, int max_cols);
+void free_file_state(FileState *file_state, int max_lines);
+int load_file_into_buffer(FileState *file_state);
 
 #endif
