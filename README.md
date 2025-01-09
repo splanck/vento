@@ -53,6 +53,10 @@ The following features are planned for future releases:
 - **Macro Support**: Configurable keyboard macros for repetitive tasks.
 - **Extensions API**: Plugin support to extend editor capabilities.
 
+## Known Issues
+
+- Tab key is being processed by the editor incorrectly.
+
 ## Roadmap
 
 Here's a roadmap for Vento's development milestones:
