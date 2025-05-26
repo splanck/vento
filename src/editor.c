@@ -55,113 +55,149 @@ int key_quit = 24;  // Key code for quitting the editor
 int key_find = 6;  // Key code for finding next word
 
 static void handle_key_up_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cx;
     handle_key_up(cy, &start_line);
 }
 
 static void handle_key_down_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cx;
     handle_key_down(cy, &start_line);
 }
 
 static void handle_key_left_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cy;
     handle_key_left(cx);
 }
 
 static void handle_key_right_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     handle_key_right(cx, *cy);
 }
 
 static void handle_key_backspace_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     handle_key_backspace(cx, cy, &start_line);
 }
 
 static void handle_key_delete_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     handle_key_delete(cx, *cy);
 }
 
 static void handle_key_enter_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     handle_key_enter(cx, cy, &start_line);
 }
 
 static void handle_key_page_up_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cx;
     handle_key_page_up(cy, &start_line);
 }
 
 static void handle_key_page_down_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     handle_key_page_down(cy, &start_line);
     redraw(cx, cy);
 }
 
 static void handle_ctrl_left_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cy;
     handle_ctrl_key_left(cx);
 }
 
 static void handle_ctrl_right_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     handle_ctrl_key_right(cx, *cy);
 }
 
 static void handle_ctrl_pgup_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cx;
     handle_ctrl_key_pgup(cy, &start_line);
 }
 
 static void handle_ctrl_pgdn_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cx;
     handle_ctrl_key_pgdn(cy, &start_line);
 }
 
 static void handle_ctrl_up_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cx;
     handle_ctrl_key_up(cy);
 }
 
 static void handle_ctrl_down_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cx;
     handle_ctrl_key_down(cy);
 }
 
 static void handle_help_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     show_help();
     redraw(cx, cy);
 }
 
 static void handle_about_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     show_about();
     redraw(cx, cy);
 }
 
 static void handle_find_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     find(1);
     redraw(cx, cy);
 }
 
 static void handle_delete_line_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cx;
     delete_current_line(cy, &start_line);
 }
 
 static void handle_insert_line_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     insert_new_line(cx, cy, &start_line);
 }
 
 static void handle_move_forward_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     move_forward_to_next_word(cx, cy);
 }
 
 static void handle_move_backward_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     move_backward_to_previous_word(cx, cy);
 }
 
 static void handle_load_file_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     load_file(NULL);
     redraw(cx, cy);
 }
 
 static void handle_save_as_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     save_file_as();
     redraw(cx, cy);
 }
 
 static void handle_save_file_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     save_file();
     redraw(cx, cy);
 }
 
 static void handle_selection_mode_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     if (selection_mode) {
         end_selection_mode();
     } else {
@@ -170,24 +206,35 @@ static void handle_selection_mode_wrapper(struct FileState *fs, int *cx, int *cy
 }
 
 static void handle_paste_clipboard_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     paste_clipboard(cx, cy);
 }
 
 static void handle_clear_buffer_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     clear_text_buffer();
     *cx = 1;
     *cy = 1;
 }
 
 static void handle_redo_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cx;
+    (void)cy;
     redo();
 }
 
 static void handle_undo_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cx;
+    (void)cy;
     undo();
 }
 
 static void handle_quit_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cx;
+    (void)cy;
     exiting = 1;
 }
 
