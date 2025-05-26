@@ -207,7 +207,12 @@ void paste_clipboard(int *cursor_x, int *cursor_y) {
         return;
     }
 
-    char *line = strtok(clipboard, "\n");
+    /* Copy clipboard contents to a temporary buffer so that
+       tokenizing does not modify the original clipboard. */
+    char tmp[CLIPBOARD_SIZE];
+    strcpy(tmp, clipboard);
+
+    char *line = strtok(tmp, "\n");
     while (line) {
         int len = strlen(line);
         memmove(&text_buffer[*cursor_y - 1 + start_line][*cursor_x - 1 + len], &text_buffer[*cursor_y - 1 + start_line][*cursor_x - 1], strlen(&text_buffer[*cursor_y - 1 + start_line][*cursor_x - 1]) + 1);
