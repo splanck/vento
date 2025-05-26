@@ -11,6 +11,8 @@
 #include "menu.h"
 #include "config.h"
 
+#define CLIPBOARD_SIZE 4096
+
 int cursor_x = 1, cursor_y = 1;
 char current_filename[256] = "";  // Name of the current file being edited
 char *text_buffer[MAX_LINES];  // Array of strings to store the lines of text
@@ -185,6 +187,10 @@ void copy_selection() {
         end_y = sel_start_y;
     }
 
+    if (clipboard == NULL) {
+        return;
+    }
+
     clipboard[0] = '\0';  // Clear clipboard
     for (int y = start_y; y <= end_y; y++) {
         if (y == start_y) {
@@ -197,6 +203,10 @@ void copy_selection() {
 }
 
 void paste_clipboard(int *cursor_x, int *cursor_y) {
+    if (clipboard == NULL) {
+        return;
+    }
+
     char *line = strtok(clipboard, "\n");
     while (line) {
         int len = strlen(line);
@@ -435,6 +445,14 @@ void initialize() {
         text_buffer[i] = (char *)malloc(sizeof(char));
     }
 
+    // Allocate clipboard buffer
+    clipboard = malloc(CLIPBOARD_SIZE);
+    if (clipboard == NULL) {
+        fprintf(stderr, "Memory allocation failed for clipboard\n");
+        exit(1);
+    }
+    clipboard[0] = '\0';
+
     // Initialize the screen
     initscr();
 
@@ -597,6 +615,11 @@ void cleanup_on_exit() {
             free(text_buffer[i]);  // Free the memory allocated for the line of text
             text_buffer[i] = NULL;  // Set to NULL to avoid double free
         }
+    }
+
+    if (clipboard != NULL) {
+        free(clipboard);
+        clipboard = NULL;
     }
 }
 
