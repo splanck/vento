@@ -10,6 +10,7 @@
 #include "syntax.h"
 #include "menu.h"
 #include "config.h"
+#include "files.h"
 
 #define CLIPBOARD_SIZE 4096
 
@@ -52,6 +53,187 @@ int key_redo = 18;  // Key code for the redo command
 int key_undo = 21;  // Key code for the undo command
 int key_quit = 24;  // Key code for quitting the editor
 int key_find = 6;  // Key code for finding next word
+
+static void handle_key_up_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_key_up(cy, &start_line);
+}
+
+static void handle_key_down_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_key_down(cy, &start_line);
+}
+
+static void handle_key_left_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_key_left(cx);
+}
+
+static void handle_key_right_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_key_right(cx, *cy);
+}
+
+static void handle_key_backspace_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_key_backspace(cx, cy, &start_line);
+}
+
+static void handle_key_delete_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_key_delete(cx, *cy);
+}
+
+static void handle_key_enter_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_key_enter(cx, cy, &start_line);
+}
+
+static void handle_key_page_up_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_key_page_up(cy, &start_line);
+}
+
+static void handle_key_page_down_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_key_page_down(cy, &start_line);
+    redraw(cx, cy);
+}
+
+static void handle_ctrl_left_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_ctrl_key_left(cx);
+}
+
+static void handle_ctrl_right_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_ctrl_key_right(cx, *cy);
+}
+
+static void handle_ctrl_pgup_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_ctrl_key_pgup(cy, &start_line);
+}
+
+static void handle_ctrl_pgdn_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_ctrl_key_pgdn(cy, &start_line);
+}
+
+static void handle_ctrl_up_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_ctrl_key_up(cy);
+}
+
+static void handle_ctrl_down_wrapper(struct FileState *fs, int *cx, int *cy) {
+    handle_ctrl_key_down(cy);
+}
+
+static void handle_help_wrapper(struct FileState *fs, int *cx, int *cy) {
+    show_help();
+    redraw(cx, cy);
+}
+
+static void handle_about_wrapper(struct FileState *fs, int *cx, int *cy) {
+    show_about();
+    redraw(cx, cy);
+}
+
+static void handle_find_wrapper(struct FileState *fs, int *cx, int *cy) {
+    find(1);
+    redraw(cx, cy);
+}
+
+static void handle_delete_line_wrapper(struct FileState *fs, int *cx, int *cy) {
+    delete_current_line(cy, &start_line);
+}
+
+static void handle_insert_line_wrapper(struct FileState *fs, int *cx, int *cy) {
+    insert_new_line(cx, cy, &start_line);
+}
+
+static void handle_move_forward_wrapper(struct FileState *fs, int *cx, int *cy) {
+    move_forward_to_next_word(cx, cy);
+}
+
+static void handle_move_backward_wrapper(struct FileState *fs, int *cx, int *cy) {
+    move_backward_to_previous_word(cx, cy);
+}
+
+static void handle_load_file_wrapper(struct FileState *fs, int *cx, int *cy) {
+    load_file(NULL);
+    redraw(cx, cy);
+}
+
+static void handle_save_as_wrapper(struct FileState *fs, int *cx, int *cy) {
+    save_file_as();
+    redraw(cx, cy);
+}
+
+static void handle_save_file_wrapper(struct FileState *fs, int *cx, int *cy) {
+    save_file();
+    redraw(cx, cy);
+}
+
+static void handle_selection_mode_wrapper(struct FileState *fs, int *cx, int *cy) {
+    if (selection_mode) {
+        end_selection_mode();
+    } else {
+        start_selection_mode(*cx, *cy);
+    }
+}
+
+static void handle_paste_clipboard_wrapper(struct FileState *fs, int *cx, int *cy) {
+    paste_clipboard(cx, cy);
+}
+
+static void handle_clear_buffer_wrapper(struct FileState *fs, int *cx, int *cy) {
+    clear_text_buffer();
+    *cx = 1;
+    *cy = 1;
+}
+
+static void handle_redo_wrapper(struct FileState *fs, int *cx, int *cy) {
+    redo();
+}
+
+static void handle_undo_wrapper(struct FileState *fs, int *cx, int *cy) {
+    undo();
+}
+
+static void handle_quit_wrapper(struct FileState *fs, int *cx, int *cy) {
+    exiting = 1;
+}
+
+#define MAX_KEY_MAPPINGS 64
+static KeyMapping key_mappings[MAX_KEY_MAPPINGS];
+static int key_mapping_count = 0;
+
+static void initialize_key_mappings() {
+    key_mapping_count = 0;
+
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_UP, handle_key_up_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_DOWN, handle_key_down_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_LEFT, handle_key_left_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_RIGHT, handle_key_right_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_BACKSPACE, handle_key_backspace_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){127, handle_key_backspace_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_DC, handle_key_delete_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){'\n', handle_key_enter_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_PPAGE, handle_key_page_up_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_NPAGE, handle_key_page_down_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_LEFT, handle_ctrl_left_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_RIGHT, handle_ctrl_right_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_PGUP, handle_ctrl_pgup_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_PGDN, handle_ctrl_pgdn_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_UP, handle_ctrl_up_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_DOWN, handle_ctrl_down_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_help, handle_help_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_about, handle_about_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_find, handle_find_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_delete_line, handle_delete_line_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_insert_line, handle_insert_line_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_move_forward, handle_move_forward_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_move_backward, handle_move_backward_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_load_file, handle_load_file_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_save_as, handle_save_as_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_save_file, handle_save_file_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_selection_mode, handle_selection_mode_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_paste_clipboard, handle_paste_clipboard_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_clear_buffer, handle_clear_buffer_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_redo, handle_redo_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_undo, handle_undo_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_quit, handle_quit_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_T, NULL}; /* placeholder for menu key, handled elsewhere */
+
+    key_mappings[key_mapping_count++] = (KeyMapping){0, NULL}; /* terminator */
+}
 
 /**
  * Pushes a new change onto the stack.
@@ -517,6 +699,9 @@ void initialize() {
     // Map CTRL-T to custom key constant
     define_key("\024", KEY_CTRL_T);  // \024 is the octal for CTRL-T
 
+    // Set up key mappings
+    initialize_key_mappings();
+
     // Initialize menus
     initializeMenus();
 
@@ -721,84 +906,19 @@ void draw_text_buffer(WINDOW *win) {
  * @return None
  */
 void handle_regular_mode(int ch, int *cursor_x, int *cursor_y) {
-    if (ch == KEY_UP) {
-        handle_key_up(cursor_y, &start_line); // Move the cursor up one line
-    } else if (ch == KEY_DOWN) {
-        handle_key_down(cursor_y, &start_line); // Move the cursor down one line
-    } else if (ch == KEY_LEFT) {
-        handle_key_left(cursor_x); // Move the cursor left one position
-    } else if (ch == KEY_RIGHT) {
-        handle_key_right(cursor_x, *cursor_y); // Move the cursor right one position
-    } else if (ch == KEY_BACKSPACE || ch == 127) {
-        handle_key_backspace(cursor_x, cursor_y, &start_line); // Delete the character before the cursor
-    } else if (ch == KEY_DC) {
-        handle_key_delete(cursor_x, *cursor_y); // Delete the character at the cursor
-    } else if (ch == '\n') {
-        handle_key_enter(cursor_x, cursor_y, &start_line); // Insert a new line at the cursor position
-    } else if (ch == KEY_PPAGE) {
-        handle_key_page_up(cursor_y, &start_line); // Scroll up one page
-    } else if (ch == KEY_NPAGE) {
-        handle_key_page_down(cursor_y, &start_line); // Scroll down one page
-        redraw(cursor_x, cursor_y); // Redraw the editor screen after scrolling
-    } else if (ch == KEY_CTRL_LEFT) {
-        handle_ctrl_key_left(cursor_x); // Move the cursor left to the previous word
-    } else if (ch == KEY_CTRL_RIGHT) {
-        handle_ctrl_key_right(cursor_x, *cursor_y); // Move the cursor right to the next word
-    } else if (ch == KEY_CTRL_PGUP) {
-        handle_ctrl_key_pgup(cursor_y, &start_line); // Scroll up one page
-    } else if (ch == KEY_CTRL_PGDN) {
-        handle_ctrl_key_pgdn(cursor_y, &start_line); // Scroll down one page
-    } else if (ch == KEY_CTRL_UP) {
-        handle_ctrl_key_up(cursor_y); // Move the cursor up one paragraph
-    } else if (ch == KEY_CTRL_DOWN) {
-        handle_ctrl_key_down(cursor_y); // Move the cursor down one paragraph
-    } else if (ch == key_help) {
-        show_help(); // Display the help menu
-        redraw(cursor_x, cursor_y); // Redraw the editor screen after displaying the help menu
-    } else if (ch == key_about) {
-        show_about(); // Display information about the editor
-        redraw(cursor_x, cursor_y); // Redraw the editor screen after displaying the about information
-    } else if (ch == key_find) {
-        find(1);
-        redraw(cursor_x, cursor_y); // Redraw the editor screen after displaying the about information
-    } else if (ch == key_delete_line) {
-        delete_current_line(cursor_y, &start_line); // Delete the current line
-    } else if (ch == key_insert_line) {
-        insert_new_line(cursor_x, cursor_y, &start_line); // Insert a new line at the cursor position
-    } else if (ch == key_move_forward) {
-        move_forward_to_next_word(cursor_x, cursor_y); // Move the cursor forward to the next word
-    } else if (ch == key_move_backward) {
-        move_backward_to_previous_word(cursor_x, cursor_y); // Move the cursor backward to the previous word
-    } else if (ch == key_load_file) {
-        load_file(NULL); // Load a file into the editor
-        redraw(cursor_x, cursor_y); // Redraw the editor screen after loading the file
-    } else if (ch == key_save_as) {
-        save_file_as(); // Save the file with a new name
-        redraw(cursor_x, cursor_y); // Redraw the editor screen after saving the file
-    } else if (ch == key_save_file) {
-        save_file(); // Save the file
-        redraw(cursor_x, cursor_y); // Redraw the editor screen after saving the file
-    } else if (ch == key_selection_mode) {
-        if (selection_mode) {
-            end_selection_mode(); // End the selection mode
-        } else {
-            start_selection_mode(*cursor_x, *cursor_y); // Start the selection mode at the current cursor position
+    for (int i = 0; i < key_mapping_count; ++i) {
+        if (key_mappings[i].key == 0 && key_mappings[i].handler == NULL) {
+            break;
         }
-    } else if (ch == key_paste_clipboard) {
-        paste_clipboard(cursor_x, cursor_y); // Paste the contents of the clipboard at the cursor position
-    } else if (ch == key_clear_buffer) {
-        clear_text_buffer(); // Clear the text buffer
-        *cursor_x = 1; // Reset the cursor x-coordinate
-        *cursor_y = 1; // Reset the cursor y-coordinate
-    } else if (ch == key_redo) {
-        redo(); // Redo the last undone action
-    } else if (ch == key_undo) {
-        undo(); // Undo the last action
-    } else if (ch == key_quit) {
-        exiting = 1; // Set the exiting flag to true to exit the editor
-    } else {
-        handle_default_key(ch, cursor_x, *cursor_y); // Handle any other key not specified above
+        if (key_mappings[i].key == ch) {
+            if (key_mappings[i].handler) {
+                key_mappings[i].handler(NULL, cursor_x, cursor_y);
+            }
+            return;
+        }
     }
+
+    handle_default_key(ch, cursor_x, *cursor_y);
 }
 
 /**
