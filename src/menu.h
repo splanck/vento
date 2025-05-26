@@ -25,6 +25,10 @@ void menuAbout();
 void menuHelp();
 void menuTestwindow();
 void drawBar();
+/**
+ * Frees the memory allocated for the menus and menu items.
+ */
+void freeMenus();
 
 extern Menu *menus;
 extern int menuCount;

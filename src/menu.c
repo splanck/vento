@@ -197,3 +197,23 @@ void menuTestwindow() {
     drawBar();
 }
 
+/**
+ * Frees the memory allocated for all menus and their menu items.
+ */
+void freeMenus() {
+    if (menus == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < menuCount; ++i) {
+        if (menus[i].items != NULL) {
+            free(menus[i].items);
+            menus[i].items = NULL;  // Avoid dangling pointer
+        }
+    }
+
+    free(menus);
+    menus = NULL;
+    menuCount = 0;
+}
+
