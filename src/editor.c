@@ -13,6 +13,7 @@
 #include "files.h"
 #include "undo.h"
 #include "clipboard.h"
+#include "file_ops.h"
 
 int cursor_x = 1, cursor_y = 1;
 char current_filename[256] = "";  // Name of the current file being edited
@@ -845,204 +846,19 @@ void clear_text_buffer() {
     wrefresh(text_win);
 }
 
-/**
- * Saves the current file.
- * 
- * If the current file has a filename, it saves the file with the existing filename.
- * If the current file does not have a filename, it prompts the user to enter a filename and saves the file with the new name.
- * 
- * @return None
- */
-void save_file() {
-    // Check if the current file has a filename
-    if (strlen(current_filename) == 0) {
-        save_file_as(); // If the current file does not have a filename, prompt the user to enter a filename and save the file with the new name
-    } else {
-        FILE *fp = fopen(current_filename, "w"); // Open the file for writing
-        if (fp) {
-            // Iterate over each line in the text buffer and write it to the file
-            for (int i = 0; i < line_count; ++i) {
-                fprintf(fp, "%s\n", text_buffer[i]);
-            }
-            fclose(fp); // Close the file
-            mvprintw(LINES - 2, 2, "File saved as %s", current_filename); // Display a success message
-        } else {
-            mvprintw(LINES - 2, 2, "Error saving file!"); // Display an error message if the file cannot be opened
-        }
-        refresh();
-        getch();
-        mvprintw(LINES - 2, 2, "                            "); // Clear the line after saving
-        refresh();
-    }
-}
 
-/**
- * Saves the current file with a new name.
- * 
- * This function prompts the user to enter a filename and saves the contents of the text buffer to the file.
- * If the file is successfully saved, a success message is displayed. Otherwise, an error message is displayed.
- * 
- * @return None
- */
-void save_file_as() {
-    // Prompt the user to enter a filename
-    create_dialog("Save as", current_filename, 256);
-
-    // Open the file for writing
-    FILE *fp = fopen(current_filename, "w");
-    if (fp) {
-        // Iterate over each line in the text buffer and write it to the file
-        for (int i = 0; i < line_count; ++i) {
-            fprintf(fp, "%s\n", text_buffer[i]);
-        }
-        fclose(fp); // Close the file
-        mvprintw(LINES - 2, 2, "File saved as %s", current_filename); // Display a success message
-    } else {
-        mvprintw(LINES - 2, 2, "Error saving file!"); // Display an error message if the file cannot be opened
-    }
-
-    refresh();
-    getch();
-    mvprintw(LINES - 2, 2, "                            "); // Clear the line after saving
-    refresh();
-}
-
-/**
- * Loads a file into the text buffer and displays it in the editor.
- * 
- * This function loads the contents of a file into the text buffer and displays it in the editor.
- * If a filename is provided, it loads that file. Otherwise, it prompts the user to enter a filename.
- * It also sets the syntax mode based on the file extension and initializes the text buffer.
- * After loading the file, it updates the status bar with a success or error message.
- * 
- * @param filename The name of the file to load. If NULL, the user will be prompted to enter a filename.
- * @return None
- */
-void load_file(const char *filename) {
-    char file_to_load[256];
-
-    // If no filename is provided, prompt the user
-    if (filename == NULL) {
-        create_dialog("Load file", file_to_load, 256);
-        filename = file_to_load;
-    }
-
-    set_syntax_mode(filename); // Set the syntax mode based on the file extension
-    initialize_buffer(); // Initialize the text buffer
-
-    FILE *fp = fopen(filename, "r"); // Open the file for reading
-    if (fp) {
-        line_count = 0; // Initialize the line count to 0
-        while (fgets(text_buffer[line_count], COLS - 3, fp) && line_count < MAX_LINES) {
-            // Remove newline character if present
-            text_buffer[line_count][strcspn(text_buffer[line_count], "\n")] = '\0';
-            line_count++; // Increment the line count
-        }
-        fclose(fp); // Close the file
-        mvprintw(LINES - 2, 2, "File loaded: %s", filename); // Display a success message
-
-        strcpy(current_filename, filename); // Copy the loaded filename to the current filename variable
-    } else {
-        mvprintw(LINES - 2, 2, "Error loading file!"); // Display an error message if the file cannot be opened
-    }
-
-    refresh(); // Refresh the screen
-
-    // Wait for a brief moment to display the message, without requiring Enter
-    timeout(100); // Wait for 100 milliseconds
-    getch(); // Consume any key press if available
-    timeout(-1); // Reset to blocking mode
-
-    mvprintw(LINES - 2, 2, "                            "); // Clear the line after loading
-    refresh(); // Refresh the screen
-    text_win = newwin(LINES - 2, COLS, 1, 0); // Create a new text window
-    keypad(text_win, TRUE); // Enable keypad mode for the text window
-    meta(text_win, TRUE); // Enable meta keys for the text window
-
-    box(text_win, 0, 0); // Draw a border around the text window
-    wmove(text_win, 1, 1); // Move the cursor to the initial position
-
-    draw_text_buffer(text_win); // Draw the text buffer in the text window
-    wrefresh(text_win); // Refresh the text window
-}
-
-/**
- * Updates the status bar with the current cursor position and other information.
- * 
- * This function displays the filename centered on line 2, the line count, current line number,
- * and column number on the bottom line of the screen. It also displays the "CTRL-H - Help" message
- * on the bottom right corner of the screen.
- * 
- * @param cursor_y The current y-coordinate of the cursor.
- * @param cursor_x The current x-coordinate of the cursor.
- * @return None
- */
 void update_status_bar(int cursor_y, int cursor_x) {
-    // Display the filename centered on line 2
     move(0, 0);
     int filename_length = strlen(current_filename);
     int center_position = (COLS - filename_length) / 2;
     mvprintw(1, center_position, "%s", current_filename);
 
-    // Display the status bar at the bottom
     move(LINES - 1, 0);
     clrtoeol();
-    int actual_line_number = cursor_y + start_line; // Calculate actual line number
+    int actual_line_number = cursor_y + start_line;
     mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", line_count, actual_line_number, cursor_x);
 
-    // Display "CTRL-H - Help" at the bottom right
     mvprintw(LINES - 1, COLS - 15, "CTRL-H - Help");
 
     refresh();
-}
-
-/**
- * Creates a new file.
- * 
- * This function initializes the necessary variables and data structures to start editing a new file.
- * It also creates a new text window, sets up the necessary key bindings, and refreshes the window.
- * 
- * @return None
- */
-void new_file() {
-    int cursor_x = 1, cursor_y = 1; // Initialize the cursor position
-    strcpy(current_filename, ""); // Set the current filename to an empty string
-
-    initialize_buffer(); // Initialize the text buffer
-
-    text_win = newwin(LINES - 2, COLS, 1, 0); // Create a new text window
-    keypad(text_win, TRUE); // Enable keypad mode for the text window
-    meta(text_win, TRUE); // Enable meta keys for the text window
-    box(text_win, 0, 0); // Draw a border around the text window
-    wmove(text_win, cursor_y, cursor_x); // Move the cursor to the initial position
-    wrefresh(text_win); // Refresh the text window
-}
-
-/**
- * Sets the syntax mode based on the file extension.
- * 
- * This function takes a filename as input and determines the syntax mode based on its extension.
- * If the extension matches a known programming language, the corresponding syntax mode is set.
- * If the extension is not recognized, the syntax mode is set to NO_SYNTAX.
- * 
- * @param filename The name of the file.
- * @return None
- */
-void set_syntax_mode(const char *filename) {
-    const char *ext = strrchr(filename, '.'); // Get the file extension
-    if (ext) {
-        if (strcmp(ext, ".c") == 0 || strcmp(ext, ".h") == 0) { // Check if the extension is .c or .h
-            current_syntax_mode = C_SYNTAX; // Set the syntax mode to C_SYNTAX
-        } else if (strcmp(ext, ".html") == 0 || strcmp(ext, ".htm") == 0) { // Check if the extension is .html or .htm
-            current_syntax_mode = HTML_SYNTAX; // Set the syntax mode to HTML_SYNTAX
-        } else if (strcmp(ext, ".py") == 0) { // Check if the extension is .py
-            current_syntax_mode = PYTHON_SYNTAX; // Set the syntax mode to PYTHON_SYNTAX
-        } else if (strcmp(ext, ".cs") == 0) { // Check if the extension is .cs
-            current_syntax_mode = CSHARP_SYNTAX; // Set the syntax mode to CSHARP_SYNTAX
-        } else {
-            current_syntax_mode = NO_SYNTAX; // Set the syntax mode to NO_SYNTAX for unrecognized extensions
-        }
-    } else {
-        current_syntax_mode = NO_SYNTAX; // Set the syntax mode to NO_SYNTAX if no extension is found
-    }
 }
