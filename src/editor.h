@@ -64,8 +64,6 @@ void save_file();
 void save_file_as();
 void load_file(const char *filename);
 void new_file();
-void undo();
-void redo();
 void find(int new_search);
 void redraw(int *cursor_x, int *cursor_y);
 void delete_current_line(int *cursor_y, int *start_line);
@@ -74,10 +72,5 @@ void update_status_bar(int cursor_y, int cursor_x);
 void handle_resize(int sig);
 void cleanup_on_exit();
 
-// Stack functions for undo and redo
-void push(Node **stack, Change change);
-Change pop(Node **stack);
-int is_empty(Node *stack);
-void free_stack(Node *stack);
 
 #endif

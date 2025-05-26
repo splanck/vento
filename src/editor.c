@@ -11,6 +11,7 @@
 #include "menu.h"
 #include "config.h"
 #include "files.h"
+#include "undo.h"
 
 #define CLIPBOARD_SIZE 4096
 
@@ -280,114 +281,6 @@ static void initialize_key_mappings() {
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_T, NULL}; /* placeholder for menu key, handled elsewhere */
 
     key_mappings[key_mapping_count++] = (KeyMapping){0, NULL}; /* terminator */
-}
-
-/**
- * Pushes a new change onto the stack.
- * 
- * @param stack The stack to push the change onto.
- * @param change The change to be pushed onto the stack.
- */
-void push(Node **stack, Change change) {
-    Node *new_node = (Node *)malloc(sizeof(Node));
-    new_node->change = change;
-    new_node->next = *stack;
-    *stack = new_node;
-}
-
-/**
- * Pops the top change from the stack.
- * 
- * @param stack The stack to pop the change from.
- * @return The popped change.
- */
-Change pop(Node **stack) {
-    if (*stack == NULL) {
-        Change empty_change = {0, NULL, NULL};
-        return empty_change;
-    }
-    Node *top = *stack;
-    Change change = top->change;
-    *stack = top->next;
-    free(top);
-    return change;
-}
-
-int is_empty(Node *stack) {
-    return stack == NULL;
-}
-
-/**
- * Undo the last change made to the text buffer.
- * If the last change was a modification to an existing line, the line is restored to its previous state.
- * If the last change was an insertion of a new line, the line is removed from the text buffer.
- */
-void undo() {
-    if (undo_stack == NULL) return;
-
-    // Pop the top change from the undo stack
-    Change change = pop(&undo_stack);
-
-    if (change.old_text) {
-        // If old_text is not NULL, it means we are restoring a modified line
-
-        // Shift lines down to make space for the restored line
-        for (int i = line_count; i > change.line; --i) {
-            strcpy(text_buffer[i], text_buffer[i - 1]);
-        }
-        line_count++;
-
-        // Restore the old state
-        strcpy(text_buffer[change.line], change.old_text);
-
-        // Push the change to the redo stack
-        push(&redo_stack, (Change){change.line, strdup(change.old_text), NULL});
-        free(change.old_text);
-    } else {
-        // If old_text is NULL, it means we are undoing an inserted line
-
-        // Shift lines up to remove the inserted line
-        for (int i = change.line; i < line_count - 1; ++i) {
-            strcpy(text_buffer[i], text_buffer[i + 1]);
-        }
-        text_buffer[line_count - 1][0] = '\0';
-        line_count--;
-
-        // Push the change to the redo stack
-        push(&redo_stack, change);
-    }
-
-    // Clear and redraw the text window
-    werase(text_win);
-    box(text_win, 0, 0);
-    draw_text_buffer(text_win);
-    wrefresh(text_win);
-}
-
-/**
- * Redo the last change made to the text buffer.
- * If the last change was an undo, the change is reapplied to the text buffer.
- * If the last change was a redo, nothing happens.
- */
-void redo() {
-    if (redo_stack == NULL) return;
-
-    // Pop the top change from the redo stack
-    Change change = pop(&redo_stack);
-
-    if (change.new_text) {
-        // If new_text is not NULL, it means we are reapplying an undo
-
-        // Restore the new state
-        push(&undo_stack, (Change){change.line, strdup(text_buffer[change.line]), strdup(change.new_text)});
-        strcpy(text_buffer[change.line], change.new_text);
-        free(change.new_text);
-    }
-
-    // Clear and redraw the text window
-    werase(text_win);
-    box(text_win, 0, 0);
-    draw_text_buffer(text_win);
 }
 
 void start_selection_mode(int cursor_x, int cursor_y) {
