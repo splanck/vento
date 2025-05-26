@@ -804,6 +804,8 @@ void cleanup_on_exit() {
         free(clipboard);
         clipboard = NULL;
     }
+
+    freeMenus();
 }
 
 void close_editor() {
