@@ -42,16 +42,6 @@ extern int line_count;
 extern int start_line;
 extern Node *undo_stack;
 extern Node *redo_stack;
-extern char *clipboard;
-extern bool selection_mode;
-extern int sel_start_x, sel_start_y;
-extern int sel_end_x, sel_end_y;
-
-void start_selection_mode(int cursor_x, int cursor_y);
-void end_selection_mode();
-void copy_selection();
-void paste_clipboard(int *cursor_x, int *cursor_y);
-void handle_selection_mode(int ch, int *cursor_x, int *cursor_y);
 void handle_regular_mode(int ch, int *cursor_x, int *cursor_y);
 void set_syntax_mode(const char *filename);
 void initialize();
