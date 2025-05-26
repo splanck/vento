@@ -649,6 +649,7 @@ void find_next_occurrence(const char *word, int *cursor_x, int *cursor_y) {
 
 void find(int new_search)
 {
+    (void)new_search;
     char *output = malloc(256 * sizeof(char));
     *output = '\0';
     show_find_dialog(output, 20);
