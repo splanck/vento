@@ -435,16 +435,11 @@ void disable_ctrl_c_z() {
 }
 
 /**
- * Initializes the editor by setting up the text buffer, initializing the screen,
+ * Initializes the editor by setting up the screen,
  * reading the configuration file, enabling color if specified, and setting up
  * various settings and key mappings.
  */
 void initialize() {
-    // Set up the text buffer
-    for (int i = 0; i < MAX_LINES; ++i) {
-        text_buffer[i] = (char *)malloc(sizeof(char));
-    }
-
     // Allocate clipboard buffer
     clipboard = malloc(CLIPBOARD_SIZE);
     if (clipboard == NULL) {
@@ -641,6 +636,10 @@ void close_editor() {
 void initialize_buffer() {
     // Allocate memory for each line in the text buffer
     for (int i = 0; i < MAX_LINES; ++i) {
+        if (text_buffer[i] != NULL) {
+            free(text_buffer[i]);
+            text_buffer[i] = NULL;
+        }
         text_buffer[i] = (char *)calloc(COLS - 3, sizeof(char));
         if (text_buffer[i] == NULL) {
             // Handle allocation failure
