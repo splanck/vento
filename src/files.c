@@ -36,6 +36,9 @@ void free_file_state(FileState *file_state, int max_lines) {
         free(file_state->text_buffer[i]);
     }
     free(file_state->text_buffer);
+    if (file_state->clipboard) {
+        free(file_state->clipboard);
+    }
     delwin(file_state->text_win);
     free(file_state);
 }
