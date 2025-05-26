@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include "editor.h"
+#include "file_ops.h"
 #include "undo.h"
 #include "input.h"
 #include "ui.h"
