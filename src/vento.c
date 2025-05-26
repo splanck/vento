@@ -2,35 +2,10 @@
 #include <stdlib.h>
 #include <signal.h>
 #include "editor.h"
+#include "undo.h"
 #include "input.h"
 #include "ui.h"
 
-/**
- * Frees the memory allocated for the undo stack.
- * 
- * @param stack The undo stack to be freed.
- */
-void free_stack(Node *stack) {
-    while (stack) {
-        Node *next = stack->next;
-        
-        // Free the old_text if it exists
-        if (stack->change.old_text) {
-            free(stack->change.old_text);
-            stack->change.old_text = NULL; // Prevent double free
-        }
-        
-        // Free the new_text if it exists
-        if (stack->change.new_text) {
-            free(stack->change.new_text);
-            stack->change.new_text = NULL; // Prevent double free
-        }
-        
-        // Free the stack node
-        free(stack);
-        stack = next;
-    }
-}
 
 /**
  * The main function of the program.

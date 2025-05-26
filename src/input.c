@@ -1,5 +1,6 @@
 #include "editor.h"
 #include <ncurses.h>
+#include "undo.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
