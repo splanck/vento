@@ -520,7 +520,6 @@ void insert_new_line(int *cursor_x, int *cursor_y, int *start_line) {
 }
 
 void find_next_occurrence(const char *word, int *cursor_x, int *cursor_y) {
-    int word_len = strlen(word);
     int found = 0;
     int lines_per_screen = LINES - 3;  // Lines available in a single screen view
     int middle_line = lines_per_screen / 2; // Calculate middle line position
