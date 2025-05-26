@@ -156,7 +156,7 @@ void create_dialog(const char *message, char *output, int max_input_len) {
 
     // Print the message at the center
     wattron(dialog_win, A_BOLD); // Bold the message
-    mvwprintw(dialog_win, 1, (win_width - strlen(message)) / 2, message);
+    mvwprintw(dialog_win, 1, (win_width - strlen(message)) / 2, "%s", message);
     wattroff(dialog_win, A_BOLD);
 
     // Input field and cursor position
@@ -372,7 +372,7 @@ void show_find_dialog(char *output, int max_input_len) {
     // Print the message at the center
     char *message = "Find: ";
     wattron(dialog_win, A_BOLD); // Bold the message
-    mvwprintw(dialog_win, 1, (win_width - strlen(message)) / 2, message);
+    mvwprintw(dialog_win, 1, (win_width - strlen(message)) / 2, "%s", message);
     wattroff(dialog_win, A_BOLD);
 
     // Input field and cursor position

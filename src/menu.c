@@ -14,7 +14,7 @@ void drawMenuBar(Menu *menus, int menuCount) {
 
     // Draw the menu bar
     for (int i = 0; i < menuCount; ++i) {
-        mvprintw(0, i * 10, menus[i].label);
+        mvprintw(0, i * 10, "%s", menus[i].label);
     }
     refresh();
 }
@@ -91,7 +91,7 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
 
         // Draw menu bar
         for (int i = 0; i < menuCount; ++i) {
-            mvprintw(0, i * 10, menus[i].label);
+            mvprintw(0, i * 10, "%s", menus[i].label);
         }
         drawMenu(&menus[*currentMenu], *currentItem, *currentMenu * 10, 1);
         refresh();
@@ -146,7 +146,7 @@ void drawMenu(Menu *menu, int currentItem, int startX, int startY) {
         if (i == currentItem) {
             wattron(menuWin, A_REVERSE); // Highlight the currently selected item
         }
-        mvwprintw(menuWin, 1 + i, 1, menu->items[i].label); // Print the label of the menu item
+        mvwprintw(menuWin, 1 + i, 1, "%s", menu->items[i].label); // Print the label of the menu item
         if (i == currentItem) {
             wattroff(menuWin, A_REVERSE); // Turn off the highlight for the currently selected item
         }
