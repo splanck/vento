@@ -464,8 +464,6 @@ void initialize() {
     noecho();  // Disable echoing of input characters
     keypad(stdscr, TRUE);  // Enable special keys
     meta(stdscr, TRUE);  // Enable 8-bit control characters
-    keypad(text_win, TRUE);  // Enable special keys for text_win
-    meta(text_win, TRUE);  // Enable 8-bit control characters for text_win
 
     // Initialize mouse support
     mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
