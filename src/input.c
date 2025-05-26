@@ -329,6 +329,17 @@ void handle_ctrl_key_right(int *cursor_x, int cursor_y) {
  * @param cursor_y The current y-coordinate of the cursor.
  */
 void handle_default_key(int ch, int *cursor_x, int cursor_y) {
+#ifdef KEY_TAB
+    if (ch == KEY_TAB || ch == '\t') {
+#else
+    if (ch == '\t') {
+#endif
+        const int TAB_SIZE = 4;
+        for (int i = 0; i < TAB_SIZE; i++) {
+            handle_default_key(' ', cursor_x, cursor_y);
+        }
+        return;
+    }
     if (*cursor_x < COLS - 6) {
         int len = strlen(text_buffer[cursor_y - 1 + start_line]);
         char *old_text = strdup(text_buffer[cursor_y - 1 + start_line]);

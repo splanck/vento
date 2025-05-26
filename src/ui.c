@@ -63,6 +63,7 @@ void show_help() {
     mvwprintw(help_win, 10, win_width / 2, "CTRL-Right: Move to line end");
     mvwprintw(help_win, 11, win_width / 2, "CTRL-PgUp: Move to top of doc");
     mvwprintw(help_win, 12, win_width / 2, "CTRL-PgDn: Move to end of doc");
+    mvwprintw(help_win, 13, win_width / 2, "F5: Insert blank line");
 
     // Wait for any keypress to close the dialog
     mvwprintw(help_win, win_height - 1, (win_width - strlen("(Press any key to close)")) / 2, "(Press any key to close)");
