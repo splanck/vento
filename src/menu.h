@@ -2,7 +2,7 @@
 #define MENU_H
 typedef struct MenuItem {
     const char *label;
-    void (*action)();
+    void (*action)(void);
 } MenuItem;
 
 typedef struct Menu {
@@ -11,24 +11,24 @@ typedef struct Menu {
     int itemCount;
 } Menu;
 
-void initializeMenus();
+void initializeMenus(void);
 void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *currentItem);
 void drawMenu(Menu *menu, int currentItem, int startX, int startY);
-void menuNewFile();
-void menuLoadFile();
-void menuSaveFile();
-void menuQuitEditor();
-void menuUndo();
-void menuRedo();
-void menuFind();
-void menuAbout();
-void menuHelp();
-void menuTestwindow();
-void drawBar();
+void menuNewFile(void);
+void menuLoadFile(void);
+void menuSaveFile(void);
+void menuQuitEditor(void);
+void menuUndo(void);
+void menuRedo(void);
+void menuFind(void);
+void menuAbout(void);
+void menuHelp(void);
+void menuTestwindow(void);
+void drawBar(void);
 /**
  * Frees the memory allocated for the menus and menu items.
  */
-void freeMenus();
+void freeMenus(void);
 
 extern Menu *menus;
 extern int menuCount;

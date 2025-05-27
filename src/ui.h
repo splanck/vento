@@ -1,10 +1,10 @@
 #ifndef UI_H
 #define UI_H
 
-void show_help();
-void show_about();
+void show_help(void);
+void show_about(void);
 void create_dialog(const char *message, char *output, int max_input_len);
-void show_warning_dialog();
+void show_warning_dialog(void);
 void get_dir_contents(const char *dir_path, char ***choices, int *n_choices);
 void free_dir_contents(char **choices, int n_choices);
 void show_find_dialog(char *output, int max_input_len);

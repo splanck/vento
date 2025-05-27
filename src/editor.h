@@ -45,18 +45,19 @@ extern int start_line;
 extern Node *undo_stack;
 extern Node *redo_stack;
 void handle_regular_mode(struct FileState *fs, int ch);
-void initialize();
+void initialize(void);
 void draw_text_buffer(WINDOW *win);
-void close_editor();
-void clear_text_buffer();
-void run_editor();
-void initialize_buffer();
+void close_editor(void);
+void clear_text_buffer(void);
+void run_editor(void);
+void initialize_buffer(void);
 void redraw(int *cursor_x, int *cursor_y);
 void delete_current_line(int *cursor_y, int *start_line);
 void insert_new_line(int *cursor_x, int *cursor_y, int *start_line);
 void update_status_bar(int cursor_y, int cursor_x);
 void handle_resize(int sig);
-void cleanup_on_exit();
+void cleanup_on_exit(void);
+void disable_ctrl_c_z(void);
 
 
-#endif
+#endif // EDITOR_H
