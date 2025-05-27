@@ -5,6 +5,7 @@
 #include "search.h"
 #include "file_ops.h"
 #include "ui.h"
+#include "undo.h"
 
 Menu *menus = NULL;
 int menuCount = 0;
