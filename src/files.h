@@ -4,7 +4,7 @@
 #include <ncurses.h>
 #include "editor.h"
 
-typedef struct {
+typedef struct FileState {
     char filename[256];
     char **text_buffer;
     int line_count;

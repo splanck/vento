@@ -1,7 +1,8 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
-void find_next_occurrence(const char *word, int *cursor_x, int *cursor_y);
-void find(int new_search);
+#include "files.h"
+void find_next_occurrence(struct FileState *fs, const char *word);
+void find(struct FileState *fs, int new_search);
 
 #endif

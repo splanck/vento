@@ -16,11 +16,12 @@
 #include "file_ops.h"
 #include "search.h"
 
-int cursor_x = 1, cursor_y = 1;
 char current_filename[256] = "";  // Name of the current file being edited
-char *text_buffer[MAX_LINES];  // Array of strings to store the lines of text
-int line_count = 0;  // Number of lines in the text buffer
-int start_line = 0;  // Index of the first visible line in the text window
+FileState *active_file = NULL;
+int cursor_x = 1, cursor_y = 1;
+char *text_buffer[MAX_LINES];
+int line_count = 0;
+int start_line = 0;
 int runeditor = 0;  // Flag to control the main loop of the editor
 WINDOW *text_win;  // Pointer to the ncurses window for displaying the text
 
@@ -51,88 +52,86 @@ int key_quit = 24;  // Key code for quitting the editor
 int key_find = 6;  // Key code for finding next word
 
 static void handle_key_up_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
     (void)cx;
-    handle_key_up(cy, &start_line);
+    handle_key_up(fs);
 }
 
 static void handle_key_down_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
     (void)cx;
-    handle_key_down(cy, &start_line);
+    handle_key_down(fs);
 }
 
 static void handle_key_left_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
+    (void)cx;
     (void)cy;
-    handle_key_left(cx);
+    handle_key_left(fs);
 }
 
 static void handle_key_right_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    handle_key_right(cx, *cy);
+    (void)cx;
+    (void)cy;
+    handle_key_right(fs);
 }
 
 static void handle_key_backspace_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    handle_key_backspace(cx, cy, &start_line);
+    (void)cx;
+    (void)cy;
+    handle_key_backspace(fs);
 }
 
 static void handle_key_delete_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    handle_key_delete(cx, *cy);
+    (void)cx;
+    (void)cy;
+    handle_key_delete(fs);
 }
 
 static void handle_key_enter_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    handle_key_enter(cx, cy, &start_line);
+    (void)cx;
+    (void)cy;
+    handle_key_enter(fs);
 }
 
 static void handle_key_page_up_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
     (void)cx;
-    handle_key_page_up(cy, &start_line);
+    handle_key_page_up(fs);
 }
 
 static void handle_key_page_down_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    handle_key_page_down(cy, &start_line);
+    (void)cx;
+    handle_key_page_down(fs);
     redraw(cx, cy);
 }
 
 static void handle_ctrl_left_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
+    (void)cx;
     (void)cy;
-    handle_ctrl_key_left(cx);
+    handle_ctrl_key_left(fs);
 }
 
 static void handle_ctrl_right_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    handle_ctrl_key_right(cx, *cy);
+    (void)cx;
+    (void)cy;
+    handle_ctrl_key_right(fs);
 }
 
 static void handle_ctrl_pgup_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
     (void)cx;
-    handle_ctrl_key_pgup(cy, &start_line);
+    handle_ctrl_key_pgup(fs);
 }
 
 static void handle_ctrl_pgdn_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
     (void)cx;
-    handle_ctrl_key_pgdn(cy, &start_line);
+    handle_ctrl_key_pgdn(fs);
 }
 
 static void handle_ctrl_up_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
     (void)cx;
-    handle_ctrl_key_up(cy);
+    handle_ctrl_key_up(fs);
 }
 
 static void handle_ctrl_down_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
     (void)cx;
-    handle_ctrl_key_down(cy);
+    handle_ctrl_key_down(fs);
 }
 
 static void handle_help_wrapper(struct FileState *fs, int *cx, int *cy) {
@@ -148,8 +147,7 @@ static void handle_about_wrapper(struct FileState *fs, int *cx, int *cy) {
 }
 
 static void handle_find_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    find(1);
+    find(fs, 1);
     redraw(cx, cy);
 }
 
@@ -160,71 +158,60 @@ static void handle_delete_line_wrapper(struct FileState *fs, int *cx, int *cy) {
 }
 
 static void handle_insert_line_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
     insert_new_line(cx, cy, &start_line);
 }
 
 static void handle_move_forward_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    move_forward_to_next_word(cx, cy);
+    move_forward_to_next_word(fs);
 }
 
 static void handle_move_backward_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    move_backward_to_previous_word(cx, cy);
+    move_backward_to_previous_word(fs);
 }
 
 static void handle_load_file_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    load_file(NULL);
+    load_file(fs, NULL);
     redraw(cx, cy);
 }
 
 static void handle_save_as_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    save_file_as();
+    save_file_as(fs);
     redraw(cx, cy);
 }
 
 static void handle_save_file_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    save_file();
+    save_file(fs);
     redraw(cx, cy);
 }
 
 static void handle_selection_mode_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
     if (selection_mode) {
-        end_selection_mode();
+        end_selection_mode(fs);
     } else {
-        start_selection_mode(*cx, *cy);
+        start_selection_mode(fs, *cx, *cy);
     }
 }
 
 static void handle_paste_clipboard_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    paste_clipboard(cx, cy);
+    paste_clipboard(fs, cx, cy);
 }
 
 static void handle_clear_buffer_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
     clear_text_buffer();
     *cx = 1;
     *cy = 1;
 }
 
 static void handle_redo_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
     (void)cx;
     (void)cy;
-    redo();
+    redo(fs);
 }
 
 static void handle_undo_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
     (void)cx;
     (void)cy;
-    undo();
+    undo(fs);
 }
 
 static void handle_quit_wrapper(struct FileState *fs, int *cx, int *cy) {
@@ -493,6 +480,8 @@ void run_editor() {
     int currentItem = 0;
     MEVENT event; // Mouse event structure
 
+    cursor_x = active_file->cursor_x;
+    cursor_y = active_file->cursor_y;
     wmove(text_win, cursor_x, cursor_y);
 
     while ((ch = wgetch(text_win)) && exiting == 0) { // Exit on ESC key
@@ -510,7 +499,9 @@ void run_editor() {
         refresh();
         
         if (selection_mode) {
-            handle_selection_mode(ch, &cursor_x, &cursor_y);
+            handle_selection_mode(active_file, ch, &cursor_x, &cursor_y);
+            active_file->cursor_x = cursor_x;
+            active_file->cursor_y = cursor_y;
         } else if (ch == KEY_CTRL_T) { // CTRL-T
             refresh();
             handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
@@ -531,7 +522,11 @@ void run_editor() {
                 }
             }
         } else {
-            handle_regular_mode(ch, &cursor_x, &cursor_y);
+            active_file->cursor_x = cursor_x;
+            active_file->cursor_y = cursor_y;
+            handle_regular_mode(active_file, ch);
+            cursor_x = active_file->cursor_x;
+            cursor_y = active_file->cursor_y;
         }
 
         if (exiting == 1)
@@ -670,20 +665,20 @@ void draw_text_buffer(WINDOW *win) {
  * @param cursor_y The current y-coordinate of the cursor.
  * @return None
  */
-void handle_regular_mode(int ch, int *cursor_x, int *cursor_y) {
+void handle_regular_mode(FileState *fs, int ch) {
     for (int i = 0; i < key_mapping_count; ++i) {
         if (key_mappings[i].key == 0 && key_mappings[i].handler == NULL) {
             break;
         }
         if (key_mappings[i].key == ch) {
             if (key_mappings[i].handler) {
-                key_mappings[i].handler(NULL, cursor_x, cursor_y);
+                key_mappings[i].handler(fs, &fs->cursor_x, &fs->cursor_y);
             }
             return;
         }
     }
 
-    handle_default_key(ch, cursor_x, *cursor_y);
+    handle_default_key(fs, ch);
 }
 
 /**

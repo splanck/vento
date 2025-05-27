@@ -38,14 +38,13 @@ typedef struct {
 
 extern WINDOW *text_win;
 extern char current_filename[256];
+extern struct FileState *active_file;
 extern char *text_buffer[MAX_LINES];
 extern int line_count;
 extern int start_line;
-extern int cursor_x;
-extern int cursor_y;
 extern Node *undo_stack;
 extern Node *redo_stack;
-void handle_regular_mode(int ch, int *cursor_x, int *cursor_y);
+void handle_regular_mode(struct FileState *fs, int ch);
 void initialize();
 void draw_text_buffer(WINDOW *win);
 void close_editor();
