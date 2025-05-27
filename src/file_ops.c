@@ -89,7 +89,7 @@ void load_file(FileState *fs, const char *filename) {
     box(text_win, 0, 0);
     wmove(text_win, 1, 1);
 
-    draw_text_buffer(text_win);
+    draw_text_buffer(active_file, text_win);
     wrefresh(text_win);
 }
 
