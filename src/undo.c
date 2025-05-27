@@ -61,6 +61,7 @@ void undo(FileState *fs) {
 }
 
 void redo(FileState *fs) {
+    (void)fs;
     if (redo_stack == NULL) return;
 
     Change change = pop(&redo_stack);

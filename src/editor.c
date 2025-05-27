@@ -53,11 +53,13 @@ int key_find = 6;  // Key code for finding next word
 
 static void handle_key_up_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
+    (void)cy;
     handle_key_up(fs);
 }
 
 static void handle_key_down_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
+    (void)cy;
     handle_key_down(fs);
 }
 
@@ -93,6 +95,7 @@ static void handle_key_enter_wrapper(struct FileState *fs, int *cx, int *cy) {
 
 static void handle_key_page_up_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
+    (void)cy;
     handle_key_page_up(fs);
 }
 
@@ -116,21 +119,25 @@ static void handle_ctrl_right_wrapper(struct FileState *fs, int *cx, int *cy) {
 
 static void handle_ctrl_pgup_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
+    (void)cy;
     handle_ctrl_key_pgup(fs);
 }
 
 static void handle_ctrl_pgdn_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
+    (void)cy;
     handle_ctrl_key_pgdn(fs);
 }
 
 static void handle_ctrl_up_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
+    (void)cy;
     handle_ctrl_key_up(fs);
 }
 
 static void handle_ctrl_down_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
+    (void)cy;
     handle_ctrl_key_down(fs);
 }
 
@@ -158,14 +165,19 @@ static void handle_delete_line_wrapper(struct FileState *fs, int *cx, int *cy) {
 }
 
 static void handle_insert_line_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     insert_new_line(cx, cy, &start_line);
 }
 
 static void handle_move_forward_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)cx;
+    (void)cy;
     move_forward_to_next_word(fs);
 }
 
 static void handle_move_backward_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)cx;
+    (void)cy;
     move_backward_to_previous_word(fs);
 }
 
@@ -197,6 +209,7 @@ static void handle_paste_clipboard_wrapper(struct FileState *fs, int *cx, int *c
 }
 
 static void handle_clear_buffer_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
     clear_text_buffer();
     *cx = 1;
     *cy = 1;

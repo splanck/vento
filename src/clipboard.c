@@ -10,6 +10,7 @@ int sel_start_x = 0, sel_start_y = 0;
 int sel_end_x = 0, sel_end_y = 0;
 
 void start_selection_mode(FileState *fs, int cursor_x, int cursor_y) {
+    (void)fs;
     selection_mode = true;
     sel_start_x = cursor_x;
     sel_start_y = cursor_y;
