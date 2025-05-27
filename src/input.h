@@ -4,7 +4,7 @@
 #define BOTTOM_MARGIN 4 // Define the bottom UI margin
 
 #include "files.h"
-void handle_ctrl_backtick();
+void handle_ctrl_backtick(void);
 void handle_key_up(struct FileState *fs);
 void handle_key_down(struct FileState *fs);
 void handle_key_left(struct FileState *fs);

@@ -238,7 +238,7 @@ static void handle_quit_wrapper(struct FileState *fs, int *cx, int *cy) {
 static KeyMapping key_mappings[MAX_KEY_MAPPINGS];
 static int key_mapping_count = 0;
 
-static void initialize_key_mappings() {
+static void initialize_key_mappings(void) {
     key_mapping_count = 0;
 
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_UP, handle_key_up_wrapper};

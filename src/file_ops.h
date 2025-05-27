@@ -1,7 +1,7 @@
 #ifndef FILE_OPS_H
 #define FILE_OPS_H
 
-typedef struct FileState FileState;
+struct FileState;
 void save_file(struct FileState *fs);
 void save_file_as(struct FileState *fs);
 void load_file(struct FileState *fs, const char *filename);
