@@ -754,7 +754,7 @@ void clear_text_buffer() {
     
     // Reset line count and start line variables
     line_count = 1;
-    start_line = 1;
+    start_line = 0;
     
     // Clear the text window
     werase(text_win);
