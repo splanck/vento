@@ -159,15 +159,15 @@ void drawMenu(Menu *menu, int currentItem, int startX, int startY) {
 }
 
 void menuNewFile() {
-    new_file();
+    new_file(active_file);
 }
 
 void menuLoadFile() {
-    load_file(NULL);
+    load_file(active_file, NULL);
 }
 
 void menuSaveFile() {
-    save_file();
+    save_file(active_file);
 }
 
 void menuQuitEditor() {
@@ -175,15 +175,15 @@ void menuQuitEditor() {
 }
 
 void menuUndo() {
-    undo();
+    undo(active_file);
 }
 
 void menuRedo() {
-    redo();
+    redo(active_file);
 }
 
 void menuFind() {
-    find(1);
+    find(active_file, 1);
 }
 
 void menuAbout() {

@@ -5,14 +5,15 @@
 #include "ui.h"
 #include "syntax.h"
 #include "file_ops.h"
+#include "files.h"
 
-void save_file() {
+void save_file(FileState *fs) {
     if (strlen(current_filename) == 0) {
-        save_file_as();
+        save_file_as(fs);
     } else {
         FILE *fp = fopen(current_filename, "w");
         if (fp) {
-            for (int i = 0; i < line_count; ++i) {
+            for (int i = 0; i < fs->line_count; ++i) {
                 fprintf(fp, "%s\n", text_buffer[i]);
             }
             fclose(fp);
@@ -27,12 +28,12 @@ void save_file() {
     }
 }
 
-void save_file_as() {
+void save_file_as(FileState *fs) {
     create_dialog("Save as", current_filename, 256);
 
     FILE *fp = fopen(current_filename, "w");
     if (fp) {
-        for (int i = 0; i < line_count; ++i) {
+        for (int i = 0; i < fs->line_count; ++i) {
             fprintf(fp, "%s\n", text_buffer[i]);
         }
         fclose(fp);
@@ -47,7 +48,7 @@ void save_file_as() {
     refresh();
 }
 
-void load_file(const char *filename) {
+void load_file(FileState *fs, const char *filename) {
     char file_to_load[256];
 
     if (filename == NULL) {
@@ -60,10 +61,10 @@ void load_file(const char *filename) {
 
     FILE *fp = fopen(filename, "r");
     if (fp) {
-        line_count = 0;
-        while (fgets(text_buffer[line_count], COLS - 3, fp) && line_count < MAX_LINES) {
-            text_buffer[line_count][strcspn(text_buffer[line_count], "\n")] = '\0';
-            line_count++;
+        fs->line_count = 0;
+        while (fgets(text_buffer[fs->line_count], COLS - 3, fp) && fs->line_count < MAX_LINES) {
+            text_buffer[fs->line_count][strcspn(text_buffer[fs->line_count], "\n")] = '\0';
+            fs->line_count++;
         }
         fclose(fp);
         mvprintw(LINES - 2, 2, "File loaded: %s", filename);
@@ -92,7 +93,7 @@ void load_file(const char *filename) {
     wrefresh(text_win);
 }
 
-void new_file() {
+void new_file(FileState *fs) {
     int cursor_x = 1, cursor_y = 1;
     strcpy(current_filename, "");
 
@@ -104,6 +105,8 @@ void new_file() {
     box(text_win, 0, 0);
     wmove(text_win, cursor_y, cursor_x);
     wrefresh(text_win);
+    fs->cursor_x = cursor_x;
+    fs->cursor_y = cursor_y;
 }
 
 void set_syntax_mode(const char *filename) {

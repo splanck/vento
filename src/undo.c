@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include "editor.h"
 #include "undo.h"
+#include "files.h"
 char *strdup(const char *s);  // Explicitly declare strdup
 
 void push(Node **stack, Change change) {
@@ -28,27 +29,27 @@ int is_empty(Node *stack) {
     return stack == NULL;
 }
 
-void undo() {
+void undo(FileState *fs) {
     if (undo_stack == NULL) return;
 
     Change change = pop(&undo_stack);
 
     if (change.old_text) {
-        for (int i = line_count; i > change.line; --i) {
+        for (int i = fs->line_count; i > change.line; --i) {
             strcpy(text_buffer[i], text_buffer[i - 1]);
         }
-        line_count++;
+        fs->line_count++;
 
         strcpy(text_buffer[change.line], change.old_text);
 
         push(&redo_stack, (Change){change.line, strdup(change.old_text), NULL});
         free(change.old_text);
     } else {
-        for (int i = change.line; i < line_count - 1; ++i) {
+        for (int i = change.line; i < fs->line_count - 1; ++i) {
             strcpy(text_buffer[i], text_buffer[i + 1]);
         }
-        text_buffer[line_count - 1][0] = '\0';
-        line_count--;
+        text_buffer[fs->line_count - 1][0] = '\0';
+        fs->line_count--;
 
         push(&redo_stack, change);
     }
@@ -59,7 +60,7 @@ void undo() {
     wrefresh(text_win);
 }
 
-void redo() {
+void redo(FileState *fs) {
     if (redo_stack == NULL) return;
 
     Change change = pop(&redo_stack);
