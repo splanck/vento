@@ -495,7 +495,7 @@ void run_editor() {
 
     cursor_x = active_file->cursor_x;
     cursor_y = active_file->cursor_y;
-    wmove(text_win, cursor_x, cursor_y);
+    wmove(text_win, cursor_y, cursor_x);
 
     while ((ch = wgetch(text_win)) && exiting == 0) { // Exit on ESC key
         if (ch == ERR) {
