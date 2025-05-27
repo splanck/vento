@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "menu.h"
 #include "editor.h"
+#include "search.h"
 #include "file_ops.h"
 #include "ui.h"
 
