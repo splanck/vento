@@ -232,9 +232,9 @@ void show_warning_dialog() {
     // Refresh the entire screen
     werase(text_win);
     box(text_win, 0, 0);
-    draw_text_buffer(text_win);
+    draw_text_buffer(active_file, text_win);
     wrefresh(text_win);
-    update_status_bar(1, 1);
+    update_status_bar(1, 1, active_file);
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
 }
 
@@ -334,9 +334,9 @@ int show_select_file(char *selected_path, int max_path_len) {
     // Refresh the entire screen
     werase(text_win);
     box(text_win, 0, 0);
-    draw_text_buffer(text_win);
+    draw_text_buffer(active_file, text_win);
     wrefresh(text_win);
-    update_status_bar(1, 1);
+    update_status_bar(1, 1, active_file);
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
 }
 

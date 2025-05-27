@@ -56,7 +56,7 @@ void undo(FileState *fs) {
 
     werase(text_win);
     box(text_win, 0, 0);
-    draw_text_buffer(text_win);
+    draw_text_buffer(active_file, text_win);
     wrefresh(text_win);
 }
 
@@ -74,7 +74,7 @@ void redo(FileState *fs) {
 
     werase(text_win);
     box(text_win, 0, 0);
-    draw_text_buffer(text_win);
+    draw_text_buffer(active_file, text_win);
 }
 
 void free_stack(Node *stack) {

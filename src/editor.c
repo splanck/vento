@@ -21,7 +21,6 @@ FileState *active_file = NULL;
 int cursor_x = 1, cursor_y = 1;
 char *text_buffer[MAX_LINES];
 int line_count = 0;
-int start_line = 0;
 int runeditor = 0;  // Flag to control the main loop of the editor
 WINDOW *text_win;  // Pointer to the ncurses window for displaying the text
 
@@ -159,14 +158,15 @@ static void handle_find_wrapper(struct FileState *fs, int *cx, int *cy) {
 }
 
 static void handle_delete_line_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
     (void)cx;
-    delete_current_line(cy, &start_line);
+    delete_current_line(fs);
+    *cy = fs->cursor_y;
 }
 
 static void handle_insert_line_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    insert_new_line(cx, cy, &start_line);
+    insert_new_line(fs);
+    *cx = fs->cursor_x;
+    *cy = fs->cursor_y;
 }
 
 static void handle_move_forward_wrapper(struct FileState *fs, int *cx, int *cy) {
@@ -282,15 +282,14 @@ static void initialize_key_mappings(void) {
 /**
  * Deletes the current line from the text buffer.
  * 
- * @param cursor_y Pointer to the current y-coordinate of the cursor.
- * @param start_line Pointer to the start line of the text buffer.
+ * @param fs Pointer to the current file state.
  */
-void delete_current_line(int *cursor_y, int *start_line) {
+void delete_current_line(FileState *fs) {
     if (line_count == 0) {
         return;
     }
 
-    int line_to_delete = *cursor_y - 1 + *start_line;
+    int line_to_delete = fs->cursor_y - 1 + fs->start_line;
 
     // Push the current state to the undo stack
     push(&undo_stack, (Change){line_to_delete, strdup(text_buffer[line_to_delete]), NULL});
@@ -305,68 +304,66 @@ void delete_current_line(int *cursor_y, int *start_line) {
     line_count--;
 
     // Move cursor to the next line if possible
-    if (*cursor_y < LINES - 4 && *cursor_y <= line_count) {
+    if (fs->cursor_y < LINES - 4 && fs->cursor_y <= line_count) {
         // Move to the next line
-        (*cursor_y)++;
-    } else if (*start_line + *cursor_y > line_count) {
+        fs->cursor_y++;
+    } else if (fs->start_line + fs->cursor_y > line_count) {
         // Move up if at the end of the document
-        if (*cursor_y > 1) {
-            (*cursor_y)--;
-        } else if (*start_line > 0) {
-            (*start_line)--;
+        if (fs->cursor_y > 1) {
+            fs->cursor_y--;
+        } else if (fs->start_line > 0) {
+            fs->start_line--;
         }
     }
 
     // Clear and redraw the text window
     werase(text_win);
     box(text_win, 0, 0);
-    draw_text_buffer(text_win);
+    draw_text_buffer(fs, text_win);
 }
 
 /**
  * Inserts a new line at the current cursor position.
  * 
- * @param cursor_x Pointer to the current x-coordinate of the cursor.
- * @param cursor_y Pointer to the current y-coordinate of the cursor.
- * @param start_line Pointer to the start line of the text buffer.
+ * @param fs Pointer to the current file state.
  */
-void insert_new_line(int *cursor_x, int *cursor_y, int *start_line) {
+void insert_new_line(FileState *fs) {
     if (line_count < MAX_LINES - 1) {
         // Move lines below the cursor down by one
-        for (int i = line_count; i > *cursor_y + *start_line - 1; --i) {
+        for (int i = line_count; i > fs->cursor_y + fs->start_line - 1; --i) {
             strcpy(text_buffer[i], text_buffer[i - 1]);
         }
         line_count++;
 
         // Insert a new empty line at the current cursor position
-        text_buffer[*cursor_y + *start_line - 1][0] = '\0';
+        text_buffer[fs->cursor_y + fs->start_line - 1][0] = '\0';
 
         // Record the change for undo
         Change change;
-        change.line = *cursor_y + *start_line - 1;
+        change.line = fs->cursor_y + fs->start_line - 1;
         change.old_text = NULL;
         change.new_text = strdup("");
 
         push(&undo_stack, change);
 
         // Move cursor to the new line
-        *cursor_x = 1;
+        fs->cursor_x = 1;
 
         // Adjust cursor_y and start_line
-        if (*cursor_y == LINES - 4 && *start_line + LINES - 4 < line_count) {
-            (*start_line)++;
+        if (fs->cursor_y == LINES - 4 && fs->start_line + LINES - 4 < line_count) {
+            fs->start_line++;
         } else {
-            (*cursor_y)++;
+            fs->cursor_y++;
         }
 
         // Clear and redraw the text window
-        redraw(cursor_x, cursor_y);
+        redraw(&fs->cursor_x, &fs->cursor_y);
 
         // Move the cursor up one line
-        if (*cursor_y > 1) {
-            (*cursor_y)--;
-        } else if (*start_line > 0) {
-            (*start_line)--;
+        if (fs->cursor_y > 1) {
+            fs->cursor_y--;
+        } else if (fs->start_line > 0) {
+            fs->start_line--;
         }
     }
 }
@@ -469,7 +466,7 @@ void initialize() {
     initializeMenus();
 
     // Update the status bar
-    update_status_bar(0, 0);
+    update_status_bar(0, 0, active_file);
 }
 
 /**
@@ -508,7 +505,7 @@ void run_editor() {
 
         //mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
         drawBar();
-        update_status_bar(cursor_x, cursor_y);        
+        update_status_bar(cursor_y, cursor_x, active_file);
         refresh();
         
         if (selection_mode) {
@@ -545,7 +542,7 @@ void run_editor() {
         if (exiting == 1)
             break;
 
-        update_status_bar(cursor_y + start_line, cursor_x); // Update status bar with absolute line number
+        update_status_bar(cursor_y, cursor_x, active_file);
         wmove(text_win, cursor_y, cursor_x);  // Restore cursor position
         wrefresh(text_win);
     }
@@ -613,7 +610,8 @@ void initialize_buffer() {
     line_count = 1;
     
     // Set the initial start line to 0
-    start_line = 0;
+    if (active_file)
+        active_file->start_line = 0;
 }
 
 /**
@@ -627,18 +625,18 @@ void initialize_buffer() {
  * @param win The window on which to draw the text buffer.
  * @return None
  */
-void draw_text_buffer(WINDOW *win) {
-    if (start_line < 0)
-        start_line = 0;
+void draw_text_buffer(FileState *fs, WINDOW *win) {
+    if (fs->start_line < 0)
+        fs->start_line = 0;
 
     werase(win);
     box(win, 0, 0);
     int max_lines = LINES - 4;  // Adjust for the status bar
 
     // Iterate over each line to be displayed on the window
-    for (int i = 0; i < max_lines && i + start_line < line_count; ++i) {
+    for (int i = 0; i < max_lines && i + fs->start_line < line_count; ++i) {
         // Apply syntax highlighting to the current line of text
-        apply_syntax_highlighting(win, text_buffer[i + start_line], i + 1);
+        apply_syntax_highlighting(win, text_buffer[i + fs->start_line], i + 1);
     }
 
     // Calculate scrollbar position and size
@@ -647,8 +645,8 @@ void draw_text_buffer(WINDOW *win) {
     int scrollbar_end = 0;
 
     if (line_count > 0) {
-        scrollbar_start = (start_line * scrollbar_height) / line_count;
-        scrollbar_end = ((start_line + max_lines) * scrollbar_height) / line_count;
+        scrollbar_start = (fs->start_line * scrollbar_height) / line_count;
+        scrollbar_end = ((fs->start_line + max_lines) * scrollbar_height) / line_count;
     }
 
     // Draw scrollbar
@@ -661,7 +659,7 @@ void draw_text_buffer(WINDOW *win) {
     }
 
     // Draw scrollbar at the top if the cursor is at the very top of the document
-    if (start_line == 0 && scrollbar_start == 0 && scrollbar_end > 0) {
+    if (fs->start_line == 0 && scrollbar_start == 0 && scrollbar_end > 0) {
         mvwprintw(win, 1, COLS - 1, "|");
     }
 
@@ -706,7 +704,7 @@ void handle_regular_mode(FileState *fs, int ch) {
 void redraw(int *cursor_x, int *cursor_y) {
     werase(text_win); // Clear the text window
     box(text_win, 0, 0); // Redraw the border of the text window
-    draw_text_buffer(text_win); // Redraw the text buffer
+    draw_text_buffer(active_file, text_win); // Redraw the text buffer
     wmove(text_win, *cursor_y, *cursor_x); // Move the cursor to its previous position
     wrefresh(text_win); // Refresh the text window
 }
@@ -732,10 +730,10 @@ void handle_resize(int sig) {
     wresize(text_win, LINES - 2, COLS); // Resize the text window
     mvwin(text_win, 1, 0); // Move the text window to its new position
     box(text_win, 0, 0); // Redraw the border of the text window
-    draw_text_buffer(text_win); // Redraw the text buffer
+    draw_text_buffer(active_file, text_win); // Redraw the text buffer
     wrefresh(text_win); // Refresh the text window
 
-    update_status_bar(1, 1); // Update the status bar with some default values for cursor position
+    update_status_bar(1, 1, active_file); // Update the status bar with some default values for cursor position
 }
 
 /**
@@ -754,7 +752,8 @@ void clear_text_buffer() {
     
     // Reset line count and start line variables
     line_count = 1;
-    start_line = 0;
+    if (active_file)
+        active_file->start_line = 0;
     
     // Clear the text window
     werase(text_win);
@@ -767,7 +766,7 @@ void clear_text_buffer() {
 }
 
 
-void update_status_bar(int cursor_y, int cursor_x) {
+void update_status_bar(int cursor_y, int cursor_x, FileState *fs) {
     move(0, 0);
     int filename_length = strlen(current_filename);
     int center_position = (COLS - filename_length) / 2;
@@ -775,7 +774,7 @@ void update_status_bar(int cursor_y, int cursor_x) {
 
     move(LINES - 1, 0);
     clrtoeol();
-    int actual_line_number = cursor_y + start_line;
+    int actual_line_number = cursor_y + (fs ? fs->start_line : 0);
     mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", line_count, actual_line_number, cursor_x);
 
     mvprintw(LINES - 1, COLS - 15, "CTRL-H - Help");

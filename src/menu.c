@@ -88,8 +88,8 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
         // Redraw the editor content
         werase(text_win);
         box(text_win, 0, 0);
-        draw_text_buffer(text_win);
-        update_status_bar(1, 1);
+        draw_text_buffer(active_file, text_win);
+        update_status_bar(1, 1, active_file);
         wrefresh(text_win);
 
         // Draw menu bar
