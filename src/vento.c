@@ -39,21 +39,12 @@ int main(int argc, char *argv[]) {
     
     endwin();
 
-    // Free all open files managed by the file manager
-    for (int i = 0; i < file_manager.count; ++i) {
-        FileState *fs = file_manager.files[i];
-        free_stack(fs->undo_stack);
-        fs->undo_stack = NULL;
-        free_stack(fs->redo_stack);
-        fs->redo_stack = NULL;
-        free_file_state(fs, MAX_LINES);
-    }
+    cleanup_on_exit(&file_manager);
+
     free(file_manager.files);
     file_manager.files = NULL;
     file_manager.count = 0;
     file_manager.active_index = -1;
-
-    cleanup_on_exit();
 
     active_file = NULL;
 

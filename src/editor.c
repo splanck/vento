@@ -574,26 +574,29 @@ void run_editor() {
 }
 
 /**
- * Cleans up the text buffer and frees allocated memory on program exit.
- * 
- * This function is responsible for cleaning up the text buffer and freeing
- * the allocated memory for each line of text. It is called when the program
- * exits to ensure that all memory is properly deallocated.
- * 
- * @param None
- * @return None
+ * Cleans up all open files and menus before program exit.
+ *
+ * Iterates through all files managed by @p fm, freeing undo/redo stacks and
+ * each FileState. Menu structures are also released.
+ *
+ * @param fm Pointer to the FileManager containing open files.
  */
-void cleanup_on_exit() {
-    for (int i = 0; i < MAX_LINES; ++i) {
-        if (active_file && active_file->text_buffer[i] != NULL) {  // Check for NULL pointer
-            free(active_file->text_buffer[i]);  // Free the memory allocated for the line of text
-            active_file->text_buffer[i] = NULL;  // Set to NULL to avoid double free
-        }
+void cleanup_on_exit(FileManager *fm) {
+    if (!fm || !fm->files) {
+        freeMenus();
+        return;
     }
 
-    if (active_file && active_file->clipboard != NULL) {
-        free(active_file->clipboard);
-        active_file->clipboard = NULL;
+    for (int i = 0; i < fm->count; ++i) {
+        FileState *fs = fm->files[i];
+        if (!fs) continue;
+
+        free_stack(fs->undo_stack);
+        fs->undo_stack = NULL;
+        free_stack(fs->redo_stack);
+        fs->redo_stack = NULL;
+
+        free_file_state(fs, MAX_LINES);
     }
 
     freeMenus();
