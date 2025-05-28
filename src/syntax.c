@@ -51,7 +51,7 @@ void apply_syntax_highlighting(struct FileState *fs, WINDOW *win, const char *li
     switch (fs->syntax_mode) {
         case C_SYNTAX:
             // Apply C syntax highlighting
-            highlight_c_syntax(win, line, y);
+            highlight_c_syntax(fs, win, line, y);
             break;
         case HTML_SYNTAX:
             // Apply HTML syntax highlighting
@@ -63,7 +63,7 @@ void apply_syntax_highlighting(struct FileState *fs, WINDOW *win, const char *li
             break;
         case CSHARP_SYNTAX:
             // Apply C# syntax highlighting
-            highlight_csharp_syntax(win, line, y);
+            highlight_csharp_syntax(fs, win, line, y);
             break;
         default:
             // No syntax highlighting
@@ -153,7 +153,7 @@ void highlight_python_syntax(WINDOW *win, const char *line, int y) {
  * @param line The line of text to be highlighted.
  * @param y The y-coordinate of the line in the window.
  */
-void highlight_c_syntax(WINDOW *win, const char *line, int y) {
+void highlight_c_syntax(struct FileState *fs, WINDOW *win, const char *line, int y) {
     int x = 1;
     int i = 0;
     int len = strlen(line);
@@ -161,6 +161,22 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
     int word_len = 0;
 
     while (i < len) {
+        if (fs->in_multiline_comment) {
+            wattron(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
+            while (i < len) {
+                mvwprintw(win, y, x++, "%c", line[i]);
+                if (line[i] == '*' && i + 1 < len && line[i + 1] == '/') {
+                    mvwprintw(win, y, x++, "%c", line[i + 1]);
+                    i += 2;
+                    fs->in_multiline_comment = false;
+                    break;
+                }
+                i++;
+            }
+            wattroff(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
+            continue;
+        }
+
         if (isspace(line[i])) {
             // Print spaces as is
             mvwprintw(win, y, x++, "%c", line[i]);
@@ -186,13 +202,16 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
                 // Multi-line comment
                 mvwprintw(win, y, x++, "%c", line[i++]);
                 mvwprintw(win, y, x++, "%c", line[i++]);
-                while (i < len && !(line[i] == '*' && line[i + 1] == '/')) {
+                fs->in_multiline_comment = true;
+                while (i < len) {
                     mvwprintw(win, y, x++, "%c", line[i]);
+                    if (line[i] == '*' && i + 1 < len && line[i + 1] == '/') {
+                        mvwprintw(win, y, x++, "%c", line[i + 1]);
+                        i += 2;
+                        fs->in_multiline_comment = false;
+                        break;
+                    }
                     i++;
-                }
-                if (i < len) {
-                    mvwprintw(win, y, x++, "%c", line[i++]);
-                    mvwprintw(win, y, x++, "%c", line[i++]);
                 }
             }
             wattroff(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
@@ -261,7 +280,7 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
  * @param line The line of text to be highlighted.
  * @param y The y-coordinate of the line in the window.
  */
-void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
+void highlight_csharp_syntax(struct FileState *fs, WINDOW *win, const char *line, int y) {
     int x = 1;
     int i = 0;
     int len = strlen(line);
@@ -269,6 +288,22 @@ void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
     int word_len = 0;
 
     while (i < len) {
+        if (fs->in_multiline_comment) {
+            wattron(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
+            while (i < len) {
+                mvwprintw(win, y, x++, "%c", line[i]);
+                if (line[i] == '*' && i + 1 < len && line[i + 1] == '/') {
+                    mvwprintw(win, y, x++, "%c", line[i + 1]);
+                    i += 2;
+                    fs->in_multiline_comment = false;
+                    break;
+                }
+                i++;
+            }
+            wattroff(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
+            continue;
+        }
+
         if (isspace(line[i])) {
             // Print spaces as is
             mvwprintw(win, y, x++, "%c", line[i]);
@@ -294,13 +329,16 @@ void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
                 // Multi-line comment
                 mvwprintw(win, y, x++, "%c", line[i++]);
                 mvwprintw(win, y, x++, "%c", line[i++]);
-                while (i < len && !(line[i] == '*' && line[i + 1] == '/')) {
+                fs->in_multiline_comment = true;
+                while (i < len) {
                     mvwprintw(win, y, x++, "%c", line[i]);
+                    if (line[i] == '*' && i + 1 < len && line[i + 1] == '/') {
+                        mvwprintw(win, y, x++, "%c", line[i + 1]);
+                        i += 2;
+                        fs->in_multiline_comment = false;
+                        break;
+                    }
                     i++;
-                }
-                if (i < len) {
-                    mvwprintw(win, y, x++, "%c", line[i++]);
-                    mvwprintw(win, y, x++, "%c", line[i++]);
                 }
             }
             wattroff(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);

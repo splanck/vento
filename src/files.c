@@ -25,6 +25,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     file_state->sel_end_x = file_state->sel_end_y = 0;
     file_state->clipboard = NULL; // Initialize clipboard if needed
     file_state->syntax_mode = NO_SYNTAX; // Set to NO_SYNTAX initially
+    file_state->in_multiline_comment = false;
     file_state->text_win = newwin(LINES - 2, COLS, 1, 0); // Create a new window for the file
 
     return file_state;
