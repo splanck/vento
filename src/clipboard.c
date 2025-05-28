@@ -41,14 +41,30 @@ void copy_selection(FileState *fs) {
     }
 
     clipboard[0] = '\0';  // Clear clipboard
-    for (int y = start_y; y <= end_y; y++) {
+    size_t clip_len = 0;
+    for (int y = start_y; y <= end_y && clip_len < CLIPBOARD_SIZE - 1; y++) {
         if (y == start_y) {
-            strncat(clipboard,
-                    &text_buffer[y - 1 + fs->start_line][start_x - 1],
-                    end_x - start_x + 1);
+            const char *src = &text_buffer[y - 1 + fs->start_line][start_x - 1];
+            size_t to_copy = end_x - start_x + 1;
+            if (to_copy > CLIPBOARD_SIZE - 1 - clip_len) {
+                to_copy = CLIPBOARD_SIZE - 1 - clip_len;
+            }
+            strncpy(clipboard + clip_len, src, to_copy);
+            clip_len += to_copy;
+            clipboard[clip_len] = '\0';
         } else {
-            strcat(clipboard, "\n");
-            strcat(clipboard, text_buffer[y - 1 + fs->start_line]);
+            if (clip_len < CLIPBOARD_SIZE - 1) {
+                clipboard[clip_len++] = '\n';
+                clipboard[clip_len] = '\0';
+            }
+            const char *src = text_buffer[y - 1 + fs->start_line];
+            size_t to_copy = strlen(src);
+            if (to_copy > CLIPBOARD_SIZE - 1 - clip_len) {
+                to_copy = CLIPBOARD_SIZE - 1 - clip_len;
+            }
+            strncpy(clipboard + clip_len, src, to_copy);
+            clip_len += to_copy;
+            clipboard[clip_len] = '\0';
         }
     }
 }
@@ -59,15 +75,26 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
     }
 
     char tmp[CLIPBOARD_SIZE];
-    strcpy(tmp, clipboard);
+    strncpy(tmp, clipboard, sizeof(tmp) - 1);
+    tmp[sizeof(tmp) - 1] = '\0';
 
     char *line = strtok(tmp, "\n");
     while (line) {
-        int len = strlen(line);
-        memmove(&text_buffer[*cursor_y - 1 + fs->start_line][*cursor_x - 1 + len],
-                &text_buffer[*cursor_y - 1 + fs->start_line][*cursor_x - 1],
-                strlen(&text_buffer[*cursor_y - 1 + fs->start_line][*cursor_x - 1]) + 1);
-        memcpy(&text_buffer[*cursor_y - 1 + fs->start_line][*cursor_x - 1], line, len);
+        size_t len = strlen(line);
+        char *dest = text_buffer[*cursor_y - 1 + fs->start_line];
+        size_t dest_len = strlen(dest);
+
+        if (dest_len + len >= (size_t)(COLS - 3)) {
+            if (dest_len >= (size_t)(COLS - 3) - 1) {
+                break;  // No space to paste
+            }
+            len = (COLS - 3) - dest_len - 1;
+        }
+
+        memmove(&dest[*cursor_x - 1 + len],
+                &dest[*cursor_x - 1],
+                dest_len - (*cursor_x - 1) + 1);
+        memcpy(&dest[*cursor_x - 1], line, len);
         line = strtok(NULL, "\n");
         (*cursor_y)++;
         *cursor_x = 1;
