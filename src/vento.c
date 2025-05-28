@@ -46,5 +46,13 @@ int main(int argc, char *argv[]) {
     redo_stack = NULL; // Prevent double free
 
     cleanup_on_exit();
+
+    /*
+     * Free the resources associated with the active file and reset the pointer
+     * to avoid potential double frees on subsequent program exits.
+     */
+    free_file_state(active_file, MAX_LINES);
+    active_file = NULL;
+
     return 0;
 }
