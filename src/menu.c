@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "menu.h"
 #include "editor.h"
 #include "search.h"
@@ -34,39 +35,56 @@ void initializeMenus() {
     menuCount = 3;
 
     // Allocate memory for the menus array
-    menus = malloc(menuCount * sizeof(Menu));
+    menus = calloc(menuCount, sizeof(Menu));
+    if (menus == NULL) {
+        fprintf(stderr, "Failed to allocate memory for menus\n");
+        exit(EXIT_FAILURE);
+    }
 
     // Create the file menu
     MenuItem *fileMenuItems = malloc(4 * sizeof(MenuItem));
+    if (fileMenuItems == NULL) {
+        fprintf(stderr, "Failed to allocate memory for file menu items\n");
+        freeMenus();
+        exit(EXIT_FAILURE);
+    }
     fileMenuItems[0] = (MenuItem){"New File", menuNewFile};
     fileMenuItems[1] = (MenuItem){"Load File", menuLoadFile};
     fileMenuItems[2] = (MenuItem){"Save File", menuSaveFile};
     fileMenuItems[3] = (MenuItem){"Quit", menuQuitEditor};
 
-    // Initialize the file menu
+    // Initialize and assign the file menu
     Menu fileMenu = {"File", fileMenuItems, 4};
+    menus[0] = fileMenu;
 
     // Create the edit menu
     MenuItem *editMenuItems = malloc(3 * sizeof(MenuItem));
+    if (editMenuItems == NULL) {
+        fprintf(stderr, "Failed to allocate memory for edit menu items\n");
+        freeMenus();
+        exit(EXIT_FAILURE);
+    }
     editMenuItems[0] = (MenuItem){"Undo", menuUndo};
     editMenuItems[1] = (MenuItem){"Redo", menuRedo};
     editMenuItems[2] = (MenuItem){"Find", menuFind};
 
-    // Initialize the edit menu
+    // Initialize and assign the edit menu
     Menu editMenu = {"Edit", editMenuItems, 3};
+    menus[1] = editMenu;
 
     // Create the help menu
     MenuItem *helpMenuItems = malloc(3 * sizeof(MenuItem));
+    if (helpMenuItems == NULL) {
+        fprintf(stderr, "Failed to allocate memory for help menu items\n");
+        freeMenus();
+        exit(EXIT_FAILURE);
+    }
     helpMenuItems[0] = (MenuItem){"About Vento", menuAbout};
     helpMenuItems[1] = (MenuItem){"Help Screen", menuHelp};
     helpMenuItems[2] = (MenuItem){"Test Window", menuTestwindow};
 
-    // Initialize the help menu
+    // Initialize and assign the help menu
     Menu helpMenu = {"Help", helpMenuItems, 3};
-
-    // Assign the menus to the menus array
-    menus[0] = fileMenu;
-    menus[1] = editMenu;
     menus[2] = helpMenu;
 
     drawMenuBar(menus, menuCount);
