@@ -103,6 +103,10 @@ void load_file(FileState *fs_unused, const char *filename) {
     int idx = fm_add(&file_manager, fs);
     fm_switch(&file_manager, idx);
     active_file = fm_current(&file_manager);
+
+    strncpy(current_filename, active_file->filename, sizeof(current_filename) - 1);
+    current_filename[sizeof(current_filename) - 1] = '\0';
+    update_status_bar(active_file->cursor_y, active_file->cursor_x, active_file);
 }
 
 void new_file(FileState *fs_unused) {
@@ -123,6 +127,10 @@ void new_file(FileState *fs_unused) {
     int idx = fm_add(&file_manager, fs);
     fm_switch(&file_manager, idx);
     active_file = fm_current(&file_manager);
+
+    strncpy(current_filename, active_file->filename, sizeof(current_filename) - 1);
+    current_filename[sizeof(current_filename) - 1] = '\0';
+    update_status_bar(active_file->cursor_y, active_file->cursor_x, active_file);
 }
 
 void set_syntax_mode(const char *filename) {
