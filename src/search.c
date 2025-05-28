@@ -17,7 +17,7 @@ void find_next_occurrence(FileState *fs, const char *word) {
 
     // Search from the current cursor position to the end of the document
     for (int line = start_search; line < fs->line_count; ++line) {
-        const char *line_text = text_buffer[line];
+        const char *line_text = fs->text_buffer[line];
         const char *found_position = strstr(line == start_search ? line_text + *cursor_x : line_text, word);
 
         if (found_position != NULL) {
@@ -49,7 +49,7 @@ void find_next_occurrence(FileState *fs, const char *word) {
     // If not found, wrap around and search from the start to the initial cursor position
     if (!found) {
         for (int line = 0; line < start_search; ++line) {
-            const char *line_text = text_buffer[line];
+            const char *line_text = fs->text_buffer[line];
             const char *found_position = strstr(line_text, word);
 
             if (found_position != NULL) {

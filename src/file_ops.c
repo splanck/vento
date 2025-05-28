@@ -14,7 +14,7 @@ void save_file(FileState *fs) {
         FILE *fp = fopen(current_filename, "w");
         if (fp) {
             for (int i = 0; i < fs->line_count; ++i) {
-                fprintf(fp, "%s\n", text_buffer[i]);
+                fprintf(fp, "%s\n", fs->text_buffer[i]);
             }
             fclose(fp);
             mvprintw(LINES - 2, 2, "File saved as %s", current_filename);
@@ -34,7 +34,7 @@ void save_file_as(FileState *fs) {
     FILE *fp = fopen(current_filename, "w");
     if (fp) {
         for (int i = 0; i < fs->line_count; ++i) {
-            fprintf(fp, "%s\n", text_buffer[i]);
+            fprintf(fp, "%s\n", fs->text_buffer[i]);
         }
         fclose(fp);
         mvprintw(LINES - 2, 2, "File saved as %s", current_filename);
@@ -62,10 +62,9 @@ void load_file(FileState *fs, const char *filename) {
     FILE *fp = fopen(filename, "r");
     if (fp) {
         fs->line_count = 0;
-        while (fgets(text_buffer[fs->line_count], COLS - 3, fp) && fs->line_count < MAX_LINES) {
-            text_buffer[fs->line_count][strcspn(text_buffer[fs->line_count], "\n")] = '\0';
+        while (fgets(fs->text_buffer[fs->line_count], COLS - 3, fp) && fs->line_count < MAX_LINES) {
+            fs->text_buffer[fs->line_count][strcspn(fs->text_buffer[fs->line_count], "\n")] = '\0';
             fs->line_count++;
-            line_count = fs->line_count;
         }
         fclose(fp);
         mvprintw(LINES - 2, 2, "File loaded: %s", filename);
