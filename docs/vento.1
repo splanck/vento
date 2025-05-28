@@ -19,6 +19,11 @@ Show the help screen.
 .B vento
 [optional-filename]
 
+.PP
+Multiple files may be opened sequentially. Load additional files using
+\fBCTRL-L\fP and switch among them with \fBF6\fP for the next file or
+\fBF7\fP for the previous one.
+
 .SH FEATURES
 .IP \[bu] 2
 Basic editor functionality: Navigate through text using arrow keys, edit text, and manage files.
@@ -122,6 +127,12 @@ Move to the top of the current page on the screen.
 .TP 
 .B CTRL-Down Arrow
 Move to the bottom of the current page on the screen.
+.TP
+.B F6
+Switch to the next file when multiple files are open.
+.TP
+.B F7
+Switch to the previous file when multiple files are open.
 
 .SH EXAMPLES
 .TP
@@ -129,8 +140,6 @@ Open a file named "example.txt" for editing:
 .B vento example.txt
 
 .SH PLANNED FEATURES
-.IP \[bu] 2
-Support for multiple files: Open and manage multiple files simultaneously.
 .IP \[bu] 2
 Spell checker support: Integrated spell checking for documents.
 .IP \[bu] 2

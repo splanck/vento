@@ -36,13 +36,18 @@ Vento currently supports the following features:
 - **About Box**: Press `CTRL-A` to view product information, version, and GPL message.
 - **Menu System**: Intuitive menu navigation for editor features.
 
+### Multi-File Support
+
+Vento allows multiple files to be opened at once. Load additional files using
+`CTRL-L` and switch between them with `F6` for the next file or `F7` for the
+previous one.
+
 ## Planned Features
 
 The following features are planned for future releases:
 
 - **Syntax Highlighting**: Support for more languages and improved highlighting.
 - **Large File Support**: Improved optimizations for handling large files.
-- **Support Multiple Files**: Work on multiple files simultaneously.
 - **Mouse Support**: Navigate the user interface and files using a mouse.
 - **Copy and Paste**: Enhanced clipboard functionality for text movement.
 - **Replace**: Easily search for specific text and replace it with another.
