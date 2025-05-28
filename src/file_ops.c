@@ -136,6 +136,28 @@ void new_file(FileState *fs_unused) {
     update_status_bar(active_file->cursor_y, active_file->cursor_x, active_file);
 }
 
+void close_current_file(FileState *fs_unused, int *cx, int *cy) {
+    (void)fs_unused;
+    fm_close(&file_manager, file_manager.active_index);
+
+    if (file_manager.count > 0) {
+        active_file = fm_current(&file_manager);
+        text_win = active_file->text_win;
+        strncpy(current_filename, active_file->filename, sizeof(current_filename) - 1);
+        current_filename[sizeof(current_filename) - 1] = '\0';
+    } else {
+        new_file(NULL);
+    }
+
+    active_file = fm_current(&file_manager);
+    if (cx && cy && active_file) {
+        *cx = active_file->cursor_x;
+        *cy = active_file->cursor_y;
+    }
+    redraw(cx, cy);
+    update_status_bar(active_file->cursor_y, active_file->cursor_x, active_file);
+}
+
 int set_syntax_mode(const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (ext) {

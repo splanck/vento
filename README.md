@@ -28,6 +28,7 @@ Vento currently supports the following features:
 - **Find**: Search for the next occurrance of a word.
 - **Delete Current Line**: Press `CTRL-D` to delete the current line.
 - **Word Navigation**: Use `CTRL-W` to move to the next word and `CTRL-B` to move to the previous word.
+- **Close Current File**: Press `CTRL-Q` to close the active file.
 - **Customizable Configuration**: Customize settings through a configuration file.
 - **Basic Syntax Highlighting**: Simple syntax highlighting for C, HTML, and Python files.
 - **Status Bar**: Displays the current line and column number.

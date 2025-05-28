@@ -40,6 +40,7 @@ int key_move_backward = 2;  // Key code for the move backward command
 int key_load_file = 12;  // Key code for the load file command
 int key_save_as = 15;  // Key code for the save as command
 int key_save_file = 16;  // Key code for the save file command
+int key_close_file = 17;  // Key code for closing the current file (CTRL-Q)
 int key_selection_mode = 13;  // Key code for entering selection mode
 int key_paste_clipboard = 11;  // Key code for pasting from clipboard
 int key_clear_buffer = 14;  // Key code for clearing the text buffer
@@ -309,6 +310,7 @@ static void initialize_key_mappings(void) {
     key_mappings[key_mapping_count++] = (KeyMapping){key_load_file, handle_load_file_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_save_as, handle_save_as_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_save_file, handle_save_file_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_close_file, close_current_file};
     key_mappings[key_mapping_count++] = (KeyMapping){key_selection_mode, handle_selection_mode_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_paste_clipboard, handle_paste_clipboard_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_clear_buffer, handle_clear_buffer_wrapper};
