@@ -144,7 +144,6 @@ void highlight_python_syntax(WINDOW *win, const char *line, int y) {
             i++;
         }
     }
-    wrefresh(win);
 }
 
 /**
