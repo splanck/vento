@@ -42,7 +42,7 @@ void initializeMenus() {
     }
 
     // Create the file menu
-    MenuItem *fileMenuItems = malloc(4 * sizeof(MenuItem));
+    MenuItem *fileMenuItems = malloc(6 * sizeof(MenuItem));
     if (fileMenuItems == NULL) {
         fprintf(stderr, "Failed to allocate memory for file menu items\n");
         freeMenus();
@@ -51,10 +51,12 @@ void initializeMenus() {
     fileMenuItems[0] = (MenuItem){"New File", menuNewFile};
     fileMenuItems[1] = (MenuItem){"Load File", menuLoadFile};
     fileMenuItems[2] = (MenuItem){"Save File", menuSaveFile};
-    fileMenuItems[3] = (MenuItem){"Quit", menuQuitEditor};
+    fileMenuItems[3] = (MenuItem){"Next File", menuNextFile};
+    fileMenuItems[4] = (MenuItem){"Previous File", menuPrevFile};
+    fileMenuItems[5] = (MenuItem){"Quit", menuQuitEditor};
 
     // Initialize and assign the file menu
-    Menu fileMenu = {"File", fileMenuItems, 4};
+    Menu fileMenu = {"File", fileMenuItems, 6};
     menus[0] = fileMenu;
 
     // Create the edit menu
@@ -187,6 +189,14 @@ void menuLoadFile() {
 
 void menuSaveFile() {
     save_file(active_file);
+}
+
+void menuNextFile() {
+    next_file(active_file, &cursor_x, &cursor_y);
+}
+
+void menuPrevFile() {
+    prev_file(active_file, &cursor_x, &cursor_y);
 }
 
 void menuQuitEditor() {
