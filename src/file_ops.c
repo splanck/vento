@@ -6,6 +6,7 @@
 #include "syntax.h"
 #include "file_ops.h"
 #include "files.h"
+#include "file_manager.h"
 
 void save_file(FileState *fs) {
     if (strlen(current_filename) == 0) {
@@ -48,7 +49,7 @@ void save_file_as(FileState *fs) {
     refresh();
 }
 
-void load_file(FileState *fs, const char *filename) {
+void load_file(FileState *fs_unused, const char *filename) {
     char file_to_load[256];
 
     if (filename == NULL) {
@@ -56,7 +57,14 @@ void load_file(FileState *fs, const char *filename) {
         filename = file_to_load;
     }
 
+    /* Allocate a new file state */
+    FileState *fs = initialize_file_state(filename, MAX_LINES, COLS - 3);
+    active_file = fs;
+
     set_syntax_mode(filename);
+    fs->syntax_mode = current_syntax_mode;
+    strcpy(fs->filename, filename);
+
     initialize_buffer();
 
     FILE *fp = fopen(filename, "r");
@@ -82,31 +90,39 @@ void load_file(FileState *fs, const char *filename) {
 
     mvprintw(LINES - 2, 2, "                            ");
     refresh();
-    text_win = newwin(LINES - 2, COLS, 1, 0);
+    text_win = fs->text_win;
     keypad(text_win, TRUE);
     meta(text_win, TRUE);
 
     box(text_win, 0, 0);
     wmove(text_win, 1, 1);
 
-    draw_text_buffer(active_file, text_win);
+    draw_text_buffer(fs, text_win);
     wrefresh(text_win);
+
+    int idx = fm_add(&file_manager, fs);
+    fm_switch(&file_manager, idx);
+    active_file = fm_current(&file_manager);
 }
 
-void new_file(FileState *fs) {
-    int cursor_x = 1, cursor_y = 1;
+void new_file(FileState *fs_unused) {
+    FileState *fs = initialize_file_state("", MAX_LINES, COLS - 3);
+    active_file = fs;
     strcpy(current_filename, "");
+    fs->syntax_mode = NO_SYNTAX;
 
     initialize_buffer();
 
-    text_win = newwin(LINES - 2, COLS, 1, 0);
+    text_win = fs->text_win;
     keypad(text_win, TRUE);
     meta(text_win, TRUE);
     box(text_win, 0, 0);
-    wmove(text_win, cursor_y, cursor_x);
+    wmove(text_win, fs->cursor_y, fs->cursor_x);
     wrefresh(text_win);
-    fs->cursor_x = cursor_x;
-    fs->cursor_y = cursor_y;
+
+    int idx = fm_add(&file_manager, fs);
+    fm_switch(&file_manager, idx);
+    active_file = fm_current(&file_manager);
 }
 
 void set_syntax_mode(const char *filename) {

@@ -7,6 +7,7 @@
 #include "input.h"
 #include "ui.h"
 #include "files.h"
+#include "file_manager.h"
 
 
 /**
@@ -19,15 +20,16 @@
 int main(int argc, char *argv[]) {
     initialize();
 
-    active_file = initialize_file_state("", MAX_LINES, COLS - 3);
-    initialize_buffer();
+    fm_init(&file_manager);
 
-    // Check if a filename was provided as a parameter
+    // Load initial file or create a new one
     if (argc > 1) {
-        load_file(active_file, argv[1]);
+        load_file(NULL, argv[1]);
     } else {
-        new_file(active_file);
+        new_file(NULL);
     }
+
+    active_file = fm_current(&file_manager);
 
     // Show the warning dialog before entering the main editor loop
     show_warning_dialog();
@@ -37,21 +39,22 @@ int main(int argc, char *argv[]) {
     
     endwin();
 
-    // Free the undo stack
-    free_stack(active_file->undo_stack);
-    active_file->undo_stack = NULL; // Prevent double free
-
-    // Free the redo stack
-    free_stack(active_file->redo_stack);
-    active_file->redo_stack = NULL; // Prevent double free
+    // Free all open files managed by the file manager
+    for (int i = 0; i < file_manager.count; ++i) {
+        FileState *fs = file_manager.files[i];
+        free_stack(fs->undo_stack);
+        fs->undo_stack = NULL;
+        free_stack(fs->redo_stack);
+        fs->redo_stack = NULL;
+        free_file_state(fs, MAX_LINES);
+    }
+    free(file_manager.files);
+    file_manager.files = NULL;
+    file_manager.count = 0;
+    file_manager.active_index = -1;
 
     cleanup_on_exit();
 
-    /*
-     * Free the resources associated with the active file and reset the pointer
-     * to avoid potential double frees on subsequent program exits.
-     */
-    free_file_state(active_file, MAX_LINES);
     active_file = NULL;
 
     return 0;
