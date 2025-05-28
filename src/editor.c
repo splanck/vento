@@ -19,14 +19,11 @@
 char current_filename[256] = "";  // Name of the current file being edited
 FileState *active_file = NULL;
 int cursor_x = 1, cursor_y = 1;
-char *text_buffer[MAX_LINES];
-int line_count = 0;
+/* text_buffer and line_count are now stored per file in FileState */
 int runeditor = 0;  // Flag to control the main loop of the editor
 WINDOW *text_win;  // Pointer to the ncurses window for displaying the text
 
-// Undo and redo stacks
-Node *undo_stack = NULL;
-Node *redo_stack = NULL;
+// Undo and redo stacks are stored per file in FileState
 
 char *strdup(const char *s);  // Explicitly declare strdup
 int exiting = 0;
@@ -197,7 +194,7 @@ static void handle_save_file_wrapper(struct FileState *fs, int *cx, int *cy) {
 }
 
 static void handle_selection_mode_wrapper(struct FileState *fs, int *cx, int *cy) {
-    if (selection_mode) {
+    if (fs->selection_mode) {
         end_selection_mode(fs);
     } else {
         start_selection_mode(fs, *cx, *cy);
@@ -285,29 +282,30 @@ static void initialize_key_mappings(void) {
  * @param fs Pointer to the current file state.
  */
 void delete_current_line(FileState *fs) {
-    if (line_count == 0) {
+    if (fs->line_count == 0) {
         return;
     }
 
     int line_to_delete = fs->cursor_y - 1 + fs->start_line;
 
     // Push the current state to the undo stack
-    push(&undo_stack, (Change){line_to_delete, strdup(text_buffer[line_to_delete]), NULL});
+    push(&fs->undo_stack,
+         (Change){line_to_delete, strdup(fs->text_buffer[line_to_delete]), NULL});
 
     // Shift lines up to delete the current line
-    for (int i = line_to_delete; i < line_count - 1; ++i) {
-        strcpy(text_buffer[i], text_buffer[i + 1]);
+    for (int i = line_to_delete; i < fs->line_count - 1; ++i) {
+        strcpy(fs->text_buffer[i], fs->text_buffer[i + 1]);
     }
 
     // Clear the last line
-    memset(text_buffer[line_count - 1], 0, COLS - 3);
-    line_count--;
+    memset(fs->text_buffer[fs->line_count - 1], 0, COLS - 3);
+    fs->line_count--;
 
     // Move cursor to the next line if possible
-    if (fs->cursor_y < LINES - 4 && fs->cursor_y <= line_count) {
+    if (fs->cursor_y < LINES - 4 && fs->cursor_y <= fs->line_count) {
         // Move to the next line
         fs->cursor_y++;
-    } else if (fs->start_line + fs->cursor_y > line_count) {
+    } else if (fs->start_line + fs->cursor_y > fs->line_count) {
         // Move up if at the end of the document
         if (fs->cursor_y > 1) {
             fs->cursor_y--;
@@ -328,15 +326,15 @@ void delete_current_line(FileState *fs) {
  * @param fs Pointer to the current file state.
  */
 void insert_new_line(FileState *fs) {
-    if (line_count < MAX_LINES - 1) {
+    if (fs->line_count < MAX_LINES - 1) {
         // Move lines below the cursor down by one
-        for (int i = line_count; i > fs->cursor_y + fs->start_line - 1; --i) {
-            strcpy(text_buffer[i], text_buffer[i - 1]);
+        for (int i = fs->line_count; i > fs->cursor_y + fs->start_line - 1; --i) {
+            strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
         }
-        line_count++;
+        fs->line_count++;
 
         // Insert a new empty line at the current cursor position
-        text_buffer[fs->cursor_y + fs->start_line - 1][0] = '\0';
+        fs->text_buffer[fs->cursor_y + fs->start_line - 1][0] = '\0';
 
         // Record the change for undo
         Change change;
@@ -344,13 +342,13 @@ void insert_new_line(FileState *fs) {
         change.old_text = NULL;
         change.new_text = strdup("");
 
-        push(&undo_stack, change);
+        push(&fs->undo_stack, change);
 
         // Move cursor to the new line
         fs->cursor_x = 1;
 
         // Adjust cursor_y and start_line
-        if (fs->cursor_y == LINES - 4 && fs->start_line + LINES - 4 < line_count) {
+        if (fs->cursor_y == LINES - 4 && fs->start_line + LINES - 4 < fs->line_count) {
             fs->start_line++;
         } else {
             fs->cursor_y++;
@@ -387,14 +385,6 @@ void disable_ctrl_c_z() {
  * various settings and key mappings.
  */
 void initialize() {
-    // Allocate clipboard buffer
-    clipboard = malloc(CLIPBOARD_SIZE);
-    if (clipboard == NULL) {
-        fprintf(stderr, "Memory allocation failed for clipboard\n");
-        exit(1);
-    }
-    clipboard[0] = '\0';
-
     // Initialize the screen
     initscr();
 
@@ -508,7 +498,7 @@ void run_editor() {
         update_status_bar(cursor_y, cursor_x, active_file);
         refresh();
         
-        if (selection_mode) {
+        if (active_file->selection_mode) {
             handle_selection_mode(active_file, ch, &cursor_x, &cursor_y);
             active_file->cursor_x = cursor_x;
             active_file->cursor_y = cursor_y;
@@ -562,15 +552,15 @@ void run_editor() {
  */
 void cleanup_on_exit() {
     for (int i = 0; i < MAX_LINES; ++i) {
-        if (text_buffer[i] != NULL) {  // Check for NULL pointer
-            free(text_buffer[i]);  // Free the memory allocated for the line of text
-            text_buffer[i] = NULL;  // Set to NULL to avoid double free
+        if (active_file && active_file->text_buffer[i] != NULL) {  // Check for NULL pointer
+            free(active_file->text_buffer[i]);  // Free the memory allocated for the line of text
+            active_file->text_buffer[i] = NULL;  // Set to NULL to avoid double free
         }
     }
 
-    if (clipboard != NULL) {
-        free(clipboard);
-        clipboard = NULL;
+    if (active_file && active_file->clipboard != NULL) {
+        free(active_file->clipboard);
+        active_file->clipboard = NULL;
     }
 
     freeMenus();
@@ -594,12 +584,12 @@ void close_editor() {
 void initialize_buffer() {
     // Allocate memory for each line in the text buffer
     for (int i = 0; i < MAX_LINES; ++i) {
-        if (text_buffer[i] != NULL) {
-            free(text_buffer[i]);
-            text_buffer[i] = NULL;
+        if (active_file->text_buffer[i] != NULL) {
+            free(active_file->text_buffer[i]);
+            active_file->text_buffer[i] = NULL;
         }
-        text_buffer[i] = (char *)calloc(COLS - 3, sizeof(char));
-        if (text_buffer[i] == NULL) {
+        active_file->text_buffer[i] = (char *)calloc(COLS - 3, sizeof(char));
+        if (active_file->text_buffer[i] == NULL) {
             // Handle allocation failure
             fprintf(stderr, "Memory allocation failed for text_buffer[%d]\n", i);
             exit(1);
@@ -607,11 +597,21 @@ void initialize_buffer() {
     }
     
     // Set the initial line count to 1
-    line_count = 1;
+    active_file->line_count = 1;
     
     // Set the initial start line to 0
     if (active_file)
         active_file->start_line = 0;
+
+    // Allocate clipboard if needed
+    if (active_file && active_file->clipboard == NULL) {
+        active_file->clipboard = malloc(CLIPBOARD_SIZE);
+        if (!active_file->clipboard) {
+            fprintf(stderr, "Memory allocation failed for clipboard\n");
+            exit(1);
+        }
+        active_file->clipboard[0] = '\0';
+    }
 }
 
 /**
@@ -634,9 +634,9 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
     int max_lines = LINES - 4;  // Adjust for the status bar
 
     // Iterate over each line to be displayed on the window
-    for (int i = 0; i < max_lines && i + fs->start_line < line_count; ++i) {
+    for (int i = 0; i < max_lines && i + fs->start_line < fs->line_count; ++i) {
         // Apply syntax highlighting to the current line of text
-        apply_syntax_highlighting(win, text_buffer[i + fs->start_line], i + 1);
+        apply_syntax_highlighting(win, fs->text_buffer[i + fs->start_line], i + 1);
     }
 
     // Calculate scrollbar position and size
@@ -644,9 +644,9 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
     int scrollbar_start = 0;
     int scrollbar_end = 0;
 
-    if (line_count > 0) {
-        scrollbar_start = (fs->start_line * scrollbar_height) / line_count;
-        scrollbar_end = ((fs->start_line + max_lines) * scrollbar_height) / line_count;
+    if (fs->line_count > 0) {
+        scrollbar_start = (fs->start_line * scrollbar_height) / fs->line_count;
+        scrollbar_end = ((fs->start_line + max_lines) * scrollbar_height) / fs->line_count;
     }
 
     // Draw scrollbar
@@ -747,11 +747,11 @@ void handle_resize(int sig) {
 void clear_text_buffer() {
     // Set all elements of the text buffer to 0
     for (int i = 0; i < MAX_LINES; ++i) {
-        memset(text_buffer[i], 0, COLS - 3);
+        memset(active_file->text_buffer[i], 0, COLS - 3);
     }
-    
+
     // Reset line count and start line variables
-    line_count = 1;
+    active_file->line_count = 1;
     if (active_file)
         active_file->start_line = 0;
     
@@ -775,7 +775,7 @@ void update_status_bar(int cursor_y, int cursor_x, FileState *fs) {
     move(LINES - 1, 0);
     clrtoeol();
     int actual_line_number = cursor_y + (fs ? fs->start_line : 0);
-    mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", line_count, actual_line_number, cursor_x);
+    mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", fs ? fs->line_count : 0, actual_line_number, cursor_x);
 
     mvprintw(LINES - 1, COLS - 15, "CTRL-H - Help");
 

@@ -30,28 +30,28 @@ int is_empty(Node *stack) {
 }
 
 void undo(FileState *fs) {
-    if (undo_stack == NULL) return;
+    if (fs->undo_stack == NULL) return;
 
-    Change change = pop(&undo_stack);
+    Change change = pop(&fs->undo_stack);
 
     if (change.old_text) {
         for (int i = fs->line_count; i > change.line; --i) {
-            strcpy(text_buffer[i], text_buffer[i - 1]);
+            strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
         }
         fs->line_count++;
 
-        strcpy(text_buffer[change.line], change.old_text);
+        strcpy(fs->text_buffer[change.line], change.old_text);
 
-        push(&redo_stack, (Change){change.line, strdup(change.old_text), NULL});
+        push(&fs->redo_stack, (Change){change.line, strdup(change.old_text), NULL});
         free(change.old_text);
     } else {
         for (int i = change.line; i < fs->line_count - 1; ++i) {
-            strcpy(text_buffer[i], text_buffer[i + 1]);
+            strcpy(fs->text_buffer[i], fs->text_buffer[i + 1]);
         }
-        text_buffer[fs->line_count - 1][0] = '\0';
+        fs->text_buffer[fs->line_count - 1][0] = '\0';
         fs->line_count--;
 
-        push(&redo_stack, change);
+        push(&fs->redo_stack, change);
     }
 
     werase(text_win);
@@ -61,14 +61,13 @@ void undo(FileState *fs) {
 }
 
 void redo(FileState *fs) {
-    (void)fs;
-    if (redo_stack == NULL) return;
+    if (fs->redo_stack == NULL) return;
 
-    Change change = pop(&redo_stack);
+    Change change = pop(&fs->redo_stack);
 
     if (change.new_text) {
-        push(&undo_stack, (Change){change.line, strdup(text_buffer[change.line]), strdup(change.new_text)});
-        strcpy(text_buffer[change.line], change.new_text);
+        push(&fs->undo_stack, (Change){change.line, strdup(fs->text_buffer[change.line]), strdup(change.new_text)});
+        strcpy(fs->text_buffer[change.line], change.new_text);
         free(change.new_text);
     }
 

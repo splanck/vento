@@ -38,12 +38,12 @@ int main(int argc, char *argv[]) {
     endwin();
 
     // Free the undo stack
-    free_stack(undo_stack);
-    undo_stack = NULL; // Prevent double free
+    free_stack(active_file->undo_stack);
+    active_file->undo_stack = NULL; // Prevent double free
 
     // Free the redo stack
-    free_stack(redo_stack);
-    redo_stack = NULL; // Prevent double free
+    free_stack(active_file->redo_stack);
+    active_file->redo_stack = NULL; // Prevent double free
 
     cleanup_on_exit();
 

@@ -39,9 +39,9 @@ void handle_key_up(FileState *fs) {
  * @param fs->start_line Pointer to the starting line of the visible text area.
  */
 void handle_key_down(FileState *fs) {
-    if (fs->cursor_y < LINES - BOTTOM_MARGIN && fs->cursor_y < line_count) {
+    if (fs->cursor_y < LINES - BOTTOM_MARGIN && fs->cursor_y < fs->line_count) {
         fs->cursor_y++;
-    } else if (fs->start_line + fs->cursor_y < line_count) {
+    } else if (fs->start_line + fs->cursor_y < fs->line_count) {
         fs->start_line++;
         draw_text_buffer(active_file, text_win);
     }
@@ -67,7 +67,7 @@ void handle_key_left(FileState *fs) {
  * @param cursor_y The current y-coordinate of the cursor.
  */
 void handle_key_right(FileState *fs) {
-    if (fs->cursor_x < (int)strlen(text_buffer[fs->cursor_y - 1 + fs->start_line]) + 1) {
+    if (fs->cursor_x < (int)strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) + 1) {
         fs->cursor_x++;
     }
 }
@@ -84,20 +84,20 @@ void handle_key_right(FileState *fs) {
 void handle_key_backspace(FileState *fs) {
     if (fs->cursor_x > 1) {
         fs->cursor_x--;
-        memmove(&text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
-                &text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
-                strlen(text_buffer[fs->cursor_y - 1 + fs->start_line]) - fs->cursor_x + 1);
+        memmove(&fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
+                &fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
+                strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) - fs->cursor_x + 1);
     } else if (fs->cursor_y > 1 || fs->start_line > 0) {
-        size_t prev_len = strlen(text_buffer[fs->cursor_y - 2 + fs->start_line]);
+        size_t prev_len = strlen(fs->text_buffer[fs->cursor_y - 2 + fs->start_line]);
         // Check if the merged line fits within the screen width
-        if (prev_len + strlen(text_buffer[fs->cursor_y - 1 + fs->start_line]) < (size_t)(COLS - 6)) {
-            strcat(text_buffer[fs->cursor_y - 2 + fs->start_line], text_buffer[fs->cursor_y - 1 + fs->start_line]);
-            for (int i = fs->cursor_y - 1 + fs->start_line; i < line_count - 1; ++i) {
-                strcpy(text_buffer[i], text_buffer[i + 1]);
+        if (prev_len + strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) < (size_t)(COLS - 6)) {
+            strcat(fs->text_buffer[fs->cursor_y - 2 + fs->start_line], fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
+            for (int i = fs->cursor_y - 1 + fs->start_line; i < fs->line_count - 1; ++i) {
+                strcpy(fs->text_buffer[i], fs->text_buffer[i + 1]);
             }
             // Clear the last line
-            text_buffer[line_count - 1][0] = '\0';
-            line_count--;
+            fs->text_buffer[fs->line_count - 1][0] = '\0';
+            fs->line_count--;
             if (fs->cursor_y > 1) {
                 fs->cursor_y--;
             } else {
@@ -122,17 +122,17 @@ void handle_key_backspace(FileState *fs) {
  * @param cursor_y The current y-coordinate of the cursor.
  */
 void handle_key_delete(FileState *fs) {
-    if (fs->cursor_x < (int)strlen(text_buffer[fs->cursor_y - 1 + fs->start_line])) {
-        memmove(&text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
-                &text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
-                strlen(text_buffer[fs->cursor_y - 1 + fs->start_line]) - fs->cursor_x + 1);
-    } else if (fs->cursor_y + fs->start_line < line_count) {
-        strcat(text_buffer[fs->cursor_y - 1 + fs->start_line], text_buffer[fs->cursor_y + fs->start_line]);
-        for (int i = fs->cursor_y + fs->start_line; i < line_count - 1; ++i) {
-            strcpy(text_buffer[i], text_buffer[i + 1]);
+    if (fs->cursor_x < (int)strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line])) {
+        memmove(&fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
+                &fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
+                strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) - fs->cursor_x + 1);
+    } else if (fs->cursor_y + fs->start_line < fs->line_count) {
+        strcat(fs->text_buffer[fs->cursor_y - 1 + fs->start_line], fs->text_buffer[fs->cursor_y + fs->start_line]);
+        for (int i = fs->cursor_y + fs->start_line; i < fs->line_count - 1; ++i) {
+            strcpy(fs->text_buffer[i], fs->text_buffer[i + 1]);
         }
-        text_buffer[line_count - 1][0] = '\0';
-        line_count--;
+        fs->text_buffer[fs->line_count - 1][0] = '\0';
+        fs->line_count--;
     }
     werase(text_win);
     box(text_win, 0, 0);
@@ -149,20 +149,20 @@ void handle_key_delete(FileState *fs) {
  * @param fs->start_line Pointer to the starting line of the visible text area.
  */
 void handle_key_enter(FileState *fs) {
-    if (line_count < MAX_LINES - 1) {
-        for (int i = line_count; i > fs->cursor_y + fs->start_line; --i) {
-            strcpy(text_buffer[i], text_buffer[i - 1]);
+    if (fs->line_count < MAX_LINES - 1) {
+        for (int i = fs->line_count; i > fs->cursor_y + fs->start_line; --i) {
+            strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
         }
-        line_count++;
+        fs->line_count++;
 
         if (fs->cursor_x > 1) {
-            strcpy(text_buffer[fs->cursor_y + fs->start_line],
-                   &text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1]);
-            text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1] = '\0';
+            strcpy(fs->text_buffer[fs->cursor_y + fs->start_line],
+                   &fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1]);
+            fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1] = '\0';
         } else {
-            strcpy(text_buffer[fs->cursor_y + fs->start_line],
-                   text_buffer[fs->cursor_y - 1 + fs->start_line]);
-            text_buffer[fs->cursor_y - 1 + fs->start_line][0] = '\0';
+            strcpy(fs->text_buffer[fs->cursor_y + fs->start_line],
+                   fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
+            fs->text_buffer[fs->cursor_y - 1 + fs->start_line][0] = '\0';
         }
 
         fs->cursor_x = 1;
@@ -212,10 +212,10 @@ void handle_key_page_down(FileState *fs) {
     int max_lines = LINES - 4; // Adjust for the status bar
 
     // Move the starting line down
-    if (fs->start_line + max_lines < line_count) {
+    if (fs->start_line + max_lines < fs->line_count) {
         fs->start_line += max_lines;
     } else {
-        fs->start_line = line_count - max_lines;
+        fs->start_line = fs->line_count - max_lines;
         if (fs->start_line < 0) {
             fs->start_line = 0;
         }
@@ -225,9 +225,9 @@ void handle_key_page_down(FileState *fs) {
     fs->cursor_y = max_lines;
 
     // Ensure the cursor doesn't go past the end of the file
-    if (fs->cursor_y + fs->start_line >= line_count) {
-        if (line_count > 0) {
-            fs->cursor_y = line_count - fs->start_line;
+    if (fs->cursor_y + fs->start_line >= fs->line_count) {
+        if (fs->line_count > 0) {
+            fs->cursor_y = fs->line_count - fs->start_line;
         } else {
             fs->cursor_y = 1;
         }
@@ -256,11 +256,11 @@ void handle_ctrl_key_pgup(FileState *fs) {
  */
 void handle_ctrl_key_pgdn(FileState *fs) {
     fs->cursor_y = LINES - 4; // Adjust for the status bar
-    if (line_count > LINES - 4) {
-        fs->start_line = line_count - (LINES - 4);
+    if (fs->line_count > LINES - 4) {
+        fs->start_line = fs->line_count - (LINES - 4);
     } else {
         fs->start_line = 0;
-        fs->cursor_y = line_count;
+        fs->cursor_y = fs->line_count;
     }
     draw_text_buffer(active_file, text_win);
 }
@@ -303,7 +303,7 @@ void handle_ctrl_key_left(FileState *fs) {
  * @param cursor_y The current y-coordinate of the cursor.
  */
 void handle_ctrl_key_right(FileState *fs) {
-    fs->cursor_x = strlen(text_buffer[fs->cursor_y - 1 + fs->start_line]) + 1;
+    fs->cursor_x = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) + 1;
 }
 
 /**
@@ -328,24 +328,24 @@ void handle_default_key(FileState *fs, int ch) {
         return;
     }
     if (fs->cursor_x < COLS - 6) {
-        int len = strlen(text_buffer[fs->cursor_y - 1 + fs->start_line]);
-        char *old_text = strdup(text_buffer[fs->cursor_y - 1 + fs->start_line]);
+        int len = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
+        char *old_text = strdup(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
 
         // Shift the characters to the right of the cursor to make space for the new character
         if (fs->cursor_x <= len) {
-            memmove(&text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
-                    &text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
+            memmove(&fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
+                    &fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
                     len - fs->cursor_x + 1);
         }
 
         // Insert the new character at the cursor position
-        text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1] = ch;
-        text_buffer[fs->cursor_y - 1 + fs->start_line][len + 1] = '\0';
+        fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1] = ch;
+        fs->text_buffer[fs->cursor_y - 1 + fs->start_line][len + 1] = '\0';
         fs->cursor_x++;
 
-        char *new_text = strdup(text_buffer[fs->cursor_y - 1 + fs->start_line]);
+        char *new_text = strdup(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
         Change change = { fs->cursor_y - 1 + fs->start_line, old_text, new_text };
-        push(&undo_stack, change);
+        push(&fs->undo_stack, change);
     }
 
     // Redraw the text buffer
@@ -362,8 +362,8 @@ void handle_default_key(FileState *fs, int ch) {
  * @param cursor_y Pointer to the current y-coordinate of the cursor.
  */
 void move_forward_to_next_word(FileState *fs) {
-    while (fs->cursor_y - 1 + fs->start_line < line_count) {
-        char *line = text_buffer[fs->cursor_y - 1 + fs->start_line];
+    while (fs->cursor_y - 1 + fs->start_line < fs->line_count) {
+        char *line = fs->text_buffer[fs->cursor_y - 1 + fs->start_line];
         int len = strlen(line);
 
         // Move cursor to the end of the current word
@@ -396,7 +396,7 @@ void move_forward_to_next_word(FileState *fs) {
  */
 void move_backward_to_previous_word(FileState *fs) {
     while (fs->cursor_y - 1 + fs->start_line >= 0) {
-        char *line = text_buffer[fs->cursor_y - 1 + fs->start_line];
+        char *line = fs->text_buffer[fs->cursor_y - 1 + fs->start_line];
 
         // Move cursor to the beginning of the current word
         while (fs->cursor_x > 1 && isalnum(line[fs->cursor_x - 2])) {
@@ -416,7 +416,7 @@ void move_backward_to_previous_word(FileState *fs) {
         // Move to the end of the previous line
         if (fs->cursor_y > 1) {
             fs->cursor_y--;
-            line = text_buffer[fs->cursor_y - 1 + fs->start_line];
+            line = fs->text_buffer[fs->cursor_y - 1 + fs->start_line];
             fs->cursor_x = strlen(line) + 1;
         } else {
             fs->cursor_x = 1;
