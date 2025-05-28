@@ -9,16 +9,16 @@
 #include "file_manager.h"
 
 void save_file(FileState *fs) {
-    if (strlen(current_filename) == 0) {
+    if (strlen(fs->filename) == 0) {
         save_file_as(fs);
     } else {
-        FILE *fp = fopen(current_filename, "w");
+        FILE *fp = fopen(fs->filename, "w");
         if (fp) {
             for (int i = 0; i < fs->line_count; ++i) {
                 fprintf(fp, "%s\n", fs->text_buffer[i]);
             }
             fclose(fp);
-            mvprintw(LINES - 2, 2, "File saved as %s", current_filename);
+            mvprintw(LINES - 2, 2, "File saved as %s", fs->filename);
         } else {
             mvprintw(LINES - 2, 2, "Error saving file!");
         }
@@ -30,15 +30,15 @@ void save_file(FileState *fs) {
 }
 
 void save_file_as(FileState *fs) {
-    create_dialog("Save as", current_filename, 256);
+    create_dialog("Save as", fs->filename, 256);
 
-    FILE *fp = fopen(current_filename, "w");
+    FILE *fp = fopen(fs->filename, "w");
     if (fp) {
         for (int i = 0; i < fs->line_count; ++i) {
             fprintf(fp, "%s\n", fs->text_buffer[i]);
         }
         fclose(fp);
-        mvprintw(LINES - 2, 2, "File saved as %s", current_filename);
+        mvprintw(LINES - 2, 2, "File saved as %s", fs->filename);
     } else {
         mvprintw(LINES - 2, 2, "Error saving file!");
     }
@@ -81,7 +81,8 @@ void load_file(FileState *fs_unused, const char *filename) {
         fs->last_scanned_line = 0;
         fs->last_comment_state = false;
 
-        strcpy(current_filename, filename);
+        strncpy(fs->filename, filename, sizeof(fs->filename) - 1);
+        fs->filename[sizeof(fs->filename) - 1] = '\0';
     } else {
         mvprintw(LINES - 2, 2, "Error loading file!");
     }
@@ -108,16 +109,14 @@ void load_file(FileState *fs_unused, const char *filename) {
     fm_switch(&file_manager, idx);
     active_file = fm_current(&file_manager);
 
-    strncpy(current_filename, active_file->filename, sizeof(current_filename) - 1);
-    current_filename[sizeof(current_filename) - 1] = '\0';
-    update_status_bar(active_file->cursor_y, active_file->cursor_x, active_file);
+    update_status_bar(active_file);
 }
 
 void new_file(FileState *fs_unused) {
     (void)fs_unused;
     FileState *fs = initialize_file_state("", MAX_LINES, COLS - 3);
     active_file = fs;
-    strcpy(current_filename, "");
+    fs->filename[0] = '\0';
     fs->syntax_mode = set_syntax_mode(fs->filename);
 
     initialize_buffer();
@@ -133,9 +132,7 @@ void new_file(FileState *fs_unused) {
     fm_switch(&file_manager, idx);
     active_file = fm_current(&file_manager);
 
-    strncpy(current_filename, active_file->filename, sizeof(current_filename) - 1);
-    current_filename[sizeof(current_filename) - 1] = '\0';
-    update_status_bar(active_file->cursor_y, active_file->cursor_x, active_file);
+    update_status_bar(active_file);
 }
 
 void close_current_file(FileState *fs_unused, int *cx, int *cy) {
@@ -145,8 +142,6 @@ void close_current_file(FileState *fs_unused, int *cx, int *cy) {
     if (file_manager.count > 0) {
         active_file = fm_current(&file_manager);
         text_win = active_file->text_win;
-        strncpy(current_filename, active_file->filename, sizeof(current_filename) - 1);
-        current_filename[sizeof(current_filename) - 1] = '\0';
     } else {
         new_file(NULL);
     }
@@ -156,8 +151,8 @@ void close_current_file(FileState *fs_unused, int *cx, int *cy) {
         *cx = active_file->cursor_x;
         *cy = active_file->cursor_y;
     }
-    redraw(cx, cy);
-    update_status_bar(active_file->cursor_y, active_file->cursor_x, active_file);
+    redraw();
+    update_status_bar(active_file);
 }
 
 int set_syntax_mode(const char *filename) {

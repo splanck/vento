@@ -110,7 +110,7 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
         werase(text_win);
         box(text_win, 0, 0);
         draw_text_buffer(active_file, text_win);
-        update_status_bar(1, 1, active_file);
+        update_status_bar(active_file);
         wrefresh(text_win);
 
         // Draw menu bar
@@ -193,15 +193,15 @@ void menuSaveFile() {
 }
 
 void menuCloseFile() {
-    close_current_file(active_file, &cursor_x, &cursor_y);
+    close_current_file(active_file, &active_file->cursor_x, &active_file->cursor_y);
 }
 
 void menuNextFile() {
-    next_file(active_file, &cursor_x, &cursor_y);
+    next_file(active_file, &active_file->cursor_x, &active_file->cursor_y);
 }
 
 void menuPrevFile() {
-    prev_file(active_file, &cursor_x, &cursor_y);
+    prev_file(active_file, &active_file->cursor_x, &active_file->cursor_y);
 }
 
 void menuQuitEditor() {
