@@ -9,10 +9,7 @@
 #define PYTHON_SYNTAX 3
 #define CSHARP_SYNTAX 4
 
-extern int current_syntax_mode;
-
-void set_syntax_highlighting(int mode);
-void apply_syntax_highlighting(WINDOW *win, const char *line, int y);
+void apply_syntax_highlighting(struct FileState *fs, WINDOW *win, const char *line, int y);
 void highlight_c_syntax(WINDOW *win, const char *line, int y);
 void highlight_html_syntax(WINDOW *win, const char *line, int y);
 void handle_html_tag(WINDOW *win, const char *line, int *i, int y, int *x);

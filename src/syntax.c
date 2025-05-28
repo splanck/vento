@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "syntax.h"
 #include "editor.h"
+#include "files.h"
 
 // Define color pairs as constants for readability
 #define COLOR_COMMENT 5
@@ -43,11 +44,6 @@ const char *CSHARP_KEYWORDS[] = {
 };
 const int CSHARP_KEYWORDS_COUNT = sizeof(CSHARP_KEYWORDS) / sizeof(CSHARP_KEYWORDS[0]);
 
-int current_syntax_mode = NO_SYNTAX;
-
-void set_syntax_highlighting(int mode) {
-    current_syntax_mode = mode;
-}
 
 /**
  * Applies syntax highlighting to a line of text based on the current syntax mode.
@@ -56,8 +52,8 @@ void set_syntax_highlighting(int mode) {
  * @param line The line of text to be highlighted.
  * @param y The y-coordinate of the line in the window.
  */
-void apply_syntax_highlighting(WINDOW *win, const char *line, int y) {
-    switch (current_syntax_mode) {
+void apply_syntax_highlighting(struct FileState *fs, WINDOW *win, const char *line, int y) {
+    switch (fs->syntax_mode) {
         case C_SYNTAX:
             // Apply C syntax highlighting
             highlight_c_syntax(win, line, y);

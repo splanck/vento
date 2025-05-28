@@ -61,8 +61,7 @@ void load_file(FileState *fs_unused, const char *filename) {
     FileState *fs = initialize_file_state(filename, MAX_LINES, COLS - 3);
     active_file = fs;
 
-    set_syntax_mode(filename);
-    fs->syntax_mode = current_syntax_mode;
+    fs->syntax_mode = set_syntax_mode(filename);
     strcpy(fs->filename, filename);
 
     initialize_buffer();
@@ -113,7 +112,7 @@ void new_file(FileState *fs_unused) {
     FileState *fs = initialize_file_state("", MAX_LINES, COLS - 3);
     active_file = fs;
     strcpy(current_filename, "");
-    fs->syntax_mode = NO_SYNTAX;
+    fs->syntax_mode = set_syntax_mode(fs->filename);
 
     initialize_buffer();
 
@@ -133,23 +132,20 @@ void new_file(FileState *fs_unused) {
     update_status_bar(active_file->cursor_y, active_file->cursor_x, active_file);
 }
 
-void set_syntax_mode(const char *filename) {
+int set_syntax_mode(const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (ext) {
         if (strcmp(ext, ".c") == 0 || strcmp(ext, ".h") == 0) {
-            current_syntax_mode = C_SYNTAX;
+            return C_SYNTAX;
         } else if (strcmp(ext, ".html") == 0 || strcmp(ext, ".htm") == 0) {
-            current_syntax_mode = HTML_SYNTAX;
+            return HTML_SYNTAX;
         } else if (strcmp(ext, ".py") == 0) {
-            current_syntax_mode = PYTHON_SYNTAX;
+            return PYTHON_SYNTAX;
         } else if (strcmp(ext, ".cs") == 0) {
-            current_syntax_mode = CSHARP_SYNTAX;
-        } else {
-            current_syntax_mode = NO_SYNTAX;
+            return CSHARP_SYNTAX;
         }
-    } else {
-        current_syntax_mode = NO_SYNTAX;
     }
+    return NO_SYNTAX;
 }
 
 
