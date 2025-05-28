@@ -93,9 +93,16 @@ void find(FileState *fs, int new_search)
 {
     (void)new_search;
     char *output = malloc(256 * sizeof(char));
+    if (!output) {
+        mvprintw(LINES - 2, 0, "Memory allocation failed.");
+        refresh();
+        return;
+    }
+
     *output = '\0';
     show_find_dialog(output, 20);
 
     find_next_occurrence(fs, output);
+    free(output);
 }
 
