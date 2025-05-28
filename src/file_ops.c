@@ -50,6 +50,7 @@ void save_file_as(FileState *fs) {
 }
 
 void load_file(FileState *fs_unused, const char *filename) {
+    (void)fs_unused;
     char file_to_load[256];
 
     if (filename == NULL) {
@@ -109,6 +110,7 @@ void load_file(FileState *fs_unused, const char *filename) {
 }
 
 void new_file(FileState *fs_unused) {
+    (void)fs_unused;
     FileState *fs = initialize_file_state("", MAX_LINES, COLS - 3);
     active_file = fs;
     strcpy(current_filename, "");
