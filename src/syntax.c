@@ -189,7 +189,7 @@ void highlight_c_syntax(struct FileState *fs, WINDOW *win, const char *line, int
                 i++;
             }
             wattroff(win, COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
-        } else if (line[i] == '/' && (line[i + 1] == '/' || line[i + 1] == '*')) {
+        } else if (line[i] == '/' && i + 1 < len && (line[i + 1] == '/' || line[i + 1] == '*')) {
             // Highlight comments
             wattron(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
             if (line[i + 1] == '/') {
@@ -316,7 +316,7 @@ void highlight_csharp_syntax(struct FileState *fs, WINDOW *win, const char *line
                 i++;
             }
             wattroff(win, COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
-        } else if (line[i] == '/' && (line[i + 1] == '/' || line[i + 1] == '*')) {
+        } else if (line[i] == '/' && i + 1 < len && (line[i + 1] == '/' || line[i + 1] == '*')) {
             // Highlight comments
             wattron(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
             if (line[i + 1] == '/') {
