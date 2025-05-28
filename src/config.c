@@ -75,31 +75,47 @@ void read_config_file() {
                 } else {
                     enable_color = 0;
                 }
+#ifdef DEBUG
                 printf("Setting enable_color to %d\n", enable_color);
+#endif
             } else if (enable_color) {
                 if (color_code == -1) {
+#ifdef DEBUG
                     printf("Invalid color value: %s\n", value);
+#endif
                     continue;
                 }
 
                 if (strcmp(key, "background_color") == 0) {
                     init_pair(1, COLOR_WHITE, color_code);
+#ifdef DEBUG
                     printf("Setting background_color to color code %d\n", color_code);
+#endif
                 } else if (strcmp(key, "keyword_color") == 0) {
                     init_pair(2, color_code, COLOR_BLACK);
+#ifdef DEBUG
                     printf("Setting keyword_color to color code %d\n", color_code);
+#endif
                 } else if (strcmp(key, "comment_color") == 0) {
                     init_pair(3, color_code, COLOR_BLACK);
+#ifdef DEBUG
                     printf("Setting comment_color to color code %d\n", color_code);
+#endif
                 } else if (strcmp(key, "string_color") == 0) {
                     init_pair(4, color_code, COLOR_BLACK);
+#ifdef DEBUG
                     printf("Setting string_color to color code %d\n", color_code);
+#endif
                 } else if (strcmp(key, "type_color") == 0) {
                     init_pair(5, color_code, COLOR_BLACK);
+#ifdef DEBUG
                     printf("Setting type_color to color code %d\n", color_code);
+#endif
                 } else if (strcmp(key, "symbol_color") == 0) {
                     init_pair(6, color_code, COLOR_BLACK);
+#ifdef DEBUG
                     printf("Setting symbol_color to color code %d\n", color_code);
+#endif
                 }
             }
         }

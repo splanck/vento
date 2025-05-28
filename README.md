@@ -105,6 +105,16 @@ make
 sudo make install
 ```
 
+## Enabling Debug Output
+
+Vento includes optional debug messages within the configuration loader. To see
+these messages during execution, compile the editor with the `DEBUG` macro
+defined:
+
+```bash
+make CFLAGS="-Wall -Wextra -std=c99 -g -DDEBUG"
+```
+
 ## Contributing to Vento
 
 While I am not actively seeking contributors for the Vento project, if the project interests you and you would like to contribute, please feel free to reach out. You can email me at splanck@tutamail.com.
