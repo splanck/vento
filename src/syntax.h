@@ -9,6 +9,15 @@
 #define PYTHON_SYNTAX 3
 #define CSHARP_SYNTAX 4
 
+typedef enum {
+    SYNTAX_BG = 1,
+    SYNTAX_KEYWORD,
+    SYNTAX_COMMENT,
+    SYNTAX_STRING,
+    SYNTAX_TYPE,
+    SYNTAX_SYMBOL
+} SyntaxColor;
+
 void apply_syntax_highlighting(struct FileState *fs, WINDOW *win, const char *line, int y);
 void highlight_c_syntax(WINDOW *win, const char *line, int y);
 void highlight_html_syntax(WINDOW *win, const char *line, int y);

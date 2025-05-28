@@ -6,12 +6,7 @@
 #include "editor.h"
 #include "files.h"
 
-// Define color pairs as constants for readability
-#define COLOR_COMMENT 5
-#define COLOR_TAG 2
-#define COLOR_ATTRIBUTE 3
-#define COLOR_VALUE 4
-#define COLOR_NORMAL 1
+// Color pair indices used for syntax highlighting (defined in SyntaxColor enum)
 
 #define PYTHON_KEYWORDS_COUNT 35
 
@@ -113,9 +108,9 @@ void highlight_python_syntax(WINDOW *win, const char *line, int y) {
             int is_keyword = 0;
             for (int j = 0; j < PYTHON_KEYWORDS_COUNT; j++) {
                 if (strcmp(word, PYTHON_KEYWORDS[j]) == 0) {
-                    wattron(win, COLOR_PAIR(2) | A_BOLD);
+                    wattron(win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
                     mvwprintw(win, y, x, "%s", word);
-                    wattroff(win, COLOR_PAIR(2) | A_BOLD);
+                    wattroff(win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
                     x += word_length;
                     is_keyword = 1;
                     break;
@@ -127,9 +122,9 @@ void highlight_python_syntax(WINDOW *win, const char *line, int y) {
             }
         } else if (line[i] == '#') {
             // Highlight comments
-            wattron(win, COLOR_PAIR(3) | A_BOLD);
+            wattron(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
             mvwprintw(win, y, x, "%s", &line[i]);
-            wattroff(win, COLOR_PAIR(3) | A_BOLD);
+            wattroff(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
             break;
         } else if (line[i] == '"' || line[i] == '\'') {
             // Highlight strings and character literals
@@ -138,9 +133,9 @@ void highlight_python_syntax(WINDOW *win, const char *line, int y) {
             i++;
             while (i < length && line[i] != quote) i++;
             if (i < length) i++;
-            wattron(win, COLOR_PAIR(4) | A_BOLD);
+            wattron(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
             mvwprintw(win, y, x, "%.*s", i - start, &line[start]);
-            wattroff(win, COLOR_PAIR(4) | A_BOLD);
+            wattroff(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
             x += i - start;
         } else {
             // Print any other characters as is
@@ -173,15 +168,15 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
             i++;
         } else if (isdigit(line[i])) {
             // Highlight numbers
-            wattron(win, COLOR_PAIR(5) | A_BOLD);
+            wattron(win, COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
             while (i < len && (isdigit(line[i]) || line[i] == '.')) {
                 mvwprintw(win, y, x++, "%c", line[i]);
                 i++;
             }
-            wattroff(win, COLOR_PAIR(5) | A_BOLD);
+            wattroff(win, COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
         } else if (line[i] == '/' && (line[i + 1] == '/' || line[i + 1] == '*')) {
             // Highlight comments
-            wattron(win, COLOR_PAIR(3) | A_BOLD);
+            wattron(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
             if (line[i + 1] == '/') {
                 // Single-line comment
                 while (i < len) {
@@ -201,11 +196,11 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
                     mvwprintw(win, y, x++, "%c", line[i++]);
                 }
             }
-            wattroff(win, COLOR_PAIR(3) | A_BOLD);
+            wattroff(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
         } else if (line[i] == '"' || line[i] == '\'') {
             // Highlight strings and character literals
             char quote = line[i];
-            wattron(win, COLOR_PAIR(4) | A_BOLD);
+            wattron(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
             mvwprintw(win, y, x++, "%c", line[i++]);
             while (i < len && line[i] != quote) {
                 if (line[i] == '\\' && i + 1 < len) {
@@ -216,7 +211,7 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
             if (i < len) {
                 mvwprintw(win, y, x++, "%c", line[i++]);
             }
-            wattroff(win, COLOR_PAIR(4) | A_BOLD);
+            wattroff(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
         } else if (isalpha(line[i]) || line[i] == '_') {
             // Collect keywords and identifiers
             word_len = 0;
@@ -230,9 +225,9 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
             for (int j = 0; j < C_KEYWORDS_COUNT; j++) {
                 if (strcmp(word, C_KEYWORDS[j]) == 0) {
                     // Highlight keywords
-                    wattron(win, COLOR_PAIR(2) | A_BOLD);
+                    wattron(win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
                     mvwprintw(win, y, x, "%s", word);
-                    wattroff(win, COLOR_PAIR(2) | A_BOLD);
+                    wattroff(win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
                     x += word_len;
                     is_keyword = 1;
                     break;
@@ -245,14 +240,14 @@ void highlight_c_syntax(WINDOW *win, const char *line, int y) {
             }
         } else if (strchr("(){}[]<>", line[i])) {
             // Highlight parentheses, braces, brackets, and angle brackets
-            wattron(win, COLOR_PAIR(6) | A_BOLD);
+            wattron(win, COLOR_PAIR(SYNTAX_SYMBOL) | A_BOLD);
             mvwprintw(win, y, x++, "%c", line[i++]);
-            wattroff(win, COLOR_PAIR(6) | A_BOLD);
+            wattroff(win, COLOR_PAIR(SYNTAX_SYMBOL) | A_BOLD);
         } else if (strchr("+-*/%=!&|^~", line[i])) {
             // Highlight operators
-            wattron(win, COLOR_PAIR(6) | A_BOLD);
+            wattron(win, COLOR_PAIR(SYNTAX_SYMBOL) | A_BOLD);
             mvwprintw(win, y, x++, "%c", line[i++]);
-            wattroff(win, COLOR_PAIR(6) | A_BOLD);
+            wattroff(win, COLOR_PAIR(SYNTAX_SYMBOL) | A_BOLD);
         } else {
             // Print any other characters as is
             mvwprintw(win, y, x++, "%c", line[i++]);
@@ -281,15 +276,15 @@ void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
             i++;
         } else if (isdigit(line[i])) {
             // Highlight numbers
-            wattron(win, COLOR_PAIR(5) | A_BOLD);
+            wattron(win, COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
             while (i < len && (isdigit(line[i]) || line[i] == '.')) {
                 mvwprintw(win, y, x++, "%c", line[i]);
                 i++;
             }
-            wattroff(win, COLOR_PAIR(5) | A_BOLD);
+            wattroff(win, COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
         } else if (line[i] == '/' && (line[i + 1] == '/' || line[i + 1] == '*')) {
             // Highlight comments
-            wattron(win, COLOR_PAIR(3) | A_BOLD);
+            wattron(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
             if (line[i + 1] == '/') {
                 // Single-line comment
                 while (i < len) {
@@ -309,11 +304,11 @@ void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
                     mvwprintw(win, y, x++, "%c", line[i++]);
                 }
             }
-            wattroff(win, COLOR_PAIR(3) | A_BOLD);
+            wattroff(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
         } else if (line[i] == '"' || line[i] == '\'') {
             // Highlight strings and character literals
             char quote = line[i];
-            wattron(win, COLOR_PAIR(4) | A_BOLD);
+            wattron(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
             mvwprintw(win, y, x++, "%c", line[i++]);
             while (i < len && line[i] != quote) {
                 if (line[i] == '\\' && i + 1 < len) {
@@ -324,7 +319,7 @@ void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
             if (i < len) {
                 mvwprintw(win, y, x++, "%c", line[i++]);
             }
-            wattroff(win, COLOR_PAIR(4) | A_BOLD);
+            wattroff(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
         } else if (isalpha(line[i]) || line[i] == '_') {
             // Collect keywords and identifiers
             word_len = 0;
@@ -338,9 +333,9 @@ void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
             for (int j = 0; j < CSHARP_KEYWORDS_COUNT; j++) {
                 if (strcmp(word, CSHARP_KEYWORDS[j]) == 0) {
                     // Highlight keywords
-                    wattron(win, COLOR_PAIR(2) | A_BOLD);
+                    wattron(win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
                     mvwprintw(win, y, x, "%s", word);
-                    wattroff(win, COLOR_PAIR(2) | A_BOLD);
+                    wattroff(win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
                     x += word_len;
                     is_keyword = 1;
                     break;
@@ -353,14 +348,14 @@ void highlight_csharp_syntax(WINDOW *win, const char *line, int y) {
             }
         } else if (strchr("(){}[]<>", line[i])) {
             // Highlight parentheses, braces, brackets, and angle brackets
-            wattron(win, COLOR_PAIR(6) | A_BOLD);
+            wattron(win, COLOR_PAIR(SYNTAX_SYMBOL) | A_BOLD);
             mvwprintw(win, y, x++, "%c", line[i++]);
-            wattroff(win, COLOR_PAIR(6) | A_BOLD);
+            wattroff(win, COLOR_PAIR(SYNTAX_SYMBOL) | A_BOLD);
         } else if (strchr("+-*/%=!&|^~", line[i])) {
             // Highlight operators
-            wattron(win, COLOR_PAIR(6) | A_BOLD);
+            wattron(win, COLOR_PAIR(SYNTAX_SYMBOL) | A_BOLD);
             mvwprintw(win, y, x++, "%c", line[i++]);
-            wattroff(win, COLOR_PAIR(6) | A_BOLD);
+            wattroff(win, COLOR_PAIR(SYNTAX_SYMBOL) | A_BOLD);
         } else {
             // Print any other characters as is
             mvwprintw(win, y, x++, "%c", line[i++]);
@@ -394,16 +389,16 @@ void print_char_with_attr(WINDOW *win, int y, int *x, char c, int attr) {
  */
 void handle_html_comment(WINDOW *win, const char *line, int *i, int y, int *x) {
     int len = strlen(line);
-    print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_COMMENT) | A_BOLD); // Print the initial '<'
+    print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(SYNTAX_TYPE) | A_BOLD); // Print the initial '<'
 
     // Loop until the end of the comment is reached
     while (*i < len && !(line[*i] == '-' && line[*i + 1] == '-' && line[*i + 2] == '>')) {
-        print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_COMMENT) | A_BOLD);
+        print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
     }
 
     // Print the closing '>'
     if (*i < len) {
-        print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_COMMENT) | A_BOLD);
+        print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
         (*i) += 2; // Skip over '-->'
     }
 }
@@ -430,33 +425,33 @@ void handle_html_tag(WINDOW *win, const char *line, int *i, int y, int *x) {
         if (line[*i] == ' ' && !inAttribute) {
             // Space outside of attributes, might be the start of an attribute
             inAttribute = true;
-            print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_TAG) | A_BOLD);
+            print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
         } else if (line[*i] == '=') {
             // Equal sign, attribute value follows
-            print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_ATTRIBUTE) | A_BOLD);
+            print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
 
             if (line[*i] == '"' || line[*i] == '\'') { // Attribute value enclosed in quotes
                 char quoteType = line[(*i)++];
-                print_char_with_attr(win, y, x, quoteType, COLOR_PAIR(COLOR_VALUE) | A_BOLD);
+                print_char_with_attr(win, y, x, quoteType, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
 
                 // Loop until the end of the attribute value is reached
                 while (*i < len && line[*i] != quoteType) {
-                    print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_VALUE) | A_BOLD);
+                    print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
                 }
 
                 if (*i < len) {
-                    print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_VALUE) | A_BOLD); // Print the closing quote
+                    print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(SYNTAX_STRING) | A_BOLD); // Print the closing quote
                 }
             }
         } else {
             // Regular character within the tag
-            int color = inAttribute ? COLOR_PAIR(COLOR_ATTRIBUTE) | A_BOLD : COLOR_PAIR(COLOR_TAG) | A_BOLD;
+            int color = inAttribute ? COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD : COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD;
             print_char_with_attr(win, y, x, line[(*i)++], color);
         }
     }
 
     if (*i < len) { // Print the closing '>'
-        print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(COLOR_TAG) | A_BOLD);
+        print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
     }
 }
 

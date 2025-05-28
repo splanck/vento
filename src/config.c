@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "editor.h"
 #include "config.h"
+#include "syntax.h"
 
 int enable_color = 1; // Default to enabled
 
@@ -87,32 +88,32 @@ void read_config_file() {
                 }
 
                 if (strcmp(key, "background_color") == 0) {
-                    init_pair(1, COLOR_WHITE, color_code);
+                    init_pair(SYNTAX_BG, COLOR_WHITE, color_code);
 #ifdef DEBUG
                     printf("Setting background_color to color code %d\n", color_code);
 #endif
                 } else if (strcmp(key, "keyword_color") == 0) {
-                    init_pair(2, color_code, COLOR_BLACK);
+                    init_pair(SYNTAX_KEYWORD, color_code, COLOR_BLACK);
 #ifdef DEBUG
                     printf("Setting keyword_color to color code %d\n", color_code);
 #endif
                 } else if (strcmp(key, "comment_color") == 0) {
-                    init_pair(3, color_code, COLOR_BLACK);
+                    init_pair(SYNTAX_COMMENT, color_code, COLOR_BLACK);
 #ifdef DEBUG
                     printf("Setting comment_color to color code %d\n", color_code);
 #endif
                 } else if (strcmp(key, "string_color") == 0) {
-                    init_pair(4, color_code, COLOR_BLACK);
+                    init_pair(SYNTAX_STRING, color_code, COLOR_BLACK);
 #ifdef DEBUG
                     printf("Setting string_color to color code %d\n", color_code);
 #endif
                 } else if (strcmp(key, "type_color") == 0) {
-                    init_pair(5, color_code, COLOR_BLACK);
+                    init_pair(SYNTAX_TYPE, color_code, COLOR_BLACK);
 #ifdef DEBUG
                     printf("Setting type_color to color code %d\n", color_code);
 #endif
                 } else if (strcmp(key, "symbol_color") == 0) {
-                    init_pair(6, color_code, COLOR_BLACK);
+                    init_pair(SYNTAX_SYMBOL, color_code, COLOR_BLACK);
 #ifdef DEBUG
                     printf("Setting symbol_color to color code %d\n", color_code);
 #endif
