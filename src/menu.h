@@ -17,6 +17,8 @@ void drawMenu(Menu *menu, int currentItem, int startX, int startY);
 void menuNewFile(void);
 void menuLoadFile(void);
 void menuSaveFile(void);
+void menuNextFile(void);
+void menuPrevFile(void);
 void menuQuitEditor(void);
 void menuUndo(void);
 void menuRedo(void);

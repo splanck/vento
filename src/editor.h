@@ -39,6 +39,7 @@ typedef struct {
 extern WINDOW *text_win;
 extern char current_filename[256];
 extern struct FileState *active_file;
+extern int cursor_x, cursor_y;
 struct FileManager;
 extern struct FileManager file_manager;
 void fm_init(struct FileManager *fm);
@@ -60,6 +61,8 @@ void update_status_bar(int cursor_y, int cursor_x, struct FileState *fs);
 void handle_resize(int sig);
 void cleanup_on_exit(void);
 void disable_ctrl_c_z(void);
+void next_file(struct FileState *fs, int *cx, int *cy);
+void prev_file(struct FileState *fs, int *cx, int *cy);
 
 
 #endif // EDITOR_H

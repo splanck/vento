@@ -15,6 +15,7 @@
 #include "clipboard.h"
 #include "file_ops.h"
 #include "search.h"
+#include "file_manager.h"
 
 char current_filename[256] = "";  // Name of the current file being edited
 FileState *active_file = NULL;
@@ -46,6 +47,8 @@ int key_redo = 18;  // Key code for the redo command
 int key_undo = 21;  // Key code for the undo command
 int key_quit = 24;  // Key code for quitting the editor
 int key_find = 6;  // Key code for finding next word
+int key_next_file = KEY_F(6);  // Key code for switching to the next file
+int key_prev_file = KEY_F(7);  // Key code for switching to the previous file
 
 static void handle_key_up_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
@@ -231,6 +234,40 @@ static void handle_quit_wrapper(struct FileState *fs, int *cx, int *cy) {
     exiting = 1;
 }
 
+void next_file(FileState *fs_unused, int *cx, int *cy) {
+    (void)fs_unused;
+    if (file_manager.count == 0) {
+        return;
+    }
+
+    int idx = file_manager.active_index + 1;
+    if (idx >= file_manager.count) idx = 0;
+    fm_switch(&file_manager, idx);
+    active_file = fm_current(&file_manager);
+    text_win = active_file->text_win;
+
+    *cx = active_file->cursor_x;
+    *cy = active_file->cursor_y;
+    redraw(cx, cy);
+}
+
+void prev_file(FileState *fs_unused, int *cx, int *cy) {
+    (void)fs_unused;
+    if (file_manager.count == 0) {
+        return;
+    }
+
+    int idx = file_manager.active_index - 1;
+    if (idx < 0) idx = file_manager.count - 1;
+    fm_switch(&file_manager, idx);
+    active_file = fm_current(&file_manager);
+    text_win = active_file->text_win;
+
+    *cx = active_file->cursor_x;
+    *cy = active_file->cursor_y;
+    redraw(cx, cy);
+}
+
 #define MAX_KEY_MAPPINGS 64
 static KeyMapping key_mappings[MAX_KEY_MAPPINGS];
 static int key_mapping_count = 0;
@@ -269,6 +306,8 @@ static void initialize_key_mappings(void) {
     key_mappings[key_mapping_count++] = (KeyMapping){key_clear_buffer, handle_clear_buffer_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_redo, handle_redo_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_undo, handle_undo_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_next_file, next_file};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_prev_file, prev_file};
     key_mappings[key_mapping_count++] = (KeyMapping){key_quit, handle_quit_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_T, NULL}; /* placeholder for menu key, handled elsewhere */
 
