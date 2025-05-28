@@ -17,6 +17,7 @@ typedef struct FileState {
     int sel_end_x, sel_end_y;
     char *clipboard;
     int syntax_mode;
+    bool in_multiline_comment;
     WINDOW *text_win;
 } FileState;
 
