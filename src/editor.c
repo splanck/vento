@@ -776,15 +776,24 @@ void handle_resize(int sig) {
     refresh(); // Refresh the screen
     clear(); // Clear the screen
 
-    // Redraw the interface
-    werase(text_win); // Clear the text window
-    wresize(text_win, LINES - 2, COLS); // Resize the text window
-    mvwin(text_win, 1, 0); // Move the text window to its new position
-    box(text_win, 0, 0); // Redraw the border of the text window
-    draw_text_buffer(active_file, text_win); // Redraw the text buffer
-    wrefresh(text_win); // Refresh the text window
+    /* Resize all open file windows */
+    for (int i = 0; i < file_manager.count; ++i) {
+        FileState *fs = file_manager.files[i];
+        if (!fs || !fs->text_win) {
+            continue;
+        }
+        wresize(fs->text_win, LINES - 2, COLS);
+        mvwin(fs->text_win, 1, 0);
+    }
 
-    update_status_bar(1, 1, active_file); // Update the status bar with some default values for cursor position
+    /* Use the resized window of the active file */
+    text_win = active_file->text_win;
+    werase(text_win);
+    box(text_win, 0, 0);
+    draw_text_buffer(active_file, text_win);
+    wrefresh(text_win);
+
+    update_status_bar(active_file->cursor_y, active_file->cursor_x, active_file);
 }
 
 /**
