@@ -65,6 +65,7 @@ void load_file(FileState *fs, const char *filename) {
         while (fgets(text_buffer[fs->line_count], COLS - 3, fp) && fs->line_count < MAX_LINES) {
             text_buffer[fs->line_count][strcspn(text_buffer[fs->line_count], "\n")] = '\0';
             fs->line_count++;
+            line_count = fs->line_count;
         }
         fclose(fp);
         mvprintw(LINES - 2, 2, "File loaded: %s", filename);
