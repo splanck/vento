@@ -246,9 +246,13 @@ void next_file(FileState *fs_unused, int *cx, int *cy) {
     active_file = fm_current(&file_manager);
     text_win = active_file->text_win;
 
+    strncpy(current_filename, active_file->filename, sizeof(current_filename) - 1);
+    current_filename[sizeof(current_filename) - 1] = '\0';
+
     *cx = active_file->cursor_x;
     *cy = active_file->cursor_y;
     redraw(cx, cy);
+    update_status_bar(*cy, *cx, active_file);
 }
 
 void prev_file(FileState *fs_unused, int *cx, int *cy) {
@@ -263,9 +267,13 @@ void prev_file(FileState *fs_unused, int *cx, int *cy) {
     active_file = fm_current(&file_manager);
     text_win = active_file->text_win;
 
+    strncpy(current_filename, active_file->filename, sizeof(current_filename) - 1);
+    current_filename[sizeof(current_filename) - 1] = '\0';
+
     *cx = active_file->cursor_x;
     *cy = active_file->cursor_y;
     redraw(cx, cy);
+    update_status_bar(*cy, *cx, active_file);
 }
 
 #define MAX_KEY_MAPPINGS 64
@@ -807,9 +815,16 @@ void clear_text_buffer() {
 
 void update_status_bar(int cursor_y, int cursor_x, FileState *fs) {
     move(0, 0);
-    int filename_length = strlen(current_filename);
-    int center_position = (COLS - filename_length) / 2;
-    mvprintw(1, center_position, "%s", current_filename);
+
+    int idx = file_manager.active_index + 1;
+    int total = file_manager.count > 0 ? file_manager.count : 1;
+
+    const char *name = strlen(current_filename) > 0 ? current_filename : "untitled";
+    char display[512];
+    snprintf(display, sizeof(display), "%s [%d/%d]", name, idx, total);
+
+    int center_position = (COLS - (int)strlen(display)) / 2;
+    mvprintw(1, center_position, "%s", display);
 
     move(LINES - 1, 0);
     clrtoeol();
