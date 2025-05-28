@@ -12,7 +12,7 @@ Welcome to Vento, the lightweight text editor that's all about keeping things si
 
 ## Current Version
 
-**Version 0.1.2**  
+**Version 0.1.3**  
 We are currently in the initial development phase, focusing on building the core functionalities. This is a development version, and while there are no official releases at this time, the source code is accessible on GitHub for download and building.
 
 ## Current Features
