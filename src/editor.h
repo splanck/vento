@@ -39,6 +39,13 @@ typedef struct {
 extern WINDOW *text_win;
 extern char current_filename[256];
 extern struct FileState *active_file;
+struct FileManager;
+extern struct FileManager file_manager;
+void fm_init(struct FileManager *fm);
+struct FileState *fm_current(struct FileManager *fm);
+int fm_add(struct FileManager *fm, struct FileState *fs);
+void fm_close(struct FileManager *fm, int index);
+int fm_switch(struct FileManager *fm, int index);
 void handle_regular_mode(struct FileState *fs, int ch);
 void initialize(void);
 void draw_text_buffer(struct FileState *fs, WINDOW *win);
