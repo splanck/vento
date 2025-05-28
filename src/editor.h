@@ -37,9 +37,7 @@ typedef struct {
 } KeyMapping;
 
 extern WINDOW *text_win;
-extern char current_filename[256];
 extern struct FileState *active_file;
-extern int cursor_x, cursor_y;
 struct FileManager;
 extern struct FileManager file_manager;
 void fm_init(struct FileManager *fm);
@@ -54,10 +52,10 @@ void close_editor(void);
 void clear_text_buffer(void);
 void run_editor(void);
 void initialize_buffer(void);
-void redraw(int *cursor_x, int *cursor_y);
+void redraw(void);
 void delete_current_line(struct FileState *fs);
 void insert_new_line(struct FileState *fs);
-void update_status_bar(int cursor_y, int cursor_x, struct FileState *fs);
+void update_status_bar(struct FileState *fs);
 void handle_resize(int sig);
 void cleanup_on_exit(void);
 void disable_ctrl_c_z(void);

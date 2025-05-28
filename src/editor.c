@@ -17,9 +17,7 @@
 #include "search.h"
 #include "file_manager.h"
 
-char current_filename[256] = "";  // Name of the current file being edited
 FileState *active_file = NULL;
-int cursor_x = 1, cursor_y = 1;
 /* text_buffer and line_count are now stored per file in FileState */
 int runeditor = 0;  // Flag to control the main loop of the editor
 WINDOW *text_win;  // Pointer to the ncurses window for displaying the text
@@ -102,7 +100,7 @@ static void handle_key_page_up_wrapper(struct FileState *fs, int *cx, int *cy) {
 static void handle_key_page_down_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
     handle_key_page_down(fs);
-    redraw(cx, cy);
+    redraw();
 }
 
 static void handle_ctrl_left_wrapper(struct FileState *fs, int *cx, int *cy) {
@@ -144,18 +142,18 @@ static void handle_ctrl_down_wrapper(struct FileState *fs, int *cx, int *cy) {
 static void handle_help_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)fs;
     show_help();
-    redraw(cx, cy);
+    redraw();
 }
 
 static void handle_about_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)fs;
     show_about();
-    redraw(cx, cy);
+    redraw();
 }
 
 static void handle_find_wrapper(struct FileState *fs, int *cx, int *cy) {
     find(fs, 1);
-    redraw(cx, cy);
+    redraw();
 }
 
 static void handle_delete_line_wrapper(struct FileState *fs, int *cx, int *cy) {
@@ -184,17 +182,17 @@ static void handle_move_backward_wrapper(struct FileState *fs, int *cx, int *cy)
 
 static void handle_load_file_wrapper(struct FileState *fs, int *cx, int *cy) {
     load_file(fs, NULL);
-    redraw(cx, cy);
+    redraw();
 }
 
 static void handle_save_as_wrapper(struct FileState *fs, int *cx, int *cy) {
     save_file_as(fs);
-    redraw(cx, cy);
+    redraw();
 }
 
 static void handle_save_file_wrapper(struct FileState *fs, int *cx, int *cy) {
     save_file(fs);
-    redraw(cx, cy);
+    redraw();
 }
 
 static void handle_selection_mode_wrapper(struct FileState *fs, int *cx, int *cy) {
@@ -247,13 +245,10 @@ void next_file(FileState *fs_unused, int *cx, int *cy) {
     active_file = fm_current(&file_manager);
     text_win = active_file->text_win;
 
-    strncpy(current_filename, active_file->filename, sizeof(current_filename) - 1);
-    current_filename[sizeof(current_filename) - 1] = '\0';
-
     *cx = active_file->cursor_x;
     *cy = active_file->cursor_y;
-    redraw(cx, cy);
-    update_status_bar(*cy, *cx, active_file);
+    redraw();
+    update_status_bar(active_file);
 }
 
 void prev_file(FileState *fs_unused, int *cx, int *cy) {
@@ -268,13 +263,10 @@ void prev_file(FileState *fs_unused, int *cx, int *cy) {
     active_file = fm_current(&file_manager);
     text_win = active_file->text_win;
 
-    strncpy(current_filename, active_file->filename, sizeof(current_filename) - 1);
-    current_filename[sizeof(current_filename) - 1] = '\0';
-
     *cx = active_file->cursor_x;
     *cy = active_file->cursor_y;
-    redraw(cx, cy);
-    update_status_bar(*cy, *cx, active_file);
+    redraw();
+    update_status_bar(active_file);
 }
 
 #define MAX_KEY_MAPPINGS 64
@@ -404,7 +396,7 @@ void insert_new_line(FileState *fs) {
         }
 
         // Clear and redraw the text window
-        redraw(&fs->cursor_x, &fs->cursor_y);
+        redraw();
 
         // Move the cursor up one line
         if (fs->cursor_y > 1) {
@@ -505,7 +497,7 @@ void initialize() {
     initializeMenus();
 
     // Update the status bar
-    update_status_bar(0, 0, active_file);
+    update_status_bar(active_file);
 }
 
 /**
@@ -529,9 +521,7 @@ void run_editor() {
     int currentItem = 0;
     MEVENT event; // Mouse event structure
 
-    cursor_x = active_file->cursor_x;
-    cursor_y = active_file->cursor_y;
-    wmove(text_win, cursor_y, cursor_x);
+    wmove(text_win, active_file->cursor_y, active_file->cursor_x);
 
     while ((ch = wgetch(text_win)) && exiting == 0) { // Exit on ESC key
         if (ch == ERR) {
@@ -544,18 +534,16 @@ void run_editor() {
 
         //mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
         drawBar();
-        update_status_bar(cursor_y, cursor_x, active_file);
+        update_status_bar(active_file);
         refresh();
         
         if (active_file->selection_mode) {
-            handle_selection_mode(active_file, ch, &cursor_x, &cursor_y);
-            active_file->cursor_x = cursor_x;
-            active_file->cursor_y = cursor_y;
+            handle_selection_mode(active_file, ch, &active_file->cursor_x, &active_file->cursor_y);
         } else if (ch == KEY_CTRL_T) { // CTRL-T
             refresh();
             handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
             // Redraw the editor screen after closing the menu
-            redraw(&cursor_x, &cursor_y);
+            redraw();
         } else if (ch == KEY_MOUSE) {
             if (getmouse(&event) == OK) {
                 // Check if the mouse event is a click within the text window
@@ -565,24 +553,20 @@ void run_editor() {
 
                     // Convert the mouse position to cursor position
                     if (new_x < COLS - 2 && new_y < LINES - 3) {
-                        cursor_x = new_x;
-                        cursor_y = new_y - 1;
+                        active_file->cursor_x = new_x;
+                        active_file->cursor_y = new_y - 1;
                     }
                 }
             }
         } else {
-            active_file->cursor_x = cursor_x;
-            active_file->cursor_y = cursor_y;
             handle_regular_mode(active_file, ch);
-            cursor_x = active_file->cursor_x;
-            cursor_y = active_file->cursor_y;
         }
 
         if (exiting == 1)
             break;
 
-        update_status_bar(cursor_y, cursor_x, active_file);
-        wmove(text_win, cursor_y, cursor_x);  // Restore cursor position
+        update_status_bar(active_file);
+        wmove(text_win, active_file->cursor_y, active_file->cursor_x);  // Restore cursor position
         wrefresh(text_win);
     }
 
@@ -752,11 +736,11 @@ void handle_regular_mode(FileState *fs, int ch) {
  * @param cursor_y A pointer to the current y-coordinate of the cursor.
  * @return None
  */
-void redraw(int *cursor_x, int *cursor_y) {
+void redraw() {
     werase(text_win); // Clear the text window
     box(text_win, 0, 0); // Redraw the border of the text window
     draw_text_buffer(active_file, text_win); // Redraw the text buffer
-    wmove(text_win, *cursor_y, *cursor_x); // Move the cursor to its previous position
+    wmove(text_win, active_file->cursor_y, active_file->cursor_x); // Move the cursor to its previous position
     wrefresh(text_win); // Refresh the text window
 }
 
@@ -793,7 +777,7 @@ void handle_resize(int sig) {
     draw_text_buffer(active_file, text_win);
     wrefresh(text_win);
 
-    update_status_bar(active_file->cursor_y, active_file->cursor_x, active_file);
+    update_status_bar(active_file);
 }
 
 /**
@@ -826,13 +810,13 @@ void clear_text_buffer() {
 }
 
 
-void update_status_bar(int cursor_y, int cursor_x, FileState *fs) {
+void update_status_bar(FileState *fs) {
     move(0, 0);
 
     int idx = file_manager.active_index + 1;
     int total = file_manager.count > 0 ? file_manager.count : 1;
 
-    const char *name = strlen(current_filename) > 0 ? current_filename : "untitled";
+    const char *name = strlen(fs->filename) > 0 ? fs->filename : "untitled";
     char display[512];
     snprintf(display, sizeof(display), "%s [%d/%d]", name, idx, total);
 
@@ -841,8 +825,8 @@ void update_status_bar(int cursor_y, int cursor_x, FileState *fs) {
 
     move(LINES - 1, 0);
     clrtoeol();
-    int actual_line_number = cursor_y + (fs ? fs->start_line : 0);
-    mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", fs ? fs->line_count : 0, actual_line_number, cursor_x);
+    int actual_line_number = fs ? (fs->cursor_y + fs->start_line) : 0;
+    mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", fs ? fs->line_count : 0, actual_line_number, fs ? fs->cursor_x : 0);
 
     mvprintw(LINES - 1, COLS - 15, "CTRL-H - Help");
 

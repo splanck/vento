@@ -234,7 +234,7 @@ void show_warning_dialog() {
     box(text_win, 0, 0);
     draw_text_buffer(active_file, text_win);
     wrefresh(text_win);
-    update_status_bar(1, 1, active_file);
+    update_status_bar(active_file);
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
 }
 
@@ -336,7 +336,7 @@ int show_select_file(char *selected_path, int max_path_len) {
     box(text_win, 0, 0);
     draw_text_buffer(active_file, text_win);
     wrefresh(text_win);
-    update_status_bar(1, 1, active_file);
+    update_status_bar(active_file);
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
 }
 
