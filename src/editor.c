@@ -676,6 +676,8 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
     if (fs->start_line < 0)
         fs->start_line = 0;
 
+    sync_multiline_comment(fs, fs->start_line);
+
     werase(win);
     box(win, 0, 0);
     int max_lines = LINES - 4;  // Adjust for the status bar

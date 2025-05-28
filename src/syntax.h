@@ -27,5 +27,6 @@ void print_char_with_attr(WINDOW *win, int y, int *x, char c, int attr);
 void highlight_no_syntax(WINDOW *win, const char *line, int y);
 void highlight_python_syntax(WINDOW *win, const char *line, int y);
 void highlight_csharp_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
+void sync_multiline_comment(struct FileState *fs, int line);
 
 #endif // SYNTAX_H

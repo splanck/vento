@@ -77,6 +77,8 @@ void load_file(FileState *fs_unused, const char *filename) {
         fclose(fp);
         mvprintw(LINES - 2, 2, "File loaded: %s", filename);
 
+        fs->in_multiline_comment = false;
+
         strcpy(current_filename, filename);
     } else {
         mvprintw(LINES - 2, 2, "Error loading file!");
