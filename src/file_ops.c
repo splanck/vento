@@ -78,6 +78,8 @@ void load_file(FileState *fs_unused, const char *filename) {
         mvprintw(LINES - 2, 2, "File loaded: %s", filename);
 
         fs->in_multiline_comment = false;
+        fs->last_scanned_line = 0;
+        fs->last_comment_state = false;
 
         strcpy(current_filename, filename);
     } else {
