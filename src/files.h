@@ -18,6 +18,10 @@ typedef struct FileState {
     char *clipboard;
     int syntax_mode;
     bool in_multiline_comment;
+    /* The last line index scanned for multiline comment state */
+    int last_scanned_line;
+    /* Comment state after scanning last_scanned_line */
+    bool last_comment_state;
     WINDOW *text_win;
 } FileState;
 

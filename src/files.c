@@ -26,6 +26,8 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     file_state->clipboard = NULL; // Initialize clipboard if needed
     file_state->syntax_mode = NO_SYNTAX; // Set to NO_SYNTAX initially
     file_state->in_multiline_comment = false;
+    file_state->last_scanned_line = 0;
+    file_state->last_comment_state = false;
     file_state->text_win = newwin(LINES - 2, COLS, 1, 0); // Create a new window for the file
 
     return file_state;
@@ -40,6 +42,8 @@ void free_file_state(FileState *file_state, int max_lines) {
     if (file_state->clipboard) {
         free(file_state->clipboard);
     }
+    file_state->last_scanned_line = 0;
+    file_state->last_comment_state = false;
     delwin(file_state->text_win);
     free(file_state);
 }
@@ -58,5 +62,8 @@ int load_file_into_buffer(FileState *file_state) {
         file_state->line_count++;
     }
     fclose(fp);
+    file_state->last_scanned_line = 0;
+    file_state->last_comment_state = false;
+    file_state->in_multiline_comment = false;
     return 0; // Success
 }
