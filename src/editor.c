@@ -37,19 +37,19 @@ int key_move_forward = 23;  // Key code for the move forward command (CTRL-w)
 int key_move_backward = 2;  // Key code for the move backward command
 int key_load_file = 12;  // Key code for the load file command
 int key_save_as = 15;  // Key code for the save as command
-int key_save_file = 16;  // Key code for the save file command
+int key_save_file = 19;  // Key code for the save file command (CTRL-S)
 int key_close_file = 17;  // Key code for closing the current file (CTRL-Q)
 int key_selection_mode = 13;  // Key code for entering selection mode
-int key_paste_clipboard = 11;  // Key code for pasting from clipboard
+int key_paste_clipboard = 22;  // Key code for pasting from clipboard (CTRL-V)
 int key_clear_buffer = 14;  // Key code for clearing the text buffer
-int key_redo = 18;  // Key code for the redo command
-int key_undo = 21;  // Key code for the undo command
+int key_redo = 25;  // Key code for the redo command (CTRL-Y)
+int key_undo = 26;  // Key code for the undo command (CTRL-Z)
 int key_quit = 24;  // Key code for quitting the editor
 int key_find = 6;  // Key code for finding next word
 int key_find_next = KEY_F(3);  // Key code for find next occurrence
 int key_next_file = KEY_F(6);  // Key code for switching to the next file
 int key_prev_file = KEY_F(7);  // Key code for switching to the previous file
-int key_replace = 19;  // Key code for replacing text (CTRL-S)
+int key_replace = 18;  // Key code for replacing text (CTRL-R)
 
 static void handle_key_up_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
