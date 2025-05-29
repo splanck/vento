@@ -491,8 +491,7 @@ void handle_mouse_event(FileState *fs, MEVENT *ev) {
     }
 
     if (ev->bstate & BUTTON1_DRAGGED) {
-        fs->sel_end_x = fs->cursor_x;
-        fs->sel_end_y = fs->cursor_y;
+        update_selection_mouse(fs, fs->cursor_x, fs->cursor_y);
     }
 
     if (ev->bstate & BUTTON4_PRESSED) {
