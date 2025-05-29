@@ -52,7 +52,7 @@ void show_help() {
     mvwprintw(help_win, 11, 2, "CTRL-Y: Redo");
     mvwprintw(help_win, 12, 2, "CTRL-Z: Undo");
     mvwprintw(help_win, 13, 2, "CTRL-F: Search for text string");
-    mvwprintw(help_win, 14, 2, "CTRL-R: Replace text");
+    mvwprintw(help_win, 14, 2, "CTRL-R: Replace");
 
     // Print the second column of commands and keybindings
     mvwprintw(help_win, 3, win_width / 2, "CTRL-X: Quit");
