@@ -50,7 +50,11 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     file_state->last_comment_state = false;
     file_state->text_win = newwin(LINES - 2, COLS, 1, 0); // Create a new window for the file
     if (!file_state->text_win) {
-        free_file_state(file_state, max_lines);
+        for (int j = 0; j < max_lines; j++) {
+            free(file_state->text_buffer[j]);
+        }
+        free(file_state->text_buffer);
+        free(file_state);
         return NULL;
     }
 

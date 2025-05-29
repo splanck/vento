@@ -132,6 +132,9 @@ void load_file(FileState *fs_unused, const char *filename) {
 
 void new_file(FileState *fs_unused) {
     (void)fs_unused;
+    FileState *previous_active = active_file;
+    int previous_index = file_manager.active_index;
+
     FileState *fs = initialize_file_state("", DEFAULT_BUFFER_LINES, COLS - 3);
     if (!fs) {
         mvprintw(LINES - 2, 2, "Memory allocation failed!");
@@ -153,6 +156,9 @@ void new_file(FileState *fs_unused) {
         mvprintw(LINES - 2, 2, "                            ");
         refresh();
         free_file_state(fs, fs->max_lines);
+        file_manager.active_index = previous_index;
+        active_file = previous_active;
+        text_win = previous_active ? previous_active->text_win : NULL;
         return;
     }
 
@@ -163,6 +169,9 @@ void new_file(FileState *fs_unused) {
         mvprintw(LINES - 2, 2, "                            ");
         refresh();
         fm_close(&file_manager, idx);
+        file_manager.active_index = previous_index;
+        active_file = previous_active;
+        text_win = previous_active ? previous_active->text_win : NULL;
         return;
     }
 
