@@ -20,6 +20,7 @@ void handle_ctrl_key_pgup(struct FileState *fs);
 void handle_ctrl_key_pgdn(struct FileState *fs);
 void handle_ctrl_key_up(struct FileState *fs);
 void handle_ctrl_key_down(struct FileState *fs);
+void handle_tab_key(struct FileState *fs);
 void handle_default_key(struct FileState *fs, int ch);
 void move_forward_to_next_word(struct FileState *fs);
 void move_backward_to_previous_word(struct FileState *fs);

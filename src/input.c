@@ -311,6 +311,48 @@ void handle_ctrl_key_right(FileState *fs) {
 }
 
 /**
+ * Handles the Tab key event.
+ * Inserts four spaces at once and records a single undo entry.
+ */
+void handle_tab_key(FileState *fs) {
+    const int TAB_SIZE = 4;
+    int inserted = 0;
+
+    if (fs->cursor_x >= COLS - 6)
+        return;
+
+    char *old_text = strdup(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
+
+    while (inserted < TAB_SIZE && fs->cursor_x < COLS - 6) {
+        int len = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
+
+        if (fs->cursor_x <= len) {
+            memmove(&fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
+                    &fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
+                    len - fs->cursor_x + 1);
+        }
+
+        fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1] = ' ';
+        fs->text_buffer[fs->cursor_y - 1 + fs->start_line][len + 1] = '\0';
+        fs->cursor_x++;
+        inserted++;
+    }
+
+    if (inserted > 0) {
+        char *new_text = strdup(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
+        Change change = { fs->cursor_y - 1 + fs->start_line, old_text, new_text };
+        push(&fs->undo_stack, change);
+        mark_comment_state_dirty(fs);
+
+        werase(text_win);
+        box(text_win, 0, 0);
+        draw_text_buffer(active_file, text_win);
+    } else {
+        free(old_text);
+    }
+}
+
+/**
  * Handles the default key event.
  * Inserts the character at the current cursor position.
  * If the cursor is at the end of a line, the character is appended to the line.
@@ -325,10 +367,7 @@ void handle_default_key(FileState *fs, int ch) {
 #else
     if (ch == '\t') {
 #endif
-        const int TAB_SIZE = 4;
-        for (int i = 0; i < TAB_SIZE; i++) {
-            handle_default_key(fs, ' ');
-        }
+        handle_tab_key(fs);
         return;
     }
     if (fs->cursor_x < COLS - 6) {
