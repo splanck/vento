@@ -780,4 +780,41 @@ const char *select_color(const char *current) {
     return NULL;
 }
 
+int select_bool(const char *prompt, int current) {
+    static const char *options[] = {"Disabled", "Enabled"};
+    int highlight = current ? 1 : 0;
+
+    while (1) {
+        clear();
+
+        if (prompt)
+            mvprintw(0, 0, "%s", prompt);
+
+        for (int i = 0; i < 2; ++i) {
+            if (highlight == i)
+                attron(A_REVERSE);
+            mvprintw(i + 1, 0, "%s", options[i]);
+            attroff(A_REVERSE);
+        }
+
+        mvprintw(LINES - 1, 0, "Arrows: move  Enter: select  ESC: cancel");
+        refresh();
+
+        int ch = getch();
+        if (ch == KEY_UP || ch == KEY_LEFT) {
+            if (highlight > 0)
+                --highlight;
+        } else if (ch == KEY_DOWN || ch == KEY_RIGHT) {
+            if (highlight < 1)
+                ++highlight;
+        } else if (ch == '\n') {
+            return highlight == 1 ? 1 : 0;
+        } else if (ch == 27) {
+            return current;
+        }
+    }
+
+    return current;
+}
+
 
