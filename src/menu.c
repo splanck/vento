@@ -229,7 +229,15 @@ void menuHelp() {
 }
 
 void menuTestwindow() {
-    show_select_file("/home/", 100);
+    char selected_path[100] = "";
+    int result = show_select_file(selected_path, sizeof(selected_path));
+    if (result) {
+        mvprintw(LINES - 2, 2, "Selected: %s", selected_path);
+        refresh();
+        getch();
+        mvprintw(LINES - 2, 2, "                             ");
+        refresh();
+    }
     drawBar();
 }
 
