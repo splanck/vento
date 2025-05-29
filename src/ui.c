@@ -342,6 +342,107 @@ int show_select_file(char *selected_path, int max_path_len) {
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
 }
 
+int show_open_file_dialog(char *path, int max_len) {
+    int highlight = 0;
+    int ch;
+    char cwd[1024];
+    char input[1024] = "";
+    int input_len = 0;
+    int start = 0;
+
+    getcwd(cwd, sizeof(cwd));
+
+    while (1) {
+        clear();
+        mvprintw(0, 0, "Current Directory: %s", cwd);
+
+        char **choices = NULL;
+        int n_choices = 0;
+        get_dir_contents(cwd, &choices, &n_choices);
+
+        int max_display = LINES - 3; // reserve one line for dir and one for input
+        if (highlight < start)
+            start = highlight;
+        if (highlight >= start + max_display)
+            start = highlight - max_display + 1;
+
+        for (int i = 0; i < max_display && i + start < n_choices; ++i) {
+            int idx = i + start;
+            if (idx == highlight)
+                attron(A_REVERSE);
+            mvprintw(i + 1, 0, "%s", choices[idx]);
+            attroff(A_REVERSE);
+        }
+
+        for (int i = n_choices - start; i < max_display; ++i) {
+            mvprintw(i + 1, 0, "%*s", COLS - 1, "");
+        }
+
+        mvprintw(LINES - 1, 0, "Path: %s", input);
+        move(LINES - 1, 6 + input_len);
+        refresh();
+
+        ch = getch();
+        if (ch == KEY_UP) {
+            if (highlight > 0)
+                --highlight;
+        } else if (ch == KEY_DOWN) {
+            if (highlight < n_choices - 1)
+                ++highlight;
+        } else if (ch == '\n') {
+            if (input_len > 0) {
+                char tmp[2048];
+                if (input[0] == '/') {
+                    strncpy(tmp, input, sizeof(tmp) - 1);
+                    tmp[sizeof(tmp) - 1] = '\0';
+                } else {
+                    snprintf(tmp, sizeof(tmp), "%s/%s", cwd, input);
+                }
+                strncpy(path, tmp, max_len);
+                path[max_len - 1] = '\0';
+                free_dir_contents(choices, n_choices);
+                return 1;
+            }
+
+            if (n_choices > 0) {
+                struct stat sb;
+                char next_path[2048];
+                snprintf(next_path, sizeof(next_path), "%s/%s", cwd, choices[highlight]);
+                if (stat(next_path, &sb) == 0 && S_ISDIR(sb.st_mode)) {
+                    strncpy(cwd, next_path, sizeof(cwd));
+                    cwd[sizeof(cwd) - 1] = '\0';
+                    highlight = 0;
+                    start = 0;
+                    input_len = 0;
+                    input[0] = '\0';
+                } else {
+                    strncpy(path, next_path, max_len);
+                    path[max_len - 1] = '\0';
+                    free_dir_contents(choices, n_choices);
+                    return 1;
+                }
+            }
+        } else if (ch == KEY_BACKSPACE || ch == 127) {
+            if (input_len > 0) {
+                input_len--;
+                input[input_len] = '\0';
+            }
+        } else if (ch == 27) {
+            free_dir_contents(choices, n_choices);
+            return 0;
+        } else if (isprint(ch)) {
+            if (input_len < (int)sizeof(input) - 1) {
+                input[input_len++] = ch;
+                input[input_len] = '\0';
+            }
+        }
+
+        free_dir_contents(choices, n_choices);
+    }
+
+    return 0;
+}
+
 /**
  * Shows a find dialog window and accepts a string from the user.
  * The entered string is stored in the 'output' parameter.
