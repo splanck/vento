@@ -576,7 +576,11 @@ void run_editor() {
             redraw();
         } else if (ch == KEY_MOUSE) {
             if (getmouse(&event) == OK) {
-                handle_mouse_event(active_file, &event);
+                if (menu_click_open(event.x, event.y)) {
+                    redraw();
+                } else {
+                    handle_mouse_event(active_file, &event);
+                }
             }
         } else {
             handle_regular_mode(active_file, ch);

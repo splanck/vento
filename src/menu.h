@@ -36,6 +36,8 @@ void drawBar(void);
  */
 void freeMenus(void);
 
+int menu_click_open(int x, int y);
+
 extern Menu *menus;
 extern int menuCount;
 

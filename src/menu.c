@@ -283,3 +283,18 @@ void freeMenus() {
     menuCount = 0;
 }
 
+int menu_click_open(int x, int y) {
+    if (y == 0) {
+        int currentMenu = x / 10;
+        if (currentMenu < 0 || currentMenu >= menuCount) {
+            return 0;
+        }
+
+        int currentItem = 0;
+        handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
+        return 1;
+    }
+
+    return 0;
+}
+
