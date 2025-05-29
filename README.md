@@ -76,7 +76,7 @@ The following features are planned for future releases:
 
 ## Known Issues
 
-- Tab key is being processed by the editor incorrectly.
+No known issues at this time.
 
 ## Roadmap
 
