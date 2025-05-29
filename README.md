@@ -44,6 +44,15 @@ written in the same key order as the defaults.  When you exit the settings
 dialog with changes, the updated configuration is automatically saved back to
 `~/.ventorc`.
 
+This file is created automatically with default values if it does not exist. Unknown keys are ignored when the file is parsed. You can also change these options interactively using the **Settings** dialog found under *File -> Settings* (press `CTRL-T` to open the menu). The recognized keys are:
+- `background_color`
+- `keyword_color`
+- `comment_color`
+- `string_color`
+- `type_color`
+- `symbol_color`
+- `enable_color`
+
 ### Multi-File Support
 
 Vento allows multiple files to be opened at once. Press `CTRL-L` to open a

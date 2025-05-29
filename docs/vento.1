@@ -56,6 +56,26 @@ Close current file: Close the active file and switch to another open file.
 .IP \[bu] 2
 Customizable configuration: Allow custom settings via a configuration file.
 
+.SH CONFIGURATION
+Vento stores its preferences in \fB~/.ventorc\fP in the user's home directory. If the file does not exist it is created with default values when the editor starts or when settings are saved. Unknown keys are ignored.
+.PP
+The following keys are recognized:
+.IP \[bu] 2
+background_color
+.IP \[bu] 2
+keyword_color
+.IP \[bu] 2
+comment_color
+.IP \[bu] 2
+string_color
+.IP \[bu] 2
+type_color
+.IP \[bu] 2
+symbol_color
+.IP \[bu] 2
+enable_color
+.PP
+These options can also be modified using the Settings dialog found under \fBFile\fP -> \fBSettings\fP. Exiting the dialog automatically writes the configuration back to \fB~/.ventorc\fP.
 .SH KEYBOARD SHORTCUTS
 .TP 
 .B CTRL-H
