@@ -788,6 +788,7 @@ int show_settings_dialog(AppConfig *cfg) {
 
     enum {
         FIELD_ENABLE_COLOR,
+        FIELD_MOUSE,
         FIELD_BACKGROUND,
         FIELD_KEYWORD,
         FIELD_COMMENT,
@@ -799,6 +800,7 @@ int show_settings_dialog(AppConfig *cfg) {
 
     const char *labels[FIELD_COUNT] = {
         "Enable color",
+        "Enable mouse",
         "Background color",
         "Keyword color",
         "Comment color",
@@ -812,7 +814,43 @@ int show_settings_dialog(AppConfig *cfg) {
     int done = 0;
 
     int win_height = FIELD_COUNT + 4;
-    int win_width = 40;
+    int longest = 0;
+    for (int i = 0; i < FIELD_COUNT; ++i) {
+        const char *val = "";
+        switch (i) {
+        case FIELD_ENABLE_COLOR:
+            val = cfg->enable_color ? "Enabled" : "Disabled";
+            break;
+        case FIELD_MOUSE:
+            val = cfg->enable_mouse ? "Enabled" : "Disabled";
+            break;
+        case FIELD_BACKGROUND:
+            val = cfg->background_color;
+            break;
+        case FIELD_KEYWORD:
+            val = cfg->keyword_color;
+            break;
+        case FIELD_COMMENT:
+            val = cfg->comment_color;
+            break;
+        case FIELD_STRING:
+            val = cfg->string_color;
+            break;
+        case FIELD_TYPE:
+            val = cfg->type_color;
+            break;
+        case FIELD_SYMBOL:
+            val = cfg->symbol_color;
+            break;
+        }
+        int len = strlen(labels[i]) + 2 + strlen(val);
+        if (len > longest)
+            longest = len;
+    }
+    int win_width = longest + 4;
+    if (win_width < 50)
+        win_width = 50;
+
     WINDOW *win = create_popup_window(win_height, win_width, NULL);
     keypad(win, TRUE);
 
@@ -828,6 +866,10 @@ int show_settings_dialog(AppConfig *cfg) {
             case FIELD_ENABLE_COLOR:
                 mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
                           cfg->enable_color ? "Enabled" : "Disabled");
+                break;
+            case FIELD_MOUSE:
+                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
+                          cfg->enable_mouse ? "Enabled" : "Disabled");
                 break;
             case FIELD_BACKGROUND:
                 mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
@@ -874,6 +916,10 @@ int show_settings_dialog(AppConfig *cfg) {
             case FIELD_ENABLE_COLOR:
                 cfg->enable_color =
                     select_bool("Enable color", cfg->enable_color, win);
+                break;
+            case FIELD_MOUSE:
+                cfg->enable_mouse =
+                    select_bool("Enable mouse", cfg->enable_mouse, win);
                 break;
             case FIELD_BACKGROUND: {
                 const char *sel = select_color(cfg->background_color, win);
