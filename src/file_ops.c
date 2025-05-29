@@ -141,22 +141,41 @@ void new_file(FileState *fs_unused) {
         refresh();
         return;
     }
-    active_file = fs;
+
     fs->filename[0] = '\0';
     fs->syntax_mode = set_syntax_mode(fs->filename);
 
+    int idx = fm_add(&file_manager, fs);
+    if (idx < 0) {
+        mvprintw(LINES - 2, 2, "Error creating file!");
+        refresh();
+        getch();
+        mvprintw(LINES - 2, 2, "                            ");
+        refresh();
+        free_file_state(fs, fs->max_lines);
+        return;
+    }
+
+    if (fm_switch(&file_manager, idx) < 0) {
+        mvprintw(LINES - 2, 2, "Error activating file!");
+        refresh();
+        getch();
+        mvprintw(LINES - 2, 2, "                            ");
+        refresh();
+        fm_close(&file_manager, idx);
+        return;
+    }
+
+    active_file = fm_current(&file_manager);
+    text_win = fs->text_win;
+
     initialize_buffer();
 
-    text_win = fs->text_win;
     keypad(text_win, TRUE);
     meta(text_win, TRUE);
     box(text_win, 0, 0);
     wmove(text_win, fs->cursor_y, fs->cursor_x);
     wrefresh(text_win);
-
-    int idx = fm_add(&file_manager, fs);
-    fm_switch(&file_manager, idx);
-    active_file = fm_current(&file_manager);
 
     update_status_bar(active_file);
 }
