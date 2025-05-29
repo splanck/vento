@@ -4,6 +4,7 @@
 #define VERSION "0.1.3"
 
 extern int enable_color;
+extern int enable_mouse;
 
 typedef struct {
     char background_color[16];
@@ -13,6 +14,7 @@ typedef struct {
     char type_color[16];
     char symbol_color[16];
     int enable_color;
+    int enable_mouse;
 } AppConfig;
 
 extern AppConfig app_config;
