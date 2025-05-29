@@ -64,7 +64,7 @@ void initializeMenus() {
     menus[0] = fileMenu;
 
     // Create the edit menu
-    MenuItem *editMenuItems = malloc(3 * sizeof(MenuItem));
+    MenuItem *editMenuItems = malloc(4 * sizeof(MenuItem));
     if (editMenuItems == NULL) {
         fprintf(stderr, "Failed to allocate memory for edit menu items\n");
         freeMenus();
@@ -73,9 +73,10 @@ void initializeMenus() {
     editMenuItems[0] = (MenuItem){"Undo", menuUndo};
     editMenuItems[1] = (MenuItem){"Redo", menuRedo};
     editMenuItems[2] = (MenuItem){"Find", menuFind};
+    editMenuItems[3] = (MenuItem){"Replace", menuReplace};
 
     // Initialize and assign the edit menu
-    Menu editMenu = {"Edit", editMenuItems, 3};
+    Menu editMenu = {"Edit", editMenuItems, 4};
     menus[1] = editMenu;
 
     // Create the help menu
@@ -234,6 +235,10 @@ void menuRedo() {
 
 void menuFind() {
     find(active_file, 1);
+}
+
+void menuReplace() {
+    replace(active_file);
 }
 
 void menuAbout() {

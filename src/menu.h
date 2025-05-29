@@ -26,6 +26,7 @@ void menuQuitEditor(void);
 void menuUndo(void);
 void menuRedo(void);
 void menuFind(void);
+void menuReplace(void);
 void menuAbout(void);
 void menuHelp(void);
 void menuTestwindow(void);
