@@ -610,7 +610,7 @@ void cleanup_on_exit(FileManager *fm) {
         free_stack(fs->redo_stack);
         fs->redo_stack = NULL;
 
-        free_file_state(fs, DEFAULT_BUFFER_LINES);
+        free_file_state(fs, fs->max_lines);
     }
 
     freeMenus();
@@ -633,7 +633,7 @@ void close_editor() {
  */
 void initialize_buffer() {
     // Allocate memory for each line in the text buffer
-    for (int i = 0; i < DEFAULT_BUFFER_LINES; ++i) {
+    for (int i = 0; i < active_file->max_lines; ++i) {
         if (active_file->text_buffer[i] != NULL) {
             free(active_file->text_buffer[i]);
             active_file->text_buffer[i] = NULL;
@@ -807,7 +807,7 @@ void handle_resize(int sig) {
  */
 void clear_text_buffer() {
     // Set all elements of the text buffer to 0
-    for (int i = 0; i < DEFAULT_BUFFER_LINES; ++i) {
+    for (int i = 0; i < active_file->max_lines; ++i) {
         memset(active_file->text_buffer[i], 0, COLS - 3);
     }
 
