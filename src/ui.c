@@ -42,7 +42,7 @@ void show_help() {
     // Print the command and keybinding for each command
     mvwprintw(help_win, 3, 2, "CTRL-H: Show this help");
     mvwprintw(help_win, 4, 2, "CTRL-A: About");
-    mvwprintw(help_win, 5, 2, "CTRL-L: Load a new file");
+    mvwprintw(help_win, 5, 2, "CTRL-L: Load a new file (browse files)");
     mvwprintw(help_win, 6, 2, "CTRL-O: Save as");
     mvwprintw(help_win, 7, 2, "CTRL-P: Save");
     mvwprintw(help_win, 8, 2, "CTRL-J: Start/Stop selection mode");

@@ -20,7 +20,7 @@ We are currently in the initial development phase, focusing on building the core
 Vento currently supports the following features:
 
 - **Basic Editor**: Provides essential text editing capabilities.
-- **Load Files**: Open and edit existing files.
+- **Load Files**: Press `CTRL-L` to open a dialog for browsing directories or typing a filename, then edit the selected file.
 - **Create New File**: Start a new document easily.
 - **Save As**: Save your work with a new filename.
 - **Save Feature**: Save changes without being prompted for a filename each time.
@@ -39,9 +39,9 @@ Vento currently supports the following features:
 
 ### Multi-File Support
 
-Vento allows multiple files to be opened at once. Load additional files using
-`CTRL-L` and switch between them with `F6` for the next file or `F7` for the
-previous one.
+Vento allows multiple files to be opened at once. Press `CTRL-L` to open a
+dialog for browsing directories or typing a filename, and switch between loaded
+files with `F6` for the next file or `F7` for the previous one.
 
 ## Planned Features
 
