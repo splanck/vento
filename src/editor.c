@@ -443,8 +443,8 @@ void initialize() {
     // Initialize the screen
     initscr();
 
-    // Read the configuration file
-    read_config_file();
+    // Load the configuration file
+    config_load(&app_config);
 
     // Enable color if specified
     if (enable_color) {
@@ -463,8 +463,6 @@ void initialize() {
     // Set timeout to 100 milliseconds
     timeout(10); 
 
-    // Read the configuration file again (in case it was modified)
-    read_config_file();
 
     // Set up color pairs for syntax highlighting
     if (has_colors() && can_change_color()) {
