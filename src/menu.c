@@ -230,7 +230,7 @@ void menuHelp() {
 
 void menuTestwindow() {
     char selected_path[100] = "";
-    int result = show_select_file(selected_path, sizeof(selected_path));
+    int result = show_open_file_dialog(selected_path, sizeof(selected_path));
     if (result) {
         mvprintw(LINES - 2, 2, "Selected: %s", selected_path);
         refresh();
@@ -238,6 +238,7 @@ void menuTestwindow() {
         mvprintw(LINES - 2, 2, "                             ");
         refresh();
     }
+    redraw();
     drawBar();
 }
 
