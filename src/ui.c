@@ -648,6 +648,38 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
                 }
             }
             return -1;
+        } else if (ch == KEY_MOUSE && enable_mouse) {
+            MEVENT ev;
+            if (getmouse(&ev) == OK &&
+                (ev.bstate & (BUTTON1_PRESSED | BUTTON1_CLICKED |
+                               BUTTON1_RELEASED))) {
+                int wy, wx;
+                getbegyx(win, wy, wx);
+                int row = ev.y - wy - 1;
+                int col = ev.x - wx - 1;
+                int max_display = win_height - 2;
+                if (row >= 0 && row < max_display &&
+                    col >= 0 && col < win_width - 2) {
+                    int idx = start + row;
+                    if (idx >= 0 && idx < count)
+                        highlight = idx;
+
+                    if (ev.bstate & (BUTTON1_RELEASED | BUTTON1_CLICKED)) {
+                        if (own) {
+                            werase(win);
+                            wrefresh(win);
+                            delwin(win);
+                            if (parent) {
+                                touchwin(parent);
+                                wrefresh(parent);
+                            } else {
+                                wrefresh(stdscr);
+                            }
+                        }
+                        return highlight;
+                    }
+                }
+            }
         }
     }
 
