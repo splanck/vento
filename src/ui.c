@@ -29,8 +29,13 @@ static WINDOW *create_centered_window(int height, int width, WINDOW *parent) {
     }
 
     WINDOW *win = newwin(height, width, win_y, win_x);
-    if (win)
-        box(win, 0, 0);
+    if (!win) {
+        endwin();
+        fprintf(stderr, "Failed to create new window\n");
+        exit(EXIT_FAILURE);
+    }
+
+    box(win, 0, 0);
 
     return win;
 }
@@ -327,6 +332,8 @@ int show_open_file_dialog(char *path, int max_len) {
     int win_height = LINES - 4;
     int win_width = COLS - 4;
     WINDOW *win = create_popup_window(win_height, win_width, NULL);
+    if (!win)
+        return 0;
     keypad(win, TRUE);
 
     getcwd(cwd, sizeof(cwd));
@@ -451,6 +458,8 @@ int show_save_file_dialog(char *path, int max_len) {
     int win_height = LINES - 4;
     int win_width = COLS - 4;
     WINDOW *win = create_popup_window(win_height, win_width, NULL);
+    if (!win)
+        return 0;
     keypad(win, TRUE);
 
     getcwd(cwd, sizeof(cwd));
@@ -581,11 +590,15 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
         win_height = ph - 4;
         win_width = pw - 4;
         win = create_popup_window(win_height, win_width, parent);
+        if (!win)
+            return -1;
         own = 1;
     } else {
         win_height = LINES - 4;
         win_width = COLS - 4;
         win = create_popup_window(win_height, win_width, NULL);
+        if (!win)
+            return -1;
         own = 1;
     }
     keypad(win, TRUE);
@@ -884,6 +897,8 @@ int show_settings_dialog(AppConfig *cfg) {
         win_width = 50;
 
     WINDOW *win = create_popup_window(win_height, win_width, NULL);
+    if (!win)
+        return 0;
     keypad(win, TRUE);
 
     while (!done) {
@@ -1049,11 +1064,15 @@ const char *select_color(const char *current, WINDOW *parent) {
         win_height = ph - 4;
         win_width = pw - 4;
         win = create_popup_window(win_height, win_width, parent);
+        if (!win)
+            return NULL;
         own = 1;
     } else {
         win_height = LINES - 4;
         win_width = COLS - 4;
         win = create_popup_window(win_height, win_width, NULL);
+        if (!win)
+            return NULL;
         own = 1;
     }
     keypad(win, TRUE);
@@ -1132,9 +1151,13 @@ int select_bool(const char *prompt, int current, WINDOW *parent) {
     WINDOW *win;
     if (parent) {
         win = create_popup_window(win_height, win_width, parent);
+        if (!win)
+            return current;
         own = 1;
     } else {
         win = create_popup_window(win_height, win_width, NULL);
+        if (!win)
+            return current;
         own = 1;
     }
     keypad(win, TRUE);
