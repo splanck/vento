@@ -54,7 +54,9 @@ void load_file(FileState *fs_unused, const char *filename) {
     char file_to_load[256];
 
     if (filename == NULL) {
-        create_dialog("Load file", file_to_load, 256);
+        if (show_open_file_dialog(file_to_load, sizeof(file_to_load)) == 0) {
+            return; // user cancelled
+        }
         filename = file_to_load;
     }
 
