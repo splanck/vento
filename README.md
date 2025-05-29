@@ -35,7 +35,14 @@ Vento currently supports the following features:
 - **Scroll Bar**: Indicates your position within the document.
 - **Help Screen**: Press `CTRL-H` for a guide to Vento's features.
 - **About Box**: Press `CTRL-A` to view product information, version, and GPL message.
-- **Menu System**: Intuitive menu navigation for editor features.
+ - **Menu System**: Intuitive menu navigation for editor features.
+
+## Configuration File
+
+Vento reads settings from a `.ventorc` file in your home directory.  The file is
+written in the same key order as the defaults.  When you exit the settings
+dialog with changes, the updated configuration is automatically saved back to
+`~/.ventorc`.
 
 ### Multi-File Support
 

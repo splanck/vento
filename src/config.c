@@ -52,17 +52,28 @@ static void trim(char *str) {
 }
 
 void config_save(const AppConfig *cfg) {
+    static const char *keys[] = {
+        "background_color",
+        "keyword_color",
+        "comment_color",
+        "string_color",
+        "type_color",
+        "symbol_color",
+        "enable_color"
+    };
+
     char path[256];
     get_config_path(path, sizeof(path));
     FILE *f = fopen(path, "w");
     if (!f) return;
-    fprintf(f, "background_color=%s\n", cfg->background_color);
-    fprintf(f, "keyword_color=%s\n", cfg->keyword_color);
-    fprintf(f, "comment_color=%s\n", cfg->comment_color);
-    fprintf(f, "string_color=%s\n", cfg->string_color);
-    fprintf(f, "type_color=%s\n", cfg->type_color);
-    fprintf(f, "symbol_color=%s\n", cfg->symbol_color);
-    fprintf(f, "enable_color=%s\n", cfg->enable_color ? "true" : "false");
+
+    fprintf(f, "%s=%s\n", keys[0], cfg->background_color);
+    fprintf(f, "%s=%s\n", keys[1], cfg->keyword_color);
+    fprintf(f, "%s=%s\n", keys[2], cfg->comment_color);
+    fprintf(f, "%s=%s\n", keys[3], cfg->string_color);
+    fprintf(f, "%s=%s\n", keys[4], cfg->type_color);
+    fprintf(f, "%s=%s\n", keys[5], cfg->symbol_color);
+    fprintf(f, "%s=%s\n", keys[6], cfg->enable_color ? "true" : "false");
     fclose(f);
 }
 
