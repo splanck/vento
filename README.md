@@ -25,7 +25,7 @@ Vento currently supports the following features:
 - **Save As**: Press `CTRL-O` or choose "Save As" from the File menu to open a dialog for browsing directories or typing a new filename.
 - **Save Feature**: Press `CTRL-S` to save changes without being prompted for a filename each time.
 - **Undo and Redo**: Press `CTRL-Z` to undo and `CTRL-Y` to redo actions.
-- **Find**: Press `CTRL-F` to open a search dialog that can stay open so you can repeat searches.
+- **Find**: Press `CTRL-F` to open a search dialog that can stay open so you can repeat searches. Use `F3` to jump to the next occurrence of the current search text.
 - **Replace**: Press `CTRL-R` or choose **Edit -> Replace** to search and replace text.
 - **Delete Current Line**: Press `CTRL-D` to delete the current line.
 - **Word Navigation**: Use `CTRL-W` to move to the next word and `CTRL-B` to move to the previous word.
