@@ -582,6 +582,15 @@ int show_find_dialog(char *output, int max_input_len, const char *preset) {
     return cancelled ? 0 : 1;
 }
 
+int show_replace_dialog(char *search, int max_search_len,
+                        char *replace, int max_replace_len) {
+    if (!show_find_dialog(search, max_search_len, NULL) || search[0] == '\0')
+        return 0;
+
+    create_dialog("Replace:", replace, max_replace_len);
+    return 1;
+}
+
 static void show_message(const char *msg) {
     int win_height = 3;
     int win_width = strlen(msg) + 4;
