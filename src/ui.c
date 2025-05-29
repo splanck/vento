@@ -132,7 +132,9 @@ void show_about() {
 /**
  * Creates a dialog window with a message and an input field for the user to enter text.
  * The entered text is stored in the 'output' parameter.
- * The maximum length of the input is specified by 'max_input_len'.
+ * The maximum length of the input is specified by 'max_input_len'.  Press
+ * Enter to accept the input or press Esc to cancel the dialog.  When
+ * cancelled, the output string is cleared.
  *
  * @param message The message to display in the dialog window.
  * @param output  The buffer to store the user's input.
@@ -172,7 +174,8 @@ void create_dialog(const char *message, char *output, int max_input_len) {
     wattroff(dialog_win, COLOR_PAIR(2));
     wmove(dialog_win, input_y, input_x + 7);  // Move cursor after "Input: "
 
-    // Get user input with maximum length check
+    // Get user input with maximum length check.  Pressing Esc cancels the dialog
+    // and clears the output string.
     int ch, input_len = 0;
     int cancelled = 0;
     while ((ch = wgetch(dialog_win)) != '\n' && input_len < max_input_len - 1) {
@@ -189,6 +192,9 @@ void create_dialog(const char *message, char *output, int max_input_len) {
                 wmove(dialog_win, input_y, input_x + 7 + input_len);
                 wrefresh(dialog_win);
             }
+        } else if (ch == 27) { // ESC key cancels the dialog
+            cancelled = 1;
+            break;
         }
     }
     if (cancelled)
