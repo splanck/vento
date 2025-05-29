@@ -91,7 +91,7 @@ void handle_key_backspace(FileState *fs) {
     } else if (fs->cursor_y > 1 || fs->start_line > 0) {
         size_t prev_len = strlen(fs->text_buffer[fs->cursor_y - 2 + fs->start_line]);
         // Check if the merged line fits within the screen width
-        if (prev_len + strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) < (size_t)(COLS - 6)) {
+        if (prev_len + strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) < (size_t)fs->line_capacity) {
             strcat(fs->text_buffer[fs->cursor_y - 2 + fs->start_line], fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
             for (int i = fs->cursor_y - 1 + fs->start_line; i < fs->line_count - 1; ++i) {
                 strcpy(fs->text_buffer[i], fs->text_buffer[i + 1]);

@@ -126,23 +126,24 @@ static void replace_in_line(FileState *fs, int line, char *pos,
     size_t suffix_len = strlen(pos + search_len);
     size_t replacement_len = strlen(replacement);
 
-    char new_line[COLS];
-    if (prefix_len >= sizeof(new_line)) prefix_len = sizeof(new_line) - 1;
+    char new_line[fs->line_capacity];
+    if (prefix_len >= (size_t)fs->line_capacity)
+        prefix_len = fs->line_capacity - 1;
     strncpy(new_line, line_text, prefix_len);
     size_t idx = prefix_len;
 
-    if (idx < sizeof(new_line) - 1) {
+    if (idx < (size_t)fs->line_capacity - 1) {
         size_t to_copy = replacement_len;
-        if (idx + to_copy >= sizeof(new_line))
-            to_copy = sizeof(new_line) - idx - 1;
+        if (idx + to_copy >= (size_t)fs->line_capacity)
+            to_copy = fs->line_capacity - idx - 1;
         memcpy(new_line + idx, replacement, to_copy);
         idx += to_copy;
     }
 
-    if (idx < sizeof(new_line) - 1) {
+    if (idx < (size_t)fs->line_capacity - 1) {
         size_t to_copy = suffix_len;
-        if (idx + to_copy >= sizeof(new_line))
-            to_copy = sizeof(new_line) - idx - 1;
+        if (idx + to_copy >= (size_t)fs->line_capacity)
+            to_copy = fs->line_capacity - idx - 1;
         memcpy(new_line + idx, pos + search_len, to_copy);
         idx += to_copy;
     }
@@ -151,7 +152,8 @@ static void replace_in_line(FileState *fs, int line, char *pos,
     char *new_text = strdup(new_line);
     Change change = { line, old_text, new_text };
     push(&fs->undo_stack, change);
-    strcpy(fs->text_buffer[line], new_line);
+    strncpy(fs->text_buffer[line], new_line, fs->line_capacity - 1);
+    fs->text_buffer[line][fs->line_capacity - 1] = '\0';
     mark_comment_state_dirty(fs);
 }
 
@@ -234,7 +236,7 @@ void replace_all_occurrences(FileState *fs, const char *search,
         char *old_text = strdup(line_text);
         size_t search_len = strlen(search);
         size_t replacement_len = strlen(replacement);
-        size_t buf_size = COLS;
+        size_t buf_size = fs->line_capacity;
         char *new_line = calloc(buf_size, 1);
         size_t idx = 0;
         char *cursor = line_text;
@@ -266,8 +268,8 @@ void replace_all_occurrences(FileState *fs, const char *search,
 
         char *new_text = strdup(new_line);
         push(&fs->undo_stack, (Change){ line, old_text, new_text });
-        strncpy(fs->text_buffer[line], new_line, COLS - 1);
-        fs->text_buffer[line][COLS - 1] = '\0';
+        strncpy(fs->text_buffer[line], new_line, fs->line_capacity - 1);
+        fs->text_buffer[line][fs->line_capacity - 1] = '\0';
         free(new_line);
         mark_comment_state_dirty(fs);
     }

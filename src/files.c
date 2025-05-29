@@ -34,6 +34,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
 
     file_state->line_count = 0;
     file_state->max_lines = max_lines;
+    file_state->line_capacity = max_cols;
     file_state->start_line = 0;
     file_state->cursor_x = 1;
     file_state->cursor_y = 1;
@@ -82,7 +83,7 @@ void ensure_line_capacity(FileState *fs, int min_needed) {
     fs->text_buffer = new_buffer;
 
     for (int i = fs->max_lines; i < new_max; ++i) {
-        fs->text_buffer[i] = calloc(COLS - 3, sizeof(char));
+        fs->text_buffer[i] = calloc(fs->line_capacity, sizeof(char));
     }
 
     fs->max_lines = new_max;
@@ -101,8 +102,11 @@ int load_file_into_buffer(FileState *file_state) {
         size_t len = strlen(line);
         if (len > 0) {
             // Copy line to text buffer without the trailing newline
-            strncpy(file_state->text_buffer[file_state->line_count], line, len - 1);
-            file_state->text_buffer[file_state->line_count][len - 1] = '\0';
+            size_t copy_len = len - 1;
+            if (copy_len > (size_t)(file_state->line_capacity - 1))
+                copy_len = file_state->line_capacity - 1;
+            strncpy(file_state->text_buffer[file_state->line_count], line, copy_len);
+            file_state->text_buffer[file_state->line_count][copy_len] = '\0';
         } else {
             file_state->text_buffer[file_state->line_count][0] = '\0';
         }

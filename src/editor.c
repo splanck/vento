@@ -370,7 +370,7 @@ void delete_current_line(FileState *fs) {
     }
 
     // Clear the last line
-    memset(fs->text_buffer[fs->line_count - 1], 0, COLS - 3);
+    memset(fs->text_buffer[fs->line_count - 1], 0, fs->line_capacity);
     fs->line_count--;
 
     // Move cursor to the next line if possible
@@ -654,7 +654,7 @@ void initialize_buffer() {
             free(active_file->text_buffer[i]);
             active_file->text_buffer[i] = NULL;
         }
-        active_file->text_buffer[i] = (char *)calloc(COLS - 3, sizeof(char));
+        active_file->text_buffer[i] = (char *)calloc(active_file->line_capacity, sizeof(char));
         if (active_file->text_buffer[i] == NULL) {
             // Handle allocation failure
             fprintf(stderr, "Memory allocation failed for text_buffer[%d]\n", i);
@@ -824,7 +824,7 @@ void handle_resize(int sig) {
 void clear_text_buffer() {
     // Set all elements of the text buffer to 0
     for (int i = 0; i < active_file->max_lines; ++i) {
-        memset(active_file->text_buffer[i], 0, COLS - 3);
+        memset(active_file->text_buffer[i], 0, active_file->line_capacity);
     }
 
     // Reset line count and start line variables
