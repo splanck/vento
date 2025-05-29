@@ -75,7 +75,6 @@ void load_file(FileState *fs_unused, const char *filename) {
     strncpy(fs->filename, filename, sizeof(fs->filename) - 1);
     fs->filename[sizeof(fs->filename) - 1] = '\0';
 
-    initialize_buffer();
 
     FILE *fp = fopen(filename, "r");
     if (fp) {
@@ -161,8 +160,6 @@ void new_file(FileState *fs_unused) {
 
     active_file = fm_current(&file_manager);
     text_win = fs->text_win;
-
-    initialize_buffer();
 
     keypad(text_win, TRUE);
     meta(text_win, TRUE);
