@@ -17,5 +17,6 @@ int show_save_file_dialog(char *path, int max_len);
 int show_settings_dialog(AppConfig *cfg);
 int show_scrollable_window(const char **options, int count);
 const char *select_color(const char *current);
+int select_bool(const char *prompt, int current);
 
 #endif // UI_H
