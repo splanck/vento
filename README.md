@@ -37,7 +37,9 @@ Vento currently supports the following features:
 - **Help Screen**: Press `CTRL-H` for a guide to Vento's features.
 - **About Box**: Press `CTRL-A` to view product information, version, and GPL message.
  - **Menu System**: Intuitive menu navigation for editor features.
-- **Mouse Support**: Click to move the cursor, drag to select text, scroll with the wheel, and click the menu bar and its items.
+- **Mouse Support**: Click to move the cursor, drag to select text,
+  scroll with the mouse wheel, and open menus by clicking the menu bar
+  and its items.
 
 ## Configuration File
 
