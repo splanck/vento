@@ -139,6 +139,8 @@ void apply_syntax_highlighting(struct FileState *fs, WINDOW *win, const char *li
  * @param y The y-coordinate of the line in the window.
  */
 void highlight_no_syntax(WINDOW *win, const char *line, int y) {
+    // Ensure background color is applied to unhighlighted text
+    wattrset(win, COLOR_PAIR(SYNTAX_BG));
     mvwprintw(win, y, 1, "%s", line);
 }
 
@@ -150,6 +152,8 @@ void highlight_no_syntax(WINDOW *win, const char *line, int y) {
  * @param y The y-coordinate of the line in the window.
  */
 void highlight_python_syntax(WINDOW *win, const char *line, int y) {
+    // Apply default background color for unhighlighted text
+    wattrset(win, COLOR_PAIR(SYNTAX_BG));
     int length = strlen(line);
     int start = 0;
     int i = 0;
@@ -213,6 +217,8 @@ void highlight_python_syntax(WINDOW *win, const char *line, int y) {
  * @param y The y-coordinate of the line in the window.
  */
 void highlight_c_syntax(struct FileState *fs, WINDOW *win, const char *line, int y) {
+    // Set background color for areas without specific highlighting
+    wattrset(win, COLOR_PAIR(SYNTAX_BG));
     int x = 1;
     int i = 0;
     int len = strlen(line);
@@ -340,6 +346,8 @@ void highlight_c_syntax(struct FileState *fs, WINDOW *win, const char *line, int
  * @param y The y-coordinate of the line in the window.
  */
 void highlight_csharp_syntax(struct FileState *fs, WINDOW *win, const char *line, int y) {
+    // Apply the default background color
+    wattrset(win, COLOR_PAIR(SYNTAX_BG));
     int x = 1;
     int i = 0;
     int len = strlen(line);
@@ -564,6 +572,9 @@ void handle_html_tag(WINDOW *win, const char *line, int *i, int y, int *x) {
  */
 void highlight_html_syntax(WINDOW *win, const char *line, int y) {
     if (!win || !line) return; // Basic error handling
+
+    // Ensure unstyled regions use the configured background color
+    wattrset(win, COLOR_PAIR(SYNTAX_BG));
 
     int x = 0; // Start from the beginning of the line
     int i = 0;
