@@ -3,6 +3,7 @@
 #include "files.h"
 #include "editor.h"
 #include "syntax.h"
+#include "clipboard.h"
 
 // Function to initialize a new FileState for a given filename
 FileState *initialize_file_state(const char *filename, int max_lines, int max_cols) {
@@ -32,7 +33,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
         }
     }
 
-    file_state->line_count = 0;
+    file_state->line_count = 1; // Start with a single empty line ready for editing
     file_state->max_lines = max_lines;
     file_state->line_capacity = max_cols;
     file_state->start_line = 0;
@@ -43,7 +44,16 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     file_state->selection_mode = false;
     file_state->sel_start_x = file_state->sel_start_y = 0;
     file_state->sel_end_x = file_state->sel_end_y = 0;
-    file_state->clipboard = NULL; // Initialize clipboard if needed
+    file_state->clipboard = malloc(CLIPBOARD_SIZE);
+    if (!file_state->clipboard) {
+        for (int j = 0; j < max_lines; j++) {
+            free(file_state->text_buffer[j]);
+        }
+        free(file_state->text_buffer);
+        free(file_state);
+        return NULL;
+    }
+    file_state->clipboard[0] = '\0';
     file_state->syntax_mode = NO_SYNTAX; // Set to NO_SYNTAX initially
     file_state->in_multiline_comment = false;
     file_state->last_scanned_line = 0;
@@ -54,6 +64,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
             free(file_state->text_buffer[j]);
         }
         free(file_state->text_buffer);
+        free(file_state->clipboard);
         free(file_state);
         return NULL;
     }
