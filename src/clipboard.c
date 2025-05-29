@@ -83,19 +83,31 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
 
         if (dest_len + len >= (size_t)fs->line_capacity) {
             if (dest_len >= (size_t)(fs->line_capacity - 1)) {
-                break;  // No space to paste
+                len = 0;  // No space to paste
+            } else {
+                len = fs->line_capacity - dest_len - 1;
             }
-            len = fs->line_capacity - dest_len - 1;
         }
 
         memmove(&dest[*cursor_x - 1 + len],
                 &dest[*cursor_x - 1],
                 dest_len - (*cursor_x - 1) + 1);
         memcpy(&dest[*cursor_x - 1], line, len);
+        *cursor_x += len;
+
         line = strtok(NULL, "\n");
-        (*cursor_y)++;
-        *cursor_x = 1;
+        if (line) {
+            /* Move to the next line and create it in the buffer */
+            (*cursor_y)++;
+            fs->cursor_x = *cursor_x = 1;
+            fs->cursor_y = *cursor_y;
+            ensure_line_capacity(fs, fs->line_count + 1);
+            insert_new_line(fs);
+        }
     }
+
+    fs->cursor_x = *cursor_x;
+    fs->cursor_y = *cursor_y;
 }
 
 void handle_selection_mode(FileState *fs, int ch, int *cursor_x, int *cursor_y) {
