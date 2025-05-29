@@ -2,11 +2,13 @@
 #define UI_H
 
 #include "config.h"
+#include <ncurses.h>
 
 void show_help(void);
 void show_about(void);
 void create_dialog(const char *message, char *output, int max_input_len);
 void show_warning_dialog(void);
+WINDOW *create_popup_window(int height, int width);
 void get_dir_contents(const char *dir_path, char ***choices, int *n_choices);
 void free_dir_contents(char **choices, int n_choices);
 int show_find_dialog(char *output, int max_input_len, const char *preset);

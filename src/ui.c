@@ -14,6 +14,17 @@
 // Ensure the correct prototypes are available
 char *strdup(const char *s);
 
+WINDOW *create_popup_window(int height, int width) {
+    int win_y = (LINES - height) / 2;
+    int win_x = (COLS - width) / 2;
+
+    WINDOW *win = newwin(height, width, win_y, win_x);
+    if (win)
+        box(win, 0, 0);
+
+    return win;
+}
+
 /**
  * Displays the help dialog with a list of available commands and their corresponding keybindings.
  */
