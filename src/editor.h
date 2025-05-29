@@ -39,6 +39,7 @@ typedef struct {
 extern WINDOW *text_win;
 extern struct FileState *active_file;
 extern struct FileManager file_manager;
+extern char search_text[256];
 void handle_regular_mode(struct FileState *fs, int ch);
 void initialize(void);
 void draw_text_buffer(struct FileState *fs, WINDOW *win);
