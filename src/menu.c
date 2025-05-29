@@ -294,6 +294,7 @@ void menuSettings() {
     if (show_settings_dialog(&app_config)) {
         config_save(&app_config);
         config_load(&app_config);
+        apply_colors();
         redraw();
         drawBar();
     }

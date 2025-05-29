@@ -462,6 +462,17 @@ void disable_ctrl_c_z() {
     signal(SIGTSTP, SIG_IGN);
 }
 
+void apply_colors() {
+    bkgd(enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
+    for (int i = 0; i < file_manager.count; ++i) {
+        FileState *fs = file_manager.files[i];
+        if (fs && fs->text_win) {
+            wbkgd(fs->text_win,
+                  enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
+        }
+    }
+}
+
 /**
  * Initializes the editor by setting up the screen,
  * reading the configuration file, enabling color if specified, and setting up
@@ -473,6 +484,7 @@ void initialize() {
 
     // Load the configuration file
     config_load(&app_config);
+    apply_colors();
 
     // Enable color if specified
     if (enable_color) {

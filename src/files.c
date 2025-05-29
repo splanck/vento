@@ -68,6 +68,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
         free(file_state);
         return NULL;
     }
+    wbkgd(file_state->text_win, COLOR_PAIR(SYNTAX_BG));
 
     return file_state;
 }
