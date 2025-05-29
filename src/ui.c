@@ -624,18 +624,28 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
                 ++highlight;
         } else if (ch == '\n') {
             if (own) {
-                wclear(win);
+                werase(win);
                 wrefresh(win);
                 delwin(win);
-                wrefresh(stdscr);
+                if (parent) {
+                    touchwin(parent);
+                    wrefresh(parent);
+                } else {
+                    wrefresh(stdscr);
+                }
             }
             return highlight;
         } else if (ch == 27) {
             if (own) {
-                wclear(win);
+                werase(win);
                 wrefresh(win);
                 delwin(win);
-                wrefresh(stdscr);
+                if (parent) {
+                    touchwin(parent);
+                    wrefresh(parent);
+                } else {
+                    wrefresh(stdscr);
+                }
             }
             return -1;
         }
@@ -1004,18 +1014,28 @@ const char *select_color(const char *current, WINDOW *parent) {
                 ++highlight;
         } else if (ch == '\n') {
             if (own) {
-                wclear(win);
+                werase(win);
                 wrefresh(win);
                 delwin(win);
-                wrefresh(stdscr);
+                if (parent) {
+                    touchwin(parent);
+                    wrefresh(parent);
+                } else {
+                    wrefresh(stdscr);
+                }
             }
             return colors[highlight];
         } else if (ch == 27) {
             if (own) {
-                wclear(win);
+                werase(win);
                 wrefresh(win);
                 delwin(win);
-                wrefresh(stdscr);
+                if (parent) {
+                    touchwin(parent);
+                    wrefresh(parent);
+                } else {
+                    wrefresh(stdscr);
+                }
             }
             return NULL;
         }
@@ -1069,18 +1089,28 @@ int select_bool(const char *prompt, int current, WINDOW *parent) {
                 ++highlight;
         } else if (ch == '\n') {
             if (own) {
-                wclear(win);
+                werase(win);
                 wrefresh(win);
                 delwin(win);
-                wrefresh(stdscr);
+                if (parent) {
+                    touchwin(parent);
+                    wrefresh(parent);
+                } else {
+                    wrefresh(stdscr);
+                }
             }
             return highlight == 1 ? 1 : 0;
         } else if (ch == 27) {
             if (own) {
-                wclear(win);
+                werase(win);
                 wrefresh(win);
                 delwin(win);
-                wrefresh(stdscr);
+                if (parent) {
+                    touchwin(parent);
+                    wrefresh(parent);
+                } else {
+                    wrefresh(stdscr);
+                }
             }
             return current;
         }
