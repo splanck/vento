@@ -58,8 +58,14 @@ int load_file_into_buffer(FileState *file_state) {
 
     char line[1024];
     while (fgets(line, sizeof(line), fp)) {
-        // Copy line to text buffer
-        strncpy(file_state->text_buffer[file_state->line_count], line, strlen(line) - 1);
+        size_t len = strlen(line);
+        if (len > 0) {
+            // Copy line to text buffer without the trailing newline
+            strncpy(file_state->text_buffer[file_state->line_count], line, len - 1);
+            file_state->text_buffer[file_state->line_count][len - 1] = '\0';
+        } else {
+            file_state->text_buffer[file_state->line_count][0] = '\0';
+        }
         file_state->line_count++;
     }
     fclose(fp);
