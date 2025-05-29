@@ -152,33 +152,32 @@ void handle_key_delete(FileState *fs) {
  * @param fs->start_line Pointer to the starting line of the visible text area.
  */
 void handle_key_enter(FileState *fs) {
-    if (fs->line_count < DEFAULT_BUFFER_LINES - 1) {
-        for (int i = fs->line_count; i > fs->cursor_y + fs->start_line; --i) {
-            strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
-        }
-        fs->line_count++;
-
-        if (fs->cursor_x > 1) {
-            strcpy(fs->text_buffer[fs->cursor_y + fs->start_line],
-                   &fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1]);
-            fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1] = '\0';
-        } else {
-            strcpy(fs->text_buffer[fs->cursor_y + fs->start_line],
-                   fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
-            fs->text_buffer[fs->cursor_y - 1 + fs->start_line][0] = '\0';
-        }
-
-        fs->cursor_x = 1;
-        if (fs->cursor_y >= LINES - 6) {
-            fs->start_line++;
-        } else {
-            fs->cursor_y++;
-        }
-        werase(text_win);
-        box(text_win, 0, 0);
-        draw_text_buffer(active_file, text_win);
-        mark_comment_state_dirty(fs);
+    ensure_line_capacity(fs, fs->line_count + 1);
+    for (int i = fs->line_count; i > fs->cursor_y + fs->start_line; --i) {
+        strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
     }
+    fs->line_count++;
+
+    if (fs->cursor_x > 1) {
+        strcpy(fs->text_buffer[fs->cursor_y + fs->start_line],
+               &fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1]);
+        fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1] = '\0';
+    } else {
+        strcpy(fs->text_buffer[fs->cursor_y + fs->start_line],
+               fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
+        fs->text_buffer[fs->cursor_y - 1 + fs->start_line][0] = '\0';
+    }
+
+    fs->cursor_x = 1;
+    if (fs->cursor_y >= LINES - 6) {
+        fs->start_line++;
+    } else {
+        fs->cursor_y++;
+    }
+    werase(text_win);
+    box(text_win, 0, 0);
+    draw_text_buffer(active_file, text_win);
+    mark_comment_state_dirty(fs);
 }
 
 /**

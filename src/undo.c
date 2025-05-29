@@ -35,6 +35,7 @@ void undo(FileState *fs) {
     Change change = pop(&fs->undo_stack);
 
     if (change.old_text) {
+        ensure_line_capacity(fs, fs->line_count + 1);
         for (int i = fs->line_count; i > change.line; --i) {
             strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
         }
