@@ -60,6 +60,14 @@ void load_file(FileState *fs_unused, const char *filename) {
 
     /* Allocate a new file state */
     FileState *fs = initialize_file_state(filename, MAX_LINES, COLS - 3);
+    if (!fs) {
+        mvprintw(LINES - 2, 2, "Memory allocation failed!");
+        refresh();
+        getch();
+        mvprintw(LINES - 2, 2, "                            ");
+        refresh();
+        return;
+    }
     active_file = fs;
 
     fs->syntax_mode = set_syntax_mode(filename);
@@ -116,6 +124,14 @@ void load_file(FileState *fs_unused, const char *filename) {
 void new_file(FileState *fs_unused) {
     (void)fs_unused;
     FileState *fs = initialize_file_state("", MAX_LINES, COLS - 3);
+    if (!fs) {
+        mvprintw(LINES - 2, 2, "Memory allocation failed!");
+        refresh();
+        getch();
+        mvprintw(LINES - 2, 2, "                            ");
+        refresh();
+        return;
+    }
     active_file = fs;
     fs->filename[0] = '\0';
     fs->syntax_mode = set_syntax_mode(fs->filename);

@@ -6,13 +6,29 @@
 // Function to initialize a new FileState for a given filename
 FileState *initialize_file_state(const char *filename, int max_lines, int max_cols) {
     FileState *file_state = malloc(sizeof(FileState));
+    if (!file_state) {
+        return NULL;
+    }
+
     strncpy(file_state->filename, filename, sizeof(file_state->filename) - 1);
     file_state->filename[sizeof(file_state->filename) - 1] = '\0';
 
     // Initialize text buffer
     file_state->text_buffer = malloc(max_lines * sizeof(char *));
+    if (!file_state->text_buffer) {
+        free(file_state);
+        return NULL;
+    }
     for (int i = 0; i < max_lines; i++) {
         file_state->text_buffer[i] = calloc(max_cols, sizeof(char));
+        if (!file_state->text_buffer[i]) {
+            for (int j = 0; j < i; j++) {
+                free(file_state->text_buffer[j]);
+            }
+            free(file_state->text_buffer);
+            free(file_state);
+            return NULL;
+        }
     }
 
     file_state->line_count = 0;
