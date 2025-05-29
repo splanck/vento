@@ -6,7 +6,12 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "input.h"
+#include "clipboard.h"
 #include "syntax.h"
+
+#ifndef BUTTON1_DRAGGED
+#define BUTTON1_DRAGGED (BUTTON1_PRESSED | REPORT_MOUSE_POSITION)
+#endif
 
 char *strdup(const char *s);  // Explicitly declare strdup
 
@@ -465,6 +470,37 @@ void move_backward_to_previous_word(FileState *fs) {
             fs->cursor_x = 1;
             break;
         }
+    }
+}
+
+void handle_mouse_event(FileState *fs, MEVENT *ev) {
+    int mx = ev->x;
+    int my = ev->y - 1; // account for window border
+
+    if (mx < COLS - 2 && my >= 0 && my < LINES - BOTTOM_MARGIN) {
+        fs->cursor_x = mx;
+        fs->cursor_y = my + 1;
+    }
+
+    if (ev->bstate & BUTTON1_PRESSED) {
+        start_selection_mode(fs, fs->cursor_x, fs->cursor_y);
+    }
+
+    if (ev->bstate & BUTTON1_RELEASED) {
+        end_selection_mode(fs);
+    }
+
+    if (ev->bstate & BUTTON1_DRAGGED) {
+        fs->sel_end_x = fs->cursor_x;
+        fs->sel_end_y = fs->cursor_y;
+    }
+
+    if (ev->bstate & BUTTON4_PRESSED) {
+        handle_key_up(fs);
+    }
+
+    if (ev->bstate & BUTTON5_PRESSED) {
+        handle_key_down(fs);
     }
 }
 

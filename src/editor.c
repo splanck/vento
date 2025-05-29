@@ -576,17 +576,7 @@ void run_editor() {
             redraw();
         } else if (ch == KEY_MOUSE) {
             if (getmouse(&event) == OK) {
-                // Check if the mouse event is a click within the text window
-                if (event.bstate & BUTTON1_PRESSED) {
-                    int new_x = event.x;
-                    int new_y = event.y;
-
-                    // Convert the mouse position to cursor position
-                    if (new_x < COLS - 2 && new_y < LINES - 3) {
-                        active_file->cursor_x = new_x;
-                        active_file->cursor_y = new_y - 1;
-                    }
-                }
+                handle_mouse_event(active_file, &event);
             }
         } else {
             handle_regular_mode(active_file, ch);
