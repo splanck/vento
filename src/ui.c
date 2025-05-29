@@ -560,4 +560,23 @@ void show_find_dialog(char *output, int max_input_len) {
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
 }
 
+void show_settings_dialog(AppConfig *cfg) {
+    (void)cfg;
+    int win_height = 5;
+    int win_width = 40;
+    int win_y = (LINES - win_height) / 2;
+    int win_x = (COLS - win_width) / 2;
+
+    WINDOW *win = newwin(win_height, win_width, win_y, win_x);
+    box(win, 0, 0);
+    mvwprintw(win, 2, 2, "Settings dialog not implemented");
+    mvwprintw(win, 3, 2, "Press any key to continue");
+    wrefresh(win);
+    wgetch(win);
+    wclear(win);
+    wrefresh(win);
+    delwin(win);
+    wrefresh(stdscr);
+}
+
 

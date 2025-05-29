@@ -21,6 +21,7 @@ void menuSaveAs(void);
 void menuCloseFile(void);
 void menuNextFile(void);
 void menuPrevFile(void);
+void menuSettings(void);
 void menuQuitEditor(void);
 void menuUndo(void);
 void menuRedo(void);
