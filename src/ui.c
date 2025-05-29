@@ -43,7 +43,7 @@ void show_help() {
     mvwprintw(help_win, 3, 2, "CTRL-H: Show this help");
     mvwprintw(help_win, 4, 2, "CTRL-A: About");
     mvwprintw(help_win, 5, 2, "CTRL-L: Load a new file (browse files)");
-    mvwprintw(help_win, 6, 2, "CTRL-O: Save as");
+    mvwprintw(help_win, 6, 2, "CTRL-O: Save As (browse dir or name)");
     mvwprintw(help_win, 7, 2, "CTRL-P: Save");
     mvwprintw(help_win, 8, 2, "CTRL-J: Start/Stop selection mode");
     mvwprintw(help_win, 9, 2, "CTRL-K: Paste from clipboard");
