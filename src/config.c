@@ -9,6 +9,7 @@
 #include "syntax.h"
 
 int enable_color = 1; // global flag used throughout the editor
+int enable_mouse = 1; // global mouse flag
 
 // default application configuration
 AppConfig app_config = {
@@ -18,7 +19,8 @@ AppConfig app_config = {
     .string_color = "YELLOW",
     .type_color = "MAGENTA",
     .symbol_color = "RED",
-    .enable_color = 1
+    .enable_color = 1,
+    .enable_mouse = 1
 };
 
 // Helper to map color name to ncurses constant
@@ -59,7 +61,8 @@ void config_save(const AppConfig *cfg) {
         "string_color",
         "type_color",
         "symbol_color",
-        "enable_color"
+        "enable_color",
+        "enable_mouse"
     };
 
     char path[256];
@@ -74,6 +77,7 @@ void config_save(const AppConfig *cfg) {
     fprintf(f, "%s=%s\n", keys[4], cfg->type_color);
     fprintf(f, "%s=%s\n", keys[5], cfg->symbol_color);
     fprintf(f, "%s=%s\n", keys[6], cfg->enable_color ? "true" : "false");
+    fprintf(f, "%s=%s\n", keys[7], cfg->enable_mouse ? "true" : "false");
     fclose(f);
 }
 
@@ -123,6 +127,8 @@ void config_load(AppConfig *cfg) {
             tmp.symbol_color[sizeof(tmp.symbol_color)-1] = '\0';
         } else if (strcmp(key, "enable_color") == 0) {
             tmp.enable_color = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0);
+        } else if (strcmp(key, "enable_mouse") == 0) {
+            tmp.enable_mouse = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0);
         } else {
             // Unknown key, ignore
             continue;
@@ -132,6 +138,7 @@ void config_load(AppConfig *cfg) {
 
     *cfg = tmp;
     enable_color = cfg->enable_color;
+    enable_mouse = cfg->enable_mouse;
 
     if (enable_color) {
         start_color();
