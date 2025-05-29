@@ -37,6 +37,7 @@ Vento currently supports the following features:
 - **Help Screen**: Press `CTRL-H` for a guide to Vento's features.
 - **About Box**: Press `CTRL-A` to view product information, version, and GPL message.
  - **Menu System**: Intuitive menu navigation for editor features.
+- **Mouse Support**: Click to move the cursor, drag to select text, scroll with the wheel, and click the menu bar and its items.
 
 ## Configuration File
 
@@ -66,7 +67,6 @@ The following features are planned for future releases:
 
 - **Syntax Highlighting**: Support for more languages and improved highlighting.
 - **Large File Support**: Improved optimizations for handling large files.
-- **Mouse Support**: Navigate the user interface and files using a mouse.
 - **FTP Support**: Access files on FTP servers as if they were locally stored.
 - **Theme Support**: Multiple built in themes for easy visual customization.
 - **Spell Checker Support**: Automatically detect and correct typos.
