@@ -495,6 +495,55 @@ int show_save_file_dialog(char *path, int max_len) {
     return 0;
 }
 
+int show_scrollable_window(const char **options, int count) {
+    int highlight = 0;
+    int ch;
+    int start = 0;
+
+    if (count <= 0)
+        return -1;
+
+    while (1) {
+        clear();
+
+        int max_display = LINES - 2; // reserve line for instructions
+        if (highlight < start)
+            start = highlight;
+        if (highlight >= start + max_display)
+            start = highlight - max_display + 1;
+
+        for (int i = 0; i < max_display && i + start < count; ++i) {
+            int idx = i + start;
+            if (idx == highlight)
+                attron(A_REVERSE);
+            mvprintw(i, 0, "%s", options[idx]);
+            attroff(A_REVERSE);
+        }
+
+        for (int i = count - start; i < max_display; ++i) {
+            mvprintw(i, 0, "%*s", COLS - 1, "");
+        }
+
+        mvprintw(LINES - 1, 0, "Arrows: move  Enter: select  ESC: cancel");
+        refresh();
+
+        ch = getch();
+        if (ch == KEY_UP) {
+            if (highlight > 0)
+                --highlight;
+        } else if (ch == KEY_DOWN) {
+            if (highlight < count - 1)
+                ++highlight;
+        } else if (ch == '\n') {
+            return highlight;
+        } else if (ch == 27) {
+            return -1;
+        }
+    }
+
+    return -1;
+}
+
 /**
  * Shows a find dialog window and accepts a string from the user.
  * The entered string is stored in the 'output' parameter.
