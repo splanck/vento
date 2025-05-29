@@ -303,9 +303,26 @@ void get_dir_contents(const char *dir_path, char ***choices, int *n_choices) {
     rewinddir(dir);
 
     *choices = (char **)malloc(count * sizeof(char *));
+    if (!*choices) {
+        closedir(dir);
+        *choices = NULL;
+        *n_choices = 0;
+        return;
+    }
+
     int i = 0;
     while ((entry = readdir(dir)) != NULL) {
         (*choices)[i] = strdup(entry->d_name);
+        if (!(*choices)[i]) {
+            for (int j = 0; j < i; ++j) {
+                free((*choices)[j]);
+            }
+            free(*choices);
+            closedir(dir);
+            *choices = NULL;
+            *n_choices = 0;
+            return;
+        }
         i++;
     }
     closedir(dir);
