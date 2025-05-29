@@ -12,6 +12,6 @@ void free_dir_contents(char **choices, int n_choices);
 void show_find_dialog(char *output, int max_input_len);
 int show_open_file_dialog(char *path, int max_len);
 int show_save_file_dialog(char *path, int max_len);
-void show_settings_dialog(AppConfig *cfg);
+int show_settings_dialog(AppConfig *cfg);
 
 #endif // UI_H
