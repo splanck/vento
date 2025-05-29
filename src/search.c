@@ -7,6 +7,8 @@
 #include "search.h"
 #include "files.h"
 
+extern char search_text[256];
+
 void find_next_occurrence(FileState *fs, const char *word) {
     int *cursor_x = &fs->cursor_x;
     int *cursor_y = &fs->cursor_y;
@@ -91,18 +93,21 @@ void find_next_occurrence(FileState *fs, const char *word) {
 
 void find(FileState *fs, int new_search)
 {
-    (void)new_search;
-    char *output = malloc(256 * sizeof(char));
-    if (!output) {
-        mvprintw(LINES - 2, 0, "Memory allocation failed.");
-        refresh();
-        return;
+    char output[256];
+
+    if (new_search) {
+        while (1) {
+            show_find_dialog(search_text, output, sizeof(output));
+            if (output[0] == '\0')
+                break;
+
+            strncpy(search_text, output, sizeof(search_text) - 1);
+            search_text[sizeof(search_text) - 1] = '\0';
+            find_next_occurrence(fs, search_text);
+        }
+    } else {
+        if (search_text[0] != '\0')
+            find_next_occurrence(fs, search_text);
     }
-
-    *output = '\0';
-    show_find_dialog(output, 20);
-
-    find_next_occurrence(fs, output);
-    free(output);
 }
 

@@ -172,6 +172,7 @@ void create_dialog(const char *message, char *output, int max_input_len) {
 
     // Get user input with maximum length check
     int ch, input_len = 0;
+    int cancelled = 0;
     while ((ch = wgetch(dialog_win)) != '\n' && input_len < max_input_len - 1) {
         if (isprint(ch)) {
             mvwprintw(dialog_win, input_y, input_x + 7 + input_len, "%c", ch);
@@ -188,7 +189,10 @@ void create_dialog(const char *message, char *output, int max_input_len) {
             }
         }
     }
-    output[input_len] = '\0';  // Add null terminator to the input string
+    if (cancelled)
+        output[0] = '\0';
+    else
+        output[input_len] = '\0';  // Add null terminator to the input string
 
     // Clean up the dialog window
     wclear(dialog_win);
@@ -490,7 +494,7 @@ int show_save_file_dialog(char *path, int max_len) {
  * @param output The buffer to store the user's input.
  * @param max_input_len The maximum length of the user's input.
  */
-void show_find_dialog(char *output, int max_input_len) {
+void show_find_dialog(const char *initial, char *output, int max_input_len) {
     // Define colors
     start_color();
     init_pair(1, COLOR_WHITE, COLOR_BLUE); // Background color for dialog
@@ -523,10 +527,19 @@ void show_find_dialog(char *output, int max_input_len) {
     wattron(dialog_win, COLOR_PAIR(2)); // Set input text color
     mvwprintw(dialog_win, input_y, input_x, "Input: ");
     wattroff(dialog_win, COLOR_PAIR(2));
-    wmove(dialog_win, input_y, input_x + 7);  // Move cursor after "Input: "
-
+    int input_len = 0;
+    if (initial && *initial) {
+        strncpy(output, initial, max_input_len - 1);
+        output[max_input_len - 1] = '\0';
+        mvwprintw(dialog_win, input_y, input_x + 7, "%s", output);
+        input_len = (int)strlen(output);
+    } else {
+        output[0] = '\0';
+    }
+    wmove(dialog_win, input_y, input_x + 7 + input_len);  // Move cursor after "Input: "
     // Get user input with maximum length check
-    int ch, input_len = 0;
+    int ch;
+    int cancelled = 0;
     while ((ch = wgetch(dialog_win)) != '\n' && input_len < max_input_len - 1) {
         if (dialog_win != NULL) {
             if (isprint(ch)) {
@@ -546,13 +559,17 @@ void show_find_dialog(char *output, int max_input_len) {
                     wrefresh(dialog_win);
                 }
             } else if (ch == 27) { // ESC key
+                cancelled = 1;
                 break;
             }
         } else {
             break;
         }
     }
-    output[input_len] = '\0';  // Add null terminator to the input string
+    if (cancelled)
+        output[0] = '\0';
+    else
+        output[input_len] = '\0';  // Add null terminator to the input string
 
     // Clean up the dialog window
     wclear(dialog_win);
