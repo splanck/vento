@@ -54,6 +54,7 @@ void update_status_bar(struct FileState *fs);
 void handle_resize(int sig);
 void cleanup_on_exit(struct FileManager *fm);
 void disable_ctrl_c_z(void);
+void apply_colors(void);
 void next_file(struct FileState *fs, int *cx, int *cy);
 void prev_file(struct FileState *fs, int *cx, int *cy);
 void allocation_failed(const char *msg);
