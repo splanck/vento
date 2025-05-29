@@ -142,7 +142,8 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                 break;
             case KEY_MOUSE: {
                 MEVENT ev;
-                if (getmouse(&ev) == OK && (ev.bstate & BUTTON1_PRESSED)) {
+                if (getmouse(&ev) == OK &&
+                    (ev.bstate & (BUTTON1_PRESSED | BUTTON1_RELEASED))) {
                     int startX = (*currentMenu) * 10;
                     int startY = 1;
                     int boxWidth = 20;
