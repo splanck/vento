@@ -165,6 +165,8 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                 if (*currentItem < menus[*currentMenu].itemCount - 1) (*currentItem)++; // Move to the next item in the current menu
                 break;
             case KEY_MOUSE: {
+                if (!enable_mouse)
+                    break;
                 MEVENT ev;
                 if (getmouse(&ev) == OK &&
                     (ev.bstate & (BUTTON1_PRESSED |
