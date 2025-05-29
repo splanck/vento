@@ -18,7 +18,7 @@ char *strdup(const char *s);
  */
 void show_help() {
     // Window size and position adjustments
-    int win_height = 16;
+    int win_height = 18;
     int win_width = COLS - 40;
     int win_y = (LINES - win_height) / 2;
     int win_x = (COLS - win_width) / 2;
@@ -64,6 +64,8 @@ void show_help() {
     mvwprintw(help_win, 11, win_width / 2, "CTRL-PgUp: Move to top of doc");
     mvwprintw(help_win, 12, win_width / 2, "CTRL-PgDn: Move to end of doc");
     mvwprintw(help_win, 13, win_width / 2, "F5: Insert blank line");
+    mvwprintw(help_win, 14, win_width / 2, "F6: Next file");
+    mvwprintw(help_win, 15, win_width / 2, "F7: Previous file");
 
     // Wait for any keypress to close the dialog
     mvwprintw(help_win, win_height - 1, (win_width - strlen("(Press any key to close)")) / 2, "(Press any key to close)");
