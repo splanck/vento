@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <strings.h>
 #include "config.h"
 #include "ui.h"
 
@@ -560,23 +561,76 @@ void show_find_dialog(char *output, int max_input_len) {
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
 }
 
-void show_settings_dialog(AppConfig *cfg) {
-    (void)cfg;
-    int win_height = 5;
-    int win_width = 40;
+static void show_message(const char *msg) {
+    int win_height = 3;
+    int win_width = strlen(msg) + 4;
     int win_y = (LINES - win_height) / 2;
     int win_x = (COLS - win_width) / 2;
 
     WINDOW *win = newwin(win_height, win_width, win_y, win_x);
     box(win, 0, 0);
-    mvwprintw(win, 2, 2, "Settings dialog not implemented");
-    mvwprintw(win, 3, 2, "Press any key to continue");
+    mvwprintw(win, 1, 2, "%s", msg);
     wrefresh(win);
     wgetch(win);
     wclear(win);
     wrefresh(win);
     delwin(win);
     wrefresh(stdscr);
+}
+
+static void str_to_upper(char *dst, const char *src, size_t dst_size) {
+    size_t i;
+    for (i = 0; i + 1 < dst_size && src[i]; ++i) {
+        dst[i] = toupper((unsigned char)src[i]);
+    }
+    dst[i] = '\0';
+}
+
+int show_settings_dialog(AppConfig *cfg) {
+    AppConfig original = *cfg;
+    char input[32];
+    char prompt[64];
+
+    snprintf(prompt, sizeof(prompt), "Enable color (0/1) [%d]", cfg->enable_color);
+    create_dialog(prompt, input, sizeof(input));
+    if (input[0] != '\0') {
+        if (strcmp(input, "1") == 0 || strcasecmp(input, "true") == 0) {
+            cfg->enable_color = 1;
+        } else if (strcmp(input, "0") == 0 || strcasecmp(input, "false") == 0) {
+            cfg->enable_color = 0;
+        } else {
+            show_message("Invalid value, keeping previous");
+        }
+    }
+
+    struct {
+        const char *name;
+        char *value;
+    } fields[] = {
+        {"Background color", cfg->background_color},
+        {"Keyword color", cfg->keyword_color},
+        {"Comment color", cfg->comment_color},
+        {"String color", cfg->string_color},
+        {"Type color", cfg->type_color},
+        {"Symbol color", cfg->symbol_color},
+    };
+
+    for (size_t i = 0; i < sizeof(fields)/sizeof(fields[0]); ++i) {
+        snprintf(prompt, sizeof(prompt), "%s [%s]", fields[i].name, fields[i].value);
+        create_dialog(prompt, input, sizeof(input));
+        if (input[0] == '\0')
+            continue;
+        char upper[16];
+        str_to_upper(upper, input, sizeof(upper));
+        if (get_color_code(upper) != -1) {
+            strncpy(fields[i].value, upper, 15);
+            fields[i].value[15] = '\0';
+        } else {
+            show_message("Invalid color name");
+        }
+    }
+
+    return memcmp(&original, cfg, sizeof(AppConfig)) != 0;
 }
 
 

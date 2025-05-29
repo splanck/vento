@@ -212,7 +212,12 @@ void menuPrevFile() {
 }
 
 void menuSettings() {
-    show_settings_dialog(&app_config);
+    if (show_settings_dialog(&app_config)) {
+        config_save(&app_config);
+        config_load(&app_config);
+        redraw();
+        drawBar();
+    }
 }
 
 void menuQuitEditor() {
