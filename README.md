@@ -23,8 +23,8 @@ Vento currently supports the following features:
 - **Load Files**: Press `CTRL-L` to open a dialog for browsing directories or typing a filename, then edit the selected file.
 - **Create New File**: Start a new document easily.
 - **Save As**: Press `CTRL-O` or choose "Save As" from the File menu to open a dialog for browsing directories or typing a new filename.
-- **Save Feature**: Save changes without being prompted for a filename each time.
-- **Undo and Redo**: Undo and redo actions to correct mistakes.
+- **Save Feature**: Press `CTRL-S` to save changes without being prompted for a filename each time.
+- **Undo and Redo**: Press `CTRL-Z` to undo and `CTRL-Y` to redo actions.
 - **Find**: Press `CTRL-F` to open a search dialog that can stay open so you can repeat searches.
 - **Replace**: Press `CTRL-R` or choose **Edit -> Replace** to search and replace text.
 - **Delete Current Line**: Press `CTRL-D` to delete the current line.
