@@ -28,5 +28,6 @@ void highlight_no_syntax(WINDOW *win, const char *line, int y);
 void highlight_python_syntax(WINDOW *win, const char *line, int y);
 void highlight_csharp_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
 void sync_multiline_comment(struct FileState *fs, int line);
+void mark_comment_state_dirty(struct FileState *fs);
 
 #endif // SYNTAX_H

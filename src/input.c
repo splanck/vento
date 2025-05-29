@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "input.h"
+#include "syntax.h"
 
 char *strdup(const char *s);  // Explicitly declare strdup
 
@@ -111,6 +112,7 @@ void handle_key_backspace(FileState *fs) {
     werase(text_win);
     box(text_win, 0, 0);
     draw_text_buffer(active_file, text_win);
+    mark_comment_state_dirty(fs);
 }
 
 /**
@@ -137,6 +139,7 @@ void handle_key_delete(FileState *fs) {
     werase(text_win);
     box(text_win, 0, 0);
     draw_text_buffer(active_file, text_win);
+    mark_comment_state_dirty(fs);
 }
 
 /**
@@ -174,6 +177,7 @@ void handle_key_enter(FileState *fs) {
         werase(text_win);
         box(text_win, 0, 0);
         draw_text_buffer(active_file, text_win);
+        mark_comment_state_dirty(fs);
     }
 }
 
@@ -346,6 +350,7 @@ void handle_default_key(FileState *fs, int ch) {
         char *new_text = strdup(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
         Change change = { fs->cursor_y - 1 + fs->start_line, old_text, new_text };
         push(&fs->undo_stack, change);
+        mark_comment_state_dirty(fs);
     }
 
     // Redraw the text buffer

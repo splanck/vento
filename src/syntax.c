@@ -93,6 +93,11 @@ void sync_multiline_comment(FileState *fs, int line) {
     fs->last_comment_state = in_comment;
 }
 
+void mark_comment_state_dirty(FileState *fs) {
+    fs->last_scanned_line = 0;
+    fs->last_comment_state = false;
+}
+
 
 /**
  * Applies syntax highlighting to a line of text based on the current syntax mode.
