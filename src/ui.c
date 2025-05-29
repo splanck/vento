@@ -45,14 +45,14 @@ void show_help() {
     mvwprintw(help_win, 4, 2, "CTRL-A: About");
     mvwprintw(help_win, 5, 2, "CTRL-L: Load a new file (browse files)");
     mvwprintw(help_win, 6, 2, "CTRL-O: Save As (browse dir or name)");
-    mvwprintw(help_win, 7, 2, "CTRL-P: Save");
+    mvwprintw(help_win, 7, 2, "CTRL-S: Save");
     mvwprintw(help_win, 8, 2, "CTRL-J: Start/Stop selection mode");
-    mvwprintw(help_win, 9, 2, "CTRL-K: Paste from clipboard");
+    mvwprintw(help_win, 9, 2, "CTRL-V: Paste from clipboard");
     mvwprintw(help_win, 10, 2, "CTRL-N: New file");
-    mvwprintw(help_win, 11, 2, "CTRL-R: Redo");
-    mvwprintw(help_win, 12, 2, "CTRL-U: Undo");
+    mvwprintw(help_win, 11, 2, "CTRL-Y: Redo");
+    mvwprintw(help_win, 12, 2, "CTRL-Z: Undo");
     mvwprintw(help_win, 13, 2, "CTRL-F: Search for text string");
-    mvwprintw(help_win, 14, 2, "CTRL-S: Replace text");
+    mvwprintw(help_win, 14, 2, "CTRL-R: Replace text");
 
     // Print the second column of commands and keybindings
     mvwprintw(help_win, 3, win_width / 2, "CTRL-X: Quit");
