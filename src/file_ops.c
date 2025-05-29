@@ -63,7 +63,8 @@ void load_file(FileState *fs_unused, const char *filename) {
     active_file = fs;
 
     fs->syntax_mode = set_syntax_mode(filename);
-    strcpy(fs->filename, filename);
+    strncpy(fs->filename, filename, sizeof(fs->filename) - 1);
+    fs->filename[sizeof(fs->filename) - 1] = '\0';
 
     initialize_buffer();
 
