@@ -3,7 +3,6 @@
 
 #include <ncurses.h>
 #include <string.h>
-
 typedef struct Change {
     int line;
     char *old_text;
@@ -14,6 +13,7 @@ typedef struct Node {
     Change change;
     struct Node *next;
 } Node;
+
 
 #define DEFAULT_BUFFER_LINES 5000
 
@@ -38,13 +38,7 @@ typedef struct {
 
 extern WINDOW *text_win;
 extern struct FileState *active_file;
-struct FileManager;
 extern struct FileManager file_manager;
-void fm_init(struct FileManager *fm);
-struct FileState *fm_current(struct FileManager *fm);
-int fm_add(struct FileManager *fm, struct FileState *fs);
-void fm_close(struct FileManager *fm, int index);
-int fm_switch(struct FileManager *fm, int index);
 void handle_regular_mode(struct FileState *fs, int ch);
 void initialize(void);
 void draw_text_buffer(struct FileState *fs, WINDOW *win);
@@ -57,7 +51,6 @@ void delete_current_line(struct FileState *fs);
 void insert_new_line(struct FileState *fs);
 void update_status_bar(struct FileState *fs);
 void handle_resize(int sig);
-struct FileManager;
 void cleanup_on_exit(struct FileManager *fm);
 void disable_ctrl_c_z(void);
 void next_file(struct FileState *fs, int *cx, int *cy);
