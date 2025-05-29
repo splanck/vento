@@ -31,3 +31,7 @@ uninstall:
 
 clean:
 	rm -f $(OBJ_DIR)/*.o $(BIN_DIR)/vento
+
+# Runs the unit tests
+test:
+	sh tests/run_tests.sh
