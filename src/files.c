@@ -7,6 +7,7 @@
 FileState *initialize_file_state(const char *filename, int max_lines, int max_cols) {
     FileState *file_state = malloc(sizeof(FileState));
     strncpy(file_state->filename, filename, sizeof(file_state->filename) - 1);
+    file_state->filename[sizeof(file_state->filename) - 1] = '\0';
 
     // Initialize text buffer
     file_state->text_buffer = malloc(max_lines * sizeof(char *));
