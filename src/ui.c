@@ -295,7 +295,7 @@ int show_open_file_dialog(char *path, int max_len) {
         int n_choices = 0;
         get_dir_contents(cwd, &choices, &n_choices);
 
-        int max_display = LINES - 3; // reserve one line for dir and one for input
+        int max_display = LINES - 3; // reserve lines for dir, instructions and input
         if (highlight < start)
             start = highlight;
         if (highlight >= start + max_display)
@@ -313,6 +313,7 @@ int show_open_file_dialog(char *path, int max_len) {
             mvprintw(i + 1, 0, "%*s", COLS - 1, "");
         }
 
+        mvprintw(LINES - 2, 0, "Arrows: move  Enter: select  ESC: cancel");
         mvprintw(LINES - 1, 0, "Path: %s", input);
         move(LINES - 1, 6 + input_len);
         refresh();
