@@ -87,7 +87,7 @@ void load_file(FileState *fs_unused, const char *filename) {
         fs->line_count = 0;
         while (1) {
             ensure_line_capacity(fs, fs->line_count + 1);
-            if (!fgets(fs->text_buffer[fs->line_count], COLS - 3, fp))
+            if (!fgets(fs->text_buffer[fs->line_count], fs->line_capacity, fp))
                 break;
             fs->text_buffer[fs->line_count][strcspn(fs->text_buffer[fs->line_count], "\n")] = '\0';
             fs->line_count++;

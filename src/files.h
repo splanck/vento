@@ -11,6 +11,7 @@ typedef struct FileState {
     int max_lines;
     int start_line;
     int cursor_x, cursor_y;
+    int line_capacity;
     Node *undo_stack;
     Node *redo_stack;
     bool selection_mode;

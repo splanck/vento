@@ -80,11 +80,11 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
         char *dest = fs->text_buffer[*cursor_y - 1 + fs->start_line];
         size_t dest_len = strlen(dest);
 
-        if (dest_len + len >= (size_t)(COLS - 3)) {
-            if (dest_len >= (size_t)(COLS - 3) - 1) {
+        if (dest_len + len >= (size_t)fs->line_capacity) {
+            if (dest_len >= (size_t)(fs->line_capacity - 1)) {
                 break;  // No space to paste
             }
-            len = (COLS - 3) - dest_len - 1;
+            len = fs->line_capacity - dest_len - 1;
         }
 
         memmove(&dest[*cursor_x - 1 + len],
