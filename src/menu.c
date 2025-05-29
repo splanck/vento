@@ -110,6 +110,10 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
     bool inMenu = true;
 
     while (inMenu) {
+        if (*currentMenu < 0 || *currentMenu >= menuCount) {
+            inMenu = false;
+            continue;
+        }
         // Redraw the editor content
         werase(text_win);
         box(text_win, 0, 0);
@@ -121,7 +125,20 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
         for (int i = 0; i < menuCount; ++i) {
             mvprintw(0, i * 10, "%s", menus[i].label);
         }
-        drawMenu(&menus[*currentMenu], *currentItem, *currentMenu * 10, 1);
+
+        if (menus[*currentMenu].items == NULL) {
+            inMenu = false;
+            refresh();
+            continue;
+        }
+
+        int startX = (*currentMenu) * 10;
+        int startY = 1;
+        if (!drawMenu(&menus[*currentMenu], *currentItem, startX, startY)) {
+            inMenu = false;
+            refresh();
+            continue;
+        }
         refresh();
 
         ch = getch();
@@ -144,17 +161,27 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                 MEVENT ev;
                 if (getmouse(&ev) == OK &&
                     (ev.bstate & (BUTTON1_PRESSED | BUTTON1_RELEASED))) {
+                    fprintf(stderr, "mouse x=%d y=%d\n", ev.x, ev.y);
                     int startX = (*currentMenu) * 10;
                     int startY = 1;
                     int boxWidth = 20;
                     int boxHeight = menus[*currentMenu].itemCount + 2;
+                    if (startX < 0 || startY < 0 ||
+                        startX + boxWidth > COLS ||
+                        startY + boxHeight > LINES) {
+                        inMenu = false;
+                        break;
+                    }
 
                     if (ev.x >= startX && ev.x < startX + boxWidth &&
                         ev.y >= startY && ev.y < startY + boxHeight) {
                         int row = ev.y - startY - 1;
                         if (row >= 0 && row < menus[*currentMenu].itemCount) {
                             *currentItem = row;
-                            drawMenu(&menus[*currentMenu], *currentItem, startX, startY);
+                            if (!drawMenu(&menus[*currentMenu], *currentItem, startX, startY)) {
+                                inMenu = false;
+                                break;
+                            }
                             refresh();
                             menus[*currentMenu].items[*currentItem].action();
                             inMenu = false;
@@ -166,7 +193,10 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                 break;
             }
             case '\n': // Enter key
-                menus[*currentMenu].items[*currentItem].action(); // Execute the action associated with the selected menu item
+                if (*currentItem >= 0 && *currentItem < menus[*currentMenu].itemCount &&
+                    menus[*currentMenu].items != NULL) {
+                    menus[*currentMenu].items[*currentItem].action(); // Execute the action associated with the selected menu item
+                }
                 inMenu = false; // Exit the menu loop
                 break;
             case 27: // ESC key
@@ -186,12 +216,21 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
  * @param startX The starting x-coordinate of the menu window.
  * @param startY The starting y-coordinate of the menu window.
  */
-void drawMenu(Menu *menu, int currentItem, int startX, int startY) {
+bool drawMenu(Menu *menu, int currentItem, int startX, int startY) {
     int boxWidth = 20;
     int boxHeight = menu->itemCount + 2;
 
+    if (startX < 0 || startY < 0 || startX + boxWidth > COLS ||
+        startY + boxHeight > LINES) {
+        return false;
+    }
+
     // Create a new window for the menu
     WINDOW *menuWin = newwin(boxHeight, boxWidth, startY, startX);
+    if (menuWin == NULL) {
+        fprintf(stderr, "Failed to create menu window\n");
+        return false;
+    }
     box(menuWin, 0, 0);
 
     // Draw each menu item
@@ -207,6 +246,7 @@ void drawMenu(Menu *menu, int currentItem, int startX, int startY) {
 
     wrefresh(menuWin); // Refresh the menu window
     delwin(menuWin); // Delete the menu window
+    return true;
 }
 
 void menuNewFile() {
