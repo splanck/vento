@@ -322,12 +322,13 @@ void handle_tab_key(FileState *fs) {
     const int TAB_SIZE = 4;
     int inserted = 0;
 
-    if (fs->cursor_x >= COLS - 6)
+    /* Prevent inserting beyond the allocated line capacity */
+    if (fs->cursor_x >= fs->line_capacity - 1)
         return;
 
     char *old_text = strdup(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
 
-    while (inserted < TAB_SIZE && fs->cursor_x < COLS - 6) {
+    while (inserted < TAB_SIZE && fs->cursor_x < fs->line_capacity - 1) {
         int len = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
 
         if (fs->cursor_x <= len) {
@@ -374,7 +375,8 @@ void handle_default_key(FileState *fs, int ch) {
         handle_tab_key(fs);
         return;
     }
-    if (fs->cursor_x < COLS - 6) {
+    /* Limit insertion to available line capacity */
+    if (fs->cursor_x < fs->line_capacity - 1) {
         int len = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
         char *old_text = strdup(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
 
