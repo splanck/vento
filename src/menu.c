@@ -7,6 +7,7 @@
 #include "file_ops.h"
 #include "ui.h"
 #include "undo.h"
+#include "config.h"
 
 Menu *menus = NULL;
 int menuCount = 0;
@@ -42,7 +43,7 @@ void initializeMenus() {
     }
 
     // Create the file menu
-    MenuItem *fileMenuItems = malloc(8 * sizeof(MenuItem));
+    MenuItem *fileMenuItems = malloc(9 * sizeof(MenuItem));
     if (fileMenuItems == NULL) {
         fprintf(stderr, "Failed to allocate memory for file menu items\n");
         freeMenus();
@@ -52,13 +53,14 @@ void initializeMenus() {
     fileMenuItems[1] = (MenuItem){"Load File", menuLoadFile};
     fileMenuItems[2] = (MenuItem){"Save File", menuSaveFile};
     fileMenuItems[3] = (MenuItem){"Save As", menuSaveAs};
-    fileMenuItems[4] = (MenuItem){"Close File", menuCloseFile};
-    fileMenuItems[5] = (MenuItem){"Next File", menuNextFile};
-    fileMenuItems[6] = (MenuItem){"Previous File", menuPrevFile};
-    fileMenuItems[7] = (MenuItem){"Quit", menuQuitEditor};
+    fileMenuItems[4] = (MenuItem){"Settings", menuSettings};
+    fileMenuItems[5] = (MenuItem){"Close File", menuCloseFile};
+    fileMenuItems[6] = (MenuItem){"Next File", menuNextFile};
+    fileMenuItems[7] = (MenuItem){"Previous File", menuPrevFile};
+    fileMenuItems[8] = (MenuItem){"Quit", menuQuitEditor};
 
     // Initialize and assign the file menu
-    Menu fileMenu = {"File", fileMenuItems, 8};
+    Menu fileMenu = {"File", fileMenuItems, 9};
     menus[0] = fileMenu;
 
     // Create the edit menu
@@ -207,6 +209,10 @@ void menuNextFile() {
 
 void menuPrevFile() {
     prev_file(active_file, &active_file->cursor_x, &active_file->cursor_y);
+}
+
+void menuSettings() {
+    show_settings_dialog(&app_config);
 }
 
 void menuQuitEditor() {
