@@ -2,6 +2,7 @@
 #define FILES_H
 
 #include <ncurses.h>
+#include <stdbool.h>
 #include "editor.h"
 
 typedef struct FileState {
