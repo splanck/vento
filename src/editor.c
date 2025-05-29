@@ -577,6 +577,7 @@ void run_editor() {
         } else if (ch == KEY_MOUSE) {
             if (getmouse(&event) == OK) {
                 if (menu_click_open(event.x, event.y)) {
+                    flushinp();
                     redraw();
                 } else {
                     handle_mouse_event(active_file, &event);
