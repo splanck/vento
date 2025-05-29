@@ -9,5 +9,6 @@ void get_dir_contents(const char *dir_path, char ***choices, int *n_choices);
 void free_dir_contents(char **choices, int n_choices);
 void show_find_dialog(char *output, int max_input_len);
 int show_open_file_dialog(char *path, int max_len);
+int show_save_file_dialog(char *path, int max_len);
 
 #endif // UI_H
