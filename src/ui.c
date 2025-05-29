@@ -14,15 +14,29 @@
 // Ensure the correct prototypes are available
 char *strdup(const char *s);
 
-WINDOW *create_popup_window(int height, int width) {
-    int win_y = (LINES - height) / 2;
-    int win_x = (COLS - width) / 2;
+static WINDOW *create_centered_window(int height, int width, WINDOW *parent) {
+    int win_y, win_x;
+
+    if (parent) {
+        int py, px, ph, pw;
+        getbegyx(parent, py, px);
+        getmaxyx(parent, ph, pw);
+        win_y = py + (ph - height) / 2;
+        win_x = px + (pw - width) / 2;
+    } else {
+        win_y = (LINES - height) / 2;
+        win_x = (COLS - width) / 2;
+    }
 
     WINDOW *win = newwin(height, width, win_y, win_x);
     if (win)
         box(win, 0, 0);
 
     return win;
+}
+
+WINDOW *create_popup_window(int height, int width, WINDOW *parent) {
+    return create_centered_window(height, width, parent);
 }
 
 /**
@@ -312,7 +326,7 @@ int show_open_file_dialog(char *path, int max_len) {
 
     int win_height = LINES - 4;
     int win_width = COLS - 4;
-    WINDOW *win = create_popup_window(win_height, win_width);
+    WINDOW *win = create_popup_window(win_height, win_width, NULL);
     keypad(win, TRUE);
 
     getcwd(cwd, sizeof(cwd));
@@ -436,7 +450,7 @@ int show_save_file_dialog(char *path, int max_len) {
 
     int win_height = LINES - 4;
     int win_width = COLS - 4;
-    WINDOW *win = create_popup_window(win_height, win_width);
+    WINDOW *win = create_popup_window(win_height, win_width, NULL);
     keypad(win, TRUE);
 
     getcwd(cwd, sizeof(cwd));
@@ -550,7 +564,7 @@ int show_save_file_dialog(char *path, int max_len) {
     return 0;
 }
 
-int show_scrollable_window(const char **options, int count) {
+int show_scrollable_window(const char **options, int count, WINDOW *parent) {
     int highlight = 0;
     int ch;
     int start = 0;
@@ -558,10 +572,29 @@ int show_scrollable_window(const char **options, int count) {
     if (count <= 0)
         return -1;
 
-    while (1) {
-        clear();
+    int own = 0;
+    int win_height, win_width;
+    WINDOW *win;
+    if (parent) {
+        int ph, pw;
+        getmaxyx(parent, ph, pw);
+        win_height = ph - 4;
+        win_width = pw - 4;
+        win = create_popup_window(win_height, win_width, parent);
+        own = 1;
+    } else {
+        win_height = LINES - 4;
+        win_width = COLS - 4;
+        win = create_popup_window(win_height, win_width, NULL);
+        own = 1;
+    }
+    keypad(win, TRUE);
 
-        int max_display = LINES - 2; // reserve line for instructions
+    while (1) {
+        werase(win);
+        box(win, 0, 0);
+
+        int max_display = win_height - 2; // leave last line for instructions
         if (highlight < start)
             start = highlight;
         if (highlight >= start + max_display)
@@ -570,19 +603,19 @@ int show_scrollable_window(const char **options, int count) {
         for (int i = 0; i < max_display && i + start < count; ++i) {
             int idx = i + start;
             if (idx == highlight)
-                attron(A_REVERSE);
-            mvprintw(i, 0, "%s", options[idx]);
-            attroff(A_REVERSE);
+                wattron(win, A_REVERSE);
+            mvwprintw(win, i + 1, 1, "%s", options[idx]);
+            wattroff(win, A_REVERSE);
         }
 
         for (int i = count - start; i < max_display; ++i) {
-            mvprintw(i, 0, "%*s", COLS - 1, "");
+            mvwprintw(win, i + 1, 1, "%*s", win_width - 2, "");
         }
 
-        mvprintw(LINES - 1, 0, "Arrows: move  Enter: select  ESC: cancel");
-        refresh();
+        mvwprintw(win, win_height - 1, 1, "Arrows: move  Enter: select  ESC: cancel");
+        wrefresh(win);
 
-        ch = getch();
+        ch = wgetch(win);
         if (ch == KEY_UP) {
             if (highlight > 0)
                 --highlight;
@@ -590,8 +623,20 @@ int show_scrollable_window(const char **options, int count) {
             if (highlight < count - 1)
                 ++highlight;
         } else if (ch == '\n') {
+            if (own) {
+                wclear(win);
+                wrefresh(win);
+                delwin(win);
+                wrefresh(stdscr);
+            }
             return highlight;
         } else if (ch == 27) {
+            if (own) {
+                wclear(win);
+                wrefresh(win);
+                delwin(win);
+                wrefresh(stdscr);
+            }
             return -1;
         }
     }
@@ -756,47 +801,58 @@ int show_settings_dialog(AppConfig *cfg) {
     int ch;
     int done = 0;
 
+    int win_height = FIELD_COUNT + 4;
+    int win_width = 40;
+    WINDOW *win = create_popup_window(win_height, win_width, NULL);
+    keypad(win, TRUE);
+
     while (!done) {
-        clear();
+        werase(win);
+        box(win, 0, 0);
 
         for (int i = 0; i < FIELD_COUNT; ++i) {
             if (i == highlight)
-                attron(A_REVERSE);
+                wattron(win, A_REVERSE);
 
             switch (i) {
             case FIELD_ENABLE_COLOR:
-                mvprintw(i, 0, "%s: %s", labels[i],
-                         cfg->enable_color ? "Enabled" : "Disabled");
+                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
+                          cfg->enable_color ? "Enabled" : "Disabled");
                 break;
             case FIELD_BACKGROUND:
-                mvprintw(i, 0, "%s: %s", labels[i], cfg->background_color);
+                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
+                          cfg->background_color);
                 break;
             case FIELD_KEYWORD:
-                mvprintw(i, 0, "%s: %s", labels[i], cfg->keyword_color);
+                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
+                          cfg->keyword_color);
                 break;
             case FIELD_COMMENT:
-                mvprintw(i, 0, "%s: %s", labels[i], cfg->comment_color);
+                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
+                          cfg->comment_color);
                 break;
             case FIELD_STRING:
-                mvprintw(i, 0, "%s: %s", labels[i], cfg->string_color);
+                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
+                          cfg->string_color);
                 break;
             case FIELD_TYPE:
-                mvprintw(i, 0, "%s: %s", labels[i], cfg->type_color);
+                mvwprintw(win, i + 1, 2, "%s: %s", labels[i], cfg->type_color);
                 break;
             case FIELD_SYMBOL:
-                mvprintw(i, 0, "%s: %s", labels[i], cfg->symbol_color);
+                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
+                          cfg->symbol_color);
                 break;
             }
 
             if (i == highlight)
-                attroff(A_REVERSE);
+                wattroff(win, A_REVERSE);
         }
 
-        mvprintw(FIELD_COUNT + 1, 0,
-                 "Arrows: move  Enter: change  ESC: done");
-        refresh();
+        mvwprintw(win, win_height - 2, 2,
+                  "Arrows: move  Enter: change  ESC: done");
+        wrefresh(win);
 
-        ch = getch();
+        ch = wgetch(win);
         if (ch == KEY_UP) {
             if (highlight > 0)
                 --highlight;
@@ -807,10 +863,10 @@ int show_settings_dialog(AppConfig *cfg) {
             switch (highlight) {
             case FIELD_ENABLE_COLOR:
                 cfg->enable_color =
-                    select_bool("Enable color", cfg->enable_color);
+                    select_bool("Enable color", cfg->enable_color, win);
                 break;
             case FIELD_BACKGROUND: {
-                const char *sel = select_color(cfg->background_color);
+                const char *sel = select_color(cfg->background_color, win);
                 if (sel) {
                     strncpy(cfg->background_color, sel,
                             sizeof(cfg->background_color) - 1);
@@ -820,7 +876,7 @@ int show_settings_dialog(AppConfig *cfg) {
                 break;
             }
             case FIELD_KEYWORD: {
-                const char *sel = select_color(cfg->keyword_color);
+                const char *sel = select_color(cfg->keyword_color, win);
                 if (sel) {
                     strncpy(cfg->keyword_color, sel,
                             sizeof(cfg->keyword_color) - 1);
@@ -829,7 +885,7 @@ int show_settings_dialog(AppConfig *cfg) {
                 break;
             }
             case FIELD_COMMENT: {
-                const char *sel = select_color(cfg->comment_color);
+                const char *sel = select_color(cfg->comment_color, win);
                 if (sel) {
                     strncpy(cfg->comment_color, sel,
                             sizeof(cfg->comment_color) - 1);
@@ -838,7 +894,7 @@ int show_settings_dialog(AppConfig *cfg) {
                 break;
             }
             case FIELD_STRING: {
-                const char *sel = select_color(cfg->string_color);
+                const char *sel = select_color(cfg->string_color, win);
                 if (sel) {
                     strncpy(cfg->string_color, sel,
                             sizeof(cfg->string_color) - 1);
@@ -847,7 +903,7 @@ int show_settings_dialog(AppConfig *cfg) {
                 break;
             }
             case FIELD_TYPE: {
-                const char *sel = select_color(cfg->type_color);
+                const char *sel = select_color(cfg->type_color, win);
                 if (sel) {
                     strncpy(cfg->type_color, sel,
                             sizeof(cfg->type_color) - 1);
@@ -856,7 +912,7 @@ int show_settings_dialog(AppConfig *cfg) {
                 break;
             }
             case FIELD_SYMBOL: {
-                const char *sel = select_color(cfg->symbol_color);
+                const char *sel = select_color(cfg->symbol_color, win);
                 if (sel) {
                     strncpy(cfg->symbol_color, sel,
                             sizeof(cfg->symbol_color) - 1);
@@ -870,10 +926,15 @@ int show_settings_dialog(AppConfig *cfg) {
         }
     }
 
+    wclear(win);
+    wrefresh(win);
+    delwin(win);
+    wrefresh(stdscr);
+
     return memcmp(&original, cfg, sizeof(AppConfig)) != 0;
 }
 
-const char *select_color(const char *current) {
+const char *select_color(const char *current, WINDOW *parent) {
     static const char *colors[] = {
         "BLACK", "RED", "GREEN", "YELLOW",
         "BLUE", "MAGENTA", "CYAN", "WHITE"
@@ -891,11 +952,29 @@ const char *select_color(const char *current) {
     }
 
     int start = 0;
+    int own = 0;
+    int win_height, win_width;
+    WINDOW *win;
+    if (parent) {
+        int ph, pw;
+        getmaxyx(parent, ph, pw);
+        win_height = ph - 4;
+        win_width = pw - 4;
+        win = create_popup_window(win_height, win_width, parent);
+        own = 1;
+    } else {
+        win_height = LINES - 4;
+        win_width = COLS - 4;
+        win = create_popup_window(win_height, win_width, NULL);
+        own = 1;
+    }
+    keypad(win, TRUE);
 
     while (1) {
-        clear();
+        werase(win);
+        box(win, 0, 0);
 
-        int max_display = LINES - 2; // reserve line for instructions
+        int max_display = win_height - 2; // reserve line for instructions
         if (highlight < start)
             start = highlight;
         if (highlight >= start + max_display)
@@ -904,19 +983,19 @@ const char *select_color(const char *current) {
         for (int i = 0; i < max_display && i + start < count; ++i) {
             int idx = i + start;
             if (idx == highlight)
-                attron(A_REVERSE);
-            mvprintw(i, 0, "%s", colors[idx]);
-            attroff(A_REVERSE);
+                wattron(win, A_REVERSE);
+            mvwprintw(win, i + 1, 1, "%s", colors[idx]);
+            wattroff(win, A_REVERSE);
         }
 
         for (int i = count - start; i < max_display; ++i) {
-            mvprintw(i, 0, "%*s", COLS - 1, "");
+            mvwprintw(win, i + 1, 1, "%*s", win_width - 2, "");
         }
 
-        mvprintw(LINES - 1, 0, "Arrows: move  Enter: select  ESC: cancel");
-        refresh();
+        mvwprintw(win, win_height - 1, 1, "Arrows: move  Enter: select  ESC: cancel");
+        wrefresh(win);
 
-        int ch = getch();
+        int ch = wgetch(win);
         if (ch == KEY_UP) {
             if (highlight > 0)
                 --highlight;
@@ -924,8 +1003,20 @@ const char *select_color(const char *current) {
             if (highlight < count - 1)
                 ++highlight;
         } else if (ch == '\n') {
+            if (own) {
+                wclear(win);
+                wrefresh(win);
+                delwin(win);
+                wrefresh(stdscr);
+            }
             return colors[highlight];
         } else if (ch == 27) {
+            if (own) {
+                wclear(win);
+                wrefresh(win);
+                delwin(win);
+                wrefresh(stdscr);
+            }
             return NULL;
         }
     }
@@ -933,27 +1024,43 @@ const char *select_color(const char *current) {
     return NULL;
 }
 
-int select_bool(const char *prompt, int current) {
+int select_bool(const char *prompt, int current, WINDOW *parent) {
     static const char *options[] = {"Disabled", "Enabled"};
     int highlight = current ? 1 : 0;
 
-    while (1) {
-        clear();
+    int own = 0;
+    int win_height = 6;
+    int win_width = 20;
+    WINDOW *win;
+    if (parent) {
+        win = create_popup_window(win_height, win_width, parent);
+        own = 1;
+    } else {
+        win = create_popup_window(win_height, win_width, NULL);
+        own = 1;
+    }
+    keypad(win, TRUE);
 
-        if (prompt)
-            mvprintw(0, 0, "%s", prompt);
+    while (1) {
+        werase(win);
+        box(win, 0, 0);
+
+        int row = 1;
+        if (prompt) {
+            mvwprintw(win, row++, 1, "%s", prompt);
+        }
 
         for (int i = 0; i < 2; ++i) {
             if (highlight == i)
-                attron(A_REVERSE);
-            mvprintw(i + 1, 0, "%s", options[i]);
-            attroff(A_REVERSE);
+                wattron(win, A_REVERSE);
+            mvwprintw(win, row + i, 1, "%s", options[i]);
+            wattroff(win, A_REVERSE);
         }
 
-        mvprintw(LINES - 1, 0, "Arrows: move  Enter: select  ESC: cancel");
-        refresh();
+        mvwprintw(win, win_height - 1, 1, "Arrows: move  Enter: select  ESC: cancel");
+        wrefresh(win);
 
-        int ch = getch();
+        int ch = wgetch(win);
         if (ch == KEY_UP || ch == KEY_LEFT) {
             if (highlight > 0)
                 --highlight;
@@ -961,8 +1068,20 @@ int select_bool(const char *prompt, int current) {
             if (highlight < 1)
                 ++highlight;
         } else if (ch == '\n') {
+            if (own) {
+                wclear(win);
+                wrefresh(win);
+                delwin(win);
+                wrefresh(stdscr);
+            }
             return highlight == 1 ? 1 : 0;
         } else if (ch == 27) {
+            if (own) {
+                wclear(win);
+                wrefresh(win);
+                delwin(win);
+                wrefresh(stdscr);
+            }
             return current;
         }
     }
