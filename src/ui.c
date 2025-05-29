@@ -720,4 +720,64 @@ int show_settings_dialog(AppConfig *cfg) {
     return memcmp(&original, cfg, sizeof(AppConfig)) != 0;
 }
 
+const char *select_color(const char *current) {
+    static const char *colors[] = {
+        "BLACK", "RED", "GREEN", "YELLOW",
+        "BLUE", "MAGENTA", "CYAN", "WHITE"
+    };
+    const int count = sizeof(colors) / sizeof(colors[0]);
+
+    int highlight = 0;
+    if (current) {
+        for (int i = 0; i < count; ++i) {
+            if (strcasecmp(current, colors[i]) == 0) {
+                highlight = i;
+                break;
+            }
+        }
+    }
+
+    int start = 0;
+
+    while (1) {
+        clear();
+
+        int max_display = LINES - 2; // reserve line for instructions
+        if (highlight < start)
+            start = highlight;
+        if (highlight >= start + max_display)
+            start = highlight - max_display + 1;
+
+        for (int i = 0; i < max_display && i + start < count; ++i) {
+            int idx = i + start;
+            if (idx == highlight)
+                attron(A_REVERSE);
+            mvprintw(i, 0, "%s", colors[idx]);
+            attroff(A_REVERSE);
+        }
+
+        for (int i = count - start; i < max_display; ++i) {
+            mvprintw(i, 0, "%*s", COLS - 1, "");
+        }
+
+        mvprintw(LINES - 1, 0, "Arrows: move  Enter: select  ESC: cancel");
+        refresh();
+
+        int ch = getch();
+        if (ch == KEY_UP) {
+            if (highlight > 0)
+                --highlight;
+        } else if (ch == KEY_DOWN) {
+            if (highlight < count - 1)
+                ++highlight;
+        } else if (ch == '\n') {
+            return colors[highlight];
+        } else if (ch == 27) {
+            return NULL;
+        }
+    }
+
+    return NULL;
+}
+
 
