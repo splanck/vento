@@ -833,7 +833,10 @@ void update_status_bar(FileState *fs) {
     int idx = file_manager.active_index + 1;
     int total = file_manager.count > 0 ? file_manager.count : 1;
 
-    const char *name = strlen(fs->filename) > 0 ? fs->filename : "untitled";
+    const char *name = "untitled";
+    if (fs && fs->filename[0] != '\0') {
+        name = fs->filename;
+    }
     char display[512];
     snprintf(display, sizeof(display), "%s [%d/%d]", name, idx, total);
 
