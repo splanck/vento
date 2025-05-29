@@ -112,7 +112,8 @@ void handle_selection_mode(FileState *fs, int ch, int *cursor_x, int *cursor_y) 
         fs->sel_end_x = *cursor_x;
     }
     if (ch == KEY_RIGHT) {
-        if (*cursor_x < COLS - 6) (*cursor_x)++;
+        /* Do not allow the cursor to move past the buffer width */
+        if (*cursor_x < fs->line_capacity - 1) (*cursor_x)++;
         fs->sel_end_x = *cursor_x;
     }
     if (ch == 10) {

@@ -788,7 +788,9 @@ void handle_resize(int sig) {
     refresh(); // Refresh the screen
     clear(); // Clear the screen
 
-    /* Resize all open file windows */
+    int new_capacity = COLS - 3;
+
+    /* Resize all open file windows and buffers */
     for (int i = 0; i < file_manager.count; ++i) {
         FileState *fs = file_manager.files[i];
         if (!fs || !fs->text_win) {
@@ -796,6 +798,17 @@ void handle_resize(int sig) {
         }
         wresize(fs->text_win, LINES - 2, COLS);
         mvwin(fs->text_win, 1, 0);
+
+        if (fs->line_capacity != new_capacity) {
+            fs->line_capacity = new_capacity;
+            for (int j = 0; j < fs->max_lines; ++j) {
+                char *tmp = realloc(fs->text_buffer[j], fs->line_capacity);
+                if (!tmp)
+                    continue;
+                fs->text_buffer[j] = tmp;
+                fs->text_buffer[j][fs->line_capacity - 1] = '\0';
+            }
+        }
     }
 
     /* Use the resized window of the active file */
