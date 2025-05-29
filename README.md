@@ -22,7 +22,7 @@ Vento currently supports the following features:
 - **Basic Editor**: Provides essential text editing capabilities.
 - **Load Files**: Press `CTRL-L` to open a dialog for browsing directories or typing a filename, then edit the selected file.
 - **Create New File**: Start a new document easily.
-- **Save As**: Save your work with a new filename.
+- **Save As**: Press `CTRL-O` or choose "Save As" from the File menu to open a dialog for browsing directories or typing a new filename.
 - **Save Feature**: Save changes without being prompted for a filename each time.
 - **Undo and Redo**: Undo and redo actions to correct mistakes.
 - **Find**: Search for the next occurrance of a word.
