@@ -30,7 +30,11 @@ void save_file(FileState *fs) {
 }
 
 void save_file_as(FileState *fs) {
-    create_dialog("Save as", fs->filename, 256);
+    char newpath[256];
+    if (!show_save_file_dialog(newpath, sizeof(newpath)))
+        return;    // user cancelled
+    strncpy(fs->filename, newpath, sizeof(fs->filename) - 1);
+    fs->filename[sizeof(fs->filename) - 1] = '\0';
 
     FILE *fp = fopen(fs->filename, "w");
     if (fp) {
