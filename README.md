@@ -26,6 +26,7 @@ Vento currently supports the following features:
 - **Save Feature**: Save changes without being prompted for a filename each time.
 - **Undo and Redo**: Undo and redo actions to correct mistakes.
 - **Find**: Search for the next occurrance of a word.
+- **Replace**: Press `CTRL-S` to search and replace text.
 - **Delete Current Line**: Press `CTRL-D` to delete the current line.
 - **Word Navigation**: Use `CTRL-W` to move to the next word and `CTRL-B` to move to the previous word.
 - **Close Current File**: Press `CTRL-Q` to close the active file.
@@ -66,7 +67,6 @@ The following features are planned for future releases:
 - **Syntax Highlighting**: Support for more languages and improved highlighting.
 - **Large File Support**: Improved optimizations for handling large files.
 - **Mouse Support**: Navigate the user interface and files using a mouse.
-- **Replace**: Easily search for specific text and replace it with another.
 - **FTP Support**: Access files on FTP servers as if they were locally stored.
 - **Theme Support**: Multiple built in themes for easy visual customization.
 - **Spell Checker Support**: Automatically detect and correct typos.
