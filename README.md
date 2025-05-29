@@ -32,7 +32,8 @@ Vento currently supports the following features:
 - **Close Current File**: Press `CTRL-Q` to close the active file.
 - **Customizable Configuration**: Customize settings through a configuration file.
 - **Interactive Settings Dialog**: Open **File → Settings** and use the arrow
-  keys to choose options.
+  keys or mouse clicks to choose options. Mouse support can be enabled or
+  disabled in this dialog, and all dialogs accept mouse input.
 - **Basic Syntax Highlighting**: Simple syntax highlighting for C, HTML, and Python files.
 - **Status Bar**: Displays the current line and column number.
 - **Scroll Bar**: Indicates your position within the document.
@@ -56,6 +57,9 @@ This file is created automatically with default values if it does not exist. Unk
 - `type_color`
 - `symbol_color`
 - `enable_color`
+- `enable_mouse`
+
+Set `enable_mouse` to `false` if you want to disable mouse input entirely.
 
 ### Multi-File Support
 
