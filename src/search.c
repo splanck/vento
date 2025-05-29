@@ -97,8 +97,9 @@ void find(FileState *fs, int new_search)
 
     if (new_search) {
         while (1) {
-            show_find_dialog(search_text, output, sizeof(output));
-            if (output[0] == '\0')
+            int confirmed = show_find_dialog(output, sizeof(output),
+                                            search_text[0] ? search_text : NULL);
+            if (!confirmed || output[0] == '\0')
                 break;
 
             strncpy(search_text, output, sizeof(search_text) - 1);
