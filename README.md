@@ -136,6 +136,22 @@ defined:
 make CFLAGS="-Wall -Wextra -std=c99 -g -DDEBUG"
 ```
 
+## Running Tests
+
+To run Vento's unit tests, execute the following command from the project
+root:
+
+```bash
+make test
+```
+
+This invokes `tests/run_tests.sh`, which builds and runs the tests.  You can
+also run the script directly:
+
+```bash
+sh tests/run_tests.sh
+```
+
 ## Contributing to Vento
 
 While I am not actively seeking contributors for the Vento project, if the project interests you and you would like to contribute, please feel free to reach out. You can email me at splanck@tutamail.com.
