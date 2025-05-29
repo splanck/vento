@@ -486,7 +486,8 @@ void initialize() {
     meta(stdscr, TRUE);  // Enable 8-bit control characters
 
     // Initialize mouse support
-    mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
+    if (enable_mouse)
+        mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
     
     // Set timeout to 100 milliseconds
     timeout(10); 
@@ -584,7 +585,7 @@ void run_editor() {
             handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
             // Redraw the editor screen after closing the menu
             redraw();
-        } else if (ch == KEY_MOUSE) {
+        } else if (ch == KEY_MOUSE && enable_mouse) {
             if (getmouse(&event) == OK) {
                 if (menu_click_open(event.x, event.y)) {
                     flushinp();
