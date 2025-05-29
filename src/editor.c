@@ -359,6 +359,7 @@ void delete_current_line(FileState *fs) {
     werase(text_win);
     box(text_win, 0, 0);
     draw_text_buffer(fs, text_win);
+    mark_comment_state_dirty(fs);
 }
 
 /**
@@ -384,6 +385,7 @@ void insert_new_line(FileState *fs) {
         change.new_text = strdup("");
 
         push(&fs->undo_stack, change);
+        mark_comment_state_dirty(fs);
 
         // Move cursor to the new line
         fs->cursor_x = 1;
