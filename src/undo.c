@@ -30,29 +30,42 @@ int is_empty(Node *stack) {
 }
 
 void undo(FileState *fs) {
-    if (fs->undo_stack == NULL) return;
+    if (fs->undo_stack == NULL)
+        return;
 
     Change change = pop(&fs->undo_stack);
 
-    if (change.old_text) {
+    if (change.old_text && !change.new_text) { /* Deletion */
         ensure_line_capacity(fs, fs->line_count + 1);
         for (int i = fs->line_count; i > change.line; --i) {
-            strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
+            strncpy(fs->text_buffer[i], fs->text_buffer[i - 1], fs->line_capacity - 1);
+            fs->text_buffer[i][fs->line_capacity - 1] = '\0';
         }
         fs->line_count++;
 
-        strcpy(fs->text_buffer[change.line], change.old_text);
+        strncpy(fs->text_buffer[change.line], change.old_text, fs->line_capacity - 1);
+        fs->text_buffer[change.line][fs->line_capacity - 1] = '\0';
 
-        push(&fs->redo_stack, (Change){change.line, strdup(change.old_text), NULL});
+        push(&fs->redo_stack, (Change){ change.line, strdup(change.old_text), NULL });
         free(change.old_text);
-    } else {
+    } else if (!change.old_text && change.new_text) { /* Insertion */
         for (int i = change.line; i < fs->line_count - 1; ++i) {
-            strcpy(fs->text_buffer[i], fs->text_buffer[i + 1]);
+            strncpy(fs->text_buffer[i], fs->text_buffer[i + 1], fs->line_capacity - 1);
+            fs->text_buffer[i][fs->line_capacity - 1] = '\0';
         }
         fs->text_buffer[fs->line_count - 1][0] = '\0';
         fs->line_count--;
 
-        push(&fs->redo_stack, change);
+        push(&fs->redo_stack, (Change){ change.line, NULL, strdup(change.new_text) });
+        free(change.new_text);
+    } else if (change.old_text && change.new_text) { /* Edit */
+        strncpy(fs->text_buffer[change.line], change.old_text, fs->line_capacity - 1);
+        fs->text_buffer[change.line][fs->line_capacity - 1] = '\0';
+
+        push(&fs->redo_stack,
+             (Change){ change.line, strdup(change.old_text), strdup(change.new_text) });
+        free(change.old_text);
+        free(change.new_text);
     }
 
     werase(text_win);
@@ -62,13 +75,37 @@ void undo(FileState *fs) {
 }
 
 void redo(FileState *fs) {
-    if (fs->redo_stack == NULL) return;
+    if (fs->redo_stack == NULL)
+        return;
 
     Change change = pop(&fs->redo_stack);
 
-    if (change.new_text) {
-        push(&fs->undo_stack, (Change){change.line, strdup(fs->text_buffer[change.line]), strdup(change.new_text)});
-        strcpy(fs->text_buffer[change.line], change.new_text);
+    if (change.old_text && !change.new_text) { /* Deletion */
+        push(&fs->undo_stack, (Change){ change.line, strdup(change.old_text), NULL });
+        for (int i = change.line; i < fs->line_count - 1; ++i) {
+            strncpy(fs->text_buffer[i], fs->text_buffer[i + 1], fs->line_capacity - 1);
+            fs->text_buffer[i][fs->line_capacity - 1] = '\0';
+        }
+        fs->text_buffer[fs->line_count - 1][0] = '\0';
+        fs->line_count--;
+        free(change.old_text);
+    } else if (!change.old_text && change.new_text) { /* Insertion */
+        ensure_line_capacity(fs, fs->line_count + 1);
+        for (int i = fs->line_count; i > change.line; --i) {
+            strncpy(fs->text_buffer[i], fs->text_buffer[i - 1], fs->line_capacity - 1);
+            fs->text_buffer[i][fs->line_capacity - 1] = '\0';
+        }
+        fs->line_count++;
+        strncpy(fs->text_buffer[change.line], change.new_text, fs->line_capacity - 1);
+        fs->text_buffer[change.line][fs->line_capacity - 1] = '\0';
+        push(&fs->undo_stack, (Change){ change.line, NULL, strdup(change.new_text) });
+        free(change.new_text);
+    } else if (change.old_text && change.new_text) { /* Edit */
+        push(&fs->undo_stack,
+             (Change){ change.line, strdup(change.old_text), strdup(change.new_text) });
+        strncpy(fs->text_buffer[change.line], change.new_text, fs->line_capacity - 1);
+        fs->text_buffer[change.line][fs->line_capacity - 1] = '\0';
+        free(change.old_text);
         free(change.new_text);
     }
 
