@@ -160,7 +160,9 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
             case KEY_MOUSE: {
                 MEVENT ev;
                 if (getmouse(&ev) == OK &&
-                    (ev.bstate & (BUTTON1_PRESSED | BUTTON1_RELEASED))) {
+                    (ev.bstate & (BUTTON1_PRESSED |
+                                   BUTTON1_RELEASED |
+                                   BUTTON1_CLICKED))) {
                     fprintf(stderr, "mouse x=%d y=%d\n", ev.x, ev.y);
                     int startX = (*currentMenu) * 10;
                     int startY = 1;
