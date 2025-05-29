@@ -52,7 +52,8 @@ void show_help() {
     mvwprintw(help_win, 11, 2, "CTRL-Y: Redo");
     mvwprintw(help_win, 12, 2, "CTRL-Z: Undo");
     mvwprintw(help_win, 13, 2, "CTRL-F: Search for text string");
-    mvwprintw(help_win, 14, 2, "CTRL-R: Replace");
+    mvwprintw(help_win, 14, 2, "F3: Find next occurrence");
+    mvwprintw(help_win, 15, 2, "CTRL-R: Replace");
 
     // Print the second column of commands and keybindings
     mvwprintw(help_win, 3, win_width / 2, "CTRL-X: Quit");
@@ -65,9 +66,9 @@ void show_help() {
     mvwprintw(help_win, 10, win_width / 2, "CTRL-Right: Move to line end");
     mvwprintw(help_win, 11, win_width / 2, "CTRL-PgUp: Move to top of doc");
     mvwprintw(help_win, 12, win_width / 2, "CTRL-PgDn: Move to end of doc");
-    mvwprintw(help_win, 13, win_width / 2, "F5: Insert blank line");
-    mvwprintw(help_win, 14, win_width / 2, "F6: Next file");
-    mvwprintw(help_win, 15, win_width / 2, "F7: Previous file");
+    mvwprintw(help_win, 14, win_width / 2, "F5: Insert blank line");
+    mvwprintw(help_win, 15, win_width / 2, "F6: Next file");
+    mvwprintw(help_win, 16, win_width / 2, "F7: Previous file");
 
     // Wait for any keypress to close the dialog
     mvwprintw(help_win, win_height - 1, (win_width - strlen("(Press any key to close)")) / 2, "(Press any key to close)");

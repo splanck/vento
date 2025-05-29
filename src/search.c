@@ -103,12 +103,16 @@ void find(FileState *fs, int new_search)
         while (1) {
             int confirmed = show_find_dialog(output, sizeof(output),
                                             search_text[0] ? search_text : NULL);
-            if (!confirmed || output[0] == '\0')
-                break;
+            if (!confirmed)
+                break; /* ESC pressed */
 
-            strncpy(search_text, output, sizeof(search_text) - 1);
-            search_text[sizeof(search_text) - 1] = '\0';
-            find_next_occurrence(fs, search_text);
+            if (output[0] != '\0') {
+                strncpy(search_text, output, sizeof(search_text) - 1);
+                search_text[sizeof(search_text) - 1] = '\0';
+            }
+
+            if (search_text[0] != '\0')
+                find_next_occurrence(fs, search_text);
         }
     } else {
         if (search_text[0] != '\0')
