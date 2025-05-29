@@ -152,7 +152,7 @@ void handle_key_delete(FileState *fs) {
  * @param fs->start_line Pointer to the starting line of the visible text area.
  */
 void handle_key_enter(FileState *fs) {
-    if (fs->line_count < MAX_LINES - 1) {
+    if (fs->line_count < DEFAULT_BUFFER_LINES - 1) {
         for (int i = fs->line_count; i > fs->cursor_y + fs->start_line; --i) {
             strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
         }
