@@ -199,6 +199,7 @@ void create_dialog(const char *message, char *output, int max_input_len) {
     wrefresh(dialog_win);
     delwin(dialog_win);
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
+
 }
 
 /**
@@ -493,8 +494,9 @@ int show_save_file_dialog(char *path, int max_len) {
  *
  * @param output The buffer to store the user's input.
  * @param max_input_len The maximum length of the user's input.
+ * @param preset Initial value to pre-fill the input field.
  */
-void show_find_dialog(const char *initial, char *output, int max_input_len) {
+int show_find_dialog(char *output, int max_input_len, const char *preset) {
     // Define colors
     start_color();
     init_pair(1, COLOR_WHITE, COLOR_BLUE); // Background color for dialog
@@ -528,8 +530,8 @@ void show_find_dialog(const char *initial, char *output, int max_input_len) {
     mvwprintw(dialog_win, input_y, input_x, "Input: ");
     wattroff(dialog_win, COLOR_PAIR(2));
     int input_len = 0;
-    if (initial && *initial) {
-        strncpy(output, initial, max_input_len - 1);
+    if (preset && *preset) {
+        strncpy(output, preset, max_input_len - 1);
         output[max_input_len - 1] = '\0';
         mvwprintw(dialog_win, input_y, input_x + 7, "%s", output);
         input_len = (int)strlen(output);
@@ -569,13 +571,15 @@ void show_find_dialog(const char *initial, char *output, int max_input_len) {
     if (cancelled)
         output[0] = '\0';
     else
-        output[input_len] = '\0';  // Add null terminator to the input string
+        output[input_len] = '\0';  // Add null terminator
 
     // Clean up the dialog window
     wclear(dialog_win);
     wrefresh(dialog_win);
     delwin(dialog_win);
     wrefresh(stdscr);  // Refresh the main screen after closing the dialog
+
+    return cancelled ? 0 : 1;
 }
 
 static void show_message(const char *msg) {
