@@ -8,6 +8,7 @@ typedef struct FileState {
     char filename[256];
     char **text_buffer;
     int line_count;
+    int max_lines;
     int start_line;
     int cursor_x, cursor_y;
     Node *undo_stack;

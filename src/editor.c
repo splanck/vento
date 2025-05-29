@@ -381,7 +381,7 @@ void delete_current_line(FileState *fs) {
  * @param fs Pointer to the current file state.
  */
 void insert_new_line(FileState *fs) {
-    if (fs->line_count < MAX_LINES - 1) {
+    if (fs->line_count < DEFAULT_BUFFER_LINES - 1) {
         // Move lines below the cursor down by one
         for (int i = fs->line_count; i > fs->cursor_y + fs->start_line - 1; --i) {
             strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
@@ -611,7 +611,7 @@ void cleanup_on_exit(FileManager *fm) {
         free_stack(fs->redo_stack);
         fs->redo_stack = NULL;
 
-        free_file_state(fs, MAX_LINES);
+        free_file_state(fs, DEFAULT_BUFFER_LINES);
     }
 
     freeMenus();
@@ -634,7 +634,7 @@ void close_editor() {
  */
 void initialize_buffer() {
     // Allocate memory for each line in the text buffer
-    for (int i = 0; i < MAX_LINES; ++i) {
+    for (int i = 0; i < DEFAULT_BUFFER_LINES; ++i) {
         if (active_file->text_buffer[i] != NULL) {
             free(active_file->text_buffer[i]);
             active_file->text_buffer[i] = NULL;
@@ -808,7 +808,7 @@ void handle_resize(int sig) {
  */
 void clear_text_buffer() {
     // Set all elements of the text buffer to 0
-    for (int i = 0; i < MAX_LINES; ++i) {
+    for (int i = 0; i < DEFAULT_BUFFER_LINES; ++i) {
         memset(active_file->text_buffer[i], 0, COLS - 3);
     }
 

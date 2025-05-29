@@ -15,7 +15,7 @@ typedef struct Node {
     struct Node *next;
 } Node;
 
-#define MAX_LINES 5000
+#define DEFAULT_BUFFER_LINES 5000
 
 // Define custom key constants for CTRL-Left, CTRL-Right, CTRL-Page Up, CTRL-Page Down
 #define KEY_CTRL_LEFT       1000

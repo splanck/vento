@@ -59,7 +59,7 @@ void load_file(FileState *fs_unused, const char *filename) {
     }
 
     /* Allocate a new file state */
-    FileState *fs = initialize_file_state(filename, MAX_LINES, COLS - 3);
+    FileState *fs = initialize_file_state(filename, DEFAULT_BUFFER_LINES, COLS - 3);
     if (!fs) {
         mvprintw(LINES - 2, 2, "Memory allocation failed!");
         refresh();
@@ -79,7 +79,7 @@ void load_file(FileState *fs_unused, const char *filename) {
     FILE *fp = fopen(filename, "r");
     if (fp) {
         fs->line_count = 0;
-        while (fgets(fs->text_buffer[fs->line_count], COLS - 3, fp) && fs->line_count < MAX_LINES) {
+        while (fgets(fs->text_buffer[fs->line_count], COLS - 3, fp) && fs->line_count < DEFAULT_BUFFER_LINES) {
             fs->text_buffer[fs->line_count][strcspn(fs->text_buffer[fs->line_count], "\n")] = '\0';
             fs->line_count++;
         }
@@ -123,7 +123,7 @@ void load_file(FileState *fs_unused, const char *filename) {
 
 void new_file(FileState *fs_unused) {
     (void)fs_unused;
-    FileState *fs = initialize_file_state("", MAX_LINES, COLS - 3);
+    FileState *fs = initialize_file_state("", DEFAULT_BUFFER_LINES, COLS - 3);
     if (!fs) {
         mvprintw(LINES - 2, 2, "Memory allocation failed!");
         refresh();

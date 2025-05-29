@@ -32,6 +32,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     }
 
     file_state->line_count = 0;
+    file_state->max_lines = max_lines;
     file_state->start_line = 0;
     file_state->cursor_x = 1;
     file_state->cursor_y = 1;
@@ -52,7 +53,8 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
 
 // Function to free allocated resources in FileState
 void free_file_state(FileState *file_state, int max_lines) {
-    for (int i = 0; i < max_lines; i++) {
+    (void)max_lines;
+    for (int i = 0; i < file_state->max_lines; i++) {
         free(file_state->text_buffer[i]);
     }
     free(file_state->text_buffer);
