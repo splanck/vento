@@ -675,45 +675,143 @@ static void str_to_upper(char *dst, const char *src, size_t dst_size) {
 
 int show_settings_dialog(AppConfig *cfg) {
     AppConfig original = *cfg;
-    char input[32];
-    char prompt[64];
 
-    snprintf(prompt, sizeof(prompt), "Enable color (0/1) [%d]", cfg->enable_color);
-    create_dialog(prompt, input, sizeof(input));
-    if (input[0] != '\0') {
-        if (strcmp(input, "1") == 0 || strcasecmp(input, "true") == 0) {
-            cfg->enable_color = 1;
-        } else if (strcmp(input, "0") == 0 || strcasecmp(input, "false") == 0) {
-            cfg->enable_color = 0;
-        } else {
-            show_message("Invalid value, keeping previous");
-        }
-    }
-
-    struct {
-        const char *name;
-        char *value;
-    } fields[] = {
-        {"Background color", cfg->background_color},
-        {"Keyword color", cfg->keyword_color},
-        {"Comment color", cfg->comment_color},
-        {"String color", cfg->string_color},
-        {"Type color", cfg->type_color},
-        {"Symbol color", cfg->symbol_color},
+    enum {
+        FIELD_ENABLE_COLOR,
+        FIELD_BACKGROUND,
+        FIELD_KEYWORD,
+        FIELD_COMMENT,
+        FIELD_STRING,
+        FIELD_TYPE,
+        FIELD_SYMBOL,
+        FIELD_COUNT
     };
 
-    for (size_t i = 0; i < sizeof(fields)/sizeof(fields[0]); ++i) {
-        snprintf(prompt, sizeof(prompt), "%s [%s]", fields[i].name, fields[i].value);
-        create_dialog(prompt, input, sizeof(input));
-        if (input[0] == '\0')
-            continue;
-        char upper[16];
-        str_to_upper(upper, input, sizeof(upper));
-        if (get_color_code(upper) != -1) {
-            strncpy(fields[i].value, upper, 15);
-            fields[i].value[15] = '\0';
-        } else {
-            show_message("Invalid color name");
+    const char *labels[FIELD_COUNT] = {
+        "Enable color",
+        "Background color",
+        "Keyword color",
+        "Comment color",
+        "String color",
+        "Type color",
+        "Symbol color"
+    };
+
+    int highlight = 0;
+    int ch;
+    int done = 0;
+
+    while (!done) {
+        clear();
+
+        for (int i = 0; i < FIELD_COUNT; ++i) {
+            if (i == highlight)
+                attron(A_REVERSE);
+
+            switch (i) {
+            case FIELD_ENABLE_COLOR:
+                mvprintw(i, 0, "%s: %s", labels[i],
+                         cfg->enable_color ? "Enabled" : "Disabled");
+                break;
+            case FIELD_BACKGROUND:
+                mvprintw(i, 0, "%s: %s", labels[i], cfg->background_color);
+                break;
+            case FIELD_KEYWORD:
+                mvprintw(i, 0, "%s: %s", labels[i], cfg->keyword_color);
+                break;
+            case FIELD_COMMENT:
+                mvprintw(i, 0, "%s: %s", labels[i], cfg->comment_color);
+                break;
+            case FIELD_STRING:
+                mvprintw(i, 0, "%s: %s", labels[i], cfg->string_color);
+                break;
+            case FIELD_TYPE:
+                mvprintw(i, 0, "%s: %s", labels[i], cfg->type_color);
+                break;
+            case FIELD_SYMBOL:
+                mvprintw(i, 0, "%s: %s", labels[i], cfg->symbol_color);
+                break;
+            }
+
+            if (i == highlight)
+                attroff(A_REVERSE);
+        }
+
+        mvprintw(FIELD_COUNT + 1, 0,
+                 "Arrows: move  Enter: change  ESC: done");
+        refresh();
+
+        ch = getch();
+        if (ch == KEY_UP) {
+            if (highlight > 0)
+                --highlight;
+        } else if (ch == KEY_DOWN) {
+            if (highlight < FIELD_COUNT - 1)
+                ++highlight;
+        } else if (ch == '\n') {
+            switch (highlight) {
+            case FIELD_ENABLE_COLOR:
+                cfg->enable_color =
+                    select_bool("Enable color", cfg->enable_color);
+                break;
+            case FIELD_BACKGROUND: {
+                const char *sel = select_color(cfg->background_color);
+                if (sel) {
+                    strncpy(cfg->background_color, sel,
+                            sizeof(cfg->background_color) - 1);
+                    cfg->background_color[sizeof(cfg->background_color) - 1] =
+                        '\0';
+                }
+                break;
+            }
+            case FIELD_KEYWORD: {
+                const char *sel = select_color(cfg->keyword_color);
+                if (sel) {
+                    strncpy(cfg->keyword_color, sel,
+                            sizeof(cfg->keyword_color) - 1);
+                    cfg->keyword_color[sizeof(cfg->keyword_color) - 1] = '\0';
+                }
+                break;
+            }
+            case FIELD_COMMENT: {
+                const char *sel = select_color(cfg->comment_color);
+                if (sel) {
+                    strncpy(cfg->comment_color, sel,
+                            sizeof(cfg->comment_color) - 1);
+                    cfg->comment_color[sizeof(cfg->comment_color) - 1] = '\0';
+                }
+                break;
+            }
+            case FIELD_STRING: {
+                const char *sel = select_color(cfg->string_color);
+                if (sel) {
+                    strncpy(cfg->string_color, sel,
+                            sizeof(cfg->string_color) - 1);
+                    cfg->string_color[sizeof(cfg->string_color) - 1] = '\0';
+                }
+                break;
+            }
+            case FIELD_TYPE: {
+                const char *sel = select_color(cfg->type_color);
+                if (sel) {
+                    strncpy(cfg->type_color, sel,
+                            sizeof(cfg->type_color) - 1);
+                    cfg->type_color[sizeof(cfg->type_color) - 1] = '\0';
+                }
+                break;
+            }
+            case FIELD_SYMBOL: {
+                const char *sel = select_color(cfg->symbol_color);
+                if (sel) {
+                    strncpy(cfg->symbol_color, sel,
+                            sizeof(cfg->symbol_color) - 1);
+                    cfg->symbol_color[sizeof(cfg->symbol_color) - 1] = '\0';
+                }
+                break;
+            }
+            }
+        } else if (ch == 27) {
+            done = 1;
         }
     }
 
