@@ -381,44 +381,43 @@ void delete_current_line(FileState *fs) {
  * @param fs Pointer to the current file state.
  */
 void insert_new_line(FileState *fs) {
-    if (fs->line_count < DEFAULT_BUFFER_LINES - 1) {
-        // Move lines below the cursor down by one
-        for (int i = fs->line_count; i > fs->cursor_y + fs->start_line - 1; --i) {
-            strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
-        }
-        fs->line_count++;
+    ensure_line_capacity(fs, fs->line_count + 1);
+    // Move lines below the cursor down by one
+    for (int i = fs->line_count; i > fs->cursor_y + fs->start_line - 1; --i) {
+        strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
+    }
+    fs->line_count++;
 
-        // Insert a new empty line at the current cursor position
-        fs->text_buffer[fs->cursor_y + fs->start_line - 1][0] = '\0';
+    // Insert a new empty line at the current cursor position
+    fs->text_buffer[fs->cursor_y + fs->start_line - 1][0] = '\0';
 
-        // Record the change for undo
-        Change change;
-        change.line = fs->cursor_y + fs->start_line - 1;
-        change.old_text = NULL;
-        change.new_text = strdup("");
+    // Record the change for undo
+    Change change;
+    change.line = fs->cursor_y + fs->start_line - 1;
+    change.old_text = NULL;
+    change.new_text = strdup("");
 
-        push(&fs->undo_stack, change);
-        mark_comment_state_dirty(fs);
+    push(&fs->undo_stack, change);
+    mark_comment_state_dirty(fs);
 
-        // Move cursor to the new line
-        fs->cursor_x = 1;
+    // Move cursor to the new line
+    fs->cursor_x = 1;
 
-        // Adjust cursor_y and start_line
-        if (fs->cursor_y == LINES - 4 && fs->start_line + LINES - 4 < fs->line_count) {
-            fs->start_line++;
-        } else {
-            fs->cursor_y++;
-        }
+    // Adjust cursor_y and start_line
+    if (fs->cursor_y == LINES - 4 && fs->start_line + LINES - 4 < fs->line_count) {
+        fs->start_line++;
+    } else {
+        fs->cursor_y++;
+    }
 
-        // Clear and redraw the text window
-        redraw();
+    // Clear and redraw the text window
+    redraw();
 
-        // Move the cursor up one line
-        if (fs->cursor_y > 1) {
-            fs->cursor_y--;
-        } else if (fs->start_line > 0) {
-            fs->start_line--;
-        }
+    // Move the cursor up one line
+    if (fs->cursor_y > 1) {
+        fs->cursor_y--;
+    } else if (fs->start_line > 0) {
+        fs->start_line--;
     }
 }
 

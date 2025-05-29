@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "files.h"
 #include "editor.h"
 #include "syntax.h"
@@ -67,6 +68,26 @@ void free_file_state(FileState *file_state, int max_lines) {
     free(file_state);
 }
 
+void ensure_line_capacity(FileState *fs, int min_needed) {
+    if (min_needed < fs->max_lines)
+        return;
+
+    int new_max = fs->max_lines * 2;
+    if (new_max <= min_needed)
+        new_max = min_needed + 1;
+
+    char **new_buffer = realloc(fs->text_buffer, new_max * sizeof(char *));
+    if (!new_buffer)
+        return;
+    fs->text_buffer = new_buffer;
+
+    for (int i = fs->max_lines; i < new_max; ++i) {
+        fs->text_buffer[i] = calloc(COLS - 3, sizeof(char));
+    }
+
+    fs->max_lines = new_max;
+}
+
 // Function to load file content into the text buffer
 int load_file_into_buffer(FileState *file_state) {
     FILE *fp = fopen(file_state->filename, "r");
@@ -76,6 +97,7 @@ int load_file_into_buffer(FileState *file_state) {
 
     char line[1024];
     while (fgets(line, sizeof(line), fp)) {
+        ensure_line_capacity(file_state, file_state->line_count + 1);
         size_t len = strlen(line);
         if (len > 0) {
             // Copy line to text buffer without the trailing newline
