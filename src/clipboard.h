@@ -13,5 +13,6 @@ void end_selection_mode(FileState *fs);
 void copy_selection(FileState *fs);
 void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y);
 void handle_selection_mode(FileState *fs, int ch, int *cursor_x, int *cursor_y);
+void update_selection_mouse(FileState *fs, int x, int y);
 
 #endif // CLIPBOARD_H
