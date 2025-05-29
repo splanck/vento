@@ -1,5 +1,6 @@
 #ifndef MENU_H
 #define MENU_H
+#include <stdbool.h>
 typedef struct MenuItem {
     const char *label;
     void (*action)(void);
@@ -13,7 +14,7 @@ typedef struct Menu {
 
 void initializeMenus(void);
 void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *currentItem);
-void drawMenu(Menu *menu, int currentItem, int startX, int startY);
+bool drawMenu(Menu *menu, int currentItem, int startX, int startY);
 void menuNewFile(void);
 void menuLoadFile(void);
 void menuSaveFile(void);
