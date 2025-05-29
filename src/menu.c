@@ -134,6 +134,13 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
 
         int startX = (*currentMenu) * 10;
         int startY = 1;
+        int boxWidth = 20;
+        int boxHeight = menus[*currentMenu].itemCount + 2;
+        if (startX + boxWidth > COLS || startY + boxHeight > LINES) {
+            inMenu = false;
+            refresh();
+            continue;
+        }
         if (!drawMenu(&menus[*currentMenu], *currentItem, startX, startY)) {
             inMenu = false;
             refresh();
@@ -164,13 +171,15 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                                    BUTTON1_RELEASED |
                                    BUTTON1_CLICKED))) {
                     fprintf(stderr, "mouse x=%d y=%d\n", ev.x, ev.y);
+                    if (*currentMenu < 0 || *currentMenu >= menuCount) {
+                        inMenu = false;
+                        break;
+                    }
                     int startX = (*currentMenu) * 10;
                     int startY = 1;
                     int boxWidth = 20;
                     int boxHeight = menus[*currentMenu].itemCount + 2;
-                    if (startX < 0 || startY < 0 ||
-                        startX + boxWidth > COLS ||
-                        startY + boxHeight > LINES) {
+                    if (startX + boxWidth > COLS || startY + boxHeight > LINES) {
                         inMenu = false;
                         break;
                     }
