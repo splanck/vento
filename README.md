@@ -31,6 +31,8 @@ Vento currently supports the following features:
 - **Word Navigation**: Use `CTRL-W` to move to the next word and `CTRL-B` to move to the previous word.
 - **Close Current File**: Press `CTRL-Q` to close the active file.
 - **Customizable Configuration**: Customize settings through a configuration file.
+- **Interactive Settings Dialog**: Open **File → Settings** and use the arrow
+  keys to choose options.
 - **Basic Syntax Highlighting**: Simple syntax highlighting for C, HTML, and Python files.
 - **Status Bar**: Displays the current line and column number.
 - **Scroll Bar**: Indicates your position within the document.
@@ -46,7 +48,7 @@ written in the same key order as the defaults.  When you exit the settings
 dialog with changes, the updated configuration is automatically saved back to
 `~/.ventorc`.
 
-This file is created automatically with default values if it does not exist. Unknown keys are ignored when the file is parsed. You can also change these options interactively using the **Settings** dialog found under *File -> Settings* (press `CTRL-T` to open the menu). The recognized keys are:
+This file is created automatically with default values if it does not exist. Unknown keys are ignored when the file is parsed. You can also change these options interactively using the **Settings** dialog. Open it from *File → Settings* (press `CTRL-T` to open the menu) and navigate with the arrow keys. The recognized keys are:
 - `background_color`
 - `keyword_color`
 - `comment_color`
