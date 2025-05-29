@@ -140,6 +140,30 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
             case KEY_DOWN:
                 if (*currentItem < menus[*currentMenu].itemCount - 1) (*currentItem)++; // Move to the next item in the current menu
                 break;
+            case KEY_MOUSE: {
+                MEVENT ev;
+                if (getmouse(&ev) == OK && (ev.bstate & BUTTON1_PRESSED)) {
+                    int startX = (*currentMenu) * 10;
+                    int startY = 1;
+                    int boxWidth = 20;
+                    int boxHeight = menus[*currentMenu].itemCount + 2;
+
+                    if (ev.x >= startX && ev.x < startX + boxWidth &&
+                        ev.y >= startY && ev.y < startY + boxHeight) {
+                        int row = ev.y - startY - 1;
+                        if (row >= 0 && row < menus[*currentMenu].itemCount) {
+                            *currentItem = row;
+                            drawMenu(&menus[*currentMenu], *currentItem, startX, startY);
+                            refresh();
+                            menus[*currentMenu].items[*currentItem].action();
+                            inMenu = false;
+                        }
+                    } else {
+                        inMenu = false;
+                    }
+                }
+                break;
+            }
             case '\n': // Enter key
                 menus[*currentMenu].items[*currentItem].action(); // Execute the action associated with the selected menu item
                 inMenu = false; // Exit the menu loop
