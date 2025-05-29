@@ -434,17 +434,23 @@ int show_save_file_dialog(char *path, int max_len) {
     int input_len = 0;
     int start = 0;
 
+    int win_height = LINES - 4;
+    int win_width = COLS - 4;
+    WINDOW *win = create_popup_window(win_height, win_width);
+    keypad(win, TRUE);
+
     getcwd(cwd, sizeof(cwd));
 
     while (1) {
-        clear();
-        mvprintw(0, 0, "Current Directory: %s", cwd);
+        werase(win);
+        box(win, 0, 0);
+        mvwprintw(win, 1, 2, "Current Directory: %s", cwd);
 
         char **choices = NULL;
         int n_choices = 0;
         get_dir_contents(cwd, &choices, &n_choices);
 
-        int max_display = LINES - 3; // reserve lines for dir, instructions and input
+        int max_display = win_height - 5; // reserve lines for dir, instructions and input
         if (highlight < start)
             start = highlight;
         if (highlight >= start + max_display)
@@ -453,21 +459,21 @@ int show_save_file_dialog(char *path, int max_len) {
         for (int i = 0; i < max_display && i + start < n_choices; ++i) {
             int idx = i + start;
             if (idx == highlight)
-                attron(A_REVERSE);
-            mvprintw(i + 1, 0, "%s", choices[idx]);
-            attroff(A_REVERSE);
+                wattron(win, A_REVERSE);
+            mvwprintw(win, i + 2, 2, "%s", choices[idx]);
+            wattroff(win, A_REVERSE);
         }
 
         for (int i = n_choices - start; i < max_display; ++i) {
-            mvprintw(i + 1, 0, "%*s", COLS - 1, "");
+            mvwprintw(win, i + 2, 2, "%*s", win_width - 4, "");
         }
 
-        mvprintw(LINES - 2, 0, "Arrows: move  Enter: select  ESC: cancel");
-        mvprintw(LINES - 1, 0, "Path: %s", input);
-        move(LINES - 1, 6 + input_len);
-        refresh();
+        mvwprintw(win, win_height - 3, 2, "Arrows: move  Enter: select  ESC: cancel");
+        mvwprintw(win, win_height - 2, 2, "Path: %s", input);
+        wmove(win, win_height - 2, 8 + input_len);
+        wrefresh(win);
 
-        ch = getch();
+        ch = wgetch(win);
         if (ch == KEY_UP) {
             if (highlight > 0)
                 --highlight;
@@ -486,6 +492,10 @@ int show_save_file_dialog(char *path, int max_len) {
                 strncpy(path, tmp, max_len);
                 path[max_len - 1] = '\0';
                 free_dir_contents(choices, n_choices);
+                wclear(win);
+                wrefresh(win);
+                delwin(win);
+                wrefresh(stdscr);
                 return 1;
             }
 
@@ -504,6 +514,10 @@ int show_save_file_dialog(char *path, int max_len) {
                     strncpy(path, next_path, max_len);
                     path[max_len - 1] = '\0';
                     free_dir_contents(choices, n_choices);
+                    wclear(win);
+                    wrefresh(win);
+                    delwin(win);
+                    wrefresh(stdscr);
                     return 1;
                 }
             }
@@ -514,6 +528,10 @@ int show_save_file_dialog(char *path, int max_len) {
             }
         } else if (ch == 27) {
             free_dir_contents(choices, n_choices);
+            wclear(win);
+            wrefresh(win);
+            delwin(win);
+            wrefresh(stdscr);
             return 0;
         } else if (isprint(ch)) {
             if (input_len < (int)sizeof(input) - 1) {
@@ -525,6 +543,10 @@ int show_save_file_dialog(char *path, int max_len) {
         free_dir_contents(choices, n_choices);
     }
 
+    wclear(win);
+    wrefresh(win);
+    delwin(win);
+    wrefresh(stdscr);
     return 0;
 }
 
