@@ -77,9 +77,9 @@ void free_file_state(FileState *file_state, int max_lines) {
     free(file_state);
 }
 
-void ensure_line_capacity(FileState *fs, int min_needed) {
+int ensure_line_capacity(FileState *fs, int min_needed) {
     if (min_needed < fs->max_lines)
-        return;
+        return 0;
 
     int new_max = fs->max_lines * 2;
     if (new_max <= min_needed)
@@ -87,14 +87,21 @@ void ensure_line_capacity(FileState *fs, int min_needed) {
 
     char **new_buffer = realloc(fs->text_buffer, new_max * sizeof(char *));
     if (!new_buffer)
-        return;
+        return -1;
     fs->text_buffer = new_buffer;
 
     for (int i = fs->max_lines; i < new_max; ++i) {
         fs->text_buffer[i] = calloc(fs->line_capacity, sizeof(char));
+        if (!fs->text_buffer[i]) {
+            for (int j = fs->max_lines; j < i; ++j)
+                free(fs->text_buffer[j]);
+            fs->text_buffer = realloc(fs->text_buffer, fs->max_lines * sizeof(char *));
+            return -1;
+        }
     }
 
     fs->max_lines = new_max;
+    return 0;
 }
 
 // Function to load file content into the text buffer
@@ -106,7 +113,10 @@ int load_file_into_buffer(FileState *file_state) {
 
     char line[1024];
     while (fgets(line, sizeof(line), fp)) {
-        ensure_line_capacity(file_state, file_state->line_count + 1);
+        if (ensure_line_capacity(file_state, file_state->line_count + 1) < 0) {
+            fclose(fp);
+            return -1;
+        }
         size_t len = strlen(line);
         if (len > 0) {
             // Copy line to text buffer without the trailing newline

@@ -101,7 +101,8 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
             (*cursor_y)++;
             fs->cursor_x = *cursor_x = 1;
             fs->cursor_y = *cursor_y;
-            ensure_line_capacity(fs, fs->line_count + 1);
+            if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
+                allocation_failed("ensure_line_capacity failed");
             insert_new_line(fs);
         }
     }

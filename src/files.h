@@ -30,6 +30,6 @@ typedef struct FileState {
 FileState *initialize_file_state(const char *filename, int max_lines, int max_cols);
 void free_file_state(FileState *file_state, int max_lines);
 int load_file_into_buffer(FileState *file_state);
-void ensure_line_capacity(FileState *fs, int min_needed);
+int ensure_line_capacity(FileState *fs, int min_needed);
 
 #endif

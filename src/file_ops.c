@@ -67,12 +67,7 @@ void load_file(FileState *fs_unused, const char *filename) {
     /* Allocate a new file state */
     FileState *fs = initialize_file_state(filename, DEFAULT_BUFFER_LINES, COLS - 3);
     if (!fs) {
-        mvprintw(LINES - 2, 2, "Memory allocation failed!");
-        refresh();
-        getch();
-        mvprintw(LINES - 2, 2, "                            ");
-        refresh();
-        return;
+        allocation_failed("initialize_file_state failed");
     }
     active_file = fs;
 
@@ -86,7 +81,10 @@ void load_file(FileState *fs_unused, const char *filename) {
     if (fp) {
         fs->line_count = 0;
         while (1) {
-            ensure_line_capacity(fs, fs->line_count + 1);
+            if (ensure_line_capacity(fs, fs->line_count + 1) < 0) {
+                fclose(fp);
+                allocation_failed("ensure_line_capacity failed");
+            }
             if (!fgets(fs->text_buffer[fs->line_count], fs->line_capacity, fp))
                 break;
             fs->text_buffer[fs->line_count][strcspn(fs->text_buffer[fs->line_count], "\n")] = '\0';
@@ -137,12 +135,7 @@ void new_file(FileState *fs_unused) {
 
     FileState *fs = initialize_file_state("", DEFAULT_BUFFER_LINES, COLS - 3);
     if (!fs) {
-        mvprintw(LINES - 2, 2, "Memory allocation failed!");
-        refresh();
-        getch();
-        mvprintw(LINES - 2, 2, "                            ");
-        refresh();
-        return;
+        allocation_failed("initialize_file_state failed");
     }
 
     fs->filename[0] = '\0';
@@ -150,16 +143,7 @@ void new_file(FileState *fs_unused) {
 
     int idx = fm_add(&file_manager, fs);
     if (idx < 0) {
-        mvprintw(LINES - 2, 2, "Error creating file!");
-        refresh();
-        getch();
-        mvprintw(LINES - 2, 2, "                            ");
-        refresh();
-        free_file_state(fs, fs->max_lines);
-        file_manager.active_index = previous_index;
-        active_file = previous_active;
-        text_win = previous_active ? previous_active->text_win : NULL;
-        return;
+        allocation_failed("fm_add failed");
     }
 
     if (fm_switch(&file_manager, idx) < 0) {
