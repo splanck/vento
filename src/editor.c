@@ -99,6 +99,7 @@ static void handle_key_page_up_wrapper(struct FileState *fs, int *cx, int *cy) {
 
 static void handle_key_page_down_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
+    (void)cy;
     handle_key_page_down(fs);
     redraw();
 }
@@ -141,17 +142,23 @@ static void handle_ctrl_down_wrapper(struct FileState *fs, int *cx, int *cy) {
 
 static void handle_help_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)fs;
+    (void)cx;
+    (void)cy;
     show_help();
     redraw();
 }
 
 static void handle_about_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)fs;
+    (void)cx;
+    (void)cy;
     show_about();
     redraw();
 }
 
 static void handle_find_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)cx;
+    (void)cy;
     find(fs, 1);
     redraw();
 }
@@ -181,16 +188,22 @@ static void handle_move_backward_wrapper(struct FileState *fs, int *cx, int *cy)
 }
 
 static void handle_load_file_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)cx;
+    (void)cy;
     load_file(fs, NULL);
     redraw();
 }
 
 static void handle_save_as_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)cx;
+    (void)cy;
     save_file_as(fs);
     redraw();
 }
 
 static void handle_save_file_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)cx;
+    (void)cy;
     save_file(fs);
     redraw();
 }
