@@ -17,6 +17,15 @@
 #include "search.h"
 #include "file_manager.h"
 
+void allocation_failed(const char *msg) {
+    endwin();
+    if (msg)
+        fprintf(stderr, "%s\n", msg);
+    else
+        fprintf(stderr, "Memory allocation failed\n");
+    exit(EXIT_FAILURE);
+}
+
 FileState *active_file = NULL;
 /* text_buffer and line_count are now stored per file in FileState */
 int runeditor = 0;  // Flag to control the main loop of the editor
@@ -399,7 +408,8 @@ void delete_current_line(FileState *fs) {
  * @param fs Pointer to the current file state.
  */
 void insert_new_line(FileState *fs) {
-    ensure_line_capacity(fs, fs->line_count + 1);
+    if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
+        allocation_failed("ensure_line_capacity failed");
     // Move lines below the cursor down by one
     for (int i = fs->line_count; i > fs->cursor_y + fs->start_line - 1; --i) {
         strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
@@ -651,9 +661,7 @@ void initialize_buffer() {
         }
         active_file->text_buffer[i] = (char *)calloc(active_file->line_capacity, sizeof(char));
         if (active_file->text_buffer[i] == NULL) {
-            // Handle allocation failure
-            fprintf(stderr, "Memory allocation failed for text_buffer[%d]\n", i);
-            exit(1);
+            allocation_failed("calloc failed in initialize_buffer");
         }
     }
     
@@ -668,8 +676,7 @@ void initialize_buffer() {
     if (active_file && active_file->clipboard == NULL) {
         active_file->clipboard = malloc(CLIPBOARD_SIZE);
         if (!active_file->clipboard) {
-            fprintf(stderr, "Memory allocation failed for clipboard\n");
-            exit(1);
+            allocation_failed("malloc failed for clipboard");
         }
         active_file->clipboard[0] = '\0';
     }

@@ -36,7 +36,8 @@ void undo(FileState *fs) {
     Change change = pop(&fs->undo_stack);
 
     if (change.old_text && !change.new_text) { /* Deletion */
-        ensure_line_capacity(fs, fs->line_count + 1);
+        if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
+            allocation_failed("ensure_line_capacity failed");
         for (int i = fs->line_count; i > change.line; --i) {
             strncpy(fs->text_buffer[i], fs->text_buffer[i - 1], fs->line_capacity - 1);
             fs->text_buffer[i][fs->line_capacity - 1] = '\0';
@@ -90,7 +91,8 @@ void redo(FileState *fs) {
         fs->line_count--;
         free(change.old_text);
     } else if (!change.old_text && change.new_text) { /* Insertion */
-        ensure_line_capacity(fs, fs->line_count + 1);
+        if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
+            allocation_failed("ensure_line_capacity failed");
         for (int i = fs->line_count; i > change.line; --i) {
             strncpy(fs->text_buffer[i], fs->text_buffer[i - 1], fs->line_capacity - 1);
             fs->text_buffer[i][fs->line_capacity - 1] = '\0';

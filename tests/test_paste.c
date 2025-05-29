@@ -9,10 +9,12 @@
 WINDOW *text_win = NULL;
 FileState *active_file = NULL;
 void draw_text_buffer(FileState *fs, WINDOW *win) { (void)fs; (void)win; }
+void allocation_failed(const char *msg) { (void)msg; abort(); }
 
 /* Stub of insert_new_line without ncurses dependencies */
 void insert_new_line(FileState *fs) {
-    ensure_line_capacity(fs, fs->line_count + 1);
+    if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
+        abort();
     for (int i = fs->line_count; i > fs->cursor_y + fs->start_line - 1; --i) {
         strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
     }
