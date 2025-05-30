@@ -24,6 +24,7 @@ void delete_current_line(FileState *fs) {
     }
     memset(fs->text_buffer[fs->line_count - 1], 0, fs->line_capacity);
     fs->line_count--;
+    fs->modified = true;
     if (fs->cursor_y < LINES - 4 && fs->cursor_y <= fs->line_count) {
         fs->cursor_y++;
     } else if (fs->start_line + fs->cursor_y > fs->line_count) {
@@ -56,6 +57,7 @@ void insert_new_line(FileState *fs) {
         return;
     }
     push(&fs->undo_stack, change);
+    fs->modified = true;
     mark_comment_state_dirty(fs);
     fs->cursor_x = 1;
     if (fs->cursor_y == LINES - 4 && fs->start_line + LINES - 4 < fs->line_count) {
@@ -122,7 +124,10 @@ void update_status_bar(FileState *fs) {
         name = fs->filename;
     }
     char display[512];
-    snprintf(display, sizeof(display), "%s [%d/%d]", name, idx, total);
+    if (fs && fs->modified)
+        snprintf(display, sizeof(display), "%s* [%d/%d]", name, idx, total);
+    else
+        snprintf(display, sizeof(display), "%s [%d/%d]", name, idx, total);
     int center_position = (COLS - (int)strlen(display)) / 2;
     if (center_position < 0) center_position = 0;
     mvprintw(1, center_position, "%s", display);

@@ -35,6 +35,7 @@ typedef struct FileState {
     WINDOW *text_win;
     FILE *fp;          /* Open file handle for lazy loading */
     bool file_complete;/* True when the entire file is loaded */
+    bool modified;     /* True if the buffer has unsaved changes */
 } FileState;
 
 FileState *initialize_file_state(const char *filename, int max_lines, int max_cols);

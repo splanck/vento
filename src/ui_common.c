@@ -35,7 +35,7 @@ WINDOW *create_popup_window(int height, int width, WINDOW *parent) {
     return create_centered_window(height, width, parent);
 }
 
-void show_message(const char *msg) {
+int show_message(const char *msg) {
     curs_set(0);
     int win_height = 3;
     int win_width = (int)strlen(msg) + 4;
@@ -46,12 +46,13 @@ void show_message(const char *msg) {
     box(win, 0, 0);
     mvwprintw(win, 1, 2, "%s", msg);
     wrefresh(win);
-    wgetch(win);
+    int ch = wgetch(win);
     wclear(win);
     wrefresh(win);
     delwin(win);
     wrefresh(stdscr);
     curs_set(1);
+    return ch;
 }
 
 int show_scrollable_window(const char **options, int count, WINDOW *parent) {

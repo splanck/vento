@@ -109,6 +109,7 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
 
     fs->cursor_x = *cursor_x;
     fs->cursor_y = *cursor_y;
+    fs->modified = true;
 }
 
 void handle_selection_mode(FileState *fs, int ch, int *cursor_x, int *cursor_y) {
