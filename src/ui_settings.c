@@ -5,8 +5,10 @@
 #include <strings.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <dirent.h>
 
 const char *select_color(const char *current, WINDOW *parent);
+const char *select_theme(const char *current, WINDOW *parent);
 int select_bool(const char *prompt, int current, WINDOW *parent);
 
 static void apply_mouse(AppConfig *cfg) {
@@ -17,9 +19,10 @@ static void apply_mouse(AppConfig *cfg) {
         mousemask(0, NULL);
 }
 
-enum OptionType { OPT_BOOL, OPT_COLOR };
+enum OptionType { OPT_BOOL, OPT_COLOR, OPT_THEME };
 
-enum { COLOR_LEN = sizeof(((AppConfig *)0)->background_color) };
+enum { COLOR_LEN = sizeof(((AppConfig *)0)->background_color),
+       THEME_LEN = sizeof(((AppConfig *)0)->theme) };
 
 typedef struct {
     const char *label;
@@ -31,6 +34,7 @@ typedef struct {
 static const Option options[] = {
     {"Enable color", OPT_BOOL, offsetof(AppConfig, enable_color), NULL},
     {"Enable mouse", OPT_BOOL, offsetof(AppConfig, enable_mouse), apply_mouse},
+    {"Theme", OPT_THEME, offsetof(AppConfig, theme), NULL},
     {"Background color", OPT_COLOR, offsetof(AppConfig, background_color), NULL},
     {"Keyword color", OPT_COLOR, offsetof(AppConfig, keyword_color), NULL},
     {"Comment color", OPT_COLOR, offsetof(AppConfig, comment_color), NULL},
@@ -45,12 +49,20 @@ static void edit_option(AppConfig *cfg, WINDOW *win, const Option *opt) {
     if (opt->type == OPT_BOOL) {
         int *val = (int *)((char *)cfg + opt->offset);
         *val = select_bool(opt->label, *val, win);
-    } else {
+    } else if (opt->type == OPT_COLOR) {
         char *str = (char *)cfg + opt->offset;
         const char *sel = select_color(str, win);
         if (sel) {
             strncpy(str, sel, COLOR_LEN - 1);
             str[COLOR_LEN - 1] = '\0';
+        }
+    } else if (opt->type == OPT_THEME) {
+        char *str = (char *)cfg + opt->offset;
+        const char *sel = select_theme(str, win);
+        if (sel) {
+            strncpy(str, sel, THEME_LEN - 1);
+            str[THEME_LEN - 1] = '\0';
+            free((char *)sel);
         }
     }
     if (opt->after_change)
@@ -305,6 +317,191 @@ const char *select_color(const char *current, WINDOW *parent) {
 
     curs_set(1);
     return NULL;
+}
+
+const char *select_theme(const char *current, WINDOW *parent) {
+    curs_set(0);
+    DIR *dir = opendir("themes");
+    if (!dir)
+        return NULL;
+
+    size_t count = 0;
+    struct dirent *ent;
+    char **names = NULL;
+
+    while ((ent = readdir(dir)) != NULL) {
+        if (ent->d_name[0] == '.')
+            continue;
+        const char *dot = strrchr(ent->d_name, '.');
+        if (!dot || strcmp(dot, ".theme") != 0)
+            continue;
+        char name[64];
+        size_t len = dot - ent->d_name;
+        if (len >= sizeof(name))
+            len = sizeof(name) - 1;
+        strncpy(name, ent->d_name, len);
+        name[len] = '\0';
+        char **tmp = realloc(names, sizeof(char *) * (count + 1));
+        if (!tmp) {
+            closedir(dir);
+            for (size_t i = 0; i < count; ++i)
+                free(names[i]);
+            free(names);
+            return NULL;
+        }
+        names = tmp;
+        names[count] = strdup(name);
+        if (!names[count]) {
+            closedir(dir);
+            for (size_t i = 0; i < count; ++i)
+                free(names[i]);
+            free(names);
+            return NULL;
+        }
+        ++count;
+    }
+    closedir(dir);
+
+    if (count == 0) {
+        free(names);
+        return NULL;
+    }
+
+    int highlight = 0;
+    if (current) {
+        for (size_t i = 0; i < count; ++i) {
+            if (strcasecmp(current, names[i]) == 0) {
+                highlight = i;
+                break;
+            }
+        }
+    }
+
+    int start = 0;
+    int own = 0;
+    int win_height, win_width;
+    WINDOW *win;
+    if (parent) {
+        int ph, pw;
+        getmaxyx(parent, ph, pw);
+        win_height = ph - 4;
+        win_width = pw - 4;
+        win = create_popup_window(win_height, win_width, parent);
+    } else {
+        win_height = LINES - 4;
+        win_width = COLS - 4;
+        win = create_popup_window(win_height, win_width, NULL);
+    }
+    if (!win) {
+        for (size_t i = 0; i < count; ++i)
+            free(names[i]);
+        free(names);
+        curs_set(1);
+        return NULL;
+    }
+    own = 1;
+    keypad(win, TRUE);
+
+    while (1) {
+        werase(win);
+        box(win, 0, 0);
+
+        int max_display = win_height - 2;
+        if (highlight < start)
+            start = highlight;
+        if (highlight >= start + max_display)
+            start = highlight - max_display + 1;
+
+        for (int i = 0; i < max_display && i + start < (int)count; ++i) {
+            int idx = i + start;
+            if (idx == highlight)
+                wattron(win, A_REVERSE);
+            mvwprintw(win, i + 1, 1, "%s", names[idx]);
+            wattroff(win, A_REVERSE);
+        }
+
+        for (int i = count - start; i < max_display; ++i) {
+            mvwprintw(win, i + 1, 1, "%*s", win_width - 2, "");
+        }
+
+        mvwprintw(win, win_height - 1, 1,
+                  "Arrows: move  Enter: select  ESC: cancel");
+        wrefresh(win);
+
+        int ch = wgetch(win);
+        if (ch == KEY_UP) {
+            if (highlight > 0)
+                --highlight;
+        } else if (ch == KEY_DOWN) {
+            if (highlight < (int)count - 1)
+                ++highlight;
+        } else if (ch == '\n') {
+            const char *result = strdup(names[highlight]);
+            for (size_t i = 0; i < count; ++i)
+                free(names[i]);
+            free(names);
+            werase(win);
+            wrefresh(win);
+            delwin(win);
+            if (parent) {
+                touchwin(parent);
+                wrefresh(parent);
+            } else {
+                wrefresh(stdscr);
+            }
+            curs_set(1);
+            return result;
+        } else if (ch == KEY_MOUSE) {
+            MEVENT ev;
+            if (getmouse(&ev) == OK &&
+                (ev.bstate & (BUTTON1_PRESSED | BUTTON1_CLICKED |
+                               BUTTON1_RELEASED))) {
+                int wy, wx;
+                getbegyx(win, wy, wx);
+                int row = ev.y - wy - 1;
+                int col = ev.x - wx - 1;
+                int max_display = win_height - 2;
+                if (row >= 0 && row < max_display &&
+                    col >= 0 && col < win_width - 2) {
+                    int idx = start + row;
+                    if (idx >= 0 && idx < (int)count)
+                        highlight = idx;
+                    if (ev.bstate & (BUTTON1_RELEASED | BUTTON1_CLICKED)) {
+                        const char *result = strdup(names[highlight]);
+                        for (size_t i = 0; i < count; ++i)
+                            free(names[i]);
+                        free(names);
+                        werase(win);
+                        wrefresh(win);
+                        delwin(win);
+                        if (parent) {
+                            touchwin(parent);
+                            wrefresh(parent);
+                        } else {
+                            wrefresh(stdscr);
+                        }
+                        curs_set(1);
+                        return result;
+                    }
+                }
+            }
+        } else if (ch == 27) {
+            for (size_t i = 0; i < count; ++i)
+                free(names[i]);
+            free(names);
+            werase(win);
+            wrefresh(win);
+            delwin(win);
+            if (parent) {
+                touchwin(parent);
+                wrefresh(parent);
+            } else {
+                wrefresh(stdscr);
+            }
+            curs_set(1);
+            return NULL;
+        }
+    }
 }
 
 int select_bool(const char *prompt, int current, WINDOW *parent) {
