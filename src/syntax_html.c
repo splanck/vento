@@ -55,7 +55,7 @@ void handle_html_tag(WINDOW *win, const char *line, int *i, int y, int *x) {
 void highlight_html_syntax(WINDOW *win, const char *line, int y) {
     if (!win || !line) return;
     wattrset(win, COLOR_PAIR(SYNTAX_BG));
-    int x = 0;
+    int x = 1;
     int i = 0;
     int len = strlen(line);
     while (i < len) {
