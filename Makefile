@@ -8,7 +8,8 @@ DOC_DIR = ./docs
 
 # Include all source files and new editor modules
 SRCS = $(wildcard $(SRC_DIR)/*.c) \
-       $(SRC_DIR)/editor_init.c $(SRC_DIR)/editor_actions.c
+       $(SRC_DIR)/editor_init.c $(SRC_DIR)/editor_actions.c \
+       $(SRC_DIR)/input_keyboard.c $(SRC_DIR)/input_mouse.c
 SRCS := $(sort $(SRCS))
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 DEPS = $(wildcard $(SRC_DIR)/*.h)

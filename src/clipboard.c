@@ -134,14 +134,3 @@ void handle_selection_mode(FileState *fs, int ch, int *cursor_x, int *cursor_y) 
     }
 }
 
-void update_selection_mouse(FileState *fs, int x, int y) {
-    fs->sel_end_x = x;
-    fs->sel_end_y = y;
-
-    werase(text_win);
-    box(text_win, 0, 0);
-    draw_text_buffer(fs, text_win);
-    wmove(text_win, fs->cursor_y, fs->cursor_x);
-    wrefresh(text_win);
-}
-
