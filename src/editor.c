@@ -571,19 +571,20 @@ void handle_resize(int sig) {
     werase(text_win);
     box(text_win, 0, 0);
     draw_text_buffer(active_file, text_win);
-    if (active_file->cursor_x >= COLS - 1)
-        active_file->cursor_x = COLS - 2;
+
+    if (active_file->cursor_x > COLS - 1)
+        active_file->cursor_x = COLS - 1;
     if (active_file->cursor_x < 1)
         active_file->cursor_x = 1;
-    if (active_file->cursor_y >= LINES - BOTTOM_MARGIN)
-        active_file->cursor_y = LINES - BOTTOM_MARGIN - 1;
+
+    if (active_file->cursor_y > LINES - BOTTOM_MARGIN)
+        active_file->cursor_y = LINES - BOTTOM_MARGIN;
     if (active_file->cursor_y < 1)
         active_file->cursor_y = 1;
 
+    update_status_bar(active_file);
     wmove(text_win, active_file->cursor_y, active_file->cursor_x);
     wrefresh(text_win);
-
-    update_status_bar(active_file);
 
     /* Redraw the menu bar after all windows have been updated */
     drawBar();
