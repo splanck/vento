@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -g
+CFLAGS = -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L
 
 SRC_DIR = ./src
 OBJ_DIR = ./obj
