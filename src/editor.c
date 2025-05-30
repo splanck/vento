@@ -348,6 +348,11 @@ void run_editor() {
             break;
         }
 
+        if (ch == KEY_RESIZE) {
+            handle_resize(0);
+            continue;
+        }
+
         //mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
         drawBar();
         update_status_bar(active_file);
