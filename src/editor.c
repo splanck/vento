@@ -100,6 +100,18 @@ static void handle_key_enter_wrapper(struct FileState *fs, int *cx, int *cy) {
     handle_key_enter(fs);
 }
 
+static void handle_key_home_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)cx;
+    (void)cy;
+    handle_key_home(fs);
+}
+
+static void handle_key_end_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)cx;
+    (void)cy;
+    handle_key_end(fs);
+}
+
 static void handle_key_page_up_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
     (void)cy;
@@ -271,6 +283,8 @@ void initialize_key_mappings(void) {
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_DOWN, handle_key_down_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_LEFT, handle_key_left_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_RIGHT, handle_key_right_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_HOME, handle_key_home_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){KEY_END, handle_key_end_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_BACKSPACE, handle_key_backspace_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){127, handle_key_backspace_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_DC, handle_key_delete_wrapper};

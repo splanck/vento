@@ -9,6 +9,8 @@ void handle_key_up(struct FileState *fs);
 void handle_key_down(struct FileState *fs);
 void handle_key_left(struct FileState *fs);
 void handle_key_right(struct FileState *fs);
+void handle_key_home(struct FileState *fs);
+void handle_key_end(struct FileState *fs);
 void handle_key_backspace(struct FileState *fs);
 void handle_key_delete(struct FileState *fs);
 void handle_key_enter(struct FileState *fs);

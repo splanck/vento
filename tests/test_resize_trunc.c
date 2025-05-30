@@ -60,6 +60,8 @@ void handle_ctrl_key_pgup(FileState*fs){(void)fs;}
 void handle_ctrl_key_pgdn(FileState*fs){(void)fs;}
 void handle_ctrl_key_up(FileState*fs){(void)fs;}
 void handle_ctrl_key_down(FileState*fs){(void)fs;}
+void handle_key_home(FileState*fs){(void)fs;}
+void handle_key_end(FileState*fs){(void)fs;}
 void handle_default_key(FileState*fs,int ch){(void)fs;(void)ch;}
 void handle_mouse_event(FileState*fs, MEVENT *ev){(void)fs;(void)ev;}
 void start_selection_mode(FileState*fs,int x,int y){(void)fs;(void)x;(void)y;}
