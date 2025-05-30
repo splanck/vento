@@ -22,7 +22,6 @@ typedef struct FileState {
     /* Coordinates of the most recent search match within the buffer. */
     int match_start_x, match_start_y;
     int match_end_x, match_end_y;
-    char *clipboard;
     int syntax_mode;
     bool in_multiline_comment;
     bool in_multiline_string;

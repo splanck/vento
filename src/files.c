@@ -3,7 +3,6 @@
 #include "files.h"
 #include "editor.h"
 #include "syntax.h"
-#include "clipboard.h"
 #include <limits.h>
 
 // Function to initialize a new FileState for a given filename
@@ -47,16 +46,6 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     file_state->sel_end_x = file_state->sel_end_y = 0;
     file_state->match_start_x = file_state->match_start_y = -1;
     file_state->match_end_x = file_state->match_end_y = -1;
-    file_state->clipboard = malloc(CLIPBOARD_SIZE);
-    if (!file_state->clipboard) {
-        for (int j = 0; j < max_lines; j++) {
-            free(file_state->text_buffer[j]);
-        }
-        free(file_state->text_buffer);
-        free(file_state);
-        return NULL;
-    }
-    file_state->clipboard[0] = '\0';
     file_state->syntax_mode = NO_SYNTAX; // Set to NO_SYNTAX initially
     file_state->in_multiline_comment = false;
     file_state->in_multiline_string = false;
@@ -70,7 +59,6 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
             free(file_state->text_buffer[j]);
         }
         free(file_state->text_buffer);
-        free(file_state->clipboard);
         free(file_state);
         return NULL;
     }
@@ -90,9 +78,6 @@ void free_file_state(FileState *file_state, int max_lines) {
         free(file_state->text_buffer[i]);
     }
     free(file_state->text_buffer);
-    if (file_state->clipboard) {
-        free(file_state->clipboard);
-    }
     if (file_state->fp) {
         fclose(file_state->fp);
         file_state->fp = NULL;

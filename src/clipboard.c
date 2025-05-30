@@ -5,7 +5,10 @@
 #include "files.h"
 #include "syntax.h"
 
-/* Clipboard and selection state are now stored in FileState */
+/* Global clipboard buffer shared by all files */
+char global_clipboard[CLIPBOARD_SIZE];
+
+/* Selection state is stored in FileState */
 
 void start_selection_mode(FileState *fs, int cursor_x, int cursor_y) {
     fs->selection_mode = true;
@@ -33,11 +36,7 @@ void copy_selection(FileState *fs) {
         end_y = fs->sel_start_y;
     }
 
-    if (fs->clipboard == NULL) {
-        return;
-    }
-
-    fs->clipboard[0] = '\0';  // Clear clipboard
+    global_clipboard[0] = '\0';  // Clear clipboard
     size_t clip_len = 0;
     for (int y = start_y; y <= end_y && clip_len < CLIPBOARD_SIZE - 1; y++) {
         if (y == start_y) {
@@ -46,33 +45,29 @@ void copy_selection(FileState *fs) {
             if (to_copy > CLIPBOARD_SIZE - 1 - clip_len) {
                 to_copy = CLIPBOARD_SIZE - 1 - clip_len;
             }
-            strncpy(fs->clipboard + clip_len, src, to_copy);
+            strncpy(global_clipboard + clip_len, src, to_copy);
             clip_len += to_copy;
-            fs->clipboard[clip_len] = '\0';
+            global_clipboard[clip_len] = '\0';
         } else {
             if (clip_len < CLIPBOARD_SIZE - 1) {
-                fs->clipboard[clip_len++] = '\n';
-                fs->clipboard[clip_len] = '\0';
+                global_clipboard[clip_len++] = '\n';
+                global_clipboard[clip_len] = '\0';
             }
             const char *src = fs->text_buffer[y - 1 + fs->start_line];
             size_t to_copy = strlen(src);
             if (to_copy > CLIPBOARD_SIZE - 1 - clip_len) {
                 to_copy = CLIPBOARD_SIZE - 1 - clip_len;
             }
-            strncpy(fs->clipboard + clip_len, src, to_copy);
+            strncpy(global_clipboard + clip_len, src, to_copy);
             clip_len += to_copy;
-            fs->clipboard[clip_len] = '\0';
+            global_clipboard[clip_len] = '\0';
         }
     }
 }
 
 void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
-    if (fs->clipboard == NULL) {
-        return;
-    }
-
     char tmp[CLIPBOARD_SIZE];
-    strncpy(tmp, fs->clipboard, sizeof(tmp) - 1);
+    strncpy(tmp, global_clipboard, sizeof(tmp) - 1);
     tmp[sizeof(tmp) - 1] = '\0';
 
     char *line = strtok(tmp, "\n");
