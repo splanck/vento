@@ -39,3 +39,8 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_long_identifie
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_html.c -o obj_test/syntax_html.o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_html_comment.c obj_test/syntax_html.o -lncurses -o test_html_comment
 ./test_html_comment
+
+# build and run python syntax test
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_python.c -o obj_test/syntax_python.o
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_python_syntax.c obj_test/syntax_python.o obj_test/files.o -lncurses -o test_python_syntax
+./test_python_syntax

@@ -56,6 +56,8 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     file_state->clipboard[0] = '\0';
     file_state->syntax_mode = NO_SYNTAX; // Set to NO_SYNTAX initially
     file_state->in_multiline_comment = false;
+    file_state->in_multiline_string = false;
+    file_state->string_delim = '\0';
     file_state->last_scanned_line = 0;
     file_state->last_comment_state = false;
     file_state->text_win = newwin(LINES - 2, COLS, 1, 0); // Create a new window for the file
@@ -146,5 +148,7 @@ int load_file_into_buffer(FileState *file_state) {
     file_state->last_scanned_line = 0;
     file_state->last_comment_state = false;
     file_state->in_multiline_comment = false;
+    file_state->in_multiline_string = false;
+    file_state->string_delim = '\0';
     return 0; // Success
 }
