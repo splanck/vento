@@ -39,7 +39,7 @@ static const Option options[] = {
     {"Symbol color", OPT_COLOR, offsetof(AppConfig, symbol_color), NULL},
 };
 
-#define FIELD_COUNT (sizeof(options) / sizeof(options[0]))
+#define FIELD_COUNT ((int)(sizeof(options) / sizeof(options[0])))
 
 static void edit_option(AppConfig *cfg, WINDOW *win, const Option *opt) {
     if (opt->type == OPT_BOOL) {
