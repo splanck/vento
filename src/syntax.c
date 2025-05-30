@@ -17,6 +17,12 @@ void apply_syntax_highlighting(FileState *fs, WINDOW *win, const char *line, int
         case CSHARP_SYNTAX:
             highlight_csharp_syntax(fs, win, line, y);
             break;
+        case JS_SYNTAX:
+            highlight_js_syntax(fs, win, line, y);
+            break;
+        case CSS_SYNTAX:
+            highlight_css_syntax(fs, win, line, y);
+            break;
         default:
             highlight_no_syntax(win, line, y);
             break;

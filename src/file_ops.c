@@ -213,6 +213,10 @@ int set_syntax_mode(const char *filename) {
             return PYTHON_SYNTAX;
         } else if (strcmp(ext, ".cs") == 0) {
             return CSHARP_SYNTAX;
+        } else if (strcmp(ext, ".js") == 0) {
+            return JS_SYNTAX;
+        } else if (strcmp(ext, ".css") == 0) {
+            return CSS_SYNTAX;
         }
     }
     return NO_SYNTAX;

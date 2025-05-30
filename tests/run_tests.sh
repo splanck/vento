@@ -45,3 +45,15 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_python.c -o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_python_syntax.c \
     obj_test/syntax_python.o obj_test/syntax_common.o obj_test/files.o -lncurses -o test_python_syntax
 ./test_python_syntax
+
+# build and run JavaScript syntax test
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_js.c -o obj_test/syntax_js.o
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_js_syntax.c \
+    obj_test/syntax_js.o obj_test/syntax_common.o obj_test/files.o -lncurses -o test_js_syntax
+./test_js_syntax
+
+# build and run CSS syntax test
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_css.c -o obj_test/syntax_css.o
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_css_syntax.c \
+    obj_test/syntax_css.o obj_test/syntax_common.o obj_test/files.o -lncurses -o test_css_syntax
+./test_css_syntax

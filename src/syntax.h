@@ -8,6 +8,8 @@
 #define HTML_SYNTAX 2
 #define PYTHON_SYNTAX 3
 #define CSHARP_SYNTAX 4
+#define JS_SYNTAX 5
+#define CSS_SYNTAX 6
 
 typedef enum {
     SYNTAX_BG = 1,
@@ -29,6 +31,8 @@ void highlight_with_keywords(struct FileState *fs, WINDOW *win, const char *line
                              int y, const char **keywords, int keyword_count);
 void highlight_python_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
 void highlight_csharp_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
+void highlight_js_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
+void highlight_css_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
 void sync_multiline_comment(struct FileState *fs, int line);
 void mark_comment_state_dirty(struct FileState *fs);
 
