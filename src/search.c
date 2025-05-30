@@ -11,81 +11,67 @@
 
 extern char search_text[256];
 
+/*
+ * Scan the text buffer starting from the given line and column for the next
+ * occurrence of the specified word. The search wraps around to the beginning of
+ * the document if necessary. On success, the found line index is stored in
+ * `found_line` and a pointer to the position within the line is returned.
+ * Returns NULL if the word is not found.
+ */
+static char *scan_next(FileState *fs, const char *word, int start_search,
+                       int cursor_x, int *found_line) {
+    for (int line = start_search; line < fs->line_count; ++line) {
+        char *line_text = fs->text_buffer[line];
+        char *pos = strstr(line == start_search ? line_text + cursor_x : line_text,
+                           word);
+        if (pos) {
+            *found_line = line;
+            return pos;
+        }
+    }
+
+    for (int line = 0; line < start_search; ++line) {
+        char *line_text = fs->text_buffer[line];
+        char *pos = strstr(line_text, word);
+        if (pos) {
+            *found_line = line;
+            return pos;
+        }
+    }
+
+    return NULL;
+}
+
 void find_next_occurrence(FileState *fs, const char *word) {
     int *cursor_x = &fs->cursor_x;
     int *cursor_y = &fs->cursor_y;
-    int found = 0;
     int lines_per_screen = LINES - 3;  // Lines available in a single screen view
     int middle_line = lines_per_screen / 2; // Calculate middle line position
     int start_search = *cursor_y + fs->start_line;
 
-    // Search from the current cursor position to the end of the document
-    for (int line = start_search; line < fs->line_count; ++line) {
-        const char *line_text = fs->text_buffer[line];
-        const char *found_position = strstr(line == start_search ? line_text + *cursor_x : line_text, word);
+    int found_line = -1;
+    char *found_position = scan_next(fs, word, start_search, *cursor_x, &found_line);
 
-        if (found_position != NULL) {
-            // Calculate new cursor positions
-            *cursor_y = line - fs->start_line + 1;
-            *cursor_x = found_position - line_text + 1;
-
-            // Adjust start_line based on document size and found line position
-            if (fs->line_count <= lines_per_screen) {
-                fs->start_line = 0;
-            } else {
-                if (line < middle_line) {
-                    fs->start_line = 0;
-                } else if (line > fs->line_count - middle_line) {
-                    fs->start_line = fs->line_count - lines_per_screen;
-                } else {
-                    fs->start_line = line - middle_line;
-                }
-            }
-
-            // Update cursor position to the line in the middle of the screen
-            *cursor_y = line - fs->start_line + 1;
-
-            found = 1;
-            break;
-        }
-    }
-
-    // If not found, wrap around and search from the start to the initial cursor position
-    if (!found) {
-        for (int line = 0; line < start_search; ++line) {
-            const char *line_text = fs->text_buffer[line];
-            const char *found_position = strstr(line_text, word);
-
-            if (found_position != NULL) {
-                // Calculate new cursor positions
-                *cursor_y = line - fs->start_line + 1;
-                *cursor_x = found_position - line_text + 1;
-
-                // Adjust start_line based on document size and found line position
-                if (fs->line_count <= lines_per_screen) {
-                    fs->start_line = 0;
-                } else {
-                    if (line < middle_line) {
-                        fs->start_line = 0;
-                    } else if (line > fs->line_count - middle_line) {
-                        fs->start_line = fs->line_count - lines_per_screen;
-                    } else {
-                        fs->start_line = line - middle_line;
-                    }
-                }
-
-                // Update cursor position to the line in the middle of the screen
-                *cursor_y = line - fs->start_line + 1;
-
-                found = 1;
-                break;
-            }
-        }
-    }
-
-    if (!found) {
+    if (!found_position) {
         mvprintw(LINES - 2, 0, "Word not found.");
     } else {
+        *cursor_y = found_line - fs->start_line + 1;
+        *cursor_x = found_position - fs->text_buffer[found_line] + 1;
+
+        if (fs->line_count <= lines_per_screen) {
+            fs->start_line = 0;
+        } else {
+            if (found_line < middle_line) {
+                fs->start_line = 0;
+            } else if (found_line > fs->line_count - middle_line) {
+                fs->start_line = fs->line_count - lines_per_screen;
+            } else {
+                fs->start_line = found_line - middle_line;
+            }
+        }
+
+        *cursor_y = found_line - fs->start_line + 1;
+
         mvprintw(LINES - 2, 0, "Found at Line: %d, Column: %d", *cursor_y + fs->start_line + 1, *cursor_x + 1);
     }
     refresh();
@@ -163,39 +149,14 @@ void replace_next_occurrence(FileState *fs, const char *search,
                              const char *replacement) {
     int *cursor_x = &fs->cursor_x;
     int *cursor_y = &fs->cursor_y;
-    int found = 0;
     int lines_per_screen = LINES - 3;
     int middle_line = lines_per_screen / 2;
     int start_search = *cursor_y + fs->start_line;
 
     int found_line = -1;
-    char *found_position = NULL;
+    char *found_position = scan_next(fs, search, start_search, *cursor_x, &found_line);
 
-    for (int line = start_search; line < fs->line_count; ++line) {
-        char *line_text = fs->text_buffer[line];
-        char *pos = strstr(line == start_search ? line_text + *cursor_x : line_text, search);
-        if (pos) {
-            found = 1;
-            found_line = line;
-            found_position = pos;
-            break;
-        }
-    }
-
-    if (!found) {
-        for (int line = 0; line < start_search; ++line) {
-            char *line_text = fs->text_buffer[line];
-            char *pos = strstr(line_text, search);
-            if (pos) {
-                found = 1;
-                found_line = line;
-                found_position = pos;
-                break;
-            }
-        }
-    }
-
-    if (!found) {
+    if (!found_position) {
         mvprintw(LINES - 2, 0, "Word not found.");
         refresh();
         return;
