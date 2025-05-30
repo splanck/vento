@@ -1,0 +1,135 @@
+#include <ncurses.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "editor.h"
+#include "syntax.h"
+#include "files.h"
+#include "file_manager.h"
+char *strdup(const char *s);
+#include "undo.h"
+
+void delete_current_line(FileState *fs) {
+    if (fs->line_count == 0) {
+        return;
+    }
+    int line_to_delete = fs->cursor_y - 1 + fs->start_line;
+    char *old_text = strdup(fs->text_buffer[line_to_delete]);
+    if (!old_text) {
+        allocation_failed("strdup failed");
+        return;
+    }
+    push(&fs->undo_stack, (Change){line_to_delete, old_text, NULL});
+    for (int i = line_to_delete; i < fs->line_count - 1; ++i) {
+        strcpy(fs->text_buffer[i], fs->text_buffer[i + 1]);
+    }
+    memset(fs->text_buffer[fs->line_count - 1], 0, fs->line_capacity);
+    fs->line_count--;
+    if (fs->cursor_y < LINES - 4 && fs->cursor_y <= fs->line_count) {
+        fs->cursor_y++;
+    } else if (fs->start_line + fs->cursor_y > fs->line_count) {
+        if (fs->cursor_y > 1) {
+            fs->cursor_y--;
+        } else if (fs->start_line > 0) {
+            fs->start_line--;
+        }
+    }
+    werase(text_win);
+    box(text_win, 0, 0);
+    draw_text_buffer(fs, text_win);
+    mark_comment_state_dirty(fs);
+}
+
+void insert_new_line(FileState *fs) {
+    if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
+        allocation_failed("ensure_line_capacity failed");
+    for (int i = fs->line_count; i > fs->cursor_y + fs->start_line - 1; --i) {
+        strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
+    }
+    fs->line_count++;
+    fs->text_buffer[fs->cursor_y + fs->start_line - 1][0] = '\0';
+    Change change;
+    change.line = fs->cursor_y + fs->start_line - 1;
+    change.old_text = NULL;
+    change.new_text = strdup("");
+    if (!change.new_text) {
+        allocation_failed("strdup failed");
+        return;
+    }
+    push(&fs->undo_stack, change);
+    mark_comment_state_dirty(fs);
+    fs->cursor_x = 1;
+    if (fs->cursor_y == LINES - 4 && fs->start_line + LINES - 4 < fs->line_count) {
+        fs->start_line++;
+    } else {
+        fs->cursor_y++;
+    }
+    redraw();
+    if (fs->cursor_y > 1) {
+        fs->cursor_y--;
+    } else if (fs->start_line > 0) {
+        fs->start_line--;
+    }
+}
+
+void handle_redo_wrapper(FileState *fs, int *cx, int *cy) {
+    (void)cx; (void)cy;
+    redo(fs);
+}
+
+void handle_undo_wrapper(FileState *fs, int *cx, int *cy) {
+    (void)cx; (void)cy;
+    undo(fs);
+}
+
+void next_file(FileState *fs_unused, int *cx, int *cy) {
+    (void)fs_unused;
+    if (file_manager.count == 0) {
+        return;
+    }
+    int idx = file_manager.active_index + 1;
+    if (idx >= file_manager.count) idx = 0;
+    fm_switch(&file_manager, idx);
+    active_file = fm_current(&file_manager);
+    text_win = active_file->text_win;
+    *cx = active_file->cursor_x;
+    *cy = active_file->cursor_y;
+    redraw();
+    update_status_bar(active_file);
+}
+
+void prev_file(FileState *fs_unused, int *cx, int *cy) {
+    (void)fs_unused;
+    if (file_manager.count == 0) {
+        return;
+    }
+    int idx = file_manager.active_index - 1;
+    if (idx < 0) idx = file_manager.count - 1;
+    fm_switch(&file_manager, idx);
+    active_file = fm_current(&file_manager);
+    text_win = active_file->text_win;
+    *cx = active_file->cursor_x;
+    *cy = active_file->cursor_y;
+    redraw();
+    update_status_bar(active_file);
+}
+
+void update_status_bar(FileState *fs) {
+    move(0, 0);
+    int idx = file_manager.active_index + 1;
+    int total = file_manager.count > 0 ? file_manager.count : 1;
+    const char *name = "untitled";
+    if (fs && fs->filename[0] != '\0') {
+        name = fs->filename;
+    }
+    char display[512];
+    snprintf(display, sizeof(display), "%s [%d/%d]", name, idx, total);
+    int center_position = (COLS - (int)strlen(display)) / 2;
+    mvprintw(1, center_position, "%s", display);
+    move(LINES - 1, 0);
+    clrtoeol();
+    int actual_line_number = fs ? (fs->cursor_y + fs->start_line) : 0;
+    mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", fs ? fs->line_count : 0, actual_line_number, fs ? fs->cursor_x : 0);
+    mvprintw(LINES - 1, COLS - 15, "CTRL-H - Help");
+    refresh();
+}

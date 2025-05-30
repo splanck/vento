@@ -6,7 +6,10 @@ OBJ_DIR = ./obj
 BIN_DIR = ./bin
 DOC_DIR = ./docs
 
-SRCS = $(wildcard $(SRC_DIR)/*.c)
+# Include all source files and new editor modules
+SRCS = $(wildcard $(SRC_DIR)/*.c) \
+       $(SRC_DIR)/editor_init.c $(SRC_DIR)/editor_actions.c
+SRCS := $(sort $(SRCS))
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 DEPS = $(wildcard $(SRC_DIR)/*.h)
 MANPAGE = $(DOC_DIR)/vento.1

@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-#include <signal.h>
 #include "editor.h"
 #include "input.h"
 #include "ui.h"
@@ -252,17 +251,6 @@ static void handle_clear_buffer_wrapper(struct FileState *fs, int *cx, int *cy) 
     *cy = 1;
 }
 
-static void handle_redo_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)cx;
-    (void)cy;
-    redo(fs);
-}
-
-static void handle_undo_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)cx;
-    (void)cy;
-    undo(fs);
-}
 
 static void handle_quit_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)fs;
@@ -271,47 +259,13 @@ static void handle_quit_wrapper(struct FileState *fs, int *cx, int *cy) {
     exiting = 1;
 }
 
-void next_file(FileState *fs_unused, int *cx, int *cy) {
-    (void)fs_unused;
-    if (file_manager.count == 0) {
-        return;
-    }
 
-    int idx = file_manager.active_index + 1;
-    if (idx >= file_manager.count) idx = 0;
-    fm_switch(&file_manager, idx);
-    active_file = fm_current(&file_manager);
-    text_win = active_file->text_win;
-
-    *cx = active_file->cursor_x;
-    *cy = active_file->cursor_y;
-    redraw();
-    update_status_bar(active_file);
-}
-
-void prev_file(FileState *fs_unused, int *cx, int *cy) {
-    (void)fs_unused;
-    if (file_manager.count == 0) {
-        return;
-    }
-
-    int idx = file_manager.active_index - 1;
-    if (idx < 0) idx = file_manager.count - 1;
-    fm_switch(&file_manager, idx);
-    active_file = fm_current(&file_manager);
-    text_win = active_file->text_win;
-
-    *cx = active_file->cursor_x;
-    *cy = active_file->cursor_y;
-    redraw();
-    update_status_bar(active_file);
-}
 
 #define MAX_KEY_MAPPINGS 64
 static KeyMapping key_mappings[MAX_KEY_MAPPINGS];
 static int key_mapping_count = 0;
 
-static void initialize_key_mappings(void) {
+void initialize_key_mappings(void) {
     key_mapping_count = 0;
 
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_UP, handle_key_up_wrapper};
@@ -357,199 +311,11 @@ static void initialize_key_mappings(void) {
 }
 
 
-/**
- * Deletes the current line from the text buffer.
- * 
- * @param fs Pointer to the current file state.
- */
-void delete_current_line(FileState *fs) {
-    if (fs->line_count == 0) {
-        return;
-    }
-
-    int line_to_delete = fs->cursor_y - 1 + fs->start_line;
-
-    // Push the current state to the undo stack
-    char *old_text = strdup(fs->text_buffer[line_to_delete]);
-    if (!old_text) {
-        allocation_failed("strdup failed");
-        return;
-    }
-    push(&fs->undo_stack, (Change){line_to_delete, old_text, NULL});
-
-    // Shift lines up to delete the current line
-    for (int i = line_to_delete; i < fs->line_count - 1; ++i) {
-        strcpy(fs->text_buffer[i], fs->text_buffer[i + 1]);
-    }
-
-    // Clear the last line
-    memset(fs->text_buffer[fs->line_count - 1], 0, fs->line_capacity);
-    fs->line_count--;
-
-    // Move cursor to the next line if possible
-    if (fs->cursor_y < LINES - 4 && fs->cursor_y <= fs->line_count) {
-        // Move to the next line
-        fs->cursor_y++;
-    } else if (fs->start_line + fs->cursor_y > fs->line_count) {
-        // Move up if at the end of the document
-        if (fs->cursor_y > 1) {
-            fs->cursor_y--;
-        } else if (fs->start_line > 0) {
-            fs->start_line--;
-        }
-    }
-
-    // Clear and redraw the text window
-    werase(text_win);
-    box(text_win, 0, 0);
-    draw_text_buffer(fs, text_win);
-    mark_comment_state_dirty(fs);
-}
-
-/**
- * Inserts a new line at the current cursor position.
- * 
- * @param fs Pointer to the current file state.
- */
-void insert_new_line(FileState *fs) {
-    if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
-        allocation_failed("ensure_line_capacity failed");
-    // Move lines below the cursor down by one
-    for (int i = fs->line_count; i > fs->cursor_y + fs->start_line - 1; --i) {
-        strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
-    }
-    fs->line_count++;
-
-    // Insert a new empty line at the current cursor position
-    fs->text_buffer[fs->cursor_y + fs->start_line - 1][0] = '\0';
-
-    // Record the change for undo
-    Change change;
-    change.line = fs->cursor_y + fs->start_line - 1;
-    change.old_text = NULL;
-    change.new_text = strdup("");
-    if (!change.new_text) {
-        allocation_failed("strdup failed");
-        return;
-    }
-
-    push(&fs->undo_stack, change);
-    mark_comment_state_dirty(fs);
-
-    // Move cursor to the new line
-    fs->cursor_x = 1;
-
-    // Adjust cursor_y and start_line
-    if (fs->cursor_y == LINES - 4 && fs->start_line + LINES - 4 < fs->line_count) {
-        fs->start_line++;
-    } else {
-        fs->cursor_y++;
-    }
-
-    // Clear and redraw the text window
-    redraw();
-
-    // Move the cursor up one line
-    if (fs->cursor_y > 1) {
-        fs->cursor_y--;
-    } else if (fs->start_line > 0) {
-        fs->start_line--;
-    }
-}
 
 
 
-/**
- * Disables the handling of CTRL-C and CTRL-Z signals.
- * This function ignores the SIGINT (CTRL-C) and SIGTSTP (CTRL-Z) signals.
- */
-void disable_ctrl_c_z() {
-    // Ignore SIGINT (CTRL-C)
-    signal(SIGINT, SIG_IGN);
-    // Ignore SIGTSTP (CTRL-Z)
-    signal(SIGTSTP, SIG_IGN);
-}
-
-void apply_colors() {
-    bkgd(enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
-    for (int i = 0; i < file_manager.count; ++i) {
-        FileState *fs = file_manager.files[i];
-        if (fs && fs->text_win) {
-            wbkgd(fs->text_win,
-                  enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
-        }
-    }
-}
-
-/**
- * Initializes the editor by setting up the screen,
- * reading the configuration file, enabling color if specified, and setting up
- * various settings and key mappings.
- */
-void initialize() {
-    // Initialize the screen
-    initscr();
-
-    // Load the configuration file
-    config_load(&app_config);
-    apply_colors();
-
-    // Enable color if specified
-    if (enable_color) {
-        start_color();
-    }
-
-    // Set up terminal settings
-    cbreak();  // Disable line buffering
-    noecho();  // Disable echoing of input characters
-    keypad(stdscr, TRUE);  // Enable special keys
-    meta(stdscr, TRUE);  // Enable 8-bit control characters
-
-    // Initialize mouse support
-    if (enable_mouse)
-        mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
-    
-    // Set timeout to 100 milliseconds
-    timeout(10); 
 
 
-
-    // Set the background color of the screen
-    bkgd(COLOR_PAIR(1));
-
-    // Refresh the screen
-    refresh();
-
-    // Handle window resizing
-    signal(SIGWINCH, handle_resize);
-
-    // Disable handling of CTRL-C and CTRL-Z signals
-    disable_ctrl_c_z();
-
-    // Map escape sequences for CTRL-Left and CTRL-Right to custom key constants
-    define_key("\033[1;5D", KEY_CTRL_LEFT);  // Escape sequence for CTRL-Left
-    define_key("\033[1;5C", KEY_CTRL_RIGHT);  // Escape sequence for CTRL-Right
-
-    // Map escape sequences for CTRL-Page Up and CTRL-Page Down to custom key constants
-    define_key("\033[5;5~", KEY_CTRL_PGUP);  // Escape sequence for CTRL-Page Up
-    define_key("\033[6;5~", KEY_CTRL_PGDN);  // Escape sequence for CTRL-Page Down
-
-    // Map escape sequences for CTRL-Up and CTRL-Down to custom key constants
-    define_key("\033[1;5A", KEY_CTRL_UP);  // Escape sequence for CTRL-Up
-    define_key("\033[1;5B", KEY_CTRL_DOWN);  // Escape sequence for CTRL-Down
-
-    // Map CTRL-T to custom key constant
-    define_key("\024", KEY_CTRL_T);  // \024 is the octal for CTRL-T
-
-    // Set up key mappings
-    initialize_key_mappings();
-
-    // Initialize menus
-    initializeMenus();
-
-    // Update the status bar
-    update_status_bar(active_file);
-}
 
 /**
  * Runs the editor and handles user input.
@@ -619,38 +385,7 @@ void run_editor() {
     delwin(text_win);
 }
 
-/**
- * Cleans up all open files and menus before program exit.
- *
- * Iterates through all files managed by @p fm, freeing undo/redo stacks and
- * each FileState. Menu structures are also released.
- *
- * @param fm Pointer to the FileManager containing open files.
- */
-void cleanup_on_exit(FileManager *fm) {
-    if (!fm || !fm->files) {
-        freeMenus();
-        return;
-    }
 
-    for (int i = 0; i < fm->count; ++i) {
-        FileState *fs = fm->files[i];
-        if (!fs) continue;
-
-        free_stack(fs->undo_stack);
-        fs->undo_stack = NULL;
-        free_stack(fs->redo_stack);
-        fs->redo_stack = NULL;
-
-        free_file_state(fs, fs->max_lines);
-    }
-
-    freeMenus();
-}
-
-void close_editor() {
-    exiting = 1;
-}
 
 /**
  * Initializes the text buffer by allocating memory for each line and setting initial values.
@@ -869,28 +604,4 @@ void clear_text_buffer() {
 }
 
 
-void update_status_bar(FileState *fs) {
-    move(0, 0);
 
-    int idx = file_manager.active_index + 1;
-    int total = file_manager.count > 0 ? file_manager.count : 1;
-
-    const char *name = "untitled";
-    if (fs && fs->filename[0] != '\0') {
-        name = fs->filename;
-    }
-    char display[512];
-    snprintf(display, sizeof(display), "%s [%d/%d]", name, idx, total);
-
-    int center_position = (COLS - (int)strlen(display)) / 2;
-    mvprintw(1, center_position, "%s", display);
-
-    move(LINES - 1, 0);
-    clrtoeol();
-    int actual_line_number = fs ? (fs->cursor_y + fs->start_line) : 0;
-    mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", fs ? fs->line_count : 0, actual_line_number, fs ? fs->cursor_x : 0);
-
-    mvprintw(LINES - 1, COLS - 15, "CTRL-H - Help");
-
-    refresh();
-}
