@@ -34,3 +34,8 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_common.c -o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_long_identifier.c \
     obj_test/syntax_c.o obj_test/syntax_csharp.o obj_test/syntax_common.o -lncurses -o test_long_identifier
 ./test_long_identifier
+
+# build and run HTML comment boundary test
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_html.c -o obj_test/syntax_html.o
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_html_comment.c obj_test/syntax_html.o -lncurses -o test_html_comment
+./test_html_comment
