@@ -124,6 +124,7 @@ void update_status_bar(FileState *fs) {
     char display[512];
     snprintf(display, sizeof(display), "%s [%d/%d]", name, idx, total);
     int center_position = (COLS - (int)strlen(display)) / 2;
+    if (center_position < 0) center_position = 0;
     mvprintw(1, center_position, "%s", display);
     move(LINES - 1, 0);
     clrtoeol();
