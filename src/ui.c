@@ -4,6 +4,7 @@
 #include "config.h"
 #include "ui.h"
 #include "syntax.h"
+#include "ui_common.h"
 
 void create_dialog(const char *message, char *output, int max_input_len) {
     /* Use existing color pairs configured by the application */
