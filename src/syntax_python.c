@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include "syntax.h"
 #include "files.h"
 
@@ -15,37 +16,29 @@ static const char *PYTHON_KEYWORDS[PYTHON_KEYWORDS_COUNT] = {
 void highlight_python_syntax(FileState *fs, WINDOW *win, const char *line, int y) {
     wattrset(win, COLOR_PAIR(SYNTAX_BG));
     int length = strlen(line);
-    int start = 0;
     int i = 0;
     int x = 1;
 
     while (i < length) {
         if (fs->in_multiline_string) {
-            start = i;
-            while (i < length) {
-                if (line[i] == '\\' && i + 1 < length) {
-                    i += 2;
-                    continue;
-                }
-                if (line[i] == fs->string_delim && i + 2 < length &&
-                    line[i + 1] == fs->string_delim && line[i + 2] == fs->string_delim) {
-                    i += 3;
-                    fs->in_multiline_string = false;
-                    break;
-                }
-                i++;
-            }
+            bool closed;
+            int len = scan_multiline_string(line, i, fs->string_delim, &closed);
             wattron(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
-            mvwprintw(win, y, x, "%.*s", i - start, &line[start]);
+            mvwprintw(win, y, x, "%.*s", len, &line[i]);
             wattroff(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
-            x += i - start;
-        } else if (isalpha((unsigned char)line[i]) || line[i] == '_') {
-            start = i;
-            while (isalnum((unsigned char)line[i]) || line[i] == '_') i++;
-            int word_length = i - start;
-            char word[word_length + 1];
-            strncpy(word, &line[start], word_length);
-            word[word_length] = '\0';
+            fs->in_multiline_string = !closed;
+            x += len;
+            i += len;
+            continue;
+        }
+
+        if (isalpha((unsigned char)line[i]) || line[i] == '_') {
+            int len = scan_identifier(line, i);
+            char word[256];
+            if (len >= (int)sizeof(word))
+                len = (int)sizeof(word) - 1;
+            strncpy(word, &line[i], len);
+            word[len] = '\0';
 
             int is_keyword = 0;
             for (int j = 0; j < PYTHON_KEYWORDS_COUNT; j++) {
@@ -53,77 +46,49 @@ void highlight_python_syntax(FileState *fs, WINDOW *win, const char *line, int y
                     wattron(win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
                     mvwprintw(win, y, x, "%s", word);
                     wattroff(win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
-                    x += word_length;
                     is_keyword = 1;
                     break;
                 }
             }
             if (!is_keyword) {
                 mvwprintw(win, y, x, "%s", word);
-                x += word_length;
             }
+            x += len;
+            i += len;
         } else if (isdigit((unsigned char)line[i])) {
-            start = i++;
-            if (line[start] == '0' && i < length && strchr("xXbBoO", line[i])) {
-                i++;
-                while (i < length && isalnum((unsigned char)line[i])) i++;
-            } else {
-                while (i < length && (isalnum((unsigned char)line[i]) || line[i] == '.' || line[i] == '_')) i++;
-            }
+            int len = scan_number(line, i);
             wattron(win, COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
-            mvwprintw(win, y, x, "%.*s", i - start, &line[start]);
+            mvwprintw(win, y, x, "%.*s", len, &line[i]);
             wattroff(win, COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
-            x += i - start;
+            x += len;
+            i += len;
         } else if (line[i] == '#') {
             wattron(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
             mvwprintw(win, y, x, "%s", &line[i]);
             wattroff(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
             break;
-        } else if ((line[i] == '"' || line[i] == '\'' ) && i + 2 < length &&
-                   line[i + 1] == line[i] && line[i + 2] == line[i]) {
+        } else if ((line[i] == '"' || line[i] == '\'' ) &&
+                   i + 2 < length && line[i + 1] == line[i] && line[i + 2] == line[i]) {
             fs->in_multiline_string = true;
             fs->string_delim = line[i];
-            start = i;
-            i += 3;
-            while (i < length) {
-                if (line[i] == '\\' && i + 1 < length) {
-                    i += 2;
-                    continue;
-                }
-                if (line[i] == fs->string_delim && i + 2 < length &&
-                    line[i + 1] == fs->string_delim && line[i + 2] == fs->string_delim) {
-                    i += 3;
-                    fs->in_multiline_string = false;
-                    break;
-                }
-                i++;
-            }
+            bool closed;
+            int len = scan_multiline_string(line, i, fs->string_delim, &closed);
             wattron(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
-            mvwprintw(win, y, x, "%.*s", i - start, &line[start]);
+            mvwprintw(win, y, x, "%.*s", len, &line[i]);
             wattroff(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
-            x += i - start;
+            fs->in_multiline_string = !closed;
+            x += len;
+            i += len;
         } else if (line[i] == '"' || line[i] == '\'') {
-            char quote = line[i];
-            start = i++;
-            while (i < length) {
-                if (line[i] == '\\' && i + 1 < length) {
-                    i += 2;
-                    continue;
-                }
-                if (line[i] == quote) {
-                    i++;
-                    break;
-                }
-                i++;
-            }
+            bool closed;
+            int len = scan_string(line, i, line[i], &closed);
             wattron(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
-            mvwprintw(win, y, x, "%.*s", i - start, &line[start]);
+            mvwprintw(win, y, x, "%.*s", len, &line[i]);
             wattroff(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
-            x += i - start;
+            x += len;
+            i += len;
         } else {
-            mvwprintw(win, y, x, "%c", line[i]);
-            x++;
-            i++;
+            mvwprintw(win, y, x++, "%c", line[i++]);
         }
     }
 }
