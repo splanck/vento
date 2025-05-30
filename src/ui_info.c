@@ -106,6 +106,11 @@ void show_warning_dialog() {
     wrefresh(warning_win);
     wgetch(warning_win);
 
+    werase(warning_win);
+    wrefresh(warning_win);
+    delwin(warning_win);
+    wrefresh(stdscr);
+
     werase(text_win);
     box(text_win, 0, 0);
     draw_text_buffer(active_file, text_win);
