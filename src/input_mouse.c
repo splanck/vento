@@ -39,11 +39,17 @@ void handle_mouse_event(FileState *fs, MEVENT *ev) {
         update_selection_mouse(fs, fs->cursor_x, fs->cursor_y);
     }
 
+#ifdef BUTTON4_PRESSED
+    /* Some systems may not define BUTTON4_PRESSED */
     if (ev->bstate & BUTTON4_PRESSED) {
         handle_key_up(fs);
     }
+#endif
 
+#ifdef BUTTON5_PRESSED
+    /* Some systems may not define BUTTON5_PRESSED */
     if (ev->bstate & BUTTON5_PRESSED) {
         handle_key_down(fs);
     }
+#endif
 }
