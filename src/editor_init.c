@@ -29,9 +29,6 @@ void initialize() {
     initscr();
     config_load(&app_config);
     apply_colors();
-    if (enable_color) {
-        start_color();
-    }
     cbreak();
     noecho();
     keypad(stdscr, TRUE);
