@@ -26,3 +26,11 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_resize.
 # build and run line truncation resize test
 gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_resize_trunc.c obj_test/files.o obj_test/file_manager.o -lncurses -o test_resize_trunc
 ./test_resize_trunc
+
+# build and run identifier overflow test with AddressSanitizer
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_c.c -o obj_test/syntax_c.o
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_csharp.c -o obj_test/syntax_csharp.o
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_common.c -o obj_test/syntax_common.o
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_long_identifier.c \
+    obj_test/syntax_c.o obj_test/syntax_csharp.o obj_test/syntax_common.o -lncurses -o test_long_identifier
+./test_long_identifier
