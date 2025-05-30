@@ -32,4 +32,10 @@ void highlight_csharp_syntax(struct FileState *fs, WINDOW *win, const char *line
 void sync_multiline_comment(struct FileState *fs, int line);
 void mark_comment_state_dirty(struct FileState *fs);
 
+/* Token scanning helpers shared by highlight implementations */
+int scan_identifier(const char *line, int start);
+int scan_number(const char *line, int start);
+int scan_string(const char *line, int start, char quote, bool *closed);
+int scan_multiline_string(const char *line, int start, char quote, bool *closed);
+
 #endif // SYNTAX_H

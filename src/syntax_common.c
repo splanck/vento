@@ -6,6 +6,66 @@
 #include "editor.h"
 #include "files.h"
 
+/* Helper token scanning functions shared across language highlighters */
+int scan_identifier(const char *line, int start) {
+    int i = start;
+    if (!isalpha((unsigned char)line[i]) && line[i] != '_')
+        return 0;
+    i++;
+    while (isalnum((unsigned char)line[i]) || line[i] == '_')
+        i++;
+    return i - start;
+}
+
+int scan_number(const char *line, int start) {
+    int i = start;
+    if (line[i] == '0' && line[i + 1] && strchr("xXbBoO", line[i + 1])) {
+        i += 2;
+        while (isalnum((unsigned char)line[i]))
+            i++;
+    } else {
+        while (isalnum((unsigned char)line[i]) || line[i] == '.' || line[i] == '_')
+            i++;
+    }
+    return i - start;
+}
+
+int scan_string(const char *line, int start, char quote, bool *closed) {
+    int i = start + 1;
+    *closed = false;
+    while (line[i]) {
+        if (line[i] == '\\' && line[i + 1]) {
+            i += 2;
+            continue;
+        }
+        if (line[i] == quote) {
+            i++;
+            *closed = true;
+            break;
+        }
+        i++;
+    }
+    return i - start;
+}
+
+int scan_multiline_string(const char *line, int start, char quote, bool *closed) {
+    int i = start + 3; /* skip opening quotes */
+    *closed = false;
+    while (line[i]) {
+        if (line[i] == '\\' && line[i + 1]) {
+            i += 2;
+            continue;
+        }
+        if (line[i] == quote && line[i + 1] == quote && line[i + 2] == quote) {
+            i += 3;
+            *closed = true;
+            break;
+        }
+        i++;
+    }
+    return i - start;
+}
+
 // Synchronize the in_multiline_comment flag up to the specified line
 void sync_multiline_comment(FileState *fs, int line) {
     bool in_comment;
@@ -103,19 +163,18 @@ void highlight_with_keywords(FileState *fs, WINDOW *win, const char *line, int y
             mvwprintw(win, y, x++, "%c", line[i]);
             i++;
         } else if (isdigit((unsigned char)line[i])) {
+            int tok_len = scan_number(line, i);
             wattron(win, COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
-            while (i < len && (isdigit((unsigned char)line[i]) || line[i] == '.')) {
-                mvwprintw(win, y, x++, "%c", line[i]);
-                i++;
-            }
+            mvwprintw(win, y, x, "%.*s", tok_len, &line[i]);
             wattroff(win, COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
+            x += tok_len;
+            i += tok_len;
         } else if (line[i] == '/' && i + 1 < len && (line[i + 1] == '/' || line[i + 1] == '*')) {
             wattron(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
             if (line[i + 1] == '/') {
-                while (i < len) {
-                    mvwprintw(win, y, x++, "%c", line[i]);
-                    i++;
-                }
+                mvwprintw(win, y, x, "%s", &line[i]);
+                x += len - i;
+                i = len;
             } else {
                 mvwprintw(win, y, x++, "%c", line[i++]);
                 mvwprintw(win, y, x++, "%c", line[i++]);
@@ -133,27 +192,21 @@ void highlight_with_keywords(FileState *fs, WINDOW *win, const char *line, int y
             }
             wattroff(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
         } else if (line[i] == '"' || line[i] == '\'') {
-            char quote = line[i];
+            bool closed;
+            int tok_len = scan_string(line, i, line[i], &closed);
             wattron(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
-            mvwprintw(win, y, x++, "%c", line[i++]);
-            while (i < len && line[i] != quote) {
-                if (line[i] == '\\' && i + 1 < len) {
-                    mvwprintw(win, y, x++, "%c", line[i++]);
-                }
-                mvwprintw(win, y, x++, "%c", line[i++]);
-            }
-            if (i < len) {
-                mvwprintw(win, y, x++, "%c", line[i++]);
-            }
+            mvwprintw(win, y, x, "%.*s", tok_len, &line[i]);
             wattroff(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
+            x += tok_len;
+            i += tok_len;
         } else if (isalpha((unsigned char)line[i]) || line[i] == '_') {
-            word_len = 0;
-            while (i < len && (isalnum((unsigned char)line[i]) || line[i] == '_') &&
-                   word_len < (int)sizeof(word) - 1) {
-                word[word_len++] = line[i++];
-            }
+            word_len = scan_identifier(line, i);
+            if (word_len >= (int)sizeof(word))
+                word_len = (int)sizeof(word) - 1;
+            strncpy(word, &line[i], word_len);
             word[word_len] = '\0';
-
+            i += word_len;
+            
             int is_keyword = 0;
             for (int j = 0; j < keyword_count; j++) {
                 if (strcmp(word, keywords[j]) == 0) {
