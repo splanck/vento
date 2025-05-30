@@ -160,6 +160,49 @@ int show_open_file_dialog(char *path, int max_len) {
                     return 1;
                 }
             }
+        } else if (ch == KEY_MOUSE && enable_mouse) {
+            MEVENT ev;
+            if (getmouse(&ev) == OK &&
+                (ev.bstate & (BUTTON1_PRESSED | BUTTON1_CLICKED |
+                               BUTTON1_RELEASED))) {
+                int wy, wx;
+                getbegyx(win, wy, wx);
+                int row = ev.y - wy - 2;
+                int col = ev.x - wx - 2;
+                int max_display = win_height - 5;
+                if (row >= 0 && row < max_display &&
+                    col >= 0 && col < win_width - 4) {
+                    int idx = start + row;
+                    if (idx >= 0 && idx < n_choices)
+                        highlight = idx;
+
+                    if (ev.bstate & (BUTTON1_RELEASED | BUTTON1_CLICKED)) {
+                        if (n_choices > 0) {
+                            struct stat sb;
+                            char next_path[2048];
+                            snprintf(next_path, sizeof(next_path), "%s/%s", cwd,
+                                     choices[highlight]);
+                            if (stat(next_path, &sb) == 0 && S_ISDIR(sb.st_mode)) {
+                                strncpy(cwd, next_path, sizeof(cwd));
+                                cwd[sizeof(cwd) - 1] = '\0';
+                                highlight = 0;
+                                start = 0;
+                                input_len = 0;
+                                input[0] = '\0';
+                            } else {
+                                strncpy(path, next_path, max_len);
+                                path[max_len - 1] = '\0';
+                                free_dir_contents(choices, n_choices);
+                                wclear(win);
+                                wrefresh(win);
+                                delwin(win);
+                                wrefresh(stdscr);
+                                return 1;
+                            }
+                        }
+                    }
+                }
+            }
         } else if (ch == KEY_BACKSPACE || ch == 127) {
             if (input_len > 0) {
                 input_len--;
@@ -284,6 +327,49 @@ int show_save_file_dialog(char *path, int max_len) {
                     delwin(win);
                     wrefresh(stdscr);
                     return 1;
+                }
+            }
+        } else if (ch == KEY_MOUSE && enable_mouse) {
+            MEVENT ev;
+            if (getmouse(&ev) == OK &&
+                (ev.bstate & (BUTTON1_PRESSED | BUTTON1_CLICKED |
+                               BUTTON1_RELEASED))) {
+                int wy, wx;
+                getbegyx(win, wy, wx);
+                int row = ev.y - wy - 2;
+                int col = ev.x - wx - 2;
+                int max_display = win_height - 5;
+                if (row >= 0 && row < max_display &&
+                    col >= 0 && col < win_width - 4) {
+                    int idx = start + row;
+                    if (idx >= 0 && idx < n_choices)
+                        highlight = idx;
+
+                    if (ev.bstate & (BUTTON1_RELEASED | BUTTON1_CLICKED)) {
+                        if (n_choices > 0) {
+                            struct stat sb;
+                            char next_path[2048];
+                            snprintf(next_path, sizeof(next_path), "%s/%s", cwd,
+                                     choices[highlight]);
+                            if (stat(next_path, &sb) == 0 && S_ISDIR(sb.st_mode)) {
+                                strncpy(cwd, next_path, sizeof(cwd));
+                                cwd[sizeof(cwd) - 1] = '\0';
+                                highlight = 0;
+                                start = 0;
+                                input_len = 0;
+                                input[0] = '\0';
+                            } else {
+                                strncpy(path, next_path, max_len);
+                                path[max_len - 1] = '\0';
+                                free_dir_contents(choices, n_choices);
+                                wclear(win);
+                                wrefresh(win);
+                                delwin(win);
+                                wrefresh(stdscr);
+                                return 1;
+                            }
+                        }
+                    }
                 }
             }
         } else if (ch == KEY_BACKSPACE || ch == 127) {
