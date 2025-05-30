@@ -382,7 +382,6 @@ void run_editor() {
         wrefresh(text_win);
     }
 
-    delwin(text_win);
 }
 
 
