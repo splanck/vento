@@ -78,6 +78,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
 
     file_state->fp = NULL;
     file_state->file_complete = true;
+    file_state->modified = false;
 
     return file_state;
 }

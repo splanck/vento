@@ -22,3 +22,4 @@ int show_open_file_dialog(char *p,int m){(void)p;(void)m;return 0;}
 int show_save_file_dialog(char *p,int m){(void)p;(void)m;return 0;}
 void update_status_bar(FileState *fs){(void)fs;}
 void redraw(void){}
+int show_message(const char *msg){(void)msg;return 0;}

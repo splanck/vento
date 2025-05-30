@@ -7,6 +7,7 @@
 #include "file_ops.h"
 #include "files.h"
 #include "file_manager.h"
+#include "ui_common.h"
 
 #define INITIAL_LOAD_LINES 1024
 
@@ -21,6 +22,7 @@ void save_file(FileState *fs) {
                 fprintf(fp, "%s\n", fs->text_buffer[i]);
             }
             fclose(fp);
+            fs->modified = false;
             mvprintw(LINES - 2, 2, "File saved as %s", fs->filename);
         } else {
             mvprintw(LINES - 2, 2, "Error saving file!");
@@ -47,6 +49,7 @@ void save_file_as(FileState *fs) {
             fprintf(fp, "%s\n", fs->text_buffer[i]);
         }
         fclose(fp);
+        fs->modified = false;
         mvprintw(LINES - 2, 2, "File saved as %s", fs->filename);
     } else {
         mvprintw(LINES - 2, 2, "Error saving file!");
@@ -110,6 +113,7 @@ void load_file(FileState *fs_unused, const char *filename) {
     fs->in_multiline_comment = false;
     fs->last_scanned_line = 0;
     fs->last_comment_state = false;
+    fs->modified = false;
 
     strncpy(fs->filename, filename, sizeof(fs->filename) - 1);
     fs->filename[sizeof(fs->filename) - 1] = '\0';
@@ -151,6 +155,7 @@ void new_file(FileState *fs_unused) {
 
     fs->filename[0] = '\0';
     fs->syntax_mode = set_syntax_mode(fs->filename);
+    fs->modified = false;
 
     int idx = fm_add(&file_manager, fs);
     if (idx < 0) {
@@ -184,6 +189,15 @@ void new_file(FileState *fs_unused) {
 
 void close_current_file(FileState *fs_unused, int *cx, int *cy) {
     (void)fs_unused;
+    FileState *current = fm_current(&file_manager);
+    if (current && current->modified) {
+        int ch = show_message("File modified. Save before closing? (y/n)");
+        if (ch == 'y' || ch == 'Y') {
+            save_file(current);
+        } else if (ch != 'n' && ch != 'N') {
+            return; /* cancel on other keys */
+        }
+    }
     fm_close(&file_manager, file_manager.active_index);
 
     if (file_manager.count > 0) {
