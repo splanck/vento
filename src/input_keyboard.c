@@ -189,6 +189,14 @@ void handle_ctrl_key_right(FileState *fs) {
     fs->cursor_x = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) + 1;
 }
 
+void handle_key_home(FileState *fs) {
+    fs->cursor_x = 1;
+}
+
+void handle_key_end(FileState *fs) {
+    fs->cursor_x = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) + 1;
+}
+
 void handle_tab_key(FileState *fs) {
     const int TAB_SIZE = 4;
     int inserted = 0;

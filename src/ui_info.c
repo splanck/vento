@@ -38,8 +38,8 @@ void show_help() {
     mvwprintw(help_win, 6, win_width / 2, "CTRL-D: Delete current line");
     mvwprintw(help_win, 7, win_width / 2, "Arrow Keys: Navigate text");
     mvwprintw(help_win, 8, win_width / 2, "Page Up/Down: Scroll document");
-    mvwprintw(help_win, 9, win_width / 2, "CTRL-Left: Move to line start");
-    mvwprintw(help_win, 10, win_width / 2, "CTRL-Right: Move to line end");
+    mvwprintw(help_win, 9, win_width / 2, "Home/CTRL-Left: Move to line start");
+    mvwprintw(help_win, 10, win_width / 2, "End/CTRL-Right: Move to line end");
     mvwprintw(help_win, 11, win_width / 2, "CTRL-PgUp: Move to top of doc");
     mvwprintw(help_win, 12, win_width / 2, "CTRL-PgDn: Move to end of doc");
     mvwprintw(help_win, 14, win_width / 2, "F5: Insert blank line");
