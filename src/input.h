@@ -25,5 +25,6 @@ void handle_default_key(struct FileState *fs, int ch);
 void move_forward_to_next_word(struct FileState *fs);
 void move_backward_to_previous_word(struct FileState *fs);
 void handle_mouse_event(struct FileState *fs, MEVENT *ev);
+void update_selection_mouse(struct FileState *fs, int x, int y);
 
 #endif
