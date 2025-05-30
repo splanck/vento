@@ -204,7 +204,7 @@ void close_current_file(FileState *fs_unused, int *cx, int *cy) {
 
 int set_syntax_mode(const char *filename) {
     const char *ext = strrchr(filename, '.');
-    if (ext) {
+    if (ext && ext[1] != '\0') {
         if (strcmp(ext, ".c") == 0 || strcmp(ext, ".h") == 0) {
             return C_SYNTAX;
         } else if (strcmp(ext, ".html") == 0 || strcmp(ext, ".htm") == 0) {
@@ -218,6 +218,23 @@ int set_syntax_mode(const char *filename) {
         } else if (strcmp(ext, ".css") == 0) {
             return CSS_SYNTAX;
         }
+    }
+    FILE *fp = fopen(filename, "r");
+    if (fp) {
+        char first[256];
+        if (fgets(first, sizeof(first), fp)) {
+            if (strncmp(first, "#!", 2) == 0) {
+                if (strstr(first, "python")) {
+                    fclose(fp);
+                    return PYTHON_SYNTAX;
+                }
+                if (strstr(first, "bash") || strstr(first, "sh")) {
+                    fclose(fp);
+                    return SHELL_SYNTAX;
+                }
+            }
+        }
+        fclose(fp);
     }
     return NO_SYNTAX;
 }

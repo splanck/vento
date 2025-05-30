@@ -23,6 +23,9 @@ void apply_syntax_highlighting(FileState *fs, WINDOW *win, const char *line, int
         case CSS_SYNTAX:
             highlight_css_syntax(fs, win, line, y);
             break;
+        case SHELL_SYNTAX:
+            highlight_shell_syntax(fs, win, line, y);
+            break;
         default:
             highlight_no_syntax(win, line, y);
             break;
