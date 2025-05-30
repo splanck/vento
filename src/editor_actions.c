@@ -6,7 +6,6 @@
 #include "syntax.h"
 #include "files.h"
 #include "file_manager.h"
-char *strdup(const char *s);
 #include "undo.h"
 
 void delete_current_line(FileState *fs) {

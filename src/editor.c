@@ -32,7 +32,6 @@ WINDOW *text_win;  // Pointer to the ncurses window for displaying the text
 
 // Undo and redo stacks are stored per file in FileState
 
-char *strdup(const char *s);  // Explicitly declare strdup
 int exiting = 0;
 
 char search_text[256] = "";

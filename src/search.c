@@ -9,8 +9,6 @@
 #include "undo.h"
 #include "syntax.h"
 
-char *strdup(const char *s);
-
 extern char search_text[256];
 
 void find_next_occurrence(FileState *fs, const char *word) {
