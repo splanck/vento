@@ -56,6 +56,7 @@ void save_file_as(FileState *fs) {
 void load_file(FileState *fs_unused, const char *filename) {
     (void)fs_unused;
     char file_to_load[256];
+    FileState *previous_active = active_file;
 
     if (filename == NULL) {
         if (show_open_file_dialog(file_to_load, sizeof(file_to_load)) == 0) {
@@ -77,30 +78,37 @@ void load_file(FileState *fs_unused, const char *filename) {
 
 
     FILE *fp = fopen(filename, "r");
-    if (fp) {
-        fs->line_count = 0;
-        while (1) {
-            if (ensure_line_capacity(fs, fs->line_count + 1) < 0) {
-                fclose(fp);
-                allocation_failed("ensure_line_capacity failed");
-            }
-            if (!fgets(fs->text_buffer[fs->line_count], fs->line_capacity, fp))
-                break;
-            fs->text_buffer[fs->line_count][strcspn(fs->text_buffer[fs->line_count], "\n")] = '\0';
-            fs->line_count++;
-        }
-        fclose(fp);
-        mvprintw(LINES - 2, 2, "File loaded: %s", filename);
-
-        fs->in_multiline_comment = false;
-        fs->last_scanned_line = 0;
-        fs->last_comment_state = false;
-
-        strncpy(fs->filename, filename, sizeof(fs->filename) - 1);
-        fs->filename[sizeof(fs->filename) - 1] = '\0';
-    } else {
+    if (!fp) {
         mvprintw(LINES - 2, 2, "Error loading file!");
+        refresh();
+        getch();
+        mvprintw(LINES - 2, 2, "                            ");
+        refresh();
+        free_file_state(fs, fs->max_lines);
+        active_file = previous_active;
+        return;
     }
+
+    fs->line_count = 0;
+    while (1) {
+        if (ensure_line_capacity(fs, fs->line_count + 1) < 0) {
+            fclose(fp);
+            allocation_failed("ensure_line_capacity failed");
+        }
+        if (!fgets(fs->text_buffer[fs->line_count], fs->line_capacity, fp))
+            break;
+        fs->text_buffer[fs->line_count][strcspn(fs->text_buffer[fs->line_count], "\n")] = '\0';
+        fs->line_count++;
+    }
+    fclose(fp);
+    mvprintw(LINES - 2, 2, "File loaded: %s", filename);
+
+    fs->in_multiline_comment = false;
+    fs->last_scanned_line = 0;
+    fs->last_comment_state = false;
+
+    strncpy(fs->filename, filename, sizeof(fs->filename) - 1);
+    fs->filename[sizeof(fs->filename) - 1] = '\0';
 
     refresh();
 
