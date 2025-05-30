@@ -133,3 +133,36 @@ void update_status_bar(FileState *fs) {
     mvprintw(LINES - 1, COLS - 15, "CTRL-H - Help");
     wnoutrefresh(stdscr);
 }
+
+void go_to_line(FileState *fs, int line) {
+    if (fs->line_count == 0)
+        return;
+
+    if (line < 1)
+        line = 1;
+    if (line > fs->line_count)
+        line = fs->line_count;
+
+    int lines_per_screen = LINES - 3;
+    int middle_line = lines_per_screen / 2;
+    int idx = line - 1;
+
+    if (fs->line_count <= lines_per_screen) {
+        fs->start_line = 0;
+    } else if (idx < middle_line) {
+        fs->start_line = 0;
+    } else if (idx > fs->line_count - middle_line) {
+        fs->start_line = fs->line_count - lines_per_screen;
+    } else {
+        fs->start_line = idx - middle_line;
+    }
+
+    fs->cursor_y = idx - fs->start_line + 1;
+    fs->cursor_x = 1;
+
+    werase(text_win);
+    box(text_win, 0, 0);
+    draw_text_buffer(fs, text_win);
+    wmove(text_win, fs->cursor_y, fs->cursor_x);
+    wnoutrefresh(text_win);
+}
