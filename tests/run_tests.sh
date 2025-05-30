@@ -18,3 +18,7 @@ gcc -Wall -Wextra -std=c99 -g -Isrc -c src/file_manager.c -o obj_test/file_manag
 # build and run file state initialization/switching test
 gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_file_state.c obj_test/files.o obj_test/file_manager.o -lncurses -o test_file_state
 ./test_file_state
+
+# build and run resize handling test (provides many stubs)
+gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_resize.c obj_test/files.o obj_test/file_manager.o -lncurses -o test_resize
+./test_resize

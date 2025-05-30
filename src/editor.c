@@ -536,6 +536,7 @@ void handle_resize(int sig) {
     (void)sig; // Cast to void to suppress unused parameter warning
 
     endwin(); // End the curses mode
+    resizeterm(0, 0); // update ncurses internal size
     refresh(); // Refresh the screen
     clear(); // Clear the screen
 
@@ -562,11 +563,23 @@ void handle_resize(int sig) {
         }
     }
 
+    drawBar();
+
     /* Use the resized window of the active file */
     text_win = active_file->text_win;
     werase(text_win);
     box(text_win, 0, 0);
     draw_text_buffer(active_file, text_win);
+    if (active_file->cursor_x >= COLS - 1)
+        active_file->cursor_x = COLS - 2;
+    if (active_file->cursor_x < 1)
+        active_file->cursor_x = 1;
+    if (active_file->cursor_y >= LINES - BOTTOM_MARGIN)
+        active_file->cursor_y = LINES - BOTTOM_MARGIN - 1;
+    if (active_file->cursor_y < 1)
+        active_file->cursor_y = 1;
+
+    wmove(text_win, active_file->cursor_y, active_file->cursor_x);
     wrefresh(text_win);
 
     update_status_bar(active_file);
