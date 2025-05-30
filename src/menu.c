@@ -239,6 +239,10 @@ void menuSettings() {
     if (show_settings_dialog(&app_config)) {
         config_save(&app_config);
         config_load(&app_config);
+        if (enable_mouse)
+            mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
+        else
+            mousemask(0, NULL);
         apply_colors();
         redraw();
         drawBar();
