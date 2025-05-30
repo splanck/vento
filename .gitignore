@@ -1,5 +1,18 @@
 # Build artifacts
 bin/
 obj/
+obj_test/
 *.o
 *.json
+# Test binaries
+/test_*
+
+# IDE/editor files
+.idea/
+.vscode/
+*.swp
+*~
+*.bak
+
+# macOS files
+.DS_Store
