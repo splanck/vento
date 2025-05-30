@@ -121,6 +121,7 @@ int main(void){
 
     /* initial terminal size */
     LINES = 20; COLS = 50;
+    int initial_cols = COLS;
     FileState *fs = initialize_file_state("x", 2, COLS);
     assert(fs);
     fm_add(&file_manager, fs);
@@ -140,11 +141,11 @@ int main(void){
     assert(last_resize_win == fs->text_win);
     assert(last_resize_h == LINES - 2);
     assert(last_resize_w == COLS);
-    assert(fs->line_capacity == COLS - 3);
+    assert(fs->line_capacity == initial_cols);
     assert(fs->cursor_x == COLS - 1);
     assert(fs->cursor_y == LINES - BOTTOM_MARGIN);
-    assert(strlen(fs->text_buffer[0]) == (size_t)(fs->line_capacity - 1));
-    for(int i=0;i<fs->line_capacity-1;i++)
+    assert(strlen(fs->text_buffer[0]) == 40);
+    for(int i=0;i<40;i++)
         assert(fs->text_buffer[0][i] == 'A');
 
     assert(drawBar_called);

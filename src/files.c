@@ -118,6 +118,29 @@ int ensure_line_capacity(FileState *fs, int min_needed) {
     return 0;
 }
 
+int ensure_col_capacity(FileState *fs, int cols) {
+    if (cols <= fs->line_capacity)
+        return 0;
+
+    int old_capacity = fs->line_capacity;
+    for (int i = 0; i < fs->max_lines; ++i) {
+        char *tmp = realloc(fs->text_buffer[i], cols);
+        if (!tmp) {
+            for (int j = 0; j < i; ++j) {
+                char *restore = realloc(fs->text_buffer[j], old_capacity);
+                if (restore)
+                    fs->text_buffer[j] = restore;
+            }
+            return -1;
+        }
+        fs->text_buffer[i] = tmp;
+        memset(fs->text_buffer[i] + old_capacity, 0, cols - old_capacity);
+    }
+
+    fs->line_capacity = cols;
+    return 0;
+}
+
 // Function to load file content into the text buffer
 int load_file_into_buffer(FileState *file_state) {
     FILE *fp = fopen(file_state->filename, "r");
