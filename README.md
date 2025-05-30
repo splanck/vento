@@ -41,6 +41,7 @@ Vento currently supports the following features:
 - **About Box**: Press `CTRL-A` to view product information, version, and GPL message.
  - **Menu System**: Intuitive menu navigation for editor features.
 - **Mouse Support**: Click to move the cursor, drag to select text, scroll with the wheel, and click the menu bar and its items.
+- **Resizes Without Truncation**: When the terminal window is resized, Vento preserves all text so nothing gets cut off.
 
 ## Configuration File
 
