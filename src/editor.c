@@ -566,8 +566,6 @@ void handle_resize(int sig) {
         }
     }
 
-    drawBar();
-
     /* Use the resized window of the active file */
     text_win = active_file->text_win;
     werase(text_win);
@@ -586,6 +584,9 @@ void handle_resize(int sig) {
     wrefresh(text_win);
 
     update_status_bar(active_file);
+
+    /* Redraw the menu bar after all windows have been updated */
+    drawBar();
 }
 
 /**
