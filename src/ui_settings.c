@@ -11,6 +11,9 @@ int select_bool(const char *prompt, int current, WINDOW *parent);
 int show_settings_dialog(AppConfig *cfg) {
     AppConfig original = *cfg;
 
+    mmask_t oldmask = mousemask(0, NULL);
+    mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
+
     enum {
         FIELD_ENABLE_COLOR,
         FIELD_MOUSE,
@@ -209,7 +212,7 @@ int show_settings_dialog(AppConfig *cfg) {
                 break;
             }
             }
-        } else if (ch == KEY_MOUSE && cfg->enable_mouse) {
+        } else if (ch == KEY_MOUSE) {
             MEVENT ev;
             if (getmouse(&ev) == OK &&
                 (ev.bstate & (BUTTON1_PRESSED | BUTTON1_CLICKED |
@@ -305,6 +308,8 @@ int show_settings_dialog(AppConfig *cfg) {
         }
     }
 
+    mousemask(oldmask, NULL);
+
     wclear(win);
     wrefresh(win);
     delwin(win);
@@ -398,7 +403,7 @@ const char *select_color(const char *current, WINDOW *parent) {
                 }
             }
             return colors[highlight];
-        } else if (ch == KEY_MOUSE && enable_mouse) {
+        } else if (ch == KEY_MOUSE) {
             MEVENT ev;
             if (getmouse(&ev) == OK &&
                 (ev.bstate & (BUTTON1_PRESSED | BUTTON1_CLICKED |
@@ -509,7 +514,7 @@ int select_bool(const char *prompt, int current, WINDOW *parent) {
                 }
             }
             return highlight == 1 ? 1 : 0;
-        } else if (ch == KEY_MOUSE && enable_mouse) {
+        } else if (ch == KEY_MOUSE) {
             MEVENT ev;
             if (getmouse(&ev) == OK &&
                 (ev.bstate & (BUTTON1_PRESSED | BUTTON1_CLICKED |
