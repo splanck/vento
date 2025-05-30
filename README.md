@@ -133,6 +133,17 @@ make
 sudo make install
 ```
 
+### macOS Build Notes
+
+On macOS you may need to pass feature macros when compiling, for example:
+
+```bash
+make CFLAGS="-D_DARWIN_C_SOURCE"
+```
+
+The code already guards `SIGWINCH`, but enabling additional feature macros may
+be required for full functionality.
+
 ## Enabling Debug Output
 
 Vento includes optional debug messages within the configuration loader. To see
