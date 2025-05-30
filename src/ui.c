@@ -14,6 +14,12 @@ void create_dialog(const char *message, char *output, int max_input_len) {
     int win_height = 7;
 
     WINDOW *dialog_win = newwin(win_height, win_width, win_y, win_x);
+    if (!dialog_win) {
+        if (output)
+            output[0] = '\0';
+        show_message("Unable to create window");
+        return;
+    }
     keypad(dialog_win, TRUE);
     wbkgd(dialog_win, COLOR_PAIR(SYNTAX_BG));
     wrefresh(stdscr);
@@ -72,6 +78,12 @@ int show_find_dialog(char *output, int max_input_len, const char *preset) {
     int win_height = 7;
 
     WINDOW *dialog_win = newwin(win_height, win_width, win_y, win_x);
+    if (!dialog_win) {
+        if (output)
+            output[0] = '\0';
+        show_message("Unable to create window");
+        return 0;
+    }
     keypad(dialog_win, TRUE);
     wbkgd(dialog_win, COLOR_PAIR(SYNTAX_BG));
     wrefresh(stdscr);
