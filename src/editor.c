@@ -370,8 +370,12 @@ void delete_current_line(FileState *fs) {
     int line_to_delete = fs->cursor_y - 1 + fs->start_line;
 
     // Push the current state to the undo stack
-    push(&fs->undo_stack,
-         (Change){line_to_delete, strdup(fs->text_buffer[line_to_delete]), NULL});
+    char *old_text = strdup(fs->text_buffer[line_to_delete]);
+    if (!old_text) {
+        allocation_failed("strdup failed");
+        return;
+    }
+    push(&fs->undo_stack, (Change){line_to_delete, old_text, NULL});
 
     // Shift lines up to delete the current line
     for (int i = line_to_delete; i < fs->line_count - 1; ++i) {
@@ -424,6 +428,10 @@ void insert_new_line(FileState *fs) {
     change.line = fs->cursor_y + fs->start_line - 1;
     change.old_text = NULL;
     change.new_text = strdup("");
+    if (!change.new_text) {
+        allocation_failed("strdup failed");
+        return;
+    }
 
     push(&fs->undo_stack, change);
     mark_comment_state_dirty(fs);

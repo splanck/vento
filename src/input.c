@@ -328,6 +328,10 @@ void handle_tab_key(FileState *fs) {
         return;
 
     char *old_text = strdup(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
+    if (!old_text) {
+        allocation_failed("strdup failed");
+        return;
+    }
 
     while (inserted < TAB_SIZE && fs->cursor_x < fs->line_capacity - 1) {
         int len = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
@@ -346,6 +350,11 @@ void handle_tab_key(FileState *fs) {
 
     if (inserted > 0) {
         char *new_text = strdup(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
+        if (!new_text) {
+            free(old_text);
+            allocation_failed("strdup failed");
+            return;
+        }
         Change change = { fs->cursor_y - 1 + fs->start_line, old_text, new_text };
         push(&fs->undo_stack, change);
         mark_comment_state_dirty(fs);
@@ -380,6 +389,10 @@ void handle_default_key(FileState *fs, int ch) {
     if (fs->cursor_x < fs->line_capacity - 1) {
         int len = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
         char *old_text = strdup(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
+        if (!old_text) {
+            allocation_failed("strdup failed");
+            return;
+        }
 
         // Shift the characters to the right of the cursor to make space for the new character
         if (fs->cursor_x <= len) {
@@ -394,6 +407,11 @@ void handle_default_key(FileState *fs, int ch) {
         fs->cursor_x++;
 
         char *new_text = strdup(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
+        if (!new_text) {
+            free(old_text);
+            allocation_failed("strdup failed");
+            return;
+        }
         Change change = { fs->cursor_y - 1 + fs->start_line, old_text, new_text };
         push(&fs->undo_stack, change);
         mark_comment_state_dirty(fs);
