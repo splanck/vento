@@ -15,6 +15,7 @@ typedef struct Menu {
 void initializeMenus(void);
 void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *currentItem);
 bool drawMenu(Menu *menu, int currentItem, int startX, int startY);
+void drawMenuBar(Menu *menus, int menuCount);
 void menuNewFile(void);
 void menuLoadFile(void);
 void menuSaveFile(void);

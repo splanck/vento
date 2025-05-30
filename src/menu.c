@@ -12,21 +12,6 @@
 Menu *menus = NULL;
 int menuCount = 0;
 
-void drawMenuBar(Menu *menus, int menuCount) {
-    // Clear the top row
-    move(0, 0);
-    clrtoeol();
-
-    // Draw the menu bar
-    for (int i = 0; i < menuCount; ++i) {
-        mvprintw(0, i * 10, "%s", menus[i].label);
-    }
-    refresh();
-}
-
-void drawBar() {
-    drawMenuBar(menus, menuCount);
-}
 
 /**
  * Initializes the menus.
@@ -221,46 +206,6 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
     }
 }
 
-/**
- * Draws the menu on the screen.
- * 
- * @param menu The menu to be drawn.
- * @param currentItem The index of the currently selected item in the menu.
- * @param startX The starting x-coordinate of the menu window.
- * @param startY The starting y-coordinate of the menu window.
- */
-bool drawMenu(Menu *menu, int currentItem, int startX, int startY) {
-    int boxWidth = 20;
-    int boxHeight = menu->itemCount + 2;
-
-    if (startX < 0 || startY < 0 || startX + boxWidth > COLS ||
-        startY + boxHeight > LINES) {
-        return false;
-    }
-
-    // Create a new window for the menu
-    WINDOW *menuWin = newwin(boxHeight, boxWidth, startY, startX);
-    if (menuWin == NULL) {
-        fprintf(stderr, "Failed to create menu window\n");
-        return false;
-    }
-    box(menuWin, 0, 0);
-
-    // Draw each menu item
-    for (int i = 0; i < menu->itemCount; ++i) {
-        if (i == currentItem) {
-            wattron(menuWin, A_REVERSE); // Highlight the currently selected item
-        }
-        mvwprintw(menuWin, 1 + i, 1, "%s", menu->items[i].label); // Print the label of the menu item
-        if (i == currentItem) {
-            wattroff(menuWin, A_REVERSE); // Turn off the highlight for the currently selected item
-        }
-    }
-
-    wrefresh(menuWin); // Refresh the menu window
-    delwin(menuWin); // Delete the menu window
-    return true;
-}
 
 void menuNewFile() {
     new_file(active_file);
