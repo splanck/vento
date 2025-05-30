@@ -238,10 +238,22 @@ void replace_all_occurrences(FileState *fs, const char *search,
             continue;
 
         char *old_text = strdup(line_text);
+        if (!old_text) {
+            mvprintw(LINES - 2, 0, "Memory allocation failed");
+            refresh();
+            continue;
+        }
+
         size_t search_len = strlen(search);
         size_t replacement_len = strlen(replacement);
         size_t buf_size = fs->line_capacity;
         char *new_line = calloc(buf_size, 1);
+        if (!new_line) {
+            free(old_text);
+            mvprintw(LINES - 2, 0, "Memory allocation failed");
+            refresh();
+            continue;
+        }
         size_t idx = 0;
         char *cursor = line_text;
         while (pos) {
@@ -271,6 +283,13 @@ void replace_all_occurrences(FileState *fs, const char *search,
         new_line[idx] = '\0';
 
         char *new_text = strdup(new_line);
+        if (!new_text) {
+            free(old_text);
+            free(new_line);
+            mvprintw(LINES - 2, 0, "Memory allocation failed");
+            refresh();
+            continue;
+        }
         push(&fs->undo_stack, (Change){ line, old_text, new_text });
         strncpy(fs->text_buffer[line], new_line, fs->line_capacity - 1);
         fs->text_buffer[line][fs->line_capacity - 1] = '\0';
