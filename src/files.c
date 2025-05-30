@@ -45,6 +45,8 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     file_state->selection_mode = false;
     file_state->sel_start_x = file_state->sel_start_y = 0;
     file_state->sel_end_x = file_state->sel_end_y = 0;
+    file_state->match_start_x = file_state->match_start_y = -1;
+    file_state->match_end_x = file_state->match_end_y = -1;
     file_state->clipboard = malloc(CLIPBOARD_SIZE);
     if (!file_state->clipboard) {
         for (int j = 0; j < max_lines; j++) {

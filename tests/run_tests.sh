@@ -86,3 +86,7 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_c.c -o obj_
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_regex_complex.c \
     obj_test/syntax_c.o obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/files.o -lncurses -o test_regex_complex
 ./test_regex_complex
+
+# build and run search highlight test
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_search_highlight.c src/search.c -lncurses -o test_search_highlight
+./test_search_highlight

@@ -497,8 +497,20 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
 
     // Iterate over each line to be displayed on the window
     for (int i = 0; i < max_lines && i + fs->start_line < fs->line_count; ++i) {
+        int line_idx = i + fs->start_line;
         // Apply syntax highlighting to the current line of text
-        apply_syntax_highlighting(fs, win, fs->text_buffer[i + fs->start_line], i + 1);
+        apply_syntax_highlighting(fs, win, fs->text_buffer[line_idx], i + 1);
+
+        // Highlight current search match if it falls on this line
+        if (fs->match_start_y == line_idx && fs->match_start_x >= 0) {
+            int start_x = fs->match_start_x;
+            int len = fs->match_end_x - fs->match_start_x + 1;
+            if (start_x < COLS - 2 && len > 0) {
+                if (start_x + len > COLS - 2)
+                    len = COLS - 2 - start_x;
+                mvwchgat(win, i + 1, start_x + 1, len, A_REVERSE, 0, NULL);
+            }
+        }
     }
 
     // Calculate scrollbar position and size
@@ -539,6 +551,8 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
  * @return None
  */
 void handle_regular_mode(FileState *fs, int ch) {
+    fs->match_start_x = fs->match_end_x = -1;
+    fs->match_start_y = fs->match_end_y = -1;
     for (int i = 0; i < key_mapping_count; ++i) {
         if (key_mappings[i].key == 0 && key_mappings[i].handler == NULL) {
             break;

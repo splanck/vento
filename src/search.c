@@ -54,6 +54,8 @@ void find_next_occurrence(FileState *fs, const char *word) {
 
     if (!found_position) {
         mvprintw(LINES - 2, 0, "Word not found.");
+        fs->match_start_y = fs->match_end_y = -1;
+        fs->match_start_x = fs->match_end_x = -1;
     } else {
         *cursor_y = found_line - fs->start_line + 1;
         *cursor_x = found_position - fs->text_buffer[found_line] + 1;
@@ -71,6 +73,11 @@ void find_next_occurrence(FileState *fs, const char *word) {
         }
 
         *cursor_y = found_line - fs->start_line + 1;
+
+        fs->match_start_y = found_line;
+        fs->match_end_y = found_line;
+        fs->match_start_x = found_position - fs->text_buffer[found_line];
+        fs->match_end_x = fs->match_start_x + strlen(word) - 1;
 
         mvprintw(LINES - 2, 0, "Found at Line: %d, Column: %d", *cursor_y + fs->start_line + 1, *cursor_x + 1);
     }
