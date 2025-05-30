@@ -4,9 +4,18 @@
 #include <string.h>
 #include <strings.h>
 #include <stdlib.h>
+#include <stddef.h>
 
 const char *select_color(const char *current, WINDOW *parent);
 int select_bool(const char *prompt, int current, WINDOW *parent);
+
+static void apply_mouse(AppConfig *cfg) {
+    enable_mouse = cfg->enable_mouse;
+    if (enable_mouse)
+        mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
+    else
+        mousemask(0, NULL);
+}
 
 int show_settings_dialog(AppConfig *cfg) {
     curs_set(0);
@@ -15,28 +24,28 @@ int show_settings_dialog(AppConfig *cfg) {
     mmask_t oldmask = mousemask(0, NULL);
     mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
 
-    enum {
-        FIELD_ENABLE_COLOR,
-        FIELD_MOUSE,
-        FIELD_BACKGROUND,
-        FIELD_KEYWORD,
-        FIELD_COMMENT,
-        FIELD_STRING,
-        FIELD_TYPE,
-        FIELD_SYMBOL,
-        FIELD_COUNT
-    };
+    enum OptionType { OPT_BOOL, OPT_COLOR };
 
-    const char *labels[FIELD_COUNT] = {
-        "Enable color",
-        "Enable mouse",
-        "Background color",
-        "Keyword color",
-        "Comment color",
-        "String color",
-        "Type color",
-        "Symbol color"
+    enum { COLOR_LEN = sizeof(((AppConfig *)0)->background_color) };
+
+    typedef struct {
+        const char *label;
+        enum OptionType type;
+        size_t offset;
+        void (*after_change)(AppConfig *cfg);
+    } Option;
+
+    static const Option options[] = {
+        {"Enable color", OPT_BOOL, offsetof(AppConfig, enable_color), NULL},
+        {"Enable mouse", OPT_BOOL, offsetof(AppConfig, enable_mouse), apply_mouse},
+        {"Background color", OPT_COLOR, offsetof(AppConfig, background_color), NULL},
+        {"Keyword color", OPT_COLOR, offsetof(AppConfig, keyword_color), NULL},
+        {"Comment color", OPT_COLOR, offsetof(AppConfig, comment_color), NULL},
+        {"String color", OPT_COLOR, offsetof(AppConfig, string_color), NULL},
+        {"Type color", OPT_COLOR, offsetof(AppConfig, type_color), NULL},
+        {"Symbol color", OPT_COLOR, offsetof(AppConfig, symbol_color), NULL},
     };
+    const int FIELD_COUNT = sizeof(options) / sizeof(options[0]);
 
     int highlight = 0;
     int ch;
@@ -45,34 +54,15 @@ int show_settings_dialog(AppConfig *cfg) {
     int win_height = FIELD_COUNT + 4;
     int longest = 0;
     for (int i = 0; i < FIELD_COUNT; ++i) {
-        const char *val = "";
-        switch (i) {
-        case FIELD_ENABLE_COLOR:
-            val = cfg->enable_color ? "Enabled" : "Disabled";
-            break;
-        case FIELD_MOUSE:
-            val = cfg->enable_mouse ? "Enabled" : "Disabled";
-            break;
-        case FIELD_BACKGROUND:
-            val = cfg->background_color;
-            break;
-        case FIELD_KEYWORD:
-            val = cfg->keyword_color;
-            break;
-        case FIELD_COMMENT:
-            val = cfg->comment_color;
-            break;
-        case FIELD_STRING:
-            val = cfg->string_color;
-            break;
-        case FIELD_TYPE:
-            val = cfg->type_color;
-            break;
-        case FIELD_SYMBOL:
-            val = cfg->symbol_color;
-            break;
+        const Option *opt = &options[i];
+        const char *val;
+        if (opt->type == OPT_BOOL) {
+            int v = *(int *)((char *)cfg + opt->offset);
+            val = v ? "Enabled" : "Disabled";
+        } else {
+            val = (char *)cfg + opt->offset;
         }
-        int len = strlen(labels[i]) + 2 + strlen(val);
+        int len = strlen(opt->label) + 2 + strlen(val);
         if (len > longest)
             longest = len;
     }
@@ -87,47 +77,39 @@ int show_settings_dialog(AppConfig *cfg) {
     }
     keypad(win, TRUE);
 
+    void edit_option(const Option *opt) {
+        if (opt->type == OPT_BOOL) {
+            int *val = (int *)((char *)cfg + opt->offset);
+            *val = select_bool(opt->label, *val, win);
+        } else {
+            char *str = (char *)cfg + opt->offset;
+            const char *sel = select_color(str, win);
+            if (sel) {
+                strncpy(str, sel, COLOR_LEN - 1);
+                str[COLOR_LEN - 1] = '\0';
+            }
+        }
+        if (opt->after_change)
+            opt->after_change(cfg);
+    }
+
     while (!done) {
         werase(win);
         box(win, 0, 0);
 
         for (int i = 0; i < FIELD_COUNT; ++i) {
+            const Option *opt = &options[i];
             if (i == highlight)
                 wattron(win, A_REVERSE);
 
-            switch (i) {
-            case FIELD_ENABLE_COLOR:
-                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
-                          cfg->enable_color ? "Enabled" : "Disabled");
-                break;
-            case FIELD_MOUSE:
-                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
-                          cfg->enable_mouse ? "Enabled" : "Disabled");
-                break;
-            case FIELD_BACKGROUND:
-                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
-                          cfg->background_color);
-                break;
-            case FIELD_KEYWORD:
-                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
-                          cfg->keyword_color);
-                break;
-            case FIELD_COMMENT:
-                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
-                          cfg->comment_color);
-                break;
-            case FIELD_STRING:
-                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
-                          cfg->string_color);
-                break;
-            case FIELD_TYPE:
-                mvwprintw(win, i + 1, 2, "%s: %s", labels[i], cfg->type_color);
-                break;
-            case FIELD_SYMBOL:
-                mvwprintw(win, i + 1, 2, "%s: %s", labels[i],
-                          cfg->symbol_color);
-                break;
+            const char *val;
+            if (opt->type == OPT_BOOL) {
+                int v = *(int *)((char *)cfg + opt->offset);
+                val = v ? "Enabled" : "Disabled";
+            } else {
+                val = (char *)cfg + opt->offset;
             }
+            mvwprintw(win, i + 1, 2, "%s: %s", opt->label, val);
 
             if (i == highlight)
                 wattroff(win, A_REVERSE);
@@ -145,76 +127,7 @@ int show_settings_dialog(AppConfig *cfg) {
             if (highlight < FIELD_COUNT - 1)
                 ++highlight;
         } else if (ch == '\n') {
-            switch (highlight) {
-            case FIELD_ENABLE_COLOR:
-                cfg->enable_color =
-                    select_bool("Enable color", cfg->enable_color, win);
-                break;
-            case FIELD_MOUSE:
-                cfg->enable_mouse =
-                    select_bool("Enable mouse", cfg->enable_mouse, win);
-                enable_mouse = cfg->enable_mouse;
-                if (enable_mouse)
-                    mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
-                else
-                    mousemask(0, NULL);
-                break;
-            case FIELD_BACKGROUND: {
-                const char *sel = select_color(cfg->background_color, win);
-                if (sel) {
-                    strncpy(cfg->background_color, sel,
-                            sizeof(cfg->background_color) - 1);
-                    cfg->background_color[sizeof(cfg->background_color) - 1] =
-                        '\0';
-                }
-                break;
-            }
-            case FIELD_KEYWORD: {
-                const char *sel = select_color(cfg->keyword_color, win);
-                if (sel) {
-                    strncpy(cfg->keyword_color, sel,
-                            sizeof(cfg->keyword_color) - 1);
-                    cfg->keyword_color[sizeof(cfg->keyword_color) - 1] = '\0';
-                }
-                break;
-            }
-            case FIELD_COMMENT: {
-                const char *sel = select_color(cfg->comment_color, win);
-                if (sel) {
-                    strncpy(cfg->comment_color, sel,
-                            sizeof(cfg->comment_color) - 1);
-                    cfg->comment_color[sizeof(cfg->comment_color) - 1] = '\0';
-                }
-                break;
-            }
-            case FIELD_STRING: {
-                const char *sel = select_color(cfg->string_color, win);
-                if (sel) {
-                    strncpy(cfg->string_color, sel,
-                            sizeof(cfg->string_color) - 1);
-                    cfg->string_color[sizeof(cfg->string_color) - 1] = '\0';
-                }
-                break;
-            }
-            case FIELD_TYPE: {
-                const char *sel = select_color(cfg->type_color, win);
-                if (sel) {
-                    strncpy(cfg->type_color, sel,
-                            sizeof(cfg->type_color) - 1);
-                    cfg->type_color[sizeof(cfg->type_color) - 1] = '\0';
-                }
-                break;
-            }
-            case FIELD_SYMBOL: {
-                const char *sel = select_color(cfg->symbol_color, win);
-                if (sel) {
-                    strncpy(cfg->symbol_color, sel,
-                            sizeof(cfg->symbol_color) - 1);
-                    cfg->symbol_color[sizeof(cfg->symbol_color) - 1] = '\0';
-                }
-                break;
-            }
-            }
+            edit_option(&options[highlight]);
         } else if (ch == KEY_MOUSE) {
             MEVENT ev;
             if (getmouse(&ev) == OK &&
@@ -228,81 +141,7 @@ int show_settings_dialog(AppConfig *cfg) {
                     col >= 0 && col < win_width - 4) {
                     highlight = row;
                     if (ev.bstate & (BUTTON1_RELEASED | BUTTON1_CLICKED)) {
-                        switch (highlight) {
-                        case FIELD_ENABLE_COLOR:
-                            cfg->enable_color = select_bool(
-                                "Enable color", cfg->enable_color, win);
-                            break;
-                        case FIELD_MOUSE:
-                            cfg->enable_mouse = select_bool(
-                                "Enable mouse", cfg->enable_mouse, win);
-                            enable_mouse = cfg->enable_mouse;
-                            if (enable_mouse)
-                                mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
-                            else
-                                mousemask(0, NULL);
-                            break;
-                        case FIELD_BACKGROUND: {
-                            const char *sel =
-                                select_color(cfg->background_color, win);
-                            if (sel) {
-                                strncpy(cfg->background_color, sel,
-                                        sizeof(cfg->background_color) - 1);
-                                cfg->background_color[sizeof(cfg->background_color) - 1] = '\0';
-                            }
-                            break;
-                        }
-                        case FIELD_KEYWORD: {
-                            const char *sel =
-                                select_color(cfg->keyword_color, win);
-                            if (sel) {
-                                strncpy(cfg->keyword_color, sel,
-                                        sizeof(cfg->keyword_color) - 1);
-                                cfg->keyword_color[sizeof(cfg->keyword_color) - 1] = '\0';
-                            }
-                            break;
-                        }
-                        case FIELD_COMMENT: {
-                            const char *sel =
-                                select_color(cfg->comment_color, win);
-                            if (sel) {
-                                strncpy(cfg->comment_color, sel,
-                                        sizeof(cfg->comment_color) - 1);
-                                cfg->comment_color[sizeof(cfg->comment_color) - 1] = '\0';
-                            }
-                            break;
-                        }
-                        case FIELD_STRING: {
-                            const char *sel =
-                                select_color(cfg->string_color, win);
-                            if (sel) {
-                                strncpy(cfg->string_color, sel,
-                                        sizeof(cfg->string_color) - 1);
-                                cfg->string_color[sizeof(cfg->string_color) - 1] = '\0';
-                            }
-                            break;
-                        }
-                        case FIELD_TYPE: {
-                            const char *sel =
-                                select_color(cfg->type_color, win);
-                            if (sel) {
-                                strncpy(cfg->type_color, sel,
-                                        sizeof(cfg->type_color) - 1);
-                                cfg->type_color[sizeof(cfg->type_color) - 1] = '\0';
-                            }
-                            break;
-                        }
-                        case FIELD_SYMBOL: {
-                            const char *sel =
-                                select_color(cfg->symbol_color, win);
-                            if (sel) {
-                                strncpy(cfg->symbol_color, sel,
-                                        sizeof(cfg->symbol_color) - 1);
-                                cfg->symbol_color[sizeof(cfg->symbol_color) - 1] = '\0';
-                            }
-                            break;
-                        }
-                        }
+                        edit_option(&options[highlight]);
                     }
                 }
             }
