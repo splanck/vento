@@ -17,35 +17,52 @@ static void apply_mouse(AppConfig *cfg) {
         mousemask(0, NULL);
 }
 
+enum OptionType { OPT_BOOL, OPT_COLOR };
+
+enum { COLOR_LEN = sizeof(((AppConfig *)0)->background_color) };
+
+typedef struct {
+    const char *label;
+    enum OptionType type;
+    size_t offset;
+    void (*after_change)(AppConfig *cfg);
+} Option;
+
+static const Option options[] = {
+    {"Enable color", OPT_BOOL, offsetof(AppConfig, enable_color), NULL},
+    {"Enable mouse", OPT_BOOL, offsetof(AppConfig, enable_mouse), apply_mouse},
+    {"Background color", OPT_COLOR, offsetof(AppConfig, background_color), NULL},
+    {"Keyword color", OPT_COLOR, offsetof(AppConfig, keyword_color), NULL},
+    {"Comment color", OPT_COLOR, offsetof(AppConfig, comment_color), NULL},
+    {"String color", OPT_COLOR, offsetof(AppConfig, string_color), NULL},
+    {"Type color", OPT_COLOR, offsetof(AppConfig, type_color), NULL},
+    {"Symbol color", OPT_COLOR, offsetof(AppConfig, symbol_color), NULL},
+};
+
+#define FIELD_COUNT (sizeof(options) / sizeof(options[0]))
+
+static void edit_option(AppConfig *cfg, WINDOW *win, const Option *opt) {
+    if (opt->type == OPT_BOOL) {
+        int *val = (int *)((char *)cfg + opt->offset);
+        *val = select_bool(opt->label, *val, win);
+    } else {
+        char *str = (char *)cfg + opt->offset;
+        const char *sel = select_color(str, win);
+        if (sel) {
+            strncpy(str, sel, COLOR_LEN - 1);
+            str[COLOR_LEN - 1] = '\0';
+        }
+    }
+    if (opt->after_change)
+        opt->after_change(cfg);
+}
+
 int show_settings_dialog(AppConfig *cfg) {
     curs_set(0);
     AppConfig original = *cfg;
 
     mmask_t oldmask = mousemask(0, NULL);
     mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
-
-    enum OptionType { OPT_BOOL, OPT_COLOR };
-
-    enum { COLOR_LEN = sizeof(((AppConfig *)0)->background_color) };
-
-    typedef struct {
-        const char *label;
-        enum OptionType type;
-        size_t offset;
-        void (*after_change)(AppConfig *cfg);
-    } Option;
-
-    static const Option options[] = {
-        {"Enable color", OPT_BOOL, offsetof(AppConfig, enable_color), NULL},
-        {"Enable mouse", OPT_BOOL, offsetof(AppConfig, enable_mouse), apply_mouse},
-        {"Background color", OPT_COLOR, offsetof(AppConfig, background_color), NULL},
-        {"Keyword color", OPT_COLOR, offsetof(AppConfig, keyword_color), NULL},
-        {"Comment color", OPT_COLOR, offsetof(AppConfig, comment_color), NULL},
-        {"String color", OPT_COLOR, offsetof(AppConfig, string_color), NULL},
-        {"Type color", OPT_COLOR, offsetof(AppConfig, type_color), NULL},
-        {"Symbol color", OPT_COLOR, offsetof(AppConfig, symbol_color), NULL},
-    };
-    const int FIELD_COUNT = sizeof(options) / sizeof(options[0]);
 
     int highlight = 0;
     int ch;
@@ -76,22 +93,6 @@ int show_settings_dialog(AppConfig *cfg) {
         return 0;
     }
     keypad(win, TRUE);
-
-    void edit_option(const Option *opt) {
-        if (opt->type == OPT_BOOL) {
-            int *val = (int *)((char *)cfg + opt->offset);
-            *val = select_bool(opt->label, *val, win);
-        } else {
-            char *str = (char *)cfg + opt->offset;
-            const char *sel = select_color(str, win);
-            if (sel) {
-                strncpy(str, sel, COLOR_LEN - 1);
-                str[COLOR_LEN - 1] = '\0';
-            }
-        }
-        if (opt->after_change)
-            opt->after_change(cfg);
-    }
 
     while (!done) {
         werase(win);
@@ -127,7 +128,7 @@ int show_settings_dialog(AppConfig *cfg) {
             if (highlight < FIELD_COUNT - 1)
                 ++highlight;
         } else if (ch == '\n') {
-            edit_option(&options[highlight]);
+            edit_option(cfg, win, &options[highlight]);
         } else if (ch == KEY_MOUSE) {
             MEVENT ev;
             if (getmouse(&ev) == OK &&
@@ -141,7 +142,7 @@ int show_settings_dialog(AppConfig *cfg) {
                     col >= 0 && col < win_width - 4) {
                     highlight = row;
                     if (ev.bstate & (BUTTON1_RELEASED | BUTTON1_CLICKED)) {
-                        edit_option(&options[highlight]);
+                        edit_option(cfg, win, &options[highlight]);
                     }
                 }
             }
