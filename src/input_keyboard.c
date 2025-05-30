@@ -204,6 +204,8 @@ void handle_tab_key(FileState *fs) {
 
     while (inserted < TAB_SIZE && fs->cursor_x < fs->line_capacity - 1) {
         int len = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
+        if (len > fs->line_capacity - 1)
+            len = fs->line_capacity - 1;
 
         if (fs->cursor_x <= len) {
             memmove(&fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
@@ -212,7 +214,9 @@ void handle_tab_key(FileState *fs) {
         }
 
         fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1] = ' ';
-        fs->text_buffer[fs->cursor_y - 1 + fs->start_line][len + 1] = '\0';
+        if (len + 1 < fs->line_capacity)
+            fs->text_buffer[fs->cursor_y - 1 + fs->start_line][len + 1] = '\0';
+        fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->line_capacity - 1] = '\0';
         fs->cursor_x++;
         inserted++;
     }
@@ -247,6 +251,8 @@ void handle_default_key(FileState *fs, int ch) {
     }
     if (fs->cursor_x < fs->line_capacity - 1) {
         int len = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
+        if (len > fs->line_capacity - 1)
+            len = fs->line_capacity - 1;
         char *old_text = strdup(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
         if (!old_text) {
             allocation_failed("strdup failed");
@@ -260,7 +266,9 @@ void handle_default_key(FileState *fs, int ch) {
         }
 
         fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1] = ch;
-        fs->text_buffer[fs->cursor_y - 1 + fs->start_line][len + 1] = '\0';
+        if (len + 1 < fs->line_capacity)
+            fs->text_buffer[fs->cursor_y - 1 + fs->start_line][len + 1] = '\0';
+        fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->line_capacity - 1] = '\0';
         fs->cursor_x++;
 
         char *new_text = strdup(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
