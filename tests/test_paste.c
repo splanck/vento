@@ -33,8 +33,7 @@ int main(void) {
     fs.line_count = 1;
     strcpy(fs.text_buffer[0], "hello");
     fs.text_win = NULL;
-    fs.clipboard = malloc(strlen("world\nfoo") + 1);
-    strcpy(fs.clipboard, "world\nfoo");
+    strcpy(global_clipboard, "world\nfoo");
     active_file = &fs;
     text_win = NULL;
 
@@ -51,7 +50,6 @@ int main(void) {
     for (int i = 0; i < fs.max_lines; ++i)
         free(fs.text_buffer[i]);
     free(fs.text_buffer);
-    free(fs.clipboard);
 
     return 0;
 }

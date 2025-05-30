@@ -8,6 +8,8 @@
 
 #include "files.h"
 
+extern char global_clipboard[CLIPBOARD_SIZE];
+
 void start_selection_mode(FileState *fs, int cursor_x, int cursor_y);
 void end_selection_mode(FileState *fs);
 void copy_selection(FileState *fs);

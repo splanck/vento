@@ -461,14 +461,6 @@ void initialize_buffer() {
     if (active_file)
         active_file->start_line = 0;
 
-    // Allocate clipboard if needed
-    if (active_file && active_file->clipboard == NULL) {
-        active_file->clipboard = malloc(CLIPBOARD_SIZE);
-        if (!active_file->clipboard) {
-            allocation_failed("malloc failed for clipboard");
-        }
-        active_file->clipboard[0] = '\0';
-    }
 }
 
 /**
