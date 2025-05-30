@@ -3,6 +3,7 @@
 
 #include <ncurses.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "editor.h"
 
 typedef struct FileState {
@@ -28,6 +29,8 @@ typedef struct FileState {
     /* Comment state after scanning last_scanned_line */
     bool last_comment_state;
     WINDOW *text_win;
+    FILE *fp;          /* Open file handle for lazy loading */
+    bool file_complete;/* True when the entire file is loaded */
 } FileState;
 
 FileState *initialize_file_state(const char *filename, int max_lines, int max_cols);
@@ -35,5 +38,8 @@ void free_file_state(FileState *file_state, int max_lines);
 int load_file_into_buffer(FileState *file_state);
 int ensure_line_capacity(FileState *fs, int min_needed);
 int ensure_col_capacity(FileState *fs, int cols);
+int load_next_lines(FileState *fs, int count);
+void ensure_line_loaded(FileState *fs, int idx);
+void load_all_remaining_lines(FileState *fs);
 
 #endif

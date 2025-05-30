@@ -492,6 +492,9 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
     box(win, 0, 0);
     int max_lines = LINES - 4;  // Adjust for the status bar
 
+    // Ensure enough lines are loaded for display
+    ensure_line_loaded(fs, fs->start_line + max_lines);
+
     // Iterate over each line to be displayed on the window
     for (int i = 0; i < max_lines && i + fs->start_line < fs->line_count; ++i) {
         // Apply syntax highlighting to the current line of text
