@@ -3,11 +3,10 @@
 #include <string.h>
 #include "config.h"
 #include "ui.h"
+#include "syntax.h"
 
 void create_dialog(const char *message, char *output, int max_input_len) {
-    start_color();
-    init_pair(1, COLOR_WHITE, COLOR_BLUE);
-    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+    /* Use existing color pairs configured by the application */
 
     int win_y = LINES / 3;
     int win_x = (COLS - strlen(message) - 30) / 2;
@@ -16,7 +15,7 @@ void create_dialog(const char *message, char *output, int max_input_len) {
 
     WINDOW *dialog_win = newwin(win_height, win_width, win_y, win_x);
     keypad(dialog_win, TRUE);
-    wbkgd(dialog_win, COLOR_PAIR(1));
+    wbkgd(dialog_win, COLOR_PAIR(SYNTAX_BG));
     wrefresh(stdscr);
 
     box(dialog_win, 0, 0);
@@ -27,9 +26,9 @@ void create_dialog(const char *message, char *output, int max_input_len) {
 
     int input_x = 2;
     int input_y = 3;
-    wattron(dialog_win, COLOR_PAIR(2));
+    wattron(dialog_win, COLOR_PAIR(SYNTAX_KEYWORD));
     mvwprintw(dialog_win, input_y, input_x, "Input: ");
-    wattroff(dialog_win, COLOR_PAIR(2));
+    wattroff(dialog_win, COLOR_PAIR(SYNTAX_KEYWORD));
     wmove(dialog_win, input_y, input_x + 7);
 
     int ch, input_len = 0;
@@ -65,9 +64,7 @@ void create_dialog(const char *message, char *output, int max_input_len) {
 }
 
 int show_find_dialog(char *output, int max_input_len, const char *preset) {
-    start_color();
-    init_pair(1, COLOR_WHITE, COLOR_BLUE);
-    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+    /* Use configured color pairs for dialog display */
 
     int win_y = LINES / 3;
     int win_x = (COLS - 40) / 2;
@@ -76,7 +73,7 @@ int show_find_dialog(char *output, int max_input_len, const char *preset) {
 
     WINDOW *dialog_win = newwin(win_height, win_width, win_y, win_x);
     keypad(dialog_win, TRUE);
-    wbkgd(dialog_win, COLOR_PAIR(1));
+    wbkgd(dialog_win, COLOR_PAIR(SYNTAX_BG));
     wrefresh(stdscr);
 
     box(dialog_win, 0, 0);
@@ -88,9 +85,9 @@ int show_find_dialog(char *output, int max_input_len, const char *preset) {
 
     int input_x = 7;
     int input_y = 3;
-    wattron(dialog_win, COLOR_PAIR(2));
+    wattron(dialog_win, COLOR_PAIR(SYNTAX_KEYWORD));
     mvwprintw(dialog_win, input_y, input_x, "Input: ");
-    wattroff(dialog_win, COLOR_PAIR(2));
+    wattroff(dialog_win, COLOR_PAIR(SYNTAX_KEYWORD));
     int input_len = 0;
     if (preset && *preset) {
         strncpy(output, preset, max_input_len - 1);
