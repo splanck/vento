@@ -5,6 +5,9 @@
 #include <strings.h>
 #include <stdlib.h>
 
+const char *select_color(const char *current, WINDOW *parent);
+int select_bool(const char *prompt, int current, WINDOW *parent);
+
 int show_settings_dialog(AppConfig *cfg) {
     AppConfig original = *cfg;
 
