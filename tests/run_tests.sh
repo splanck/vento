@@ -57,3 +57,15 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_css.c -o ob
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_css_syntax.c \
     obj_test/syntax_css.o obj_test/syntax_common.o obj_test/files.o -lncurses -o test_css_syntax
 ./test_css_syntax
+
+# build and run shell syntax highlighting test
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_shell.c -o obj_test/syntax_shell.o
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_shell_syntax.c \
+    obj_test/syntax_shell.o obj_test/syntax_common.o obj_test/files.o -lncurses -o test_shell_syntax
+./test_shell_syntax
+
+# build and run shebang detection test (uses stubs for other functions)
+gcc -Wall -Wextra -std=c99 -g -Isrc -c tests/stubs_file_ops.c -o obj_test/stubs_file_ops.o
+gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_shebang_detection.c src/file_ops.c \
+    obj_test/stubs_file_ops.o -lncurses -o test_shebang_detection
+./test_shebang_detection
