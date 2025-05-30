@@ -19,6 +19,8 @@ void update_selection_mouse(FileState *fs, int x, int y) {
 }
 
 void handle_mouse_event(FileState *fs, MEVENT *ev) {
+    fs->match_start_x = fs->match_end_x = -1;
+    fs->match_start_y = fs->match_end_y = -1;
     int mx = ev->x;
     int my = ev->y - 1; // account for window border
 
