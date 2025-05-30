@@ -554,11 +554,14 @@ void handle_resize(int sig) {
         if (fs->line_capacity != new_capacity) {
             fs->line_capacity = new_capacity;
             for (int j = 0; j < fs->max_lines; ++j) {
+                size_t len = strlen(fs->text_buffer[j]);
                 char *tmp = realloc(fs->text_buffer[j], fs->line_capacity);
                 if (!tmp)
                     continue;
                 fs->text_buffer[j] = tmp;
-                fs->text_buffer[j][fs->line_capacity - 1] = '\0';
+                if (len > (size_t)(fs->line_capacity - 1))
+                    len = fs->line_capacity - 1;
+                fs->text_buffer[j][len] = '\0';
             }
         }
     }
