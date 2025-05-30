@@ -115,7 +115,6 @@ WINDOW *stdscr = NULL;
 int main(void){
     fm_init(&file_manager);
     LINES = 24; COLS = 50;
-    int initial_cols = COLS;
     FileState *fs = initialize_file_state("x", 2, 50);
     assert(fs);
     fm_add(&file_manager, fs);
@@ -123,14 +122,16 @@ int main(void){
 
     memset(fs->text_buffer[0], 'A', 45);
     fs->text_buffer[0][45] = '\0';
+    size_t original_len = strlen(fs->text_buffer[0]);
+    int original_capacity = fs->line_capacity;
 
     int new_LINES = 20, new_COLS = 22; /* shrink */
     LINES = new_LINES; COLS = new_COLS;
     handle_resize(0);
 
-    assert(fs->line_capacity == initial_cols);
-    assert(strlen(fs->text_buffer[0]) == 45);
-    for(int i=0;i<45;i++)
+    assert(fs->line_capacity == original_capacity);
+    assert(strlen(fs->text_buffer[0]) == original_len);
+    for(size_t i=0;i<original_len;i++)
         assert(fs->text_buffer[0][i] == 'A');
 
     free_file_state(fs, fs->max_lines);

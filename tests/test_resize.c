@@ -150,6 +150,21 @@ int main(void){
 
     assert(drawBar_called);
 
+    /* grow terminal and verify capacity expands */
+    int prev_capacity = fs->line_capacity;
+    LINES = 25; COLS = 70;
+    drawBar_called = 0;
+    handle_resize(0);
+
+    assert(last_resize_win == fs->text_win);
+    assert(last_resize_h == LINES - 2);
+    assert(last_resize_w == COLS);
+    assert(fs->line_capacity > prev_capacity);
+    assert(strlen(fs->text_buffer[0]) == 40);
+    for(int i=0;i<40;i++)
+        assert(fs->text_buffer[0][i] == 'A');
+    assert(drawBar_called);
+
     free_file_state(fs, fs->max_lines);
     return 0;
 }
