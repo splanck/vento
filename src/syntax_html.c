@@ -13,7 +13,8 @@ void print_char_with_attr(WINDOW *win, int y, int *x, char c, int attr) {
 void handle_html_comment(WINDOW *win, const char *line, int *i, int y, int *x) {
     int len = strlen(line);
     print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
-    while (*i < len && !(line[*i] == '-' && line[*i + 1] == '-' && line[*i + 2] == '>')) {
+    while (*i < len && !(*i + 1 < len && *i + 2 < len &&
+                         line[*i] == '-' && line[*i + 1] == '-' && line[*i + 2] == '>')) {
         print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
     }
     if (*i < len) {
