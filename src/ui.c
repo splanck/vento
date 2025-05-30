@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 #include "config.h"
 #include "ui.h"
 #include "syntax.h"
@@ -167,5 +168,18 @@ int show_replace_dialog(char *search, int max_search_len,
 
     create_dialog("Replace:", replace, max_replace_len);
     curs_set(1);
+    return 1;
+}
+
+int show_goto_dialog(int *line_number) {
+    char buf[32];
+
+    create_dialog("Go To Line:", buf, sizeof(buf));
+
+    if (buf[0] == '\0') {
+        return 0;
+    }
+
+    *line_number = atoi(buf);
     return 1;
 }

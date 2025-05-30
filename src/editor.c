@@ -66,6 +66,7 @@ int key_find_next = KEY_F(3);  // Key code for find next occurrence
 int key_next_file = KEY_F(6);  // Key code for switching to the next file
 int key_prev_file = KEY_F(7);  // Key code for switching to the previous file
 int key_replace = 18;  // Key code for replacing text (CTRL-R)
+int key_goto_line = 7;  // Key code for go to line (CTRL-G)
 
 static void handle_key_up_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
@@ -207,6 +208,15 @@ static void handle_replace_wrapper(struct FileState *fs, int *cx, int *cy) {
     redraw();
 }
 
+static void handle_goto_line_wrapper(struct FileState *fs, int *cx, int *cy) {
+    int line;
+    if (show_goto_dialog(&line)) {
+        go_to_line(fs, line);
+        *cx = fs->cursor_x;
+        *cy = fs->cursor_y;
+    }
+}
+
 static void handle_delete_line_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
     delete_current_line(fs);
@@ -315,6 +325,7 @@ void initialize_key_mappings(void) {
     key_mappings[key_mapping_count++] = (KeyMapping){key_find, handle_find_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_find_next, handle_find_next_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_replace, handle_replace_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_goto_line, handle_goto_line_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_delete_line, handle_delete_line_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_insert_line, handle_insert_line_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_move_forward, handle_move_forward_wrapper};

@@ -31,6 +31,7 @@ void show_help() {
     mvwprintw(help_win, 13, 2, "CTRL-F: Search for text string");
     mvwprintw(help_win, 14, 2, "F3: Find next occurrence");
     mvwprintw(help_win, 15, 2, "CTRL-R: Replace");
+    mvwprintw(help_win, 16, 2, "CTRL-G: Go to line");
 
     mvwprintw(help_win, 3, win_width / 2, "CTRL-C: Copy selection");
     mvwprintw(help_win, 4, win_width / 2, "CTRL-X: Cut selection");
