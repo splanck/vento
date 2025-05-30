@@ -8,10 +8,13 @@
 #include "files.h"
 #include "file_manager.h"
 
+#define INITIAL_LOAD_LINES 1024
+
 void save_file(FileState *fs) {
     if (strlen(fs->filename) == 0) {
         save_file_as(fs);
     } else {
+        load_all_remaining_lines(fs);
         FILE *fp = fopen(fs->filename, "w");
         if (fp) {
             for (int i = 0; i < fs->line_count; ++i) {
@@ -35,6 +38,8 @@ void save_file_as(FileState *fs) {
         return;    // user cancelled
     strncpy(fs->filename, newpath, sizeof(fs->filename) - 1);
     fs->filename[sizeof(fs->filename) - 1] = '\0';
+
+    load_all_remaining_lines(fs);
 
     FILE *fp = fopen(fs->filename, "w");
     if (fp) {
@@ -77,8 +82,8 @@ void load_file(FileState *fs_unused, const char *filename) {
     fs->filename[sizeof(fs->filename) - 1] = '\0';
 
 
-    FILE *fp = fopen(filename, "r");
-    if (!fp) {
+    fs->fp = fopen(filename, "r");
+    if (!fs->fp) {
         mvprintw(LINES - 2, 2, "Error loading file!");
         refresh();
         getch();
@@ -88,19 +93,18 @@ void load_file(FileState *fs_unused, const char *filename) {
         active_file = previous_active;
         return;
     }
-
+    fs->file_complete = false;
     fs->line_count = 0;
-    while (1) {
-        if (ensure_line_capacity(fs, fs->line_count + 1) < 0) {
-            fclose(fp);
-            allocation_failed("ensure_line_capacity failed");
-        }
-        if (!fgets(fs->text_buffer[fs->line_count], fs->line_capacity, fp))
-            break;
-        fs->text_buffer[fs->line_count][strcspn(fs->text_buffer[fs->line_count], "\n")] = '\0';
-        fs->line_count++;
+    if (load_next_lines(fs, INITIAL_LOAD_LINES) < 0) {
+        mvprintw(LINES - 2, 2, "Error loading file!");
+        refresh();
+        getch();
+        mvprintw(LINES - 2, 2, "                            ");
+        refresh();
+        free_file_state(fs, fs->max_lines);
+        active_file = previous_active;
+        return;
     }
-    fclose(fp);
     mvprintw(LINES - 2, 2, "File loaded: %s", filename);
 
     fs->in_multiline_comment = false;

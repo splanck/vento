@@ -4,6 +4,7 @@
 #include "editor.h"
 #include "syntax.h"
 #include "clipboard.h"
+#include <limits.h>
 
 // Function to initialize a new FileState for a given filename
 FileState *initialize_file_state(const char *filename, int max_lines, int max_cols) {
@@ -72,6 +73,9 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     }
     wbkgd(file_state->text_win, COLOR_PAIR(SYNTAX_BG));
 
+    file_state->fp = NULL;
+    file_state->file_complete = true;
+
     return file_state;
 }
 
@@ -84,6 +88,10 @@ void free_file_state(FileState *file_state, int max_lines) {
     free(file_state->text_buffer);
     if (file_state->clipboard) {
         free(file_state->clipboard);
+    }
+    if (file_state->fp) {
+        fclose(file_state->fp);
+        file_state->fp = NULL;
     }
     file_state->last_scanned_line = 0;
     file_state->last_comment_state = false;
@@ -141,37 +149,71 @@ int ensure_col_capacity(FileState *fs, int cols) {
     return 0;
 }
 
-// Function to load file content into the text buffer
-int load_file_into_buffer(FileState *file_state) {
-    FILE *fp = fopen(file_state->filename, "r");
-    if (!fp) {
-        return -1; // Return error if file cannot be opened
+static int read_line_into(FileState *fs, const char *line) {
+    if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
+        return -1;
+    size_t len = strlen(line);
+    if (len > 0) {
+        size_t copy_len = len - 1;
+        if (copy_len > (size_t)(fs->line_capacity - 1))
+            copy_len = fs->line_capacity - 1;
+        strncpy(fs->text_buffer[fs->line_count], line, copy_len);
+        fs->text_buffer[fs->line_count][copy_len] = '\0';
+    } else {
+        fs->text_buffer[fs->line_count][0] = '\0';
     }
+    fs->line_count++;
+    return 0;
+}
+
+int load_next_lines(FileState *fs, int count) {
+    if (!fs->fp)
+        return 0;
 
     char line[1024];
-    while (fgets(line, sizeof(line), fp)) {
-        if (ensure_line_capacity(file_state, file_state->line_count + 1) < 0) {
-            fclose(fp);
+    int loaded = 0;
+    while (loaded < count && fgets(line, sizeof(line), fs->fp)) {
+        if (read_line_into(fs, line) < 0)
             return -1;
-        }
-        size_t len = strlen(line);
-        if (len > 0) {
-            // Copy line to text buffer without the trailing newline
-            size_t copy_len = len - 1;
-            if (copy_len > (size_t)(file_state->line_capacity - 1))
-                copy_len = file_state->line_capacity - 1;
-            strncpy(file_state->text_buffer[file_state->line_count], line, copy_len);
-            file_state->text_buffer[file_state->line_count][copy_len] = '\0';
-        } else {
-            file_state->text_buffer[file_state->line_count][0] = '\0';
-        }
-        file_state->line_count++;
+        loaded++;
     }
-    fclose(fp);
+    if (feof(fs->fp)) {
+        fclose(fs->fp);
+        fs->fp = NULL;
+        fs->file_complete = true;
+    } else {
+        fs->file_complete = false;
+    }
+    return loaded;
+}
+
+void ensure_line_loaded(FileState *fs, int idx) {
+    if (idx < fs->line_count)
+        return;
+    int to_load = idx - fs->line_count + 1;
+    if (to_load < 0)
+        to_load = 0;
+    load_next_lines(fs, to_load);
+}
+
+void load_all_remaining_lines(FileState *fs) {
+    while (!fs->file_complete && fs->fp) {
+        load_next_lines(fs, INT_MAX);
+    }
+}
+
+// Function to load entire file content (used in tests)
+int load_file_into_buffer(FileState *file_state) {
+    file_state->fp = fopen(file_state->filename, "r");
+    if (!file_state->fp)
+        return -1;
+    file_state->file_complete = false;
+    file_state->line_count = 0;
+    int res = load_next_lines(file_state, INT_MAX);
     file_state->last_scanned_line = 0;
     file_state->last_comment_state = false;
     file_state->in_multiline_comment = false;
     file_state->in_multiline_string = false;
     file_state->string_delim = '\0';
-    return 0; // Success
+    return (res >= 0) ? 0 : -1;
 }

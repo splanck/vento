@@ -8,6 +8,7 @@
 #include "input.h"
 #include "clipboard.h"
 #include "syntax.h"
+#include "files.h"
 
 void handle_ctrl_backtick() {
     // Do nothing on CTRL+Backtick to avoid segmentation fault
@@ -23,6 +24,7 @@ void handle_key_up(FileState *fs) {
 }
 
 void handle_key_down(FileState *fs) {
+    ensure_line_loaded(fs, fs->start_line + fs->cursor_y);
     if (fs->cursor_y < LINES - BOTTOM_MARGIN && fs->cursor_y < fs->line_count) {
         fs->cursor_y++;
     } else if (fs->start_line + fs->cursor_y < fs->line_count) {
@@ -168,6 +170,7 @@ void handle_key_page_up(FileState *fs) {
 }
 
 void handle_key_page_down(FileState *fs) {
+    ensure_line_loaded(fs, fs->start_line + (LINES - 4));
     int max_lines = LINES - 4;
     if (fs->start_line + max_lines < fs->line_count) {
         fs->start_line += max_lines;
@@ -196,6 +199,7 @@ void handle_ctrl_key_pgup(FileState *fs) {
 }
 
 void handle_ctrl_key_pgdn(FileState *fs) {
+    load_all_remaining_lines(fs);
     fs->cursor_y = LINES - 4;
     if (fs->line_count > LINES - 4) {
         fs->start_line = fs->line_count - (LINES - 4);
