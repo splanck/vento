@@ -42,7 +42,10 @@ void initialize() {
     sa.sa_handler = handle_resize;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
+#ifdef SIGWINCH
+    /* Some platforms may not support SIGWINCH */
     sigaction(SIGWINCH, &sa, NULL);
+#endif
     disable_ctrl_c_z();
     define_key("\033[1;5D", KEY_CTRL_LEFT);
     define_key("\033[1;5C", KEY_CTRL_RIGHT);
