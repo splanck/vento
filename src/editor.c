@@ -356,12 +356,12 @@ void run_editor() {
         //mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
         drawBar();
         update_status_bar(active_file);
-        refresh();
+        doupdate();
         
         if (active_file->selection_mode) {
             handle_selection_mode(active_file, ch, &active_file->cursor_x, &active_file->cursor_y);
         } else if (ch == KEY_CTRL_T) { // CTRL-T
-            refresh();
+            doupdate();
             handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
             // Redraw the editor screen after closing the menu
             redraw();
@@ -383,7 +383,8 @@ void run_editor() {
 
         update_status_bar(active_file);
         wmove(text_win, active_file->cursor_y, active_file->cursor_x);  // Restore cursor position
-        wrefresh(text_win);
+        wnoutrefresh(text_win);
+        doupdate();
     }
 
 }
@@ -525,7 +526,7 @@ void redraw() {
     box(text_win, 0, 0); // Redraw the border of the text window
     draw_text_buffer(active_file, text_win); // Redraw the text buffer
     wmove(text_win, active_file->cursor_y, active_file->cursor_x); // Move the cursor to its previous position
-    wrefresh(text_win); // Refresh the text window
+    wnoutrefresh(text_win); // Queue refresh for the text window
 }
 
 /**
@@ -542,7 +543,6 @@ void handle_resize(int sig) {
 
     endwin(); // End the curses mode
     resizeterm(0, 0); // update ncurses internal size
-    refresh(); // Refresh the screen
     clear(); // Clear the screen
 
     int new_capacity = COLS - 3;
@@ -589,10 +589,11 @@ void handle_resize(int sig) {
 
     update_status_bar(active_file);
     wmove(text_win, active_file->cursor_y, active_file->cursor_x);
-    wrefresh(text_win);
+    wnoutrefresh(text_win);
 
     /* Redraw the menu bar after all windows have been updated */
     drawBar();
+    doupdate();
 }
 
 /**

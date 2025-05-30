@@ -131,5 +131,5 @@ void update_status_bar(FileState *fs) {
     int actual_line_number = fs ? (fs->cursor_y + fs->start_line) : 0;
     mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", fs ? fs->line_count : 0, actual_line_number, fs ? fs->cursor_x : 0);
     mvprintw(LINES - 1, COLS - 15, "CTRL-H - Help");
-    refresh();
+    wnoutrefresh(stdscr);
 }
