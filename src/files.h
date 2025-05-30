@@ -28,6 +28,7 @@ typedef struct FileState {
     int last_scanned_line;
     /* Comment state after scanning last_scanned_line */
     bool last_comment_state;
+    int nested_mode; /* 0=none,1=JS,2=CSS */
     WINDOW *text_win;
     FILE *fp;          /* Open file handle for lazy loading */
     bool file_complete;/* True when the entire file is loaded */

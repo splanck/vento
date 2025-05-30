@@ -6,6 +6,7 @@
 #undef wattroff
 #undef wattrset
 #include "syntax.h"
+#include "files.h"
 
 /* minimal WINDOW stub */
 typedef struct { int dummy; } SIMPLE_WIN;
@@ -23,9 +24,10 @@ int wattroff(WINDOW*w,int a){(void)w;(void)a;return 0;}
 int wattrset(WINDOW*w,int a){(void)w;(void)a;return 0;}
 
 int main(void){
+    FileState fs = {0};
     WINDOW *w = newwin(1,1,0,0);
     const char *line = "<!--";
-    highlight_html_syntax(w, line, 0);
+    highlight_html_syntax(&fs, w, line, 0);
     assert(first_x == 1);
     delwin(w);
     return 0;

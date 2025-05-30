@@ -23,7 +23,7 @@ typedef enum {
 
 void apply_syntax_highlighting(struct FileState *fs, WINDOW *win, const char *line, int y);
 void highlight_c_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
-void highlight_html_syntax(WINDOW *win, const char *line, int y);
+void highlight_html_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
 void handle_html_tag(WINDOW *win, const char *line, int *i, int y, int *x);
 void handle_html_comment(WINDOW *win, const char *line, int *i, int y, int *x);
 void print_char_with_attr(WINDOW *win, int y, int *x, char c, int attr);
