@@ -38,7 +38,11 @@ void initialize() {
     timeout(10);
     bkgd(COLOR_PAIR(1));
     refresh();
-    signal(SIGWINCH, handle_resize);
+    struct sigaction sa;
+    sa.sa_handler = handle_resize;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    sigaction(SIGWINCH, &sa, NULL);
     disable_ctrl_c_z();
     define_key("\033[1;5D", KEY_CTRL_LEFT);
     define_key("\033[1;5C", KEY_CTRL_RIGHT);
