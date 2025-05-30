@@ -86,7 +86,8 @@ void highlight_c_syntax(FileState *fs, WINDOW *win, const char *line, int y) {
             wattroff(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
         } else if (isalpha((unsigned char)line[i]) || line[i] == '_') {
             word_len = 0;
-            while (i < len && (isalnum((unsigned char)line[i]) || line[i] == '_')) {
+            while (i < len && (isalnum((unsigned char)line[i]) || line[i] == '_') &&
+                   word_len < (int)sizeof(word) - 1) {
                 word[word_len++] = line[i++];
             }
             word[word_len] = '\0';
