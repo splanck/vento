@@ -2,6 +2,7 @@
 #define SYNTAX_H
 
 #include "editor.h"
+#include <regex.h>
 
 #define NO_SYNTAX 0
 #define C_SYNTAX 1
@@ -20,6 +21,18 @@ typedef enum {
     SYNTAX_TYPE,
     SYNTAX_SYMBOL
 } SyntaxColor;
+
+typedef struct {
+    const char *pattern;
+    int attr;
+    regex_t regex;
+    int compiled;
+} SyntaxRegex;
+
+int compile_regex_set(SyntaxRegex *set, int count);
+void free_regex_set(SyntaxRegex *set, int count);
+void highlight_regex_line(WINDOW *win, int y, int x_start, const char *line,
+                          SyntaxRegex *patterns, int count);
 
 void apply_syntax_highlighting(struct FileState *fs, WINDOW *win, const char *line, int y);
 void highlight_c_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);

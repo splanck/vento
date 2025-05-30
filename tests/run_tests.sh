@@ -31,8 +31,9 @@ gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_resize_trunc.c obj_test/files.o o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_c.c -o obj_test/syntax_c.o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_csharp.c -o obj_test/syntax_csharp.o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_common.c -o obj_test/syntax_common.o
+gcc -Wall -Wextra -std=c99 -g -Isrc -c src/syntax_regex.c -o obj_test/syntax_regex.o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_long_identifier.c \
-    obj_test/syntax_c.o obj_test/syntax_csharp.o obj_test/syntax_common.o -lncurses -o test_long_identifier
+    obj_test/syntax_c.o obj_test/syntax_csharp.o obj_test/syntax_common.o obj_test/syntax_regex.o -lncurses -o test_long_identifier
 ./test_long_identifier
 
 # build and run HTML comment boundary test
@@ -41,41 +42,47 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_js.c -o obj
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_css.c -o obj_test/syntax_css.o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_html_comment.c \
     obj_test/syntax_html.o obj_test/syntax_js.o obj_test/syntax_css.o \
-    obj_test/syntax_common.o obj_test/files.o -lncurses -o test_html_comment
+    obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/files.o -lncurses -o test_html_comment
 ./test_html_comment
 
 # build and run python syntax test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_python.c -o obj_test/syntax_python.o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_python_syntax.c \
-    obj_test/syntax_python.o obj_test/syntax_common.o obj_test/files.o -lncurses -o test_python_syntax
+    obj_test/syntax_python.o obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/files.o -lncurses -o test_python_syntax
 ./test_python_syntax
 
 # build and run JavaScript syntax test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_js.c -o obj_test/syntax_js.o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_js_syntax.c \
-    obj_test/syntax_js.o obj_test/syntax_common.o obj_test/files.o -lncurses -o test_js_syntax
+    obj_test/syntax_js.o obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/files.o -lncurses -o test_js_syntax
 ./test_js_syntax
 
 # build and run CSS syntax test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_css.c -o obj_test/syntax_css.o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_css_syntax.c \
-    obj_test/syntax_css.o obj_test/syntax_common.o obj_test/files.o -lncurses -o test_css_syntax
+    obj_test/syntax_css.o obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/files.o -lncurses -o test_css_syntax
 ./test_css_syntax
 
 # build and run HTML nested syntax test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_html_nested.c \
     obj_test/syntax_html.o obj_test/syntax_js.o obj_test/syntax_css.o \
-    obj_test/syntax_common.o obj_test/files.o -lncurses -o test_html_nested
+    obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/files.o -lncurses -o test_html_nested
 ./test_html_nested
 
 # build and run shell syntax highlighting test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_shell.c -o obj_test/syntax_shell.o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_shell_syntax.c \
-    obj_test/syntax_shell.o obj_test/syntax_common.o obj_test/files.o -lncurses -o test_shell_syntax
+    obj_test/syntax_shell.o obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/files.o -lncurses -o test_shell_syntax
 ./test_shell_syntax
 
 # build and run shebang detection test (uses stubs for other functions)
 gcc -Wall -Wextra -std=c99 -g -Isrc -c tests/stubs_file_ops.c -o obj_test/stubs_file_ops.o
 gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_shebang_detection.c src/file_ops.c \
-    obj_test/stubs_file_ops.o -lncurses -o test_shebang_detection
+    obj_test/stubs_file_ops.o obj_test/syntax_regex.o -lncurses -o test_shebang_detection
 ./test_shebang_detection
+
+# build and run regex complex construct test
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_c.c -o obj_test/syntax_c.o
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_regex_complex.c \
+    obj_test/syntax_c.o obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/files.o -lncurses -o test_regex_complex
+./test_regex_complex
