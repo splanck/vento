@@ -5,9 +5,6 @@
 #include <string.h>
 #include <stdio.h>
 
-// Ensure the correct prototype for strdup
-char *strdup(const char *s);
-
 WINDOW *create_centered_window(int height, int width, WINDOW *parent) {
     int win_y, win_x;
 

@@ -9,8 +9,6 @@
 #include "clipboard.h"
 #include "syntax.h"
 
-char *strdup(const char *s);  // Explicitly declare strdup
-
 void handle_ctrl_backtick() {
     // Do nothing on CTRL+Backtick to avoid segmentation fault
 }

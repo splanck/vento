@@ -9,9 +9,6 @@
 #include <stdio.h>
 #include "config.h"
 
-// Ensure proper prototype for strdup
-char *strdup(const char *s);
-
 void get_dir_contents(const char *dir_path, char ***choices, int *n_choices) {
     DIR *dir;
     struct dirent *entry;
