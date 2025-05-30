@@ -8,6 +8,10 @@ char *strdup(const char *s);  // Explicitly declare strdup
 
 void push(Node **stack, Change change) {
     Node *new_node = (Node *)malloc(sizeof(Node));
+    if (new_node == NULL) {
+        allocation_failed("push malloc failed");
+        return;
+    }
     new_node->change = change;
     new_node->next = *stack;
     *stack = new_node;
