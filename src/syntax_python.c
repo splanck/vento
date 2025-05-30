@@ -2,6 +2,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "syntax.h"
+#include "files.h"
 
 #define PYTHON_KEYWORDS_COUNT 35
 static const char *PYTHON_KEYWORDS[PYTHON_KEYWORDS_COUNT] = {
@@ -11,7 +12,7 @@ static const char *PYTHON_KEYWORDS[PYTHON_KEYWORDS_COUNT] = {
     "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"
 };
 
-void highlight_python_syntax(WINDOW *win, const char *line, int y) {
+void highlight_python_syntax(FileState *fs, WINDOW *win, const char *line, int y) {
     wattrset(win, COLOR_PAIR(SYNTAX_BG));
     int length = strlen(line);
     int start = 0;
@@ -19,7 +20,26 @@ void highlight_python_syntax(WINDOW *win, const char *line, int y) {
     int x = 1;
 
     while (i < length) {
-        if (isalpha((unsigned char)line[i]) || line[i] == '_') {
+        if (fs->in_multiline_string) {
+            start = i;
+            while (i < length) {
+                if (line[i] == '\\' && i + 1 < length) {
+                    i += 2;
+                    continue;
+                }
+                if (line[i] == fs->string_delim && i + 2 < length &&
+                    line[i + 1] == fs->string_delim && line[i + 2] == fs->string_delim) {
+                    i += 3;
+                    fs->in_multiline_string = false;
+                    break;
+                }
+                i++;
+            }
+            wattron(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
+            mvwprintw(win, y, x, "%.*s", i - start, &line[start]);
+            wattroff(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
+            x += i - start;
+        } else if (isalpha((unsigned char)line[i]) || line[i] == '_') {
             start = i;
             while (isalnum((unsigned char)line[i]) || line[i] == '_') i++;
             int word_length = i - start;
@@ -42,17 +62,60 @@ void highlight_python_syntax(WINDOW *win, const char *line, int y) {
                 mvwprintw(win, y, x, "%s", word);
                 x += word_length;
             }
+        } else if (isdigit((unsigned char)line[i])) {
+            start = i++;
+            if (line[start] == '0' && i < length && strchr("xXbBoO", line[i])) {
+                i++;
+                while (i < length && isalnum((unsigned char)line[i])) i++;
+            } else {
+                while (i < length && (isalnum((unsigned char)line[i]) || line[i] == '.' || line[i] == '_')) i++;
+            }
+            wattron(win, COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
+            mvwprintw(win, y, x, "%.*s", i - start, &line[start]);
+            wattroff(win, COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
+            x += i - start;
         } else if (line[i] == '#') {
             wattron(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
             mvwprintw(win, y, x, "%s", &line[i]);
             wattroff(win, COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD);
             break;
+        } else if ((line[i] == '"' || line[i] == '\'' ) && i + 2 < length &&
+                   line[i + 1] == line[i] && line[i + 2] == line[i]) {
+            fs->in_multiline_string = true;
+            fs->string_delim = line[i];
+            start = i;
+            i += 3;
+            while (i < length) {
+                if (line[i] == '\\' && i + 1 < length) {
+                    i += 2;
+                    continue;
+                }
+                if (line[i] == fs->string_delim && i + 2 < length &&
+                    line[i + 1] == fs->string_delim && line[i + 2] == fs->string_delim) {
+                    i += 3;
+                    fs->in_multiline_string = false;
+                    break;
+                }
+                i++;
+            }
+            wattron(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
+            mvwprintw(win, y, x, "%.*s", i - start, &line[start]);
+            wattroff(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
+            x += i - start;
         } else if (line[i] == '"' || line[i] == '\'') {
             char quote = line[i];
-            start = i;
-            i++;
-            while (i < length && line[i] != quote) i++;
-            if (i < length) i++;
+            start = i++;
+            while (i < length) {
+                if (line[i] == '\\' && i + 1 < length) {
+                    i += 2;
+                    continue;
+                }
+                if (line[i] == quote) {
+                    i++;
+                    break;
+                }
+                i++;
+            }
             wattron(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);
             mvwprintw(win, y, x, "%.*s", i - start, &line[start]);
             wattroff(win, COLOR_PAIR(SYNTAX_STRING) | A_BOLD);

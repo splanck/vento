@@ -12,7 +12,7 @@ void apply_syntax_highlighting(FileState *fs, WINDOW *win, const char *line, int
             highlight_html_syntax(win, line, y);
             break;
         case PYTHON_SYNTAX:
-            highlight_python_syntax(win, line, y);
+            highlight_python_syntax(fs, win, line, y);
             break;
         case CSHARP_SYNTAX:
             highlight_csharp_syntax(fs, win, line, y);
