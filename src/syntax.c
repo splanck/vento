@@ -9,7 +9,7 @@ void apply_syntax_highlighting(FileState *fs, WINDOW *win, const char *line, int
             highlight_c_syntax(fs, win, line, y);
             break;
         case HTML_SYNTAX:
-            highlight_html_syntax(win, line, y);
+            highlight_html_syntax(fs, win, line, y);
             break;
         case PYTHON_SYNTAX:
             highlight_python_syntax(fs, win, line, y);

@@ -37,7 +37,11 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_long_identifie
 
 # build and run HTML comment boundary test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_html.c -o obj_test/syntax_html.o
-gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_html_comment.c obj_test/syntax_html.o -lncurses -o test_html_comment
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_js.c -o obj_test/syntax_js.o
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_css.c -o obj_test/syntax_css.o
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_html_comment.c \
+    obj_test/syntax_html.o obj_test/syntax_js.o obj_test/syntax_css.o \
+    obj_test/syntax_common.o obj_test/files.o -lncurses -o test_html_comment
 ./test_html_comment
 
 # build and run python syntax test
@@ -57,6 +61,12 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_css.c -o ob
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_css_syntax.c \
     obj_test/syntax_css.o obj_test/syntax_common.o obj_test/files.o -lncurses -o test_css_syntax
 ./test_css_syntax
+
+# build and run HTML nested syntax test
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_html_nested.c \
+    obj_test/syntax_html.o obj_test/syntax_js.o obj_test/syntax_css.o \
+    obj_test/syntax_common.o obj_test/files.o -lncurses -o test_html_nested
+./test_html_nested
 
 # build and run shell syntax highlighting test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_shell.c -o obj_test/syntax_shell.o

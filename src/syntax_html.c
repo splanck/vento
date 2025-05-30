@@ -3,6 +3,9 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include "syntax.h"
+#include "files.h"
+
+enum { NESTED_NONE = 0, NESTED_JS = 1, NESTED_CSS = 2 };
 
 void print_char_with_attr(WINDOW *win, int y, int *x, char c, int attr) {
     wattron(win, attr);
@@ -52,8 +55,42 @@ void handle_html_tag(WINDOW *win, const char *line, int *i, int y, int *x) {
     }
 }
 
-void highlight_html_syntax(WINDOW *win, const char *line, int y) {
+void highlight_html_syntax(FileState *fs, WINDOW *win, const char *line, int y) {
     if (!win || !line) return;
+
+    /* If inside a nested script or style block, delegate to the proper
+       highlighter unless we encounter the closing tag */
+    const char *trim = line;
+    while (isspace((unsigned char)*trim)) trim++;
+
+    if (fs->nested_mode == NESTED_JS) {
+        if (strncmp(trim, "</script>", 9) == 0) {
+            int x = 1, i = 0;
+            wattrset(win, COLOR_PAIR(SYNTAX_BG));
+            while (i < (trim - line))
+                mvwprintw(win, y, x++, "%c", line[i++]);
+            handle_html_tag(win, line, &i, y, &x);
+            while (line[i]) mvwprintw(win, y, x++, "%c", line[i++]);
+            fs->nested_mode = NESTED_NONE;
+        } else {
+            highlight_js_syntax(fs, win, line, y);
+        }
+        return;
+    } else if (fs->nested_mode == NESTED_CSS) {
+        if (strncmp(trim, "</style>", 8) == 0) {
+            int x = 1, i = 0;
+            wattrset(win, COLOR_PAIR(SYNTAX_BG));
+            while (i < (trim - line))
+                mvwprintw(win, y, x++, "%c", line[i++]);
+            handle_html_tag(win, line, &i, y, &x);
+            while (line[i]) mvwprintw(win, y, x++, "%c", line[i++]);
+            fs->nested_mode = NESTED_NONE;
+        } else {
+            highlight_css_syntax(fs, win, line, y);
+        }
+        return;
+    }
+
     wattrset(win, COLOR_PAIR(SYNTAX_BG));
     int x = 1;
     int i = 0;
@@ -65,7 +102,13 @@ void highlight_html_syntax(WINDOW *win, const char *line, int y) {
             if (strncmp(&line[i], "<!--", 4) == 0) {
                 handle_html_comment(win, line, &i, y, &x);
             } else {
+                bool is_script = strncmp(&line[i], "<script", 7) == 0;
+                bool is_style = strncmp(&line[i], "<style", 6) == 0;
                 handle_html_tag(win, line, &i, y, &x);
+                if (is_script)
+                    fs->nested_mode = NESTED_JS;
+                else if (is_style)
+                    fs->nested_mode = NESTED_CSS;
             }
         } else {
             mvwprintw(win, y, x++, "%c", line[i++]);
