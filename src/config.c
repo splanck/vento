@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
 #include <pwd.h>
 #include <unistd.h>
@@ -25,14 +26,14 @@ AppConfig app_config = {
 
 // Helper to map color name to ncurses constant
 short get_color_code(const char *color_name) {
-    if (strcmp(color_name, "BLACK") == 0) return COLOR_BLACK;
-    if (strcmp(color_name, "RED") == 0) return COLOR_RED;
-    if (strcmp(color_name, "GREEN") == 0) return COLOR_GREEN;
-    if (strcmp(color_name, "YELLOW") == 0) return COLOR_YELLOW;
-    if (strcmp(color_name, "BLUE") == 0) return COLOR_BLUE;
-    if (strcmp(color_name, "MAGENTA") == 0) return COLOR_MAGENTA;
-    if (strcmp(color_name, "CYAN") == 0) return COLOR_CYAN;
-    if (strcmp(color_name, "WHITE") == 0) return COLOR_WHITE;
+    if (strcasecmp(color_name, "BLACK") == 0) return COLOR_BLACK;
+    if (strcasecmp(color_name, "RED") == 0) return COLOR_RED;
+    if (strcasecmp(color_name, "GREEN") == 0) return COLOR_GREEN;
+    if (strcasecmp(color_name, "YELLOW") == 0) return COLOR_YELLOW;
+    if (strcasecmp(color_name, "BLUE") == 0) return COLOR_BLUE;
+    if (strcasecmp(color_name, "MAGENTA") == 0) return COLOR_MAGENTA;
+    if (strcasecmp(color_name, "CYAN") == 0) return COLOR_CYAN;
+    if (strcasecmp(color_name, "WHITE") == 0) return COLOR_WHITE;
     return -1;
 }
 
@@ -144,7 +145,9 @@ void config_load(AppConfig *cfg) {
         start_color();
         use_default_colors();
         short code;
-        init_pair(SYNTAX_BG, COLOR_WHITE, -1);
+        short bg = get_color_code(cfg->background_color);
+        if (bg == -1) bg = -1;
+        init_pair(SYNTAX_BG, COLOR_WHITE, bg);
         code = get_color_code(cfg->keyword_color);
         if (code != -1) init_pair(SYNTAX_KEYWORD, code, -1);
         code = get_color_code(cfg->comment_color);
