@@ -13,6 +13,7 @@ typedef struct {
     char string_color[16];
     char type_color[16];
     char symbol_color[16];
+    char theme[32];
     int enable_color;
     int enable_mouse;
 } AppConfig;
@@ -20,6 +21,7 @@ typedef struct {
 extern AppConfig app_config;
 
 short get_color_code(const char *color_name);
+void load_theme(const char *name, AppConfig *cfg);
 void config_load(AppConfig *cfg);
 void config_save(const AppConfig *cfg);
 void read_config_file(void);

@@ -20,6 +20,7 @@ AppConfig app_config = {
     .string_color = "YELLOW",
     .type_color = "MAGENTA",
     .symbol_color = "RED",
+    .theme = "",
     .enable_color = 1,
     .enable_mouse = 1
 };
@@ -54,6 +55,54 @@ static void trim(char *str) {
     str[len] = '\0';
 }
 
+void load_theme(const char *name, AppConfig *cfg) {
+    if (!name || !*name || !cfg)
+        return;
+
+    char path[256];
+    snprintf(path, sizeof(path), "themes/%s.theme", name);
+    FILE *f = fopen(path, "r");
+    if (!f)
+        return;
+
+    char line[256];
+    while (fgets(line, sizeof(line), f)) {
+        char *p = line;
+        while (isspace((unsigned char)*p)) p++;
+        if (*p == '#' || *p == '\0' || *p == '\n')
+            continue;
+        line[strcspn(line, "\n")] = '\0';
+        char *eq = strchr(p, '=');
+        if (!eq) continue;
+        *eq++ = '\0';
+        char *key = p;
+        char *value = eq;
+        trim(key);
+        trim(value);
+
+        if (strcmp(key, "background_color") == 0) {
+            strncpy(cfg->background_color, value, sizeof(cfg->background_color)-1);
+            cfg->background_color[sizeof(cfg->background_color)-1] = '\0';
+        } else if (strcmp(key, "keyword_color") == 0) {
+            strncpy(cfg->keyword_color, value, sizeof(cfg->keyword_color)-1);
+            cfg->keyword_color[sizeof(cfg->keyword_color)-1] = '\0';
+        } else if (strcmp(key, "comment_color") == 0) {
+            strncpy(cfg->comment_color, value, sizeof(cfg->comment_color)-1);
+            cfg->comment_color[sizeof(cfg->comment_color)-1] = '\0';
+        } else if (strcmp(key, "string_color") == 0) {
+            strncpy(cfg->string_color, value, sizeof(cfg->string_color)-1);
+            cfg->string_color[sizeof(cfg->string_color)-1] = '\0';
+        } else if (strcmp(key, "type_color") == 0) {
+            strncpy(cfg->type_color, value, sizeof(cfg->type_color)-1);
+            cfg->type_color[sizeof(cfg->type_color)-1] = '\0';
+        } else if (strcmp(key, "symbol_color") == 0) {
+            strncpy(cfg->symbol_color, value, sizeof(cfg->symbol_color)-1);
+            cfg->symbol_color[sizeof(cfg->symbol_color)-1] = '\0';
+        }
+    }
+    fclose(f);
+}
+
 void config_save(const AppConfig *cfg) {
     static const char *keys[] = {
         "background_color",
@@ -62,6 +111,7 @@ void config_save(const AppConfig *cfg) {
         "string_color",
         "type_color",
         "symbol_color",
+        "theme",
         "enable_color",
         "enable_mouse"
     };
@@ -77,8 +127,9 @@ void config_save(const AppConfig *cfg) {
     fprintf(f, "%s=%s\n", keys[3], cfg->string_color);
     fprintf(f, "%s=%s\n", keys[4], cfg->type_color);
     fprintf(f, "%s=%s\n", keys[5], cfg->symbol_color);
-    fprintf(f, "%s=%s\n", keys[6], cfg->enable_color ? "true" : "false");
-    fprintf(f, "%s=%s\n", keys[7], cfg->enable_mouse ? "true" : "false");
+    fprintf(f, "%s=%s\n", keys[6], cfg->theme);
+    fprintf(f, "%s=%s\n", keys[7], cfg->enable_color ? "true" : "false");
+    fprintf(f, "%s=%s\n", keys[8], cfg->enable_mouse ? "true" : "false");
     fclose(f);
 }
 
@@ -93,7 +144,41 @@ void config_load(AppConfig *cfg) {
     }
 
     AppConfig tmp = *cfg;
+    char theme_name[sizeof(tmp.theme)] = "";
     char line[256];
+    while (fgets(line, sizeof(line), file)) {
+        char *p = line;
+        while (isspace((unsigned char)*p)) p++;
+        if (*p == '#' || *p == '\0' || *p == '\n')
+            continue;
+        line[strcspn(line, "\n")] = '\0';
+        char *eq = strchr(p, '=');
+        if (!eq) continue;
+        *eq++ = '\0';
+        char *key = p;
+        char *value = eq;
+        trim(key);
+        trim(value);
+
+        if (strcmp(key, "theme") == 0) {
+            strncpy(theme_name, value, sizeof(theme_name) - 1);
+            theme_name[sizeof(theme_name) - 1] = '\0';
+        }
+    }
+    fclose(file);
+
+    if (theme_name[0]) {
+        strncpy(tmp.theme, theme_name, sizeof(tmp.theme) - 1);
+        tmp.theme[sizeof(tmp.theme) - 1] = '\0';
+        load_theme(theme_name, &tmp);
+    }
+
+    file = fopen(path, "r");
+    if (!file) {
+        *cfg = tmp;
+        return;
+    }
+
     while (fgets(line, sizeof(line), file)) {
         char *p = line;
         while (isspace((unsigned char)*p)) p++;
@@ -126,6 +211,9 @@ void config_load(AppConfig *cfg) {
         } else if (strcmp(key, "symbol_color") == 0) {
             strncpy(tmp.symbol_color, value, sizeof(tmp.symbol_color)-1);
             tmp.symbol_color[sizeof(tmp.symbol_color)-1] = '\0';
+        } else if (strcmp(key, "theme") == 0) {
+            strncpy(tmp.theme, value, sizeof(tmp.theme)-1);
+            tmp.theme[sizeof(tmp.theme)-1] = '\0';
         } else if (strcmp(key, "enable_color") == 0) {
             tmp.enable_color = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0);
         } else if (strcmp(key, "enable_mouse") == 0) {
