@@ -142,19 +142,19 @@ void config_load(AppConfig *cfg) {
 
     if (enable_color) {
         start_color();
+        use_default_colors();
         short code;
-        code = get_color_code(cfg->background_color);
-        if (code != -1) init_pair(SYNTAX_BG, COLOR_WHITE, code);
+        init_pair(SYNTAX_BG, COLOR_WHITE, -1);
         code = get_color_code(cfg->keyword_color);
-        if (code != -1) init_pair(SYNTAX_KEYWORD, code, COLOR_BLACK);
+        if (code != -1) init_pair(SYNTAX_KEYWORD, code, -1);
         code = get_color_code(cfg->comment_color);
-        if (code != -1) init_pair(SYNTAX_COMMENT, code, COLOR_BLACK);
+        if (code != -1) init_pair(SYNTAX_COMMENT, code, -1);
         code = get_color_code(cfg->string_color);
-        if (code != -1) init_pair(SYNTAX_STRING, code, COLOR_BLACK);
+        if (code != -1) init_pair(SYNTAX_STRING, code, -1);
         code = get_color_code(cfg->type_color);
-        if (code != -1) init_pair(SYNTAX_TYPE, code, COLOR_BLACK);
+        if (code != -1) init_pair(SYNTAX_TYPE, code, -1);
         code = get_color_code(cfg->symbol_color);
-        if (code != -1) init_pair(SYNTAX_SYMBOL, code, COLOR_BLACK);
+        if (code != -1) init_pair(SYNTAX_SYMBOL, code, -1);
     }
 }
 
