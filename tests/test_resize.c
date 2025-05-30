@@ -15,10 +15,14 @@
 int COLS = 80;
 int LINES = 24;
 
-/* simple WINDOW implementation */
+/* simple WINDOW implementation used for stubs */
 typedef struct {
     int h, w, y, x;
 } SIMPLE_WIN;
+
+/* track last resize call */
+static WINDOW *last_resize_win;
+static int last_resize_h, last_resize_w;
 
 WINDOW *newwin(int nlines, int ncols, int y, int x) {
     SIMPLE_WIN *w = calloc(1, sizeof(SIMPLE_WIN));
@@ -26,7 +30,7 @@ WINDOW *newwin(int nlines, int ncols, int y, int x) {
     return (WINDOW*)w;
 }
 int delwin(WINDOW *w){free(w);return 0;}
-int wresize(WINDOW *w, int h, int c){((SIMPLE_WIN*)w)->h=h; ((SIMPLE_WIN*)w)->w=c; return 0;}
+int wresize(WINDOW *w, int h, int c){last_resize_win=w; last_resize_h=h; last_resize_w=c; ((SIMPLE_WIN*)w)->h=h; ((SIMPLE_WIN*)w)->w=c; return 0;}
 int mvwin(WINDOW *w, int y, int x){((SIMPLE_WIN*)w)->y=y; ((SIMPLE_WIN*)w)->x=x; return 0;}
 int werase(WINDOW *w){(void)w; return 0;}
 int box(WINDOW *w, chtype a, chtype b){(void)w;(void)a;(void)b;return 0;}
@@ -112,17 +116,37 @@ WINDOW *stdscr = NULL;
 
 int main(void){
     fm_init(&file_manager);
-    FileState *fs = initialize_file_state("x", 2, 10);
+
+    /* initial terminal size */
+    LINES = 20; COLS = 50;
+    FileState *fs = initialize_file_state("x", 2, COLS);
     assert(fs);
     fm_add(&file_manager, fs);
     active_file = fs;
-    int new_LINES = 30, new_COLS = 100;
-    LINES = new_LINES; COLS = new_COLS; /* starting values */
+
+    /* put content and cursor beyond the new bounds */
+    memset(fs->text_buffer[0], 'A', 40);
+    fs->text_buffer[0][40] = '\0';
+    fs->cursor_x = 45;
+    fs->cursor_y = 15;
+
+    /* resize to smaller dimensions */
+    LINES = 10; COLS = 30;
+    drawBar_called = 0;
     handle_resize(0);
-    assert(fs->line_capacity == new_COLS - 3);
-    assert(((SIMPLE_WIN*)fs->text_win)->h == new_LINES - 2);
-    assert(((SIMPLE_WIN*)fs->text_win)->w == new_COLS);
+
+    assert(last_resize_win == fs->text_win);
+    assert(last_resize_h == LINES - 2);
+    assert(last_resize_w == COLS);
+    assert(fs->line_capacity == COLS - 3);
+    assert(fs->cursor_x == COLS - 1);
+    assert(fs->cursor_y == LINES - BOTTOM_MARGIN);
+    assert(strlen(fs->text_buffer[0]) == (size_t)(fs->line_capacity - 1));
+    for(int i=0;i<fs->line_capacity-1;i++)
+        assert(fs->text_buffer[0][i] == 'A');
+
     assert(drawBar_called);
+
     free_file_state(fs, fs->max_lines);
     return 0;
 }
