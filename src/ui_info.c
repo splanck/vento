@@ -32,19 +32,20 @@ void show_help() {
     mvwprintw(help_win, 14, 2, "F3: Find next occurrence");
     mvwprintw(help_win, 15, 2, "CTRL-R: Replace");
 
-    mvwprintw(help_win, 3, win_width / 2, "CTRL-X: Quit");
-    mvwprintw(help_win, 4, win_width / 2, "CTRL-W: Move forward to next word");
-    mvwprintw(help_win, 5, win_width / 2, "CTRL-B: Move backward to previous word");
-    mvwprintw(help_win, 6, win_width / 2, "CTRL-D: Delete current line");
-    mvwprintw(help_win, 7, win_width / 2, "Arrow Keys: Navigate text");
-    mvwprintw(help_win, 8, win_width / 2, "Page Up/Down: Scroll document");
-    mvwprintw(help_win, 9, win_width / 2, "Home/CTRL-Left: Move to line start");
-    mvwprintw(help_win, 10, win_width / 2, "End/CTRL-Right: Move to line end");
-    mvwprintw(help_win, 11, win_width / 2, "CTRL-PgUp: Move to top of doc");
-    mvwprintw(help_win, 12, win_width / 2, "CTRL-PgDn: Move to end of doc");
-    mvwprintw(help_win, 14, win_width / 2, "F5: Insert blank line");
-    mvwprintw(help_win, 15, win_width / 2, "F6: Next file");
-    mvwprintw(help_win, 16, win_width / 2, "F7: Previous file");
+    mvwprintw(help_win, 3, win_width / 2, "CTRL-C: Copy selection");
+    mvwprintw(help_win, 4, win_width / 2, "CTRL-X: Cut selection");
+    mvwprintw(help_win, 5, win_width / 2, "CTRL-W: Move forward to next word");
+    mvwprintw(help_win, 6, win_width / 2, "CTRL-B: Move backward to previous word");
+    mvwprintw(help_win, 7, win_width / 2, "CTRL-D: Delete current line");
+    mvwprintw(help_win, 8, win_width / 2, "Arrow Keys: Navigate text");
+    mvwprintw(help_win, 9, win_width / 2, "Page Up/Down: Scroll document");
+    mvwprintw(help_win, 10, win_width / 2, "Home/CTRL-Left: Move to line start");
+    mvwprintw(help_win, 11, win_width / 2, "End/CTRL-Right: Move to line end");
+    mvwprintw(help_win, 12, win_width / 2, "CTRL-PgUp: Move to top of doc");
+    mvwprintw(help_win, 13, win_width / 2, "CTRL-PgDn: Move to end of doc");
+    mvwprintw(help_win, 15, win_width / 2, "F5: Insert blank line");
+    mvwprintw(help_win, 16, win_width / 2, "F6: Next file");
+    mvwprintw(help_win, 17, win_width / 2, "F7: Previous file");
 
     mvwprintw(help_win, win_height - 1,
               (win_width - strlen("(Press any key to close)")) / 2,

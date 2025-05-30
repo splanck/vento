@@ -134,3 +134,55 @@ void handle_selection_mode(FileState *fs, int ch, int *cursor_x, int *cursor_y) 
     }
 }
 
+void copy_selection_keyboard(FileState *fs) {
+    if (!fs->selection_mode)
+        return;
+    copy_selection(fs);
+}
+
+void cut_selection(FileState *fs) {
+    if (!fs->selection_mode)
+        return;
+
+    int start_y = fs->sel_start_y;
+    int end_y = fs->sel_end_y;
+    int start_x = fs->sel_start_x;
+    int end_x = fs->sel_end_x;
+
+    if (start_y > end_y) {
+        start_y = fs->sel_end_y;
+        end_y = fs->sel_start_y;
+        start_x = fs->sel_end_x;
+        end_x = fs->sel_start_x;
+    } else if (start_y == end_y && start_x > end_x) {
+        int tmp = start_x;
+        start_x = end_x;
+        end_x = tmp;
+    }
+
+    copy_selection(fs);
+
+    char *first = fs->text_buffer[start_y - 1 + fs->start_line];
+    char *last = fs->text_buffer[end_y - 1 + fs->start_line];
+
+    if (start_y == end_y) {
+        memmove(&first[start_x - 1], &first[end_x], strlen(first) - end_x + 1);
+    } else {
+        first[start_x - 1] = '\0';
+        strncat(first, &last[end_x], fs->line_capacity - strlen(first) - 1);
+
+        int remove_count = end_y - start_y;
+        for (int i = start_y; i < fs->line_count - remove_count; ++i) {
+            strcpy(fs->text_buffer[i], fs->text_buffer[i + remove_count]);
+        }
+        for (int i = fs->line_count - remove_count; i < fs->line_count; ++i) {
+            fs->text_buffer[i][0] = '\0';
+        }
+        fs->line_count -= remove_count;
+    }
+
+    fs->cursor_x = start_x;
+    fs->cursor_y = start_y;
+    fs->selection_mode = false;
+}
+

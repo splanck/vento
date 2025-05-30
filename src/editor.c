@@ -16,6 +16,14 @@
 #include "search.h"
 #include "file_manager.h"
 
+__attribute__((weak)) void copy_selection_keyboard(FileState *fs) {
+    (void)fs;
+}
+
+__attribute__((weak)) void cut_selection(FileState *fs) {
+    (void)fs;
+}
+
 void allocation_failed(const char *msg) {
     endwin();
     if (msg)
@@ -48,10 +56,11 @@ int key_save_file = 19;  // Key code for the save file command (CTRL-S)
 int key_close_file = 17;  // Key code for closing the current file (CTRL-Q)
 int key_selection_mode = 13;  // Key code for entering selection mode
 int key_paste_clipboard = 22;  // Key code for pasting from clipboard (CTRL-V)
+int key_copy_selection = 3;   // Key code for copying the selection (CTRL-C)
+int key_cut_selection = 24;   // Key code for cutting the selection (CTRL-X)
 int key_clear_buffer = 14;  // Key code for clearing the text buffer
 int key_redo = 25;  // Key code for the redo command (CTRL-Y)
 int key_undo = 26;  // Key code for the undo command (CTRL-Z)
-int key_quit = 24;  // Key code for quitting the editor
 int key_find = 6;  // Key code for finding next word
 int key_find_next = KEY_F(3);  // Key code for find next occurrence
 int key_next_file = KEY_F(6);  // Key code for switching to the next file
@@ -255,19 +264,23 @@ static void handle_paste_clipboard_wrapper(struct FileState *fs, int *cx, int *c
     paste_clipboard(fs, cx, cy);
 }
 
+static void handle_copy_selection_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)cx;
+    (void)cy;
+    copy_selection_keyboard(fs);
+}
+
+static void handle_cut_selection_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)cx;
+    (void)cy;
+    cut_selection(fs);
+}
+
 static void handle_clear_buffer_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)fs;
     clear_text_buffer();
     *cx = 1;
     *cy = 1;
-}
-
-
-static void handle_quit_wrapper(struct FileState *fs, int *cx, int *cy) {
-    (void)fs;
-    (void)cx;
-    (void)cy;
-    exiting = 1;
 }
 
 
@@ -312,12 +325,13 @@ void initialize_key_mappings(void) {
     key_mappings[key_mapping_count++] = (KeyMapping){key_close_file, close_current_file};
     key_mappings[key_mapping_count++] = (KeyMapping){key_selection_mode, handle_selection_mode_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_paste_clipboard, handle_paste_clipboard_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_copy_selection, handle_copy_selection_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_cut_selection, handle_cut_selection_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_clear_buffer, handle_clear_buffer_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_redo, handle_redo_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_undo, handle_undo_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_next_file, next_file};
     key_mappings[key_mapping_count++] = (KeyMapping){key_prev_file, prev_file};
-    key_mappings[key_mapping_count++] = (KeyMapping){key_quit, handle_quit_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_T, NULL}; /* placeholder for menu key, handled elsewhere */
 
     key_mappings[key_mapping_count++] = (KeyMapping){0, NULL}; /* terminator */
