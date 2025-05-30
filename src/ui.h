@@ -8,17 +8,11 @@ void show_help(void);
 void show_about(void);
 void create_dialog(const char *message, char *output, int max_input_len);
 void show_warning_dialog(void);
-WINDOW *create_popup_window(int height, int width, WINDOW *parent);
-void get_dir_contents(const char *dir_path, char ***choices, int *n_choices);
-void free_dir_contents(char **choices, int n_choices);
 int show_find_dialog(char *output, int max_input_len, const char *preset);
 int show_replace_dialog(char *search, int max_search_len,
                         char *replace, int max_replace_len);
 int show_open_file_dialog(char *path, int max_len);
 int show_save_file_dialog(char *path, int max_len);
 int show_settings_dialog(AppConfig *cfg);
-int show_scrollable_window(const char **options, int count, WINDOW *parent);
-const char *select_color(const char *current, WINDOW *parent);
-int select_bool(const char *prompt, int current, WINDOW *parent);
 
 #endif // UI_H
