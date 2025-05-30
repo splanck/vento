@@ -62,6 +62,7 @@ void free_dir_contents(char **choices, int n_choices) {
 }
 
 int show_open_file_dialog(char *path, int max_len) {
+    curs_set(0);
     int highlight = 0;
     int ch;
     char cwd[1024];
@@ -72,8 +73,10 @@ int show_open_file_dialog(char *path, int max_len) {
     int win_height = LINES - 4;
     int win_width = COLS - 4;
     WINDOW *win = create_popup_window(win_height, win_width, NULL);
-    if (!win)
-        return 0;
+        if (!win) {
+            curs_set(1);
+            return 0;
+        }
     keypad(win, TRUE);
 
     getcwd(cwd, sizeof(cwd));
@@ -133,6 +136,7 @@ int show_open_file_dialog(char *path, int max_len) {
                 wrefresh(win);
                 delwin(win);
                 wrefresh(stdscr);
+                curs_set(1);
                 return 1;
             }
 
@@ -155,6 +159,7 @@ int show_open_file_dialog(char *path, int max_len) {
                     wrefresh(win);
                     delwin(win);
                     wrefresh(stdscr);
+                    curs_set(1);
                     return 1;
                 }
             }
@@ -212,6 +217,7 @@ int show_open_file_dialog(char *path, int max_len) {
             wrefresh(win);
             delwin(win);
             wrefresh(stdscr);
+            curs_set(1);
             return 0;
         } else if (isprint(ch)) {
             if (input_len < (int)sizeof(input) - 1) {
@@ -227,10 +233,12 @@ int show_open_file_dialog(char *path, int max_len) {
     wrefresh(win);
     delwin(win);
     wrefresh(stdscr);
+    curs_set(1);
     return 0;
 }
 
 int show_save_file_dialog(char *path, int max_len) {
+    curs_set(0);
     int highlight = 0;
     int ch;
     char cwd[1024];
@@ -241,8 +249,10 @@ int show_save_file_dialog(char *path, int max_len) {
     int win_height = LINES - 4;
     int win_width = COLS - 4;
     WINDOW *win = create_popup_window(win_height, win_width, NULL);
-    if (!win)
+    if (!win) {
+        curs_set(1);
         return 0;
+    }
     keypad(win, TRUE);
 
     getcwd(cwd, sizeof(cwd));
@@ -324,6 +334,7 @@ int show_save_file_dialog(char *path, int max_len) {
                     wrefresh(win);
                     delwin(win);
                     wrefresh(stdscr);
+                    curs_set(1);
                     return 1;
                 }
             }
@@ -362,9 +373,10 @@ int show_save_file_dialog(char *path, int max_len) {
                                 free_dir_contents(choices, n_choices);
                                 wclear(win);
                                 wrefresh(win);
-                                delwin(win);
-                                wrefresh(stdscr);
-                                return 1;
+                    delwin(win);
+                    wrefresh(stdscr);
+                    curs_set(1);
+                    return 1;
                             }
                         }
                     }
@@ -381,6 +393,7 @@ int show_save_file_dialog(char *path, int max_len) {
             wrefresh(win);
             delwin(win);
             wrefresh(stdscr);
+            curs_set(1);
             return 0;
         } else if (isprint(ch)) {
             if (input_len < (int)sizeof(input) - 1) {
@@ -396,5 +409,6 @@ int show_save_file_dialog(char *path, int max_len) {
     wrefresh(win);
     delwin(win);
     wrefresh(stdscr);
+    curs_set(1);
     return 0;
 }

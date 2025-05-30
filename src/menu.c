@@ -94,6 +94,8 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
     int ch;
     bool inMenu = true;
 
+    curs_set(0);
+
     while (inMenu) {
         if (*currentMenu < 0 || *currentMenu >= menuCount) {
             inMenu = false;
@@ -203,6 +205,7 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                 break;
         }
     }
+    curs_set(1);
 }
 
 

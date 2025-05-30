@@ -9,6 +9,7 @@ const char *select_color(const char *current, WINDOW *parent);
 int select_bool(const char *prompt, int current, WINDOW *parent);
 
 int show_settings_dialog(AppConfig *cfg) {
+    curs_set(0);
     AppConfig original = *cfg;
 
     mmask_t oldmask = mousemask(0, NULL);
@@ -80,8 +81,10 @@ int show_settings_dialog(AppConfig *cfg) {
         win_width = 50;
 
     WINDOW *win = create_popup_window(win_height, win_width, NULL);
-    if (!win)
+    if (!win) {
+        curs_set(1);
         return 0;
+    }
     keypad(win, TRUE);
 
     while (!done) {
@@ -314,11 +317,13 @@ int show_settings_dialog(AppConfig *cfg) {
     wrefresh(win);
     delwin(win);
     wrefresh(stdscr);
+    curs_set(1);
 
     return memcmp(&original, cfg, sizeof(AppConfig)) != 0;
 }
 
 const char *select_color(const char *current, WINDOW *parent) {
+    curs_set(0);
     static const char *colors[] = {
         "BLACK", "RED", "GREEN", "YELLOW",
         "BLUE", "MAGENTA", "CYAN", "WHITE"
@@ -345,15 +350,19 @@ const char *select_color(const char *current, WINDOW *parent) {
         win_height = ph - 4;
         win_width = pw - 4;
         win = create_popup_window(win_height, win_width, parent);
-        if (!win)
+        if (!win) {
+            curs_set(1);
             return NULL;
+        }
         own = 1;
     } else {
         win_height = LINES - 4;
         win_width = COLS - 4;
         win = create_popup_window(win_height, win_width, NULL);
-        if (!win)
+        if (!win) {
+            curs_set(1);
             return NULL;
+        }
         own = 1;
     }
     keypad(win, TRUE);
@@ -402,6 +411,7 @@ const char *select_color(const char *current, WINDOW *parent) {
                     wrefresh(stdscr);
                 }
             }
+            curs_set(1);
             return colors[highlight];
         } else if (ch == KEY_MOUSE) {
             MEVENT ev;
@@ -431,6 +441,7 @@ const char *select_color(const char *current, WINDOW *parent) {
                                 wrefresh(stdscr);
                             }
                         }
+                        curs_set(1);
                         return colors[highlight];
                     }
                 }
@@ -447,14 +458,17 @@ const char *select_color(const char *current, WINDOW *parent) {
                     wrefresh(stdscr);
                 }
             }
+            curs_set(1);
             return NULL;
         }
     }
 
+    curs_set(1);
     return NULL;
 }
 
 int select_bool(const char *prompt, int current, WINDOW *parent) {
+    curs_set(0);
     static const char *options[] = {"Disabled", "Enabled"};
     int highlight = current ? 1 : 0;
 
@@ -464,13 +478,17 @@ int select_bool(const char *prompt, int current, WINDOW *parent) {
     WINDOW *win;
     if (parent) {
         win = create_popup_window(win_height, win_width, parent);
-        if (!win)
+        if (!win) {
+            curs_set(1);
             return current;
+        }
         own = 1;
     } else {
         win = create_popup_window(win_height, win_width, NULL);
-        if (!win)
+        if (!win) {
+            curs_set(1);
             return current;
+        }
         own = 1;
     }
     keypad(win, TRUE);
@@ -513,6 +531,7 @@ int select_bool(const char *prompt, int current, WINDOW *parent) {
                     wrefresh(stdscr);
                 }
             }
+            curs_set(1);
             return highlight == 1 ? 1 : 0;
         } else if (ch == KEY_MOUSE) {
             MEVENT ev;
@@ -540,6 +559,7 @@ int select_bool(const char *prompt, int current, WINDOW *parent) {
                                 wrefresh(stdscr);
                             }
                         }
+                        curs_set(1);
                         return highlight == 1 ? 1 : 0;
                     }
                 }
@@ -556,9 +576,11 @@ int select_bool(const char *prompt, int current, WINDOW *parent) {
                     wrefresh(stdscr);
                 }
             }
+            curs_set(1);
             return current;
         }
     }
 
+    curs_set(1);
     return current;
 }

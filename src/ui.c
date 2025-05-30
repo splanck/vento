@@ -7,6 +7,7 @@
 #include "ui_common.h"
 
 void create_dialog(const char *message, char *output, int max_input_len) {
+    curs_set(0);
     /* Use existing color pairs configured by the application */
 
     int win_y = LINES / 3;
@@ -68,9 +69,11 @@ void create_dialog(const char *message, char *output, int max_input_len) {
     wrefresh(dialog_win);
     delwin(dialog_win);
     wrefresh(stdscr);
+    curs_set(1);
 }
 
 int show_find_dialog(char *output, int max_input_len, const char *preset) {
+    curs_set(0);
     /* Use configured color pairs for dialog display */
 
     int win_y = LINES / 3;
@@ -83,6 +86,7 @@ int show_find_dialog(char *output, int max_input_len, const char *preset) {
         if (output)
             output[0] = '\0';
         show_message("Unable to create window");
+        curs_set(1);
         return 0;
     }
     keypad(dialog_win, TRUE);
@@ -148,15 +152,20 @@ int show_find_dialog(char *output, int max_input_len, const char *preset) {
     wrefresh(dialog_win);
     delwin(dialog_win);
     wrefresh(stdscr);
+    curs_set(1);
 
     return cancelled ? 0 : 1;
 }
 
 int show_replace_dialog(char *search, int max_search_len,
                         char *replace, int max_replace_len) {
-    if (!show_find_dialog(search, max_search_len, NULL) || search[0] == '\0')
+    curs_set(0);
+    if (!show_find_dialog(search, max_search_len, NULL) || search[0] == '\0') {
+        curs_set(1);
         return 0;
+    }
 
     create_dialog("Replace:", replace, max_replace_len);
+    curs_set(1);
     return 1;
 }
