@@ -36,10 +36,13 @@ typedef struct {
     KeyHandler handler;
 } KeyMapping;
 
+void initialize_key_mappings(void);
+
 extern WINDOW *text_win;
 extern struct FileState *active_file;
 extern struct FileManager file_manager;
 extern char search_text[256];
+extern int exiting;
 void handle_regular_mode(struct FileState *fs, int ch);
 void initialize(void);
 void draw_text_buffer(struct FileState *fs, WINDOW *win);
@@ -57,6 +60,8 @@ void disable_ctrl_c_z(void);
 void apply_colors(void);
 void next_file(struct FileState *fs, int *cx, int *cy);
 void prev_file(struct FileState *fs, int *cx, int *cy);
+void handle_redo_wrapper(struct FileState *fs, int *cx, int *cy);
+void handle_undo_wrapper(struct FileState *fs, int *cx, int *cy);
 void allocation_failed(const char *msg);
 
 
