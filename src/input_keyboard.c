@@ -95,22 +95,55 @@ void handle_key_delete(FileState *fs) {
 void handle_key_enter(FileState *fs) {
     if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
         allocation_failed("ensure_line_capacity failed");
-    for (int i = fs->line_count; i > fs->cursor_y + fs->start_line; --i) {
+
+    int line_idx = fs->cursor_y - 1 + fs->start_line;
+    char *line = fs->text_buffer[line_idx];
+    char *old_text = strdup(line);
+    if (!old_text) {
+        allocation_failed("strdup failed");
+        return;
+    }
+
+    int indent_len = 0;
+    while (line[indent_len] == ' ' || line[indent_len] == '\t')
+        indent_len++;
+    char indent[indent_len + 1];
+    strncpy(indent, line, indent_len);
+    indent[indent_len] = '\0';
+
+    for (int i = fs->line_count; i > line_idx + 1; --i) {
         strcpy(fs->text_buffer[i], fs->text_buffer[i - 1]);
     }
     fs->line_count++;
 
-    if (fs->cursor_x > 1) {
-        strcpy(fs->text_buffer[fs->cursor_y + fs->start_line],
-               &fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1]);
-        fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1] = '\0';
-    } else {
-        strcpy(fs->text_buffer[fs->cursor_y + fs->start_line],
-               fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
-        fs->text_buffer[fs->cursor_y - 1 + fs->start_line][0] = '\0';
-    }
+    char *new_line = fs->text_buffer[line_idx + 1];
+    new_line[0] = '\0';
+    strncat(new_line, indent, fs->line_capacity - 1);
 
-    fs->cursor_x = 1;
+    char *remainder = &line[fs->cursor_x - 1];
+    int remaining_indent = indent_len - (fs->cursor_x - 1);
+    if (remaining_indent > 0)
+        remainder += remaining_indent;
+    strncat(new_line, remainder, fs->line_capacity - strlen(new_line) - 1);
+
+    line[fs->cursor_x - 1] = '\0';
+
+    char *new_text = strdup(line);
+    if (!new_text) {
+        free(old_text);
+        allocation_failed("strdup failed");
+        return;
+    }
+    push(&fs->undo_stack, (Change){ line_idx, old_text, new_text });
+
+    char *insert_text = strdup(new_line);
+    if (!insert_text) {
+        allocation_failed("strdup failed");
+        return;
+    }
+    push(&fs->undo_stack, (Change){ line_idx + 1, NULL, insert_text });
+
+    fs->cursor_x = indent_len + 1;
     if (fs->cursor_y >= LINES - 6) {
         fs->start_line++;
     } else {
