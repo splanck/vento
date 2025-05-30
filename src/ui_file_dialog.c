@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <ncurses.h>
 #include <stdio.h>
+#include "config.h"
 
 // Ensure proper prototype for strdup
 char *strdup(const char *s);
