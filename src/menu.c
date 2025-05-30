@@ -157,7 +157,6 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                     (ev.bstate & (BUTTON1_PRESSED |
                                    BUTTON1_RELEASED |
                                    BUTTON1_CLICKED))) {
-                    fprintf(stderr, "mouse x=%d y=%d\n", ev.x, ev.y);
                     if (*currentMenu < 0 || *currentMenu >= menuCount) {
                         inMenu = false;
                         break;
