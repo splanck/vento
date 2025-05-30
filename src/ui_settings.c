@@ -204,6 +204,92 @@ int show_settings_dialog(AppConfig *cfg) {
                 break;
             }
             }
+        } else if (ch == KEY_MOUSE && cfg->enable_mouse) {
+            MEVENT ev;
+            if (getmouse(&ev) == OK &&
+                (ev.bstate & (BUTTON1_PRESSED | BUTTON1_CLICKED |
+                               BUTTON1_RELEASED))) {
+                int wy, wx;
+                getbegyx(win, wy, wx);
+                int row = ev.y - wy - 1;
+                int col = ev.x - wx - 2;
+                if (row >= 0 && row < FIELD_COUNT &&
+                    col >= 0 && col < win_width - 4) {
+                    highlight = row;
+                    if (ev.bstate & (BUTTON1_RELEASED | BUTTON1_CLICKED)) {
+                        switch (highlight) {
+                        case FIELD_ENABLE_COLOR:
+                            cfg->enable_color = select_bool(
+                                "Enable color", cfg->enable_color, win);
+                            break;
+                        case FIELD_MOUSE:
+                            cfg->enable_mouse = select_bool(
+                                "Enable mouse", cfg->enable_mouse, win);
+                            break;
+                        case FIELD_BACKGROUND: {
+                            const char *sel =
+                                select_color(cfg->background_color, win);
+                            if (sel) {
+                                strncpy(cfg->background_color, sel,
+                                        sizeof(cfg->background_color) - 1);
+                                cfg->background_color[sizeof(cfg->background_color) - 1] = '\0';
+                            }
+                            break;
+                        }
+                        case FIELD_KEYWORD: {
+                            const char *sel =
+                                select_color(cfg->keyword_color, win);
+                            if (sel) {
+                                strncpy(cfg->keyword_color, sel,
+                                        sizeof(cfg->keyword_color) - 1);
+                                cfg->keyword_color[sizeof(cfg->keyword_color) - 1] = '\0';
+                            }
+                            break;
+                        }
+                        case FIELD_COMMENT: {
+                            const char *sel =
+                                select_color(cfg->comment_color, win);
+                            if (sel) {
+                                strncpy(cfg->comment_color, sel,
+                                        sizeof(cfg->comment_color) - 1);
+                                cfg->comment_color[sizeof(cfg->comment_color) - 1] = '\0';
+                            }
+                            break;
+                        }
+                        case FIELD_STRING: {
+                            const char *sel =
+                                select_color(cfg->string_color, win);
+                            if (sel) {
+                                strncpy(cfg->string_color, sel,
+                                        sizeof(cfg->string_color) - 1);
+                                cfg->string_color[sizeof(cfg->string_color) - 1] = '\0';
+                            }
+                            break;
+                        }
+                        case FIELD_TYPE: {
+                            const char *sel =
+                                select_color(cfg->type_color, win);
+                            if (sel) {
+                                strncpy(cfg->type_color, sel,
+                                        sizeof(cfg->type_color) - 1);
+                                cfg->type_color[sizeof(cfg->type_color) - 1] = '\0';
+                            }
+                            break;
+                        }
+                        case FIELD_SYMBOL: {
+                            const char *sel =
+                                select_color(cfg->symbol_color, win);
+                            if (sel) {
+                                strncpy(cfg->symbol_color, sel,
+                                        sizeof(cfg->symbol_color) - 1);
+                                cfg->symbol_color[sizeof(cfg->symbol_color) - 1] = '\0';
+                            }
+                            break;
+                        }
+                        }
+                    }
+                }
+            }
         } else if (ch == 27) {
             done = 1;
         }
