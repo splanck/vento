@@ -36,6 +36,8 @@ int endwin(void){return 0;}
 int refresh(void){return 0;}
 int clear(void){return 0;}
 int resizeterm(int r,int c){(void)r;(void)c;return 0;}
+int wnoutrefresh(WINDOW *w){(void)w; return 0;}
+int doupdate(void){return 0;}
 
 /* stubs for editor dependencies */
 void update_status_bar(FileState *fs){(void)fs;}

@@ -9,7 +9,7 @@ void drawMenuBar(Menu *menus, int menuCount) {
     for (int i = 0; i < menuCount; ++i) {
         mvprintw(0, i * 10, "%s", menus[i].label);
     }
-    refresh();
+    wnoutrefresh(stdscr);
 }
 
 /* Convenience wrapper used by various modules */
