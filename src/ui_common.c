@@ -36,6 +36,7 @@ WINDOW *create_popup_window(int height, int width, WINDOW *parent) {
 }
 
 void show_message(const char *msg) {
+    curs_set(0);
     int win_height = 3;
     int win_width = (int)strlen(msg) + 4;
     int win_y = (LINES - win_height) / 2;
@@ -50,9 +51,11 @@ void show_message(const char *msg) {
     wrefresh(win);
     delwin(win);
     wrefresh(stdscr);
+    curs_set(1);
 }
 
 int show_scrollable_window(const char **options, int count, WINDOW *parent) {
+    curs_set(0);
     int highlight = 0;
     int ch;
     int start = 0;
@@ -69,15 +72,19 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
         win_height = ph - 4;
         win_width = pw - 4;
         win = create_popup_window(win_height, win_width, parent);
-        if (!win)
+        if (!win) {
+            curs_set(1);
             return -1;
+        }
         own = 1;
     } else {
         win_height = LINES - 4;
         win_width = COLS - 4;
         win = create_popup_window(win_height, win_width, NULL);
-        if (!win)
+        if (!win) {
+            curs_set(1);
             return -1;
+        }
         own = 1;
     }
     keypad(win, TRUE);
@@ -126,6 +133,7 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
                     wrefresh(stdscr);
                 }
             }
+            curs_set(1);
             return highlight;
         } else if (ch == 27) {
             if (own) {
@@ -139,6 +147,7 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
                     wrefresh(stdscr);
                 }
             }
+            curs_set(1);
             return -1;
         } else if (ch == KEY_MOUSE && enable_mouse) {
             MEVENT ev;
@@ -174,6 +183,7 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
         }
     }
 
+    curs_set(1);
     return -1;
 }
 

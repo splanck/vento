@@ -5,6 +5,7 @@
 #include <string.h>
 
 void show_help() {
+    curs_set(0);
     int win_height = 18;
     int win_width = COLS - 40;
     int win_y = (LINES - win_height) / 2;
@@ -55,9 +56,11 @@ void show_help() {
     wrefresh(help_win);
     delwin(help_win);
     wrefresh(stdscr);
+    curs_set(1);
 }
 
 void show_about() {
+    curs_set(0);
     int win_height = 10;
     int win_width = COLS - 20;
     int win_y = (LINES - win_height) / 2;
@@ -81,9 +84,11 @@ void show_about() {
     wrefresh(about_win);
     delwin(about_win);
     wrefresh(stdscr);
+    curs_set(1);
 }
 
 void show_warning_dialog() {
+    curs_set(0);
     int win_height = 7;
     int win_width = COLS - 20;
     int win_y = (LINES - win_height) / 2;
@@ -117,4 +122,5 @@ void show_warning_dialog() {
     wrefresh(text_win);
     update_status_bar(active_file);
     wrefresh(stdscr);
+    curs_set(1);
 }
