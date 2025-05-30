@@ -147,6 +147,11 @@ int show_settings_dialog(AppConfig *cfg) {
             case FIELD_MOUSE:
                 cfg->enable_mouse =
                     select_bool("Enable mouse", cfg->enable_mouse, win);
+                enable_mouse = cfg->enable_mouse;
+                if (enable_mouse)
+                    mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
+                else
+                    mousemask(0, NULL);
                 break;
             case FIELD_BACKGROUND: {
                 const char *sel = select_color(cfg->background_color, win);
@@ -225,6 +230,11 @@ int show_settings_dialog(AppConfig *cfg) {
                         case FIELD_MOUSE:
                             cfg->enable_mouse = select_bool(
                                 "Enable mouse", cfg->enable_mouse, win);
+                            enable_mouse = cfg->enable_mouse;
+                            if (enable_mouse)
+                                mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
+                            else
+                                mousemask(0, NULL);
                             break;
                         case FIELD_BACKGROUND: {
                             const char *sel =
