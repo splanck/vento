@@ -43,7 +43,8 @@ short get_color_code(const char *color_name) {
 static void get_config_path(char *buf, size_t size) {
     struct passwd *pw = getpwuid(getuid());
     const char *homedir = pw ? pw->pw_dir : getenv("HOME");
-    if (!homedir) homedir = "";
+    if (!homedir || homedir[0] == '\0')
+        homedir = ".";
     snprintf(buf, size, "%s/.ventorc", homedir);
 }
 
