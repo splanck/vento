@@ -16,6 +16,8 @@
 #undef wattron
 #undef mvwprintw
 #undef wattroff
+#undef wattr_on
+#undef wattr_off
 #undef wmove
 #undef wgetch
 #undef wclear
@@ -34,6 +36,8 @@ int enable_color = 0; /* disable color globally */
 int enable_mouse = 0;
 
 int wbkgd_attr_last = -2;
+int wattron_color_calls = 0;
+int wattroff_color_calls = 0;
 
 int curs_set(int c){ (void)c; return 0; }
 WINDOW *newwin(int nlines,int ncols,int y,int x){ (void)nlines;(void)ncols;(void)y;(void)x; return (WINDOW*)&dummy_win; }
@@ -42,8 +46,30 @@ int keypad(WINDOW*w, bool b){ (void)w; (void)b; return 0; }
 int wbkgd(WINDOW*w, chtype ch){ (void)w; wbkgd_attr_last = ch; return 0; }
 int wrefresh(WINDOW*w){ (void)w; return 0; }
 int box(WINDOW*w, chtype v, chtype h){ (void)w; (void)v; (void)h; return 0; }
-int wattron(WINDOW*w, int a){ (void)w; (void)a; return 0; }
-int wattroff(WINDOW*w, int a){ (void)w; (void)a; return 0; }
+int wattron(WINDOW*w, int a){
+    (void)w;
+    if(a == COLOR_PAIR(SYNTAX_KEYWORD))
+        wattron_color_calls++;
+    return 0;
+}
+int wattroff(WINDOW*w, int a){
+    (void)w;
+    if(a == COLOR_PAIR(SYNTAX_KEYWORD))
+        wattroff_color_calls++;
+    return 0;
+}
+int wattr_on(WINDOW*w, attr_t a, void*opts){
+    (void)w; (void)opts;
+    if(a == COLOR_PAIR(SYNTAX_KEYWORD))
+        wattron_color_calls++;
+    return 0;
+}
+int wattr_off(WINDOW*w, attr_t a, void*opts){
+    (void)w; (void)opts;
+    if(a == COLOR_PAIR(SYNTAX_KEYWORD))
+        wattroff_color_calls++;
+    return 0;
+}
 int mvwprintw(WINDOW*w,int y,int x,const char*fmt,...){ (void)w;(void)y;(void)x;(void)fmt; return 0; }
 int wmove(WINDOW*w,int y,int x){ (void)w;(void)y;(void)x; return 0; }
 int wgetch(WINDOW*w){ (void)w; return '\n'; }
@@ -60,9 +86,13 @@ int main(void){
     char buf[32];
     /* color disabled */
     enable_color = 0;
+    wattron_color_calls = 0;
+    wattroff_color_calls = 0;
     printf("create_dialog\n");
     create_dialog("Test", buf, sizeof(buf));
     assert(wbkgd_attr_last == A_NORMAL);
+    assert(wattron_color_calls == 0);
+    assert(wattroff_color_calls == 0);
 
     printf("show_help\n");
     show_help();
@@ -75,12 +105,16 @@ int main(void){
     printf("show_warning\n");
     show_warning_dialog();
     assert(wbkgd_attr_last == A_NORMAL);
-
+    
     /* color enabled */
     enable_color = 1;
+    wattron_color_calls = 0;
+    wattroff_color_calls = 0;
     printf("create_dialog color\n");
     create_dialog("Test", buf, sizeof(buf));
     assert(wbkgd_attr_last == COLOR_PAIR(SYNTAX_BG));
+    assert(wattron_color_calls == 1);
+    assert(wattroff_color_calls == 1);
 
     printf("show_help color\n");
     show_help();
