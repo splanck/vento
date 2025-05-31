@@ -295,8 +295,14 @@ void replace(FileState *fs) {
     int opt_count = 3;
     int win_height = opt_count + 2;
     int win_width = 20;
+    if (win_width > COLS - 2)
+        win_width = COLS - 2;
+    if (win_width < 2)
+        win_width = 2;
     int win_y = (LINES - win_height) / 2;
     int win_x = (COLS - win_width) / 2;
+    if (win_x < 0)
+        win_x = 0;
     WINDOW *win = newwin(win_height, win_width, win_y, win_x);
     keypad(win, TRUE);
     box(win, 0, 0);

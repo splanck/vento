@@ -12,8 +12,14 @@ void create_dialog(const char *message, char *output, int max_input_len) {
     /* Use existing color pairs configured by the application */
 
     int win_y = LINES / 3;
-    int win_x = (COLS - strlen(message) - 30) / 2;
-    int win_width = strlen(message) + 30;
+    int win_width = (int)strlen(message) + 30;
+    if (win_width > COLS - 2)
+        win_width = COLS - 2;
+    if (win_width < 2)
+        win_width = 2;
+    int win_x = (COLS - win_width) / 2;
+    if (win_x < 0)
+        win_x = 0;
     int win_height = 7;
 
     WINDOW *dialog_win = newwin(win_height, win_width, win_y, win_x);
@@ -78,8 +84,14 @@ int show_find_dialog(char *output, int max_input_len, const char *preset) {
     /* Use configured color pairs for dialog display */
 
     int win_y = LINES / 3;
-    int win_x = (COLS - 40) / 2;
     int win_width = 40;
+    if (win_width > COLS - 2)
+        win_width = COLS - 2;
+    if (win_width < 2)
+        win_width = 2;
+    int win_x = (COLS - win_width) / 2;
+    if (win_x < 0)
+        win_x = 0;
     int win_height = 7;
 
     WINDOW *dialog_win = newwin(win_height, win_width, win_y, win_x);
