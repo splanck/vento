@@ -2,11 +2,17 @@
 #include <stdio.h>
 #include <string.h>
 #include "menu.h"
+#include "config.h"
+#include "syntax.h"
 
 /* Draws the top menu bar using the global menu list */
 void drawMenuBar(Menu *menus, int menuCount) {
     move(0, 0);
     clrtoeol();
+
+    bkgd(enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
+    if (enable_color)
+        wattron(stdscr, COLOR_PAIR(SYNTAX_KEYWORD));
 
     int pos = 0;
     for (int i = 0; i < menuCount; ++i) {
@@ -15,6 +21,9 @@ void drawMenuBar(Menu *menus, int menuCount) {
         mvprintw(0, pos, "%s", menus[i].label);
         pos += (int)strlen(menus[i].label) + 2; // add padding
     }
+
+    if (enable_color)
+        wattroff(stdscr, COLOR_PAIR(SYNTAX_KEYWORD));
 
     wnoutrefresh(stdscr);
 }
