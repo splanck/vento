@@ -31,6 +31,7 @@ FileState *active_file = NULL;
 int COLS = 80;
 int LINES = 24;
 int enable_color = 0; /* disable color globally */
+int enable_mouse = 0;
 
 int wbkgd_attr_last = -2;
 
