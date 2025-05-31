@@ -4,6 +4,7 @@
 #include "ui.h"
 #include "files.h"
 #include "config.h"
+#include "syntax.h"
 
 #undef curs_set
 #undef newwin
@@ -56,6 +57,8 @@ int show_message(const char*msg){ (void)msg; return 0; }
 
 int main(void){
     char buf[32];
+    /* color disabled */
+    enable_color = 0;
     printf("create_dialog\n");
     create_dialog("Test", buf, sizeof(buf));
     assert(wbkgd_attr_last == A_NORMAL);
@@ -71,6 +74,24 @@ int main(void){
     printf("show_warning\n");
     show_warning_dialog();
     assert(wbkgd_attr_last == A_NORMAL);
+
+    /* color enabled */
+    enable_color = 1;
+    printf("create_dialog color\n");
+    create_dialog("Test", buf, sizeof(buf));
+    assert(wbkgd_attr_last == COLOR_PAIR(SYNTAX_BG));
+
+    printf("show_help color\n");
+    show_help();
+    assert(wbkgd_attr_last == COLOR_PAIR(SYNTAX_BG));
+
+    printf("show_about color\n");
+    show_about();
+    assert(wbkgd_attr_last == COLOR_PAIR(SYNTAX_BG));
+
+    printf("show_warning color\n");
+    show_warning_dialog();
+    assert(wbkgd_attr_last == COLOR_PAIR(SYNTAX_BG));
 
     return 0;
 }
