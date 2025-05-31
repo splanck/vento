@@ -191,6 +191,24 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                     (ev.bstate & (BUTTON1_PRESSED |
                                    BUTTON1_RELEASED |
                                    BUTTON1_CLICKED))) {
+                    if (ev.y == 0) {
+                        int newMenu = ev.x / 10;
+                        if (newMenu >= 0 && newMenu < menuCount) {
+                            *currentMenu = newMenu;
+                            *currentItem = 0;
+                            while (*currentItem < menus[*currentMenu].itemCount &&
+                                   menus[*currentMenu].items[*currentItem].separator)
+                                (*currentItem)++; // Skip separators
+                            int startX = (*currentMenu) * 10;
+                            int startY = 1;
+                            if (!drawMenu(&menus[*currentMenu], *currentItem, startX, startY)) {
+                                inMenu = false;
+                            }
+                            refresh();
+                            break;
+                        }
+                    }
+
                     if (*currentMenu < 0 || *currentMenu >= menuCount) {
                         inMenu = false;
                         break;
