@@ -98,3 +98,7 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc
 # build and run undo/redo modified flag test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_undo_redo_modified.c src/undo.c -lncurses -o test_undo_redo_modified
 ./test_undo_redo_modified
+
+# build and run long line loading test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_long_line_load.c obj_test/files.o -lncurses -o test_long_line_load
+./test_long_line_load

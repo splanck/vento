@@ -141,16 +141,20 @@ int ensure_col_capacity(FileState *fs, int cols) {
 static int read_line_into(FileState *fs, const char *line) {
     if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
         return -1;
+
     size_t len = strlen(line);
-    if (len > 0) {
-        size_t copy_len = len - 1;
-        if (copy_len > (size_t)(fs->line_capacity - 1))
-            copy_len = fs->line_capacity - 1;
-        strncpy(fs->text_buffer[fs->line_count], line, copy_len);
-        fs->text_buffer[fs->line_count][copy_len] = '\0';
-    } else {
-        fs->text_buffer[fs->line_count][0] = '\0';
-    }
+    if (len > 0 && line[len - 1] == '\n')
+        len--;
+
+    if (ensure_col_capacity(fs, (int)len + 1) < 0)
+        return -1;
+
+    if (len > (size_t)(fs->line_capacity - 1))
+        len = fs->line_capacity - 1;
+
+    memcpy(fs->text_buffer[fs->line_count], line, len);
+    fs->text_buffer[fs->line_count][len] = '\0';
+
     fs->line_count++;
     return 0;
 }
@@ -159,13 +163,19 @@ int load_next_lines(FileState *fs, int count) {
     if (!fs->fp)
         return 0;
 
-    char line[1024];
+    char *line = NULL;
+    size_t len = 0;
     int loaded = 0;
-    while (loaded < count && fgets(line, sizeof(line), fs->fp)) {
-        if (read_line_into(fs, line) < 0)
+    ssize_t nread;
+    while (loaded < count && (nread = getline(&line, &len, fs->fp)) != -1) {
+        (void)nread;
+        if (read_line_into(fs, line) < 0) {
+            free(line);
             return -1;
+        }
         loaded++;
     }
+    free(line);
     if (feof(fs->fp)) {
         fclose(fs->fp);
         fs->fp = NULL;
