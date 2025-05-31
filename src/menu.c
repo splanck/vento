@@ -65,7 +65,7 @@ void initializeMenus() {
     menus[1] = editMenu;
 
     // Create the help menu
-    MenuItem *helpMenuItems = malloc(3 * sizeof(MenuItem));
+    MenuItem *helpMenuItems = malloc(2 * sizeof(MenuItem));
     if (helpMenuItems == NULL) {
         fprintf(stderr, "Failed to allocate memory for help menu items\n");
         freeMenus();
@@ -73,10 +73,8 @@ void initializeMenus() {
     }
     helpMenuItems[0] = (MenuItem){"About Vento", menuAbout};
     helpMenuItems[1] = (MenuItem){"Help Screen", menuHelp};
-    helpMenuItems[2] = (MenuItem){"Test Window", menuTestwindow};
-
     // Initialize and assign the help menu
-    Menu helpMenu = {"Help", helpMenuItems, 3};
+    Menu helpMenu = {"Help", helpMenuItems, 2};
     menus[2] = helpMenu;
 
     drawMenuBar(menus, menuCount);
@@ -279,19 +277,6 @@ void menuHelp() {
     show_help();
 }
 
-void menuTestwindow() {
-    char selected_path[100] = "";
-    int result = show_open_file_dialog(selected_path, sizeof(selected_path));
-    if (result) {
-        mvprintw(LINES - 2, 2, "Selected: %s", selected_path);
-        refresh();
-        getch();
-        mvprintw(LINES - 2, 2, "                             ");
-        refresh();
-    }
-    redraw();
-    drawBar();
-}
 
 /**
  * Frees the memory allocated for all menus and their menu items.

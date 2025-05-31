@@ -115,7 +115,6 @@ void menuFind(void){}
 void menuReplace(void){}
 void menuAbout(void){}
 void menuHelp(void){}
-void menuTestwindow(void){}
 int show_goto_dialog(int*line){(void)line;return 0;}
 void go_to_line(FileState*fs,int line){(void)fs;(void)line;}
 void ensure_line_loaded(FileState*fs,int idx){(void)fs;(void)idx;}
