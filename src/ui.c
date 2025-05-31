@@ -41,9 +41,11 @@ void create_dialog(const char *message, char *output, int max_input_len) {
 
     int input_x = 2;
     int input_y = 3;
-    wattron(dialog_win, COLOR_PAIR(SYNTAX_KEYWORD));
+    if (enable_color)
+        wattron(dialog_win, COLOR_PAIR(SYNTAX_KEYWORD));
     mvwprintw(dialog_win, input_y, input_x, "Input: ");
-    wattroff(dialog_win, COLOR_PAIR(SYNTAX_KEYWORD));
+    if (enable_color)
+        wattroff(dialog_win, COLOR_PAIR(SYNTAX_KEYWORD));
     wmove(dialog_win, input_y, input_x + 7);
 
     int ch, input_len = 0;
@@ -115,9 +117,11 @@ int show_find_dialog(char *output, int max_input_len, const char *preset) {
 
     int input_x = 7;
     int input_y = 3;
-    wattron(dialog_win, COLOR_PAIR(SYNTAX_KEYWORD));
+    if (enable_color)
+        wattron(dialog_win, COLOR_PAIR(SYNTAX_KEYWORD));
     mvwprintw(dialog_win, input_y, input_x, "Input: ");
-    wattroff(dialog_win, COLOR_PAIR(SYNTAX_KEYWORD));
+    if (enable_color)
+        wattroff(dialog_win, COLOR_PAIR(SYNTAX_KEYWORD));
     int input_len = 0;
     if (preset && *preset) {
         strncpy(output, preset, max_input_len - 1);
