@@ -126,7 +126,12 @@ static void replace_in_line(FileState *fs, int line, char *pos,
     size_t suffix_len = strlen(pos + search_len);
     size_t replacement_len = strlen(replacement);
 
-    char new_line[fs->line_capacity];
+    char *new_line = malloc(fs->line_capacity);
+    if (!new_line) {
+        free(old_text);
+        allocation_failed("replace_in_line malloc");
+    }
+
     if (prefix_len >= (size_t)fs->line_capacity)
         prefix_len = fs->line_capacity - 1;
     strncpy(new_line, line_text, prefix_len);
@@ -154,6 +159,7 @@ static void replace_in_line(FileState *fs, int line, char *pos,
     push(&fs->undo_stack, change);
     strncpy(fs->text_buffer[line], new_line, fs->line_capacity - 1);
     fs->text_buffer[line][fs->line_capacity - 1] = '\0';
+    free(new_line);
     fs->modified = true;
     mark_comment_state_dirty(fs);
 }
