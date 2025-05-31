@@ -10,15 +10,15 @@
     "struct|switch|typedef|union|unsigned|void|volatile|while|_Alignas|_Alignof|_Atomic|" \
     "_Bool|_Complex|_Generic|_Imaginary|_Noreturn|_Static_assert|_Thread_local)\\b"
 
-static SyntaxRegex C_PATTERNS[] = {
+SyntaxRegex C_PATTERNS[] = {
     { .pattern = "^//.*", .attr = COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD },
     { .pattern = "^/\\*.*\\*/", .attr = COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD },
     { .pattern = "^(\"([^\"\\]|\\.)*\"|'([^'\\]|\\.)*')", .attr = COLOR_PAIR(SYNTAX_STRING) | A_BOLD },
     { .pattern = "^(0[xX][0-9A-Fa-f]+|[0-9]+)", .attr = COLOR_PAIR(SYNTAX_TYPE) | A_BOLD },
     { .pattern = C_KEYWORDS_PATTERN, .attr = COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD },
 };
-static int c_regex_compiled = 0;
-static const int C_PATTERNS_COUNT = sizeof(C_PATTERNS) / sizeof(C_PATTERNS[0]);
+int c_regex_compiled = 0;
+const int C_PATTERNS_COUNT = sizeof(C_PATTERNS) / sizeof(C_PATTERNS[0]);
 
 void highlight_c_syntax(FileState *fs, WINDOW *win, const char *line, int y) {
     if (!c_regex_compiled) {

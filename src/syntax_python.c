@@ -8,14 +8,14 @@
 #define PYTHON_KEYWORDS_PATTERN \
     "^(False|None|True|and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)\\b"
 
-static SyntaxRegex PYTHON_PATTERNS[] = {
+SyntaxRegex PYTHON_PATTERNS[] = {
     { .pattern = "^#.*", .attr = COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD },
     { .pattern = "^(\"([^\"\\]|\\.)*\"|'([^'\\]|\\.)*')", .attr = COLOR_PAIR(SYNTAX_STRING) | A_BOLD },
     { .pattern = "^(0[xX][0-9A-Fa-f]+|[0-9]+)", .attr = COLOR_PAIR(SYNTAX_TYPE) | A_BOLD },
     { .pattern = PYTHON_KEYWORDS_PATTERN, .attr = COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD },
 };
-static int python_regex_compiled = 0;
-static const int PYTHON_PATTERNS_COUNT = sizeof(PYTHON_PATTERNS)/sizeof(PYTHON_PATTERNS[0]);
+int python_regex_compiled = 0;
+const int PYTHON_PATTERNS_COUNT = sizeof(PYTHON_PATTERNS)/sizeof(PYTHON_PATTERNS[0]);
 
 void highlight_python_syntax(FileState *fs, WINDOW *win, const char *line, int y) {
     int i = 0;

@@ -7,14 +7,14 @@
 #define CSS_KEYWORDS_PATTERN \
     "^(color|background|margin|padding|border|font|display|position|top|left|right|bottom|width|height|flex|grid|float|clear)\\b"
 
-static SyntaxRegex CSS_PATTERNS[] = {
+SyntaxRegex CSS_PATTERNS[] = {
     { .pattern = "^/\\*.*\\*/", .attr = COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD },
     { .pattern = "^(\"([^\"\\]|\\.)*\"|'([^'\\]|\\.)*')", .attr = COLOR_PAIR(SYNTAX_STRING) | A_BOLD },
     { .pattern = "^(0[xX][0-9A-Fa-f]+|[0-9]+[a-zA-Z%]*)", .attr = COLOR_PAIR(SYNTAX_TYPE) | A_BOLD },
     { .pattern = CSS_KEYWORDS_PATTERN, .attr = COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD },
 };
-static int css_regex_compiled = 0;
-static const int CSS_PATTERNS_COUNT = sizeof(CSS_PATTERNS) / sizeof(CSS_PATTERNS[0]);
+int css_regex_compiled = 0;
+const int CSS_PATTERNS_COUNT = sizeof(CSS_PATTERNS) / sizeof(CSS_PATTERNS[0]);
 
 void highlight_css_syntax(FileState *fs, WINDOW *win, const char *line, int y) {
     (void)fs;

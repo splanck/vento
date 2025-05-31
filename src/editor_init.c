@@ -64,6 +64,7 @@ void cleanup_on_exit(FileManager *fm) {
         freeMenus();
         return;
     }
+    syntax_cleanup();
     for (int i = 0; i < fm->count; ++i) {
         FileState *fs = fm->files[i];
         if (!fs) continue;
