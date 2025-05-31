@@ -49,8 +49,9 @@ Vento currently supports the following features:
 
 ## Configuration File
 
-Vento reads settings from a `.ventorc` file in your home directory.  The file is
-written in the same key order as the defaults.  When you exit the settings
+Vento reads settings from a `.ventorc` file in your home directory.  If no home
+directory can be determined, it falls back to the current working directory.
+The file is written in the same key order as the defaults.  When you exit the settings
 dialog with changes, the updated configuration is automatically saved back to
 `~/.ventorc`.
 
