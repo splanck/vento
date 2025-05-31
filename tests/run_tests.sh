@@ -28,6 +28,10 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_resize.
 gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_resize_trunc.c obj_test/files.o obj_test/file_manager.o obj_test/stub_enable_color.o -lncurses -o test_resize_trunc
 ./test_resize_trunc
 
+# build and run resize allocation failure test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_resize_allocfail.c -lncurses -o test_resize_allocfail
+./test_resize_allocfail
+
 # build and run identifier overflow test with AddressSanitizer
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_c.c -o obj_test/syntax_c.o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_csharp.c -o obj_test/syntax_csharp.o

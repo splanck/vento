@@ -634,7 +634,8 @@ void handle_resize(int sig) {
         wresize(fs->text_win, LINES - 2, COLS);
         mvwin(fs->text_win, 1, 0);
 
-        ensure_col_capacity(fs, new_capacity);
+        if (ensure_col_capacity(fs, new_capacity) < 0)
+            allocation_failed("ensure_col_capacity failed");
     }
 
     /* Use the resized window of the active file */
