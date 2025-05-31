@@ -57,7 +57,12 @@ static void render_theme_sample(const AppConfig *cfg, WINDOW *win, int row) {
     short ty = get_color_code(cfg->type_color);
     short sy = get_color_code(cfg->symbol_color);
 
-    const short base = 60;
+    short base = COLOR_PAIRS - 6;
+    if (base < 1)
+        base = 1;
+    if (base + 5 >= COLOR_PAIRS)
+        return;
+
     init_pair(base, COLOR_WHITE, bg);
     init_pair(base + 1, kw, bg);
     init_pair(base + 2, cm, bg);
@@ -88,6 +93,16 @@ static void render_theme_sample(const AppConfig *cfg, WINDOW *win, int row) {
 
     wattron(win, COLOR_PAIR(base + 5));
     mvwprintw(win, row, col, "symbol");
+}
+
+static void clear_theme_sample_pairs(void) {
+    short base = COLOR_PAIRS - 6;
+    if (base < 1)
+        base = 1;
+    if (base + 5 >= COLOR_PAIRS)
+        return;
+    for (short i = 0; i < 6; ++i)
+        init_pair(base + i, -1, -1);
 }
 
 static void edit_option(AppConfig *cfg, WINDOW *win, const Option *opt) {
@@ -512,6 +527,7 @@ const char *select_theme(const char *current, WINDOW *parent) {
             free(names);
             werase(win);
             wrefresh(win);
+            clear_theme_sample_pairs();
             delwin(win);
             if (parent) {
                 touchwin(parent);
@@ -543,6 +559,7 @@ const char *select_theme(const char *current, WINDOW *parent) {
                         free(names);
                         werase(win);
                         wrefresh(win);
+                        clear_theme_sample_pairs();
                         delwin(win);
                         if (parent) {
                             touchwin(parent);
@@ -561,6 +578,7 @@ const char *select_theme(const char *current, WINDOW *parent) {
             free(names);
             werase(win);
             wrefresh(win);
+            clear_theme_sample_pairs();
             delwin(win);
             if (parent) {
                 touchwin(parent);
