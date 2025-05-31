@@ -4,6 +4,7 @@
 typedef struct MenuItem {
     const char *label;
     void (*action)(void);
+    bool separator;
 } MenuItem;
 
 typedef struct Menu {

@@ -18,7 +18,7 @@ int menuCount = 0;
  */
 void initializeMenus() {
     // Set the number of menus
-    menuCount = 3;
+    menuCount = 5;
 
     // Allocate memory for the menus array
     menus = calloc(menuCount, sizeof(Menu));
@@ -28,41 +28,63 @@ void initializeMenus() {
     }
 
     // Create the file menu
-    MenuItem *fileMenuItems = malloc(9 * sizeof(MenuItem));
+    MenuItem *fileMenuItems = malloc(7 * sizeof(MenuItem));
     if (fileMenuItems == NULL) {
         fprintf(stderr, "Failed to allocate memory for file menu items\n");
         freeMenus();
         exit(EXIT_FAILURE);
     }
-    fileMenuItems[0] = (MenuItem){"New File", menuNewFile};
-    fileMenuItems[1] = (MenuItem){"Load File", menuLoadFile};
-    fileMenuItems[2] = (MenuItem){"Save File", menuSaveFile};
-    fileMenuItems[3] = (MenuItem){"Save As", menuSaveAs};
-    fileMenuItems[4] = (MenuItem){"Settings", menuSettings};
-    fileMenuItems[5] = (MenuItem){"Close File", menuCloseFile};
-    fileMenuItems[6] = (MenuItem){"Next File", menuNextFile};
-    fileMenuItems[7] = (MenuItem){"Previous File", menuPrevFile};
-    fileMenuItems[8] = (MenuItem){"Quit", menuQuitEditor};
+    fileMenuItems[0] = (MenuItem){"New File", menuNewFile, false};
+    fileMenuItems[1] = (MenuItem){"Load File", menuLoadFile, false};
+    fileMenuItems[2] = (MenuItem){"Save File", menuSaveFile, false};
+    fileMenuItems[3] = (MenuItem){"Save As", menuSaveAs, false};
+    fileMenuItems[4] = (MenuItem){"", NULL, true};
+    fileMenuItems[5] = (MenuItem){"Close File", menuCloseFile, false};
+    fileMenuItems[6] = (MenuItem){"Quit", menuQuitEditor, false};
 
     // Initialize and assign the file menu
-    Menu fileMenu = {"File", fileMenuItems, 9};
+    Menu fileMenu = {"File", fileMenuItems, 7};
     menus[0] = fileMenu;
 
     // Create the edit menu
-    MenuItem *editMenuItems = malloc(4 * sizeof(MenuItem));
+    MenuItem *editMenuItems = malloc(5 * sizeof(MenuItem));
     if (editMenuItems == NULL) {
         fprintf(stderr, "Failed to allocate memory for edit menu items\n");
         freeMenus();
         exit(EXIT_FAILURE);
     }
-    editMenuItems[0] = (MenuItem){"Undo", menuUndo};
-    editMenuItems[1] = (MenuItem){"Redo", menuRedo};
-    editMenuItems[2] = (MenuItem){"Find", menuFind};
-    editMenuItems[3] = (MenuItem){"Replace", menuReplace};
+    editMenuItems[0] = (MenuItem){"Undo", menuUndo, false};
+    editMenuItems[1] = (MenuItem){"Redo", menuRedo, false};
+    editMenuItems[2] = (MenuItem){"", NULL, true};
+    editMenuItems[3] = (MenuItem){"Find", menuFind, false};
+    editMenuItems[4] = (MenuItem){"Replace", menuReplace, false};
 
     // Initialize and assign the edit menu
-    Menu editMenu = {"Edit", editMenuItems, 4};
+    Menu editMenu = {"Edit", editMenuItems, 5};
     menus[1] = editMenu;
+
+    // Create the navigate menu
+    MenuItem *navMenuItems = malloc(2 * sizeof(MenuItem));
+    if (navMenuItems == NULL) {
+        fprintf(stderr, "Failed to allocate memory for navigate menu items\n");
+        freeMenus();
+        exit(EXIT_FAILURE);
+    }
+    navMenuItems[0] = (MenuItem){"Next File", menuNextFile, false};
+    navMenuItems[1] = (MenuItem){"Previous File", menuPrevFile, false};
+    Menu navMenu = {"Navigate", navMenuItems, 2};
+    menus[2] = navMenu;
+
+    // Create the options menu
+    MenuItem *optMenuItems = malloc(1 * sizeof(MenuItem));
+    if (optMenuItems == NULL) {
+        fprintf(stderr, "Failed to allocate memory for options menu items\n");
+        freeMenus();
+        exit(EXIT_FAILURE);
+    }
+    optMenuItems[0] = (MenuItem){"Settings", menuSettings, false};
+    Menu optMenu = {"Options", optMenuItems, 1};
+    menus[3] = optMenu;
 
     // Create the help menu
     MenuItem *helpMenuItems = malloc(2 * sizeof(MenuItem));
@@ -71,11 +93,11 @@ void initializeMenus() {
         freeMenus();
         exit(EXIT_FAILURE);
     }
-    helpMenuItems[0] = (MenuItem){"About Vento", menuAbout};
-    helpMenuItems[1] = (MenuItem){"Help Screen", menuHelp};
+    helpMenuItems[0] = (MenuItem){"Help Screen", menuHelp, false};
+    helpMenuItems[1] = (MenuItem){"About Vento", menuAbout, false};
     // Initialize and assign the help menu
     Menu helpMenu = {"Help", helpMenuItems, 2};
-    menus[2] = helpMenu;
+    menus[4] = helpMenu;
 
     drawMenuBar(menus, menuCount);
 }
@@ -138,16 +160,28 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
             case KEY_LEFT:
                 if (*currentMenu > 0) (*currentMenu)--; // Move to the previous menu
                 *currentItem = 0; // Reset the current item index
+                while (*currentItem < menus[*currentMenu].itemCount &&
+                       menus[*currentMenu].items[*currentItem].separator)
+                    (*currentItem)++; // Skip separators
                 break;
             case KEY_RIGHT:
                 if (*currentMenu < menuCount - 1) (*currentMenu)++; // Move to the next menu
                 *currentItem = 0; // Reset the current item index
+                while (*currentItem < menus[*currentMenu].itemCount &&
+                       menus[*currentMenu].items[*currentItem].separator)
+                    (*currentItem)++; // Skip separators
                 break;
             case KEY_UP:
-                if (*currentItem > 0) (*currentItem)--; // Move to the previous item in the current menu
+                if (*currentItem > 0) (*currentItem)--; // Move to the previous item
+                while (*currentItem > 0 &&
+                       menus[*currentMenu].items[*currentItem].separator)
+                    (*currentItem)--; // Skip separators
                 break;
             case KEY_DOWN:
-                if (*currentItem < menus[*currentMenu].itemCount - 1) (*currentItem)++; // Move to the next item in the current menu
+                if (*currentItem < menus[*currentMenu].itemCount - 1) (*currentItem)++; // Move to the next item
+                while (*currentItem < menus[*currentMenu].itemCount - 1 &&
+                       menus[*currentMenu].items[*currentItem].separator)
+                    (*currentItem)++; // Skip separators
                 break;
             case KEY_MOUSE: {
                 if (!enable_mouse)
@@ -174,14 +208,16 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                         ev.y >= startY && ev.y < startY + boxHeight) {
                         int row = ev.y - startY - 1;
                         if (row >= 0 && row < menus[*currentMenu].itemCount) {
-                            *currentItem = row;
-                            if (!drawMenu(&menus[*currentMenu], *currentItem, startX, startY)) {
+                            if (!menus[*currentMenu].items[row].separator) {
+                                *currentItem = row;
+                                if (!drawMenu(&menus[*currentMenu], *currentItem, startX, startY)) {
+                                    inMenu = false;
+                                    break;
+                                }
+                                refresh();
+                                menus[*currentMenu].items[*currentItem].action();
                                 inMenu = false;
-                                break;
                             }
-                            refresh();
-                            menus[*currentMenu].items[*currentItem].action();
-                            inMenu = false;
                         }
                     } else {
                         inMenu = false;
@@ -191,10 +227,11 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
             }
             case '\n': // Enter key
                 if (*currentItem >= 0 && *currentItem < menus[*currentMenu].itemCount &&
-                    menus[*currentMenu].items != NULL) {
-                    menus[*currentMenu].items[*currentItem].action(); // Execute the action associated with the selected menu item
+                    menus[*currentMenu].items != NULL &&
+                    !menus[*currentMenu].items[*currentItem].separator) {
+                    menus[*currentMenu].items[*currentItem].action();
+                    inMenu = false; // Exit after valid selection
                 }
-                inMenu = false; // Exit the menu loop
                 break;
             case 27: // ESC key
                 inMenu = false; // Exit the menu loop
