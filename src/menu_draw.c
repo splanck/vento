@@ -10,7 +10,7 @@ void drawMenuBar(Menu *menus, int menuCount) {
     move(0, 0);
     clrtoeol();
 
-    bkgd(enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
+    wbkgdset(stdscr, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
     if (enable_color)
         wattron(stdscr, COLOR_PAIR(SYNTAX_KEYWORD));
 

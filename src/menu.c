@@ -131,10 +131,11 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
 
         // Draw menu bar and compute menu positions
         drawMenuBar(menus, menuCount);
+        wnoutrefresh(stdscr);
+        doupdate();
 
         if (menus[*currentMenu].items == NULL) {
             inMenu = false;
-            refresh();
             continue;
         }
 
@@ -144,15 +145,14 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
         int boxHeight = menus[*currentMenu].itemCount + 2;
         if (startX + boxWidth > COLS || startY + boxHeight > LINES) {
             inMenu = false;
-            refresh();
             continue;
         }
         if (!drawMenu(&menus[*currentMenu], *currentItem, startX, startY)) {
             inMenu = false;
-            refresh();
             continue;
         }
-        refresh();
+        wnoutrefresh(stdscr);
+        doupdate();
 
         ch = getch();
         switch (ch) {
@@ -211,7 +211,8 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                             if (!drawMenu(&menus[*currentMenu], *currentItem, startX, startY)) {
                                 inMenu = false;
                             }
-                            refresh();
+                            wnoutrefresh(stdscr);
+                            doupdate();
                             break;
                         }
                     }
@@ -239,7 +240,8 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                                     inMenu = false;
                                     break;
                                 }
-                                refresh();
+                                wnoutrefresh(stdscr);
+                                doupdate();
                                 menus[*currentMenu].items[*currentItem].action();
                                 inMenu = false;
                             }
