@@ -145,7 +145,48 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
         wrefresh(win);
 
         ch = wgetch(win);
-        if (ch == KEY_UP) {
+        if (ch == KEY_RESIZE) {
+            resizeterm(0, 0);
+
+            if (parent) {
+                int ph, pw;
+                getmaxyx(parent, ph, pw);
+                win_height = ph - 4;
+                win_width = pw - 4;
+                if (win_width > COLS - 2)
+                    win_width = COLS - 2;
+                if (win_width < 2)
+                    win_width = 2;
+            } else {
+                win_height = LINES - 4;
+                win_width = COLS - 4;
+                if (win_width > COLS - 2)
+                    win_width = COLS - 2;
+                if (win_width < 2)
+                    win_width = 2;
+            }
+
+            wresize(win, win_height, win_width);
+
+            int win_y, win_x;
+            if (parent) {
+                int py, px, ph, pw;
+                getbegyx(parent, py, px);
+                getmaxyx(parent, ph, pw);
+                win_y = py + (ph - win_height) / 2;
+                win_x = px + (pw - win_width) / 2;
+                if (win_x < 0)
+                    win_x = 0;
+            } else {
+                win_y = (LINES - win_height) / 2;
+                win_x = (COLS - win_width) / 2;
+                if (win_x < 0)
+                    win_x = 0;
+            }
+
+            mvwin(win, win_y, win_x);
+            continue;
+        } else if (ch == KEY_UP) {
             if (highlight > 0)
                 --highlight;
         } else if (ch == KEY_DOWN) {
