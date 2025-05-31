@@ -35,6 +35,8 @@ void initialize() {
     meta(stdscr, TRUE);
     if (enable_mouse)
         mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
+    else
+        mousemask(0, NULL);
     timeout(10);
     bkgd(enable_color ? COLOR_PAIR(1) : A_NORMAL);
     refresh();
