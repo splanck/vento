@@ -47,6 +47,9 @@ WINDOW *create_popup_window(int height, int width, WINDOW *parent) {
     return win;
 }
 
+#ifdef USE_WEAK_MESSAGE
+__attribute__((weak))
+#endif
 int show_message(const char *msg) {
     curs_set(0);
     int win_height = 3;
@@ -97,7 +100,6 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
         win = create_popup_window(win_height, win_width, parent);
         if (!win) {
             curs_set(1);
-            show_message("Unable to create window");
             return -1;
         }
         own = 1;
@@ -111,7 +113,6 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
         win = create_popup_window(win_height, win_width, NULL);
         if (!win) {
             curs_set(1);
-            show_message("Unable to create window");
             return -1;
         }
         own = 1;
