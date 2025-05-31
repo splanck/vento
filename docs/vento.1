@@ -1,196 +1,84 @@
 .TH VENTO 1 "August 2024" "0.1.3" "Vento Manual"
 .SH NAME
 vento \- a simple text editor
-
 .SH SYNOPSIS
 .B vento
-.RI [ options ] " [file]"
-
+.RI [ options ] " [file...]"
 .SH DESCRIPTION
 .B Vento
-is a lightweight and easy-to-use text editor designed for simplicity and efficiency. It offers essential text editing capabilities along with additional features such as a status bar, a help screen, and a scroll bar for better navigation.
-
+is a lightweight terminal based text editor focused on simplicity.  It supports editing multiple files at once, customizable color themes, optional line numbers and full mouse interaction.  A status bar shows the current line and column, and a scroll bar indicates your position in the document.  Basic syntax highlighting is provided for C, HTML and Python.  Files can be loaded from the command line or through a file dialog and a menu system exposes common actions.
+.SH SYSTEM REQUIREMENTS
+A POSIX compatible system with a C compiler, binutils and the ncurses development libraries is required to build Vento.  On Debian based distributions install \fBbuild-essential\fP and \fBlibncursesw5-dev\fP.
 .SH OPTIONS
-.TP 
-.B \-h, \-\-help
-Show the help screen.
-
-.SH USAGE
-.B vento
-[optional-filename]
-
-.PP
-Vento allows multiple files to be opened at once. Press \fBCTRL-L\fP to open a
-dialog for browsing directories or typing a filename, and switch between them
-with \fBF6\fP for the next file or \fBF7\fP for the previous one.
-
-.SH FEATURES
-.IP \[bu] 2
-Basic editor functionality: Navigate through text using arrow keys, edit text, and manage files.
-.IP \[bu] 2
-Load files: Press \fBCTRL-L\fP to open a dialog for browsing directories or typing a filename before editing the file.
-.IP \[bu] 2
-Save as: Save the current document with a new filename.
-.IP \[bu] 2
-Status bar: Display current line number, column number, and total lines.
-.IP \[bu] 2
-Create new file: Start a new document from scratch.
-.IP \[bu] 2
-Scroll bar: Visual indicator for navigation within the document.
-.IP \[bu] 2
-Help screen: Access help information with keyboard shortcuts.
-.IP \[bu] 2
-Save feature: Save the current document without prompting for a new filename if it has already been saved.
-.IP \[bu] 2
-Basic syntax highlighting: Basic highlighting for C and HTML files.
-.IP \[bu] 2
-Undo and redo: Press \fBCTRL-Z\fP to undo and \fBCTRL-Y\fP to redo actions.
-.IP \[bu] 2
-About box: Display product name, version, and GPL message.
-.IP \[bu] 2
-Delete current line: Delete the current line and move the cursor to the next line if it exists.
-.IP \[bu] 2
-Word navigation: Move forward to the next word or backward to the previous word.
-.IP \[bu] 2
-Close current file: Close the active file and switch to another open file.
-.IP \[bu] 2
-Customizable configuration: Allow custom settings via a configuration file.
-
+.TP
+.BR \-h , \-\-help
+Display the help screen and exit.
 .SH CONFIGURATION
-Vento stores its preferences in \fB~/.ventorc\fP in the user's home directory. If the file does not exist it is created with default values when the editor starts or when settings are saved. Unknown keys are ignored.
+User preferences are stored in \fI~/.ventorc\fP.  The file is created automatically if it does not exist.  Recognized keys include:
+.IP \[bu] 2
+background_color, keyword_color, comment_color, string_color, type_color, symbol_color
+.IP \[bu] 2
+theme \- base name of a file in the \fBthemes\fP directory
+.IP \[bu] 2
+enable_color \- enable or disable colored output
+.IP \[bu] 2
+enable_mouse \- toggle mouse input
+.IP \[bu] 2
+show_line_numbers \- display line numbers in the editor
 .PP
-The following keys are recognized:
-.IP \[bu] 2
-background_color
-.IP \[bu] 2
-keyword_color
-.IP \[bu] 2
-comment_color
-.IP \[bu] 2
-string_color
-.IP \[bu] 2
-type_color
-.IP \[bu] 2
-symbol_color
-.IP \[bu] 2
-theme
-.IP \[bu] 2
-enable_color
-.IP \[bu] 2
-enable_mouse - enable or disable mouse support
-.IP \[bu] 2
-show_line_numbers - display line numbers in the editor
-.PP
-Set \fBtheme\fP to the basename of a file in the \fBthemes\fP directory (without the \fB.theme\fP extension). Colors from that theme are loaded before applying any individual color overrides. While browsing themes, the picker displays a preview of the selected colors. These options can also be modified using the Settings dialog found under \fBFile\fP -> \fBSettings\fP. Exiting the dialog automatically writes the configuration back to \fB~/.ventorc\fP.
+Configuration options can also be changed interactively using the \fBFile\fP \-> \fBSettings\fP dialog which writes updates back to \fI~/.ventorc\fP.
 .SH KEYBOARD SHORTCUTS
-.TP 
-.B CTRL-H
-Display the help screen.
-.TP 
-.B CTRL-A
-Show the about box with the name of the product, version, and GPL message.
-.TP 
-.B CTRL-L
-Open a dialog to browse directories or type a filename for loading a new file.
-.TP 
-.B CTRL-O
-Open a dialog to choose a directory or type a new filename, then save the file (Save As).
-.TP 
+.TP
 .B CTRL-S
-Save the current file without prompting for a new filename.
+Save the current file
 .TP
-.B CTRL-Q
-Close the current file.
+.B CTRL-O
+Open the Save As dialog
 .TP
-.B CTRL-J
-Start or stop selection mode for text.
-.TP 
-.B CTRL-V
-Paste the contents of the clipboard at the cursor position.
-.TP 
-.B CTRL-N
-Clear the current buffer to create a new file.
-.TP 
-.B CTRL-Y
-Redo the last undone action.
-.TP 
-.B CTRL-Z
-Undo the last action.
-.TP 
-.B CTRL-X
-Quit the editor and return to the shell.
+.B CTRL-L
+Open a file dialog
 .TP
 .B CTRL-F
-Search the file for a string of text.  The dialog can remain open to repeat searches.
-.TP
-.B F3
-Find the next occurrence of the current search text.
+Search for text
 .TP
 .B CTRL-R
-Replace occurrences of a search string. Also available from the Edit menu.
+Replace text
 .TP
-.B CTRL-W
-Move the cursor forward to the beginning of the next word.
-.TP 
-.B CTRL-B
-Move the cursor backward to the beginning of the previous word.
-.TP 
-.B CTRL-D
-Delete the current line and move the cursor to the next line if it exists.
-.TP 
-.B CTRL-T
-Activate the menu system.
-.TP 
-.B Arrow Keys
-Navigate through the text.
-.TP 
-.B Page Up/Page Down
-Scroll up or down through the document.
-.TP 
-.B CTRL-Left Arrow
-Move the cursor to the beginning of the current line.
-.TP 
-.B CTRL-Right Arrow
-Move the cursor to the end of the current line.
-.TP 
-.B CTRL-Page Up
-Move to the top of the document.
-.TP 
-.B CTRL-Page Down
-Move to the bottom of the document.
-.TP 
-.B CTRL-Up Arrow
-Move to the top of the current page on the screen.
-.TP 
-.B CTRL-Down Arrow
-Move to the bottom of the current page on the screen.
+.B CTRL-Z
+Undo the last action
 .TP
-.B F6
-Switch to the next file when multiple files are open.
+.B CTRL-Y
+Redo the last undone action
 .TP
-.B F7
-Switch to the previous file when multiple files are open.
-
+.B F6 , F7
+Switch between open files
+.PP
+Press \fBCTRL-H\fP to view all shortcuts.
 .SH EXAMPLES
 .TP
-Open a file named "example.txt" for editing:
+Start the editor with no file
+.B vento
+.TP
+Edit an existing file
 .B vento example.txt
-
+.TP
+Save your changes
+Press \fBCTRL-S\fP
+.TP
+Use the default theme by setting \fBtheme=default\fP in \fI~/.ventorc\fP then run
+.B vento
 .SH PLANNED FEATURES
 .IP \[bu] 2
-Spell checker support: Integrated spell checking for documents.
+Spell checker support
 .IP \[bu] 2
-Git integration: Version control integration with Git.
+Git integration
 .IP \[bu] 2
-Macro support: Configurable keyboard macros.
+Macro support
 .IP \[bu] 2
-Extensions API: Create plugins to enhance the editor.
-
+Extensions API
 .SH AUTHOR
 Stephen Planck - splanck@tutamail.com
-
 .SH COPYRIGHT
 This is free software; see the source for copying conditions. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
 .SH LICENSE
 Vento is licensed under the GNU General Public License v3.0. You may obtain a copy of the GNU General Public License at <https://www.gnu.org/licenses/gpl-3.0.html>.
