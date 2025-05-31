@@ -185,6 +185,9 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
             }
 
             mvwin(win, win_y, win_x);
+            werase(win);
+            touchwin(win);
+            wrefresh(stdscr);
             continue;
         } else if (ch == KEY_UP) {
             if (highlight > 0)
