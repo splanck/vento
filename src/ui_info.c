@@ -41,7 +41,19 @@ void show_help() {
     };
 
     int help_count = sizeof(help_lines) / sizeof(help_lines[0]);
-    show_scrollable_window(help_lines, help_count, NULL);
+
+    int max_len = 0;
+    for (int i = 0; i < help_count; ++i) {
+        int len = (int)strlen(help_lines[i]);
+        if (len > max_len)
+            max_len = len;
+    }
+
+    int win_width = max_len + 4; // add padding for borders
+    if (win_width > COLS - 2)
+        win_width = COLS - 2;
+
+    show_scrollable_window(help_lines, help_count, NULL, win_width);
     wrefresh(stdscr);
     curs_set(1);
 }
