@@ -4,6 +4,7 @@
 #include <strings.h>
 #include <ctype.h>
 #include <pwd.h>
+#include <dirent.h>
 #include <unistd.h>
 #include "editor.h"
 #include "config.h"
@@ -62,8 +63,29 @@ void load_theme(const char *name, AppConfig *cfg) {
     if (!name || !*name || !cfg)
         return;
 
-    char path[256];
-    snprintf(path, sizeof(path), "themes/%s.theme", name);
+    char path[256] = "";
+
+    DIR *dir = opendir("themes");
+    if (dir) {
+        struct dirent *ent;
+        while ((ent = readdir(dir)) != NULL) {
+            if (ent->d_name[0] == '.')
+                continue;
+            const char *dot = strrchr(ent->d_name, '.');
+            if (!dot || strcasecmp(dot, ".theme") != 0)
+                continue;
+            size_t len = dot - ent->d_name;
+            if (len == strlen(name) && strncasecmp(ent->d_name, name, len) == 0) {
+                snprintf(path, sizeof(path), "themes/%s", ent->d_name);
+                break;
+            }
+        }
+        closedir(dir);
+    }
+
+    if (path[0] == '\0')
+        snprintf(path, sizeof(path), "themes/%s.theme", name);
+
     FILE *f = fopen(path, "r");
     if (!f)
         return;

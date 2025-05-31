@@ -35,8 +35,9 @@ Vento currently supports the following features:
   keys or mouse clicks to choose options. Mouse support can be enabled or
   disabled in this dialog, and all dialogs accept mouse input.
 - **Theme Selection**: Choose from predefined color themes located in the
-  `themes/` directory. The picker shows a live preview of the highlighted
-  colors while you navigate the list.
+  `themes/` directory. Theme names are matched case-insensitively, and the
+  picker shows a live preview of the highlighted colors while you navigate
+  the list.
 - **Basic Syntax Highlighting**: Simple syntax highlighting for C, HTML, and Python files.
 - **Status Bar**: Displays the current line and column number.
 - **Scroll Bar**: Indicates your position within the document.
@@ -68,7 +69,7 @@ This file is created automatically with default values if it does not exist. Unk
 - `show_line_numbers`
 
 Set `theme` to the base name of a file in the `themes/` directory (without the
-`.theme` extension). Colors defined in that theme are loaded before any
+`.theme` extension). The search for the file is case-insensitive. Colors defined in that theme are loaded before any
 individual color overrides. Set `enable_mouse` to `false` if you want to disable
 mouse input entirely.
 

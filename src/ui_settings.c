@@ -409,7 +409,7 @@ const char *select_theme(const char *current, WINDOW *parent) {
         if (ent->d_name[0] == '.')
             continue;
         const char *dot = strrchr(ent->d_name, '.');
-        if (!dot || strcmp(dot, ".theme") != 0)
+        if (!dot || strcasecmp(dot, ".theme") != 0)
             continue;
         char name[64];
         size_t len = dot - ent->d_name;
@@ -417,24 +417,33 @@ const char *select_theme(const char *current, WINDOW *parent) {
             len = sizeof(name) - 1;
         strncpy(name, ent->d_name, len);
         name[len] = '\0';
-        char **tmp = realloc(names, sizeof(char *) * (count + 1));
-        if (!tmp) {
-            closedir(dir);
-            for (size_t i = 0; i < count; ++i)
-                free(names[i]);
-            free(names);
-            return NULL;
+        int exists = 0;
+        for (size_t i = 0; i < count; ++i) {
+            if (strcasecmp(name, names[i]) == 0) {
+                exists = 1;
+                break;
+            }
         }
-        names = tmp;
-        names[count] = strdup(name);
-        if (!names[count]) {
-            closedir(dir);
-            for (size_t i = 0; i < count; ++i)
-                free(names[i]);
-            free(names);
-            return NULL;
+        if (!exists) {
+            char **tmp = realloc(names, sizeof(char *) * (count + 1));
+            if (!tmp) {
+                closedir(dir);
+                for (size_t i = 0; i < count; ++i)
+                    free(names[i]);
+                free(names);
+                return NULL;
+            }
+            names = tmp;
+            names[count] = strdup(name);
+            if (!names[count]) {
+                closedir(dir);
+                for (size_t i = 0; i < count; ++i)
+                    free(names[i]);
+                free(names);
+                return NULL;
+            }
+            ++count;
         }
-        ++count;
     }
     closedir(dir);
 
