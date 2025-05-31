@@ -80,6 +80,7 @@ static int file_dialog_loop(char *path, int max_len,
     WINDOW *win = create_popup_window(win_height, win_width, NULL);
     if (!win) {
         curs_set(1);
+        show_message("Unable to create window");
         return 0;
     }
     keypad(win, TRUE);
