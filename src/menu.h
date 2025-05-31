@@ -31,7 +31,6 @@ void menuFind(void);
 void menuReplace(void);
 void menuAbout(void);
 void menuHelp(void);
-void menuTestwindow(void);
 void drawBar(void);
 /**
  * Frees the memory allocated for the menus and menu items.
