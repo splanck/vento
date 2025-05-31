@@ -173,6 +173,19 @@ make CFLAGS="-D_DARWIN_C_SOURCE"
 The code already guards `SIGWINCH`, but enabling additional feature macros may
 be required for full functionality.
 
+## Command Line Options
+
+You can pass a few simple flags when starting Vento:
+
+```
+vento [options] [file...]
+```
+
+- `-h`, `--help` &mdash; show a short help message and exit.
+- `-v`, `--version` &mdash; print the current version number and exit.
+
+Any additional arguments are treated as files to load on startup.
+
 ## Enabling Debug Output
 
 Vento includes optional debug messages within the configuration loader. To see
