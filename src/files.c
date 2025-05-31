@@ -3,6 +3,7 @@
 #include "files.h"
 #include "editor.h"
 #include "syntax.h"
+#include "config.h"
 #include <limits.h>
 
 // Function to initialize a new FileState for a given filename
@@ -62,7 +63,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
         free(file_state);
         return NULL;
     }
-    wbkgd(file_state->text_win, COLOR_PAIR(SYNTAX_BG));
+    wbkgd(file_state->text_win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
 
     file_state->fp = NULL;
     file_state->file_complete = true;

@@ -30,7 +30,7 @@ void create_dialog(const char *message, char *output, int max_input_len) {
         return;
     }
     keypad(dialog_win, TRUE);
-    wbkgd(dialog_win, COLOR_PAIR(SYNTAX_BG));
+    wbkgd(dialog_win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
     wrefresh(stdscr);
 
     box(dialog_win, 0, 0);
@@ -103,7 +103,7 @@ int show_find_dialog(char *output, int max_input_len, const char *preset) {
         return 0;
     }
     keypad(dialog_win, TRUE);
-    wbkgd(dialog_win, COLOR_PAIR(SYNTAX_BG));
+    wbkgd(dialog_win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
     wrefresh(stdscr);
 
     box(dialog_win, 0, 0);
