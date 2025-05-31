@@ -24,23 +24,21 @@ void initializeMenus() {
     // Allocate memory for the menus array
     menus = calloc(menuCount, sizeof(Menu));
     if (menus == NULL) {
-        fprintf(stderr, "Failed to allocate memory for menus\n");
-        exit(EXIT_FAILURE);
+        freeMenus();
+        allocation_failed("initializeMenus");
     }
 
     menuPositions = calloc(menuCount, sizeof(int));
     if (!menuPositions) {
-        fprintf(stderr, "Failed to allocate memory for menu positions\n");
-        free(menus);
-        exit(EXIT_FAILURE);
+        freeMenus();
+        allocation_failed("initializeMenus");
     }
 
     // Create the file menu
     MenuItem *fileMenuItems = malloc(7 * sizeof(MenuItem));
     if (fileMenuItems == NULL) {
-        fprintf(stderr, "Failed to allocate memory for file menu items\n");
         freeMenus();
-        exit(EXIT_FAILURE);
+        allocation_failed("initializeMenus");
     }
     fileMenuItems[0] = (MenuItem){"New File", menuNewFile, false};
     fileMenuItems[1] = (MenuItem){"Load File", menuLoadFile, false};
@@ -57,9 +55,8 @@ void initializeMenus() {
     // Create the edit menu
     MenuItem *editMenuItems = malloc(5 * sizeof(MenuItem));
     if (editMenuItems == NULL) {
-        fprintf(stderr, "Failed to allocate memory for edit menu items\n");
         freeMenus();
-        exit(EXIT_FAILURE);
+        allocation_failed("initializeMenus");
     }
     editMenuItems[0] = (MenuItem){"Undo", menuUndo, false};
     editMenuItems[1] = (MenuItem){"Redo", menuRedo, false};
@@ -74,9 +71,8 @@ void initializeMenus() {
     // Create the navigate menu
     MenuItem *navMenuItems = malloc(2 * sizeof(MenuItem));
     if (navMenuItems == NULL) {
-        fprintf(stderr, "Failed to allocate memory for navigate menu items\n");
         freeMenus();
-        exit(EXIT_FAILURE);
+        allocation_failed("initializeMenus");
     }
     navMenuItems[0] = (MenuItem){"Next File", menuNextFile, false};
     navMenuItems[1] = (MenuItem){"Previous File", menuPrevFile, false};
@@ -86,9 +82,8 @@ void initializeMenus() {
     // Create the options menu
     MenuItem *optMenuItems = malloc(1 * sizeof(MenuItem));
     if (optMenuItems == NULL) {
-        fprintf(stderr, "Failed to allocate memory for options menu items\n");
         freeMenus();
-        exit(EXIT_FAILURE);
+        allocation_failed("initializeMenus");
     }
     optMenuItems[0] = (MenuItem){"Settings", menuSettings, false};
     Menu optMenu = {"Options", optMenuItems, 1};
@@ -97,9 +92,8 @@ void initializeMenus() {
     // Create the help menu
     MenuItem *helpMenuItems = malloc(2 * sizeof(MenuItem));
     if (helpMenuItems == NULL) {
-        fprintf(stderr, "Failed to allocate memory for help menu items\n");
         freeMenus();
-        exit(EXIT_FAILURE);
+        allocation_failed("initializeMenus");
     }
     helpMenuItems[0] = (MenuItem){"Help Screen", menuHelp, false};
     helpMenuItems[1] = (MenuItem){"About Vento", menuAbout, false};
