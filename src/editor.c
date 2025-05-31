@@ -397,7 +397,8 @@ void run_editor() {
     wmove(text_win, active_file->cursor_y,
           active_file->cursor_x + get_line_number_offset(active_file));
 
-    while ((ch = wgetch(text_win)) && exiting == 0) { // Exit on ESC key
+    while (exiting == 0) {
+        ch = wgetch(text_win);
         if (resize_pending || ch == KEY_RESIZE) {
             perform_resize();
             resize_pending = 0;
