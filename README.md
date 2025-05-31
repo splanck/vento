@@ -35,7 +35,8 @@ Vento currently supports the following features:
   keys or mouse clicks to choose options. Mouse support can be enabled or
   disabled in this dialog, and all dialogs accept mouse input.
 - **Theme Selection**: Choose from predefined color themes located in the
-  `themes/` directory.
+  `themes/` directory. The picker shows a live preview of the highlighted
+  colors while you navigate the list.
 - **Basic Syntax Highlighting**: Simple syntax highlighting for C, HTML, and Python files.
 - **Status Bar**: Displays the current line and column number.
 - **Scroll Bar**: Indicates your position within the document.
