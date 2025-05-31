@@ -1,6 +1,8 @@
 #include "ui_common.h"
+#include "ui.h"
 #include "config.h"
 #include <ncurses.h>
+#include <stdio.h>
 #include <string.h>
 #include <strings.h>
 #include <stdlib.h>
@@ -10,6 +12,7 @@
 const char *select_color(const char *current, WINDOW *parent);
 const char *select_theme(const char *current, WINDOW *parent);
 int select_bool(const char *prompt, int current, WINDOW *parent);
+int select_int(const char *prompt, int current, WINDOW *parent);
 
 static void apply_mouse(AppConfig *cfg) {
     enable_mouse = cfg->enable_mouse;
@@ -19,7 +22,7 @@ static void apply_mouse(AppConfig *cfg) {
         mousemask(0, NULL);
 }
 
-enum OptionType { OPT_BOOL, OPT_COLOR, OPT_THEME };
+enum OptionType { OPT_BOOL, OPT_COLOR, OPT_THEME, OPT_INT };
 
 enum { COLOR_LEN = sizeof(((AppConfig *)0)->background_color),
        THEME_LEN = sizeof(((AppConfig *)0)->theme) };
@@ -35,6 +38,7 @@ static const Option options[] = {
     {"Enable color", OPT_BOOL, offsetof(AppConfig, enable_color), NULL},
     {"Enable mouse", OPT_BOOL, offsetof(AppConfig, enable_mouse), apply_mouse},
     {"Show line numbers", OPT_BOOL, offsetof(AppConfig, show_line_numbers), NULL},
+    {"Tab width", OPT_INT, offsetof(AppConfig, tab_width), NULL},
     {"Theme", OPT_THEME, offsetof(AppConfig, theme), NULL},
     {"Background color", OPT_COLOR, offsetof(AppConfig, background_color), NULL},
     {"Keyword color", OPT_COLOR, offsetof(AppConfig, keyword_color), NULL},
@@ -124,6 +128,9 @@ static void edit_option(AppConfig *cfg, WINDOW *win, const Option *opt) {
             str[THEME_LEN - 1] = '\0';
             free((char *)sel);
         }
+    } else if (opt->type == OPT_INT) {
+        int *val = (int *)((char *)cfg + opt->offset);
+        *val = select_int(opt->label, *val, win);
     }
     if (opt->after_change)
         opt->after_change(cfg);
@@ -725,4 +732,24 @@ int select_bool(const char *prompt, int current, WINDOW *parent) {
 
     curs_set(1);
     return current;
+}
+
+int select_int(const char *prompt, int current, WINDOW *parent) {
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%d", current);
+    char msg[64];
+    snprintf(msg, sizeof(msg), "%s", prompt ? prompt : "Value");
+    create_dialog(msg, buf, sizeof(buf));
+    if (parent) {
+        touchwin(parent);
+        wrefresh(parent);
+    } else {
+        wrefresh(stdscr);
+    }
+    if (buf[0] == '\0')
+        return current;
+    int val = atoi(buf);
+    if (val <= 0)
+        val = current;
+    return val;
 }
