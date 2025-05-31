@@ -143,6 +143,10 @@ int show_settings_dialog(AppConfig *cfg) {
     int win_width = longest + 4;
     if (win_width < 50)
         win_width = 50;
+    if (win_width > COLS - 2)
+        win_width = COLS - 2;
+    if (win_width < 2)
+        win_width = 2;
 
     WINDOW *win = create_popup_window(win_height, win_width, NULL);
     if (!win) {
@@ -246,6 +250,10 @@ const char *select_color(const char *current, WINDOW *parent) {
         getmaxyx(parent, ph, pw);
         win_height = ph - 4;
         win_width = pw - 4;
+        if (win_width > COLS - 2)
+            win_width = COLS - 2;
+        if (win_width < 2)
+            win_width = 2;
         win = create_popup_window(win_height, win_width, parent);
         if (!win) {
             curs_set(1);
@@ -255,6 +263,10 @@ const char *select_color(const char *current, WINDOW *parent) {
     } else {
         win_height = LINES - 4;
         win_width = COLS - 4;
+        if (win_width > COLS - 2)
+            win_width = COLS - 2;
+        if (win_width < 2)
+            win_width = 2;
         win = create_popup_window(win_height, win_width, NULL);
         if (!win) {
             curs_set(1);
@@ -432,10 +444,18 @@ const char *select_theme(const char *current, WINDOW *parent) {
         getmaxyx(parent, ph, pw);
         win_height = ph - 4;
         win_width = pw - 4;
+        if (win_width > COLS - 2)
+            win_width = COLS - 2;
+        if (win_width < 2)
+            win_width = 2;
         win = create_popup_window(win_height, win_width, parent);
     } else {
         win_height = LINES - 4;
         win_width = COLS - 4;
+        if (win_width > COLS - 2)
+            win_width = COLS - 2;
+        if (win_width < 2)
+            win_width = 2;
         win = create_popup_window(win_height, win_width, NULL);
     }
     if (!win) {
@@ -562,6 +582,10 @@ int select_bool(const char *prompt, int current, WINDOW *parent) {
     int own = 0;
     int win_height = 6;
     int win_width = 20;
+    if (win_width > COLS - 2)
+        win_width = COLS - 2;
+    if (win_width < 2)
+        win_width = 2;
     WINDOW *win;
     if (parent) {
         win = create_popup_window(win_height, win_width, parent);

@@ -8,8 +8,12 @@ void show_help() {
     curs_set(0);
     int win_height = 18;
     int win_width = COLS - 40;
+    if (win_width > COLS - 2 || win_width < 2)
+        win_width = COLS - 2;
     int win_y = (LINES - win_height) / 2;
     int win_x = (COLS - win_width) / 2;
+    if (win_x < 0)
+        win_x = 0;
 
     WINDOW *help_win = newwin(win_height, win_width, win_y, win_x);
     keypad(help_win, TRUE);
@@ -65,8 +69,12 @@ void show_about() {
     curs_set(0);
     int win_height = 10;
     int win_width = COLS - 20;
+    if (win_width > COLS - 2 || win_width < 2)
+        win_width = COLS - 2;
     int win_y = (LINES - win_height) / 2;
     int win_x = (COLS - win_width) / 2;
+    if (win_x < 0)
+        win_x = 0;
 
     WINDOW *about_win = newwin(win_height, win_width, win_y, win_x);
     keypad(about_win, TRUE);
@@ -93,8 +101,12 @@ void show_warning_dialog() {
     curs_set(0);
     int win_height = 7;
     int win_width = COLS - 20;
+    if (win_width > COLS - 2 || win_width < 2)
+        win_width = COLS - 2;
     int win_y = (LINES - win_height) / 2;
     int win_x = (COLS - win_width) / 2;
+    if (win_x < 0)
+        win_x = 0;
 
     WINDOW *warning_win = newwin(win_height, win_width, win_y, win_x);
     keypad(warning_win, TRUE);

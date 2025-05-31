@@ -8,15 +8,24 @@
 WINDOW *create_centered_window(int height, int width, WINDOW *parent) {
     int win_y, win_x;
 
+    if (width > COLS - 2)
+        width = COLS - 2;
+    if (width < 2)
+        width = 2;
+
     if (parent) {
         int py, px, ph, pw;
         getbegyx(parent, py, px);
         getmaxyx(parent, ph, pw);
         win_y = py + (ph - height) / 2;
         win_x = px + (pw - width) / 2;
+        if (win_x < 0)
+            win_x = 0;
     } else {
         win_y = (LINES - height) / 2;
         win_x = (COLS - width) / 2;
+        if (win_x < 0)
+            win_x = 0;
     }
 
     WINDOW *win = newwin(height, width, win_y, win_x);
@@ -39,8 +48,14 @@ int show_message(const char *msg) {
     curs_set(0);
     int win_height = 3;
     int win_width = (int)strlen(msg) + 4;
+    if (win_width > COLS - 2)
+        win_width = COLS - 2;
+    if (win_width < 2)
+        win_width = 2;
     int win_y = (LINES - win_height) / 2;
     int win_x = (COLS - win_width) / 2;
+    if (win_x < 0)
+        win_x = 0;
 
     WINDOW *win = newwin(win_height, win_width, win_y, win_x);
     box(win, 0, 0);
@@ -72,6 +87,10 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
         getmaxyx(parent, ph, pw);
         win_height = ph - 4;
         win_width = pw - 4;
+        if (win_width > COLS - 2)
+            win_width = COLS - 2;
+        if (win_width < 2)
+            win_width = 2;
         win = create_popup_window(win_height, win_width, parent);
         if (!win) {
             curs_set(1);
@@ -81,6 +100,10 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
     } else {
         win_height = LINES - 4;
         win_width = COLS - 4;
+        if (win_width > COLS - 2)
+            win_width = COLS - 2;
+        if (win_width < 2)
+            win_width = 2;
         win = create_popup_window(win_height, win_width, NULL);
         if (!win) {
             curs_set(1);

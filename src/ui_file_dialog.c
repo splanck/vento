@@ -73,6 +73,10 @@ static int file_dialog_loop(char *path, int max_len,
 
     int win_height = LINES - 4;
     int win_width = COLS - 4;
+    if (win_width > COLS - 2)
+        win_width = COLS - 2;
+    if (win_width < 2)
+        win_width = 2;
     WINDOW *win = create_popup_window(win_height, win_width, NULL);
     if (!win) {
         curs_set(1);
