@@ -135,3 +135,7 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
 # build and run newwin failure handling test
 gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_newwin_fail.c src/ui_common.c -lncurses -o test_newwin_fail
 ./test_newwin_fail
+
+# build and run info window creation failure test
+gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_info_newwin_fail.c src/ui_info.c -lncurses -o test_info_newwin_fail
+./test_info_newwin_fail

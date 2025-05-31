@@ -17,6 +17,10 @@ void show_help() {
         win_x = 0;
 
     WINDOW *help_win = newwin(win_height, win_width, win_y, win_x);
+    if (!help_win) {
+        show_message("Unable to create window");
+        return;
+    }
     keypad(help_win, TRUE);
     wbkgd(help_win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
     wrefresh(stdscr);
@@ -78,6 +82,10 @@ void show_about() {
         win_x = 0;
 
     WINDOW *about_win = newwin(win_height, win_width, win_y, win_x);
+    if (!about_win) {
+        show_message("Unable to create window");
+        return;
+    }
     keypad(about_win, TRUE);
     wbkgd(about_win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
     wrefresh(stdscr);
@@ -110,6 +118,10 @@ void show_warning_dialog() {
         win_x = 0;
 
     WINDOW *warning_win = newwin(win_height, win_width, win_y, win_x);
+    if (!warning_win) {
+        show_message("Unable to create window");
+        return;
+    }
     keypad(warning_win, TRUE);
     wbkgd(warning_win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
     wrefresh(stdscr);
