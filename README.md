@@ -132,6 +132,21 @@ sudo apt update
 sudo apt install build-essential libncurses5-dev libncursesw5-dev
 ```
 
+## Supported Platforms
+
+Vento has been tested on modern Linux distributions and macOS. Building the
+editor requires a standard development environment including a C compiler and
+the ncurses libraries.
+
+- **Linux**: Confirmed to build on Debian based systems such as Ubuntu with
+  `gcc`, `make`, `binutils`, and the development packages for ncurses
+  installed.
+- **macOS**: Compiles using the Xcode command line tools. Ensure the `ncurses`
+  libraries are available through Homebrew or a similar package manager. You
+  may need to pass feature macros like `_DARWIN_C_SOURCE` to enable certain
+  functionality.
+
+
 ## Getting Started
 
 Ready to give Vento a try? Here's how to get started:
