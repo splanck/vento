@@ -166,6 +166,7 @@ int show_settings_dialog(AppConfig *cfg) {
     WINDOW *win = create_popup_window(win_height, win_width, NULL);
     if (!win) {
         curs_set(1);
+        show_message("Unable to create window");
         return 0;
     }
     keypad(win, TRUE);
@@ -272,6 +273,7 @@ const char *select_color(const char *current, WINDOW *parent) {
         win = create_popup_window(win_height, win_width, parent);
         if (!win) {
             curs_set(1);
+            show_message("Unable to create window");
             return NULL;
         }
         own = 1;
@@ -285,6 +287,7 @@ const char *select_color(const char *current, WINDOW *parent) {
         win = create_popup_window(win_height, win_width, NULL);
         if (!win) {
             curs_set(1);
+            show_message("Unable to create window");
             return NULL;
         }
         own = 1;
@@ -478,6 +481,7 @@ const char *select_theme(const char *current, WINDOW *parent) {
             free(names[i]);
         free(names);
         curs_set(1);
+        show_message("Unable to create window");
         return NULL;
     }
     own = 1;
@@ -609,6 +613,7 @@ int select_bool(const char *prompt, int current, WINDOW *parent) {
         win = create_popup_window(win_height, win_width, parent);
         if (!win) {
             curs_set(1);
+            show_message("Unable to create window");
             return current;
         }
         own = 1;
@@ -616,6 +621,7 @@ int select_bool(const char *prompt, int current, WINDOW *parent) {
         win = create_popup_window(win_height, win_width, NULL);
         if (!win) {
             curs_set(1);
+            show_message("Unable to create window");
             return current;
         }
         own = 1;

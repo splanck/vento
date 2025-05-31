@@ -121,3 +121,7 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_dialog_color_disable.c src/ui.c src/ui_info.c -lncurses \
     -o test_dialog_color_disable
 ./test_dialog_color_disable
+
+# build and run newwin failure handling test
+gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_newwin_fail.c src/ui_common.c -lncurses -o test_newwin_fail
+./test_newwin_fail
