@@ -344,6 +344,7 @@ int menu_click_open(int x, int y) {
 
         int currentItem = 0;
         handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
+        mousemask(enable_mouse ? ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION : 0, NULL);
         return 1;
     }
 
