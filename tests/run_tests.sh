@@ -106,6 +106,10 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_search_highlig
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc tests/test_replace_modified.c src/search.c -lncurses -o test_replace_modified
 ./test_replace_modified
 
+# build and run status line clear test
+gcc -Wall -Wextra -std=c99 -g tests/test_status_line_clear.c -lncurses -o test_status_line_clear
+./test_status_line_clear
+
 # build and run undo/redo modified flag test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_undo_redo_modified.c src/undo.c -lncurses -o test_undo_redo_modified
 ./test_undo_redo_modified
