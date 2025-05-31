@@ -90,3 +90,7 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_regex_complex.
 # build and run search highlight test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_search_highlight.c src/search.c -lncurses -o test_search_highlight
 ./test_search_highlight
+
+# build and run replace modified test
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc tests/test_replace_modified.c src/search.c -lncurses -o test_replace_modified
+./test_replace_modified
