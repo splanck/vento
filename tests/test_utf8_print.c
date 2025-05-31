@@ -56,7 +56,7 @@ void update_status_bar(FileState*fs){ (void)fs; }
 void freeMenus(void){}
 void syntax_cleanup(void){}
 void free_stack(Node*stack){ (void)stack; }
-void free_file_state(FileState*fs,int max){ (void)fs; (void)max; }
+void free_file_state(FileState*fs){ (void)fs; }
 void on_sigwinch(int sig){ (void)sig; }
 
 /* minimal config_load stub */

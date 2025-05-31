@@ -77,7 +77,7 @@ void cleanup_on_exit(FileManager *fm) {
         fs->undo_stack = NULL;
         free_stack(fs->redo_stack);
         fs->redo_stack = NULL;
-        free_file_state(fs, fs->max_lines);
+        free_file_state(fs);
     }
     freeMenus();
     free(fm->files);

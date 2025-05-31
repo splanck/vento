@@ -40,7 +40,7 @@ void update_status_bar(FileState *fs){ (void)fs; }
 void freeMenus(void){}
 void syntax_cleanup(void){}
 void free_stack(Node *stack){ (void)stack; }
-void free_file_state(FileState *fs, int max){ (void)fs; (void)max; }
+void free_file_state(FileState *fs){ (void)fs; }
 mmask_t mousemask(mmask_t newmask, mmask_t *old){ (void)newmask; if(old) *old = 0; return 0; }
 int cbreak(void){ return 0; }
 int noecho(void){ return 0; }

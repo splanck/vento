@@ -39,7 +39,7 @@ int main(void) {
     assert(fs2->text_buffer[0] == p2);
     assert(strcmp(fs2->text_buffer[0], "two") == 0);
 
-    free_file_state(fs1, fs1->max_lines);
-    free_file_state(fs2, fs2->max_lines);
+    free_file_state(fs1);
+    free_file_state(fs2);
     return 0;
 }
