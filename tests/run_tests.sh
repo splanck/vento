@@ -172,3 +172,8 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_confirm
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_cli_version.c -lncurses -o test_cli_version
 ./test_cli_version
+
+# build and run multi-file main loading test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_main_multifile.c -lncurses -o test_main_multifile
+./test_main_multifile

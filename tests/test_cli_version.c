@@ -23,6 +23,7 @@ void fm_init(FileManager *fm){(void)fm;}
 void load_file(FileState *fs,const char*fn){(void)fs;(void)fn;}
 void new_file(FileState *fs){(void)fs;}
 FileState* fm_current(FileManager *fm){(void)fm;return NULL;}
+int fm_switch(FileManager *fm,int idx){(void)fm;(void)idx;return 0;}
 void show_warning_dialog(void){}
 void run_editor(void){}
 void cleanup_on_exit(FileManager *fm){(void)fm;}
