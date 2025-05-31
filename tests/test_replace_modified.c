@@ -33,13 +33,14 @@ int show_find_dialog(char*out,int sz,const char*def){(void)out;(void)sz;(void)de
 int show_replace_dialog(char*s,int ss,char*r,int rs){(void)s;(void)ss;(void)r;(void)rs;return 0;}
 
 void draw_text_buffer(FileState*fs, WINDOW*w){(void)fs;(void)w;}
-void push(Node **stack, Change change){(void)stack; free(change.old_text); free(change.new_text);} 
+void push(Node **stack, Change change){(void)stack; free(change.old_text); free(change.new_text);}
 void mark_comment_state_dirty(FileState*fs){(void)fs;}
 int get_line_number_offset(FileState*fs){(void)fs;return 0;}
+void allocation_failed(const char*msg){(void)msg; abort();}
 
 int main(void){
     FileState fs = {0};
-    fs.line_capacity = 64;
+    fs.line_capacity = 2048;
     fs.max_lines = 2;
     fs.text_buffer = calloc(fs.max_lines, sizeof(char*));
     for(int i=0;i<fs.max_lines;i++) fs.text_buffer[i]=calloc(fs.line_capacity, sizeof(char));
