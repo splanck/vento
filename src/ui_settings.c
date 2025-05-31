@@ -46,6 +46,50 @@ static const Option options[] = {
 
 #define FIELD_COUNT ((int)(sizeof(options) / sizeof(options[0])))
 
+static void render_theme_sample(const AppConfig *cfg, WINDOW *win, int row) {
+    if (!cfg || !win)
+        return;
+
+    short bg = get_color_code(cfg->background_color);
+    short kw = get_color_code(cfg->keyword_color);
+    short cm = get_color_code(cfg->comment_color);
+    short st = get_color_code(cfg->string_color);
+    short ty = get_color_code(cfg->type_color);
+    short sy = get_color_code(cfg->symbol_color);
+
+    const short base = 60;
+    init_pair(base, COLOR_WHITE, bg);
+    init_pair(base + 1, kw, bg);
+    init_pair(base + 2, cm, bg);
+    init_pair(base + 3, st, bg);
+    init_pair(base + 4, ty, bg);
+    init_pair(base + 5, sy, bg);
+
+    int width = getmaxx(win) - 2;
+    wattron(win, COLOR_PAIR(base));
+    mvwhline(win, row, 1, ' ', width);
+    int col = 2;
+
+    wattron(win, COLOR_PAIR(base + 1) | A_BOLD);
+    mvwprintw(win, row, col, "keyword ");
+    col = getcurx(win);
+
+    wattron(win, COLOR_PAIR(base + 2));
+    mvwprintw(win, row, col, "comment ");
+    col = getcurx(win);
+
+    wattron(win, COLOR_PAIR(base + 3));
+    mvwprintw(win, row, col, "string ");
+    col = getcurx(win);
+
+    wattron(win, COLOR_PAIR(base + 4));
+    mvwprintw(win, row, col, "type ");
+    col = getcurx(win);
+
+    wattron(win, COLOR_PAIR(base + 5));
+    mvwprintw(win, row, col, "symbol");
+}
+
 static void edit_option(AppConfig *cfg, WINDOW *win, const Option *opt) {
     if (opt->type == OPT_BOOL) {
         int *val = (int *)((char *)cfg + opt->offset);
@@ -242,6 +286,7 @@ const char *select_color(const char *current, WINDOW *parent) {
             mvwprintw(win, i + 1, 1, "%*s", win_width - 2, "");
         }
 
+
         mvwprintw(win, win_height - 1, 1, "Arrows: move  Enter: select  ESC: cancel");
         wrefresh(win);
 
@@ -407,7 +452,7 @@ const char *select_theme(const char *current, WINDOW *parent) {
         werase(win);
         box(win, 0, 0);
 
-        int max_display = win_height - 2;
+        int max_display = win_height - 3;
         if (highlight < start)
             start = highlight;
         if (highlight >= start + max_display)
@@ -424,6 +469,10 @@ const char *select_theme(const char *current, WINDOW *parent) {
         for (int i = count - start; i < max_display; ++i) {
             mvwprintw(win, i + 1, 1, "%*s", win_width - 2, "");
         }
+
+        AppConfig preview = app_config;
+        load_theme(names[highlight], &preview);
+        render_theme_sample(&preview, win, win_height - 2);
 
         mvwprintw(win, win_height - 1, 1,
                   "Arrows: move  Enter: select  ESC: cancel");
@@ -461,7 +510,7 @@ const char *select_theme(const char *current, WINDOW *parent) {
                 getbegyx(win, wy, wx);
                 int row = ev.y - wy - 1;
                 int col = ev.x - wx - 1;
-                int max_display = win_height - 2;
+                int max_display = win_height - 3;
                 if (row >= 0 && row < max_display &&
                     col >= 0 && col < win_width - 2) {
                     int idx = start + row;
