@@ -117,7 +117,7 @@ int enable_mouse = 0;
 Menu *menus = NULL; int menuCount = 0;
 WINDOW *stdscr = NULL;
 
-/* Include editor.c for handle_resize implementation */
+/* Include editor.c for perform_resize implementation */
 #include "../src/editor.c"
 
 int main(void){
@@ -140,7 +140,7 @@ int main(void){
     /* resize to smaller dimensions */
     LINES = 10; COLS = 30;
     drawBar_called = 0;
-    handle_resize(0);
+    perform_resize();
 
     assert(last_resize_win == fs->text_win);
     assert(last_resize_h == LINES - 2);
@@ -158,7 +158,7 @@ int main(void){
     int prev_capacity = fs->line_capacity;
     LINES = 25; COLS = 70;
     drawBar_called = 0;
-    handle_resize(0);
+    perform_resize();
 
     assert(last_resize_win == fs->text_win);
     assert(last_resize_h == LINES - 2);

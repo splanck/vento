@@ -113,7 +113,7 @@ int enable_mouse = 0;
 Menu *menus = NULL; int menuCount = 0;
 WINDOW *stdscr = NULL;
 
-/* Include editor.c for handle_resize implementation */
+/* Include editor.c for perform_resize implementation */
 #include "../src/editor.c"
 
 int main(void){
@@ -131,7 +131,7 @@ int main(void){
 
     int new_LINES = 20, new_COLS = 22; /* shrink */
     LINES = new_LINES; COLS = new_COLS;
-    handle_resize(0);
+    perform_resize();
 
     assert(fs->line_capacity == original_capacity);
     assert(strlen(fs->text_buffer[0]) == original_len);
