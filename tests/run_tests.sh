@@ -116,6 +116,10 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_long_in
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_color_disable.c -lncurses -o test_color_disable
 ./test_color_disable
 
+# build and run initialize mouse test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_initialize_mouse.c -lncurses -o test_initialize_mouse
+./test_initialize_mouse
+
 # build and run dialog color disable regression test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_dialog_color_disable.c src/ui.c src/ui_info.c -lncurses \
