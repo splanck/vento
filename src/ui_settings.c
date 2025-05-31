@@ -463,7 +463,6 @@ const char *select_theme(const char *current, WINDOW *parent) {
     }
 
     int start = 0;
-    int own = 0;
     int win_height, win_width;
     WINDOW *win;
     if (parent) {
@@ -493,7 +492,6 @@ const char *select_theme(const char *current, WINDOW *parent) {
         show_message("Unable to create window");
         return NULL;
     }
-    own = 1;
     keypad(win, TRUE);
 
     while (1) {
