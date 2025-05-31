@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdbool.h>
 #include "file_manager.h"
 
 FileManager file_manager;
@@ -48,5 +49,15 @@ int fm_switch(FileManager *fm, int index) {
     if (!fm || index < 0 || index >= fm->count) return -1;
     fm->active_index = index;
     return fm->active_index;
+}
+
+bool any_file_modified(FileManager *fm) {
+    if (!fm) return false;
+    for (int i = 0; i < fm->count; i++) {
+        FileState *fs = fm->files[i];
+        if (fs && fs->modified)
+            return true;
+    }
+    return false;
 }
 
