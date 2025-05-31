@@ -122,6 +122,6 @@ int main(void){
 
     assert(resized_win==fs->text_win);
 
-    free_file_state(fs, fs->max_lines);
+    free_file_state(fs);
     return 0;
 }

@@ -13,7 +13,7 @@ void allocation_failed(const char *msg){(void)msg;}
 void load_all_remaining_lines(FileState *fs){(void)fs;}
 int load_next_lines(FileState *fs,int c){(void)fs;(void)c;return 0;}
 FileState *initialize_file_state(const char *f,int m,int c){(void)f;(void)m;(void)c;return NULL;}
-void free_file_state(FileState *f,int m){(void)f;(void)m;}
+void free_file_state(FileState *f){(void)f;}
 int fm_add(FileManager *fm, FileState *fs){(void)fm;(void)fs;return 0;}
 void fm_close(FileManager *fm,int i){(void)fm;(void)i;}
 FileState *fm_current(FileManager *fm){(void)fm;return NULL;}

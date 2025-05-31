@@ -26,7 +26,7 @@ int main(void){
     assert(strlen(fs->text_buffer[0]) == strlen(longline));
     assert(strcmp(fs->text_buffer[0], longline) == 0);
 
-    free_file_state(fs, fs->max_lines);
+    free_file_state(fs);
     unlink(fname);
     return 0;
 }

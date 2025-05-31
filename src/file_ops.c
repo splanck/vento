@@ -93,7 +93,7 @@ void load_file(FileState *fs_unused, const char *filename) {
         getch();
         mvprintw(LINES - 2, 2, "                            ");
         refresh();
-        free_file_state(fs, fs->max_lines);
+        free_file_state(fs);
         active_file = previous_active;
         return;
     }
@@ -105,7 +105,7 @@ void load_file(FileState *fs_unused, const char *filename) {
         getch();
         mvprintw(LINES - 2, 2, "                            ");
         refresh();
-        free_file_state(fs, fs->max_lines);
+        free_file_state(fs);
         active_file = previous_active;
         return;
     }

@@ -74,8 +74,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
 }
 
 // Function to free allocated resources in FileState
-void free_file_state(FileState *file_state, int max_lines) {
-    (void)max_lines;
+void free_file_state(FileState *file_state) {
     for (int i = 0; i < file_state->max_lines; i++) {
         free(file_state->text_buffer[i]);
     }

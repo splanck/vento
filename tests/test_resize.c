@@ -168,6 +168,6 @@ int main(void){
         assert(fs->text_buffer[0][i] == 'A');
     assert(drawBar_called);
 
-    free_file_state(fs, fs->max_lines);
+    free_file_state(fs);
     return 0;
 }

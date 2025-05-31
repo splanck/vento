@@ -137,6 +137,6 @@ int main(void){
     for(size_t i=0;i<original_len;i++)
         assert(fs->text_buffer[0][i] == 'A');
 
-    free_file_state(fs, fs->max_lines);
+    free_file_state(fs);
     return 0;
 }
