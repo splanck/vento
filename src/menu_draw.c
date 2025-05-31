@@ -1,14 +1,21 @@
 #include <ncurses.h>
 #include <stdio.h>
+#include <string.h>
 #include "menu.h"
 
 /* Draws the top menu bar using the global menu list */
 void drawMenuBar(Menu *menus, int menuCount) {
     move(0, 0);
     clrtoeol();
+
+    int pos = 0;
     for (int i = 0; i < menuCount; ++i) {
-        mvprintw(0, i * 10, "%s", menus[i].label);
+        if (menuPositions)
+            menuPositions[i] = pos;
+        mvprintw(0, pos, "%s", menus[i].label);
+        pos += (int)strlen(menus[i].label) + 2; // add padding
     }
+
     wnoutrefresh(stdscr);
 }
 
