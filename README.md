@@ -139,6 +139,9 @@ Vento has been tested on modern Linux distributions and macOS. Building the
 editor requires a standard development environment including a C compiler and
 the ncurses libraries.
 
+- **POSIX Systems**: Vento should compile on any POSIX-compliant operating
+  system, including the BSD variants such as FreeBSD, OpenBSD, and NetBSD.
+
 - **Linux**: Confirmed to build on Debian based systems such as Ubuntu with
   `gcc`, `make`, `binutils`, and the development packages for ncurses
   installed.
