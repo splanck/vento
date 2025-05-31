@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <signal.h>
+#include <stdlib.h>
 #include "editor.h"
 #include "config.h"
 #include "ui.h"
