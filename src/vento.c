@@ -41,11 +41,6 @@ int main(int argc, char *argv[]) {
 
     cleanup_on_exit(&file_manager);
 
-    free(file_manager.files);
-    file_manager.files = NULL;
-    file_manager.count = 0;
-    file_manager.active_index = -1;
-
     active_file = NULL;
 
     return 0;
