@@ -42,9 +42,9 @@ void initialize() {
     bkgd(enable_color ? COLOR_PAIR(1) : A_NORMAL);
     refresh();
     struct sigaction sa;
-    sa.sa_handler = handle_resize;
+    sa.sa_handler = on_sigwinch;
     sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART;
+    sa.sa_flags = 0;
 #ifdef SIGWINCH
     /* Some platforms may not support SIGWINCH */
     sigaction(SIGWINCH, &sa, NULL);

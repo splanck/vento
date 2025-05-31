@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <signal.h>
 #include "editor.h"
 #include "input.h"
 #include "ui.h"
@@ -44,6 +45,13 @@ __attribute__((weak)) int show_line_numbers;
 int exiting = 0;
 
 char search_text[256] = "";
+
+volatile sig_atomic_t resize_pending = 0;
+
+void on_sigwinch(int sig) {
+    (void)sig;
+    resize_pending = 1;
+}
 
 __attribute__((weak)) int get_line_number_offset(FileState *fs) {
     if (!show_line_numbers || !fs)
@@ -390,17 +398,17 @@ void run_editor() {
           active_file->cursor_x + get_line_number_offset(active_file));
 
     while ((ch = wgetch(text_win)) && exiting == 0) { // Exit on ESC key
+        if (resize_pending || ch == KEY_RESIZE) {
+            perform_resize();
+            resize_pending = 0;
+        }
+
         if (ch == ERR) {
             continue; // Handle any errors or no input case
         }
 
         if (exiting == 1) {
             break;
-        }
-
-        if (ch == KEY_RESIZE) {
-            handle_resize(0);
-            continue;
         }
 
         //mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
@@ -612,12 +620,10 @@ void redraw() {
  * 
  * This function is called when the terminal window is resized. It clears the screen, redraws the interface,
  * and updates the status bar.
- * 
- * @param sig The signal number.
+ *
  * @return None
  */
-void handle_resize(int sig) {
-    (void)sig; // Cast to void to suppress unused parameter warning
+void perform_resize(void) {
 
     endwin(); // End the curses mode
     resizeterm(0, 0); // update ncurses internal size

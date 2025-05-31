@@ -55,7 +55,7 @@ void freeMenus(void){}
 void syntax_cleanup(void){}
 void free_stack(Node*stack){ (void)stack; }
 void free_file_state(FileState*fs,int max){ (void)fs; (void)max; }
-void handle_resize(int sig){ (void)sig; }
+void on_sigwinch(int sig){ (void)sig; }
 
 /* minimal config_load stub */
 void config_load(AppConfig *cfg){ enable_mouse = cfg->enable_mouse; }

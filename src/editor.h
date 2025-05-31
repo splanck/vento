@@ -2,6 +2,7 @@
 #define EDITOR_H
 
 #include <ncurses.h>
+#include <signal.h>
 #include <string.h>
 typedef struct Change {
     int line;
@@ -42,6 +43,7 @@ extern WINDOW *text_win;
 extern struct FileState *active_file;
 extern struct FileManager file_manager;
 extern char search_text[256];
+extern volatile sig_atomic_t resize_pending;
 extern int exiting;
 void handle_regular_mode(struct FileState *fs, int ch);
 void initialize(void);
@@ -56,7 +58,8 @@ void insert_new_line(struct FileState *fs);
 void update_status_bar(struct FileState *fs);
 void go_to_line(struct FileState *fs, int line);
 __attribute__((weak)) int get_line_number_offset(struct FileState *fs);
-void handle_resize(int sig);
+void on_sigwinch(int sig);
+void perform_resize(void);
 void cleanup_on_exit(struct FileManager *fm);
 void disable_ctrl_c_z(void);
 void apply_colors(void);

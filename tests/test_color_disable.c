@@ -32,7 +32,7 @@ int wbkgd(WINDOW *w, chtype ch){ (void)w; wbkgd_attr = ch; return 0; }
 bool has_colors(void){ return false; }
 
 /* stub other functions referenced in editor_init.c */
-void handle_resize(int sig){ (void)sig; }
+void on_sigwinch(int sig){ (void)sig; }
 int define_key(const char *s, int k){ (void)s; (void)k; return 0; }
 void initialize_key_mappings(void){}
 void initializeMenus(void){}
