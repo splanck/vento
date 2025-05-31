@@ -1,6 +1,7 @@
 #include "editor.h"
 #include "config.h"
 #include "ui_common.h"
+#include "syntax.h"
 #include <ncurses.h>
 #include <string.h>
 
@@ -17,7 +18,7 @@ void show_help() {
 
     WINDOW *help_win = newwin(win_height, win_width, win_y, win_x);
     keypad(help_win, TRUE);
-    wbkgd(help_win, enable_color ? COLOR_PAIR(1) : A_NORMAL);
+    wbkgd(help_win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
     wrefresh(stdscr);
     box(help_win, 0, 0);
 
@@ -78,7 +79,7 @@ void show_about() {
 
     WINDOW *about_win = newwin(win_height, win_width, win_y, win_x);
     keypad(about_win, TRUE);
-    wbkgd(about_win, enable_color ? COLOR_PAIR(1) : A_NORMAL);
+    wbkgd(about_win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
     wrefresh(stdscr);
     box(about_win, 0, 0);
 
@@ -110,7 +111,7 @@ void show_warning_dialog() {
 
     WINDOW *warning_win = newwin(win_height, win_width, win_y, win_x);
     keypad(warning_win, TRUE);
-    wbkgd(warning_win, enable_color ? COLOR_PAIR(1) : A_NORMAL);
+    wbkgd(warning_win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
     wrefresh(stdscr);
     box(warning_win, 0, 0);
 
