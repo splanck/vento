@@ -8,14 +8,14 @@
 #define SHELL_KEYWORDS_PATTERN \
     "^(if|then|else|fi|for|in|do|done|while|case|esac|function)\\b"
 
-static SyntaxRegex SHELL_PATTERNS[] = {
+SyntaxRegex SHELL_PATTERNS[] = {
     { .pattern = "^#.*", .attr = COLOR_PAIR(SYNTAX_COMMENT) | A_BOLD },
     { .pattern = "^(\"([^\"\\]|\\.)*\"|'([^'\\]|\\.)*')", .attr = COLOR_PAIR(SYNTAX_STRING) | A_BOLD },
     { .pattern = "^(0[xX][0-9A-Fa-f]+|[0-9]+)", .attr = COLOR_PAIR(SYNTAX_TYPE) | A_BOLD },
     { .pattern = SHELL_KEYWORDS_PATTERN, .attr = COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD },
 };
-static int shell_regex_compiled = 0;
-static const int SHELL_PATTERNS_COUNT = sizeof(SHELL_PATTERNS)/sizeof(SHELL_PATTERNS[0]);
+int shell_regex_compiled = 0;
+const int SHELL_PATTERNS_COUNT = sizeof(SHELL_PATTERNS)/sizeof(SHELL_PATTERNS[0]);
 
 void highlight_shell_syntax(FileState *fs, WINDOW *win, const char *line, int y) {
     (void)fs;

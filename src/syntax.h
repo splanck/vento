@@ -57,4 +57,7 @@ int scan_number(const char *line, int start);
 int scan_string(const char *line, int start, char quote, bool *closed);
 int scan_multiline_string(const char *line, int start, char quote, bool *closed);
 
+/* Free any compiled regular expressions */
+void syntax_cleanup(void);
+
 #endif // SYNTAX_H
