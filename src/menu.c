@@ -11,6 +11,7 @@
 
 Menu *menus = NULL;
 int menuCount = 0;
+int *menuPositions = NULL;
 
 
 /**
@@ -24,6 +25,13 @@ void initializeMenus() {
     menus = calloc(menuCount, sizeof(Menu));
     if (menus == NULL) {
         fprintf(stderr, "Failed to allocate memory for menus\n");
+        exit(EXIT_FAILURE);
+    }
+
+    menuPositions = calloc(menuCount, sizeof(int));
+    if (!menuPositions) {
+        fprintf(stderr, "Failed to allocate memory for menu positions\n");
+        free(menus);
         exit(EXIT_FAILURE);
     }
 
@@ -128,10 +136,8 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
         update_status_bar(active_file);
         wrefresh(text_win);
 
-        // Draw menu bar
-        for (int i = 0; i < menuCount; ++i) {
-            mvprintw(0, i * 10, "%s", menus[i].label);
-        }
+        // Draw menu bar and compute menu positions
+        drawMenuBar(menus, menuCount);
 
         if (menus[*currentMenu].items == NULL) {
             inMenu = false;
@@ -139,7 +145,7 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
             continue;
         }
 
-        int startX = (*currentMenu) * 10;
+        int startX = menuPositions[*currentMenu];
         int startY = 1;
         int boxWidth = 20;
         int boxHeight = menus[*currentMenu].itemCount + 2;
@@ -192,14 +198,22 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                                    BUTTON1_RELEASED |
                                    BUTTON1_CLICKED))) {
                     if (ev.y == 0) {
-                        int newMenu = ev.x / 10;
+                        int newMenu = -1;
+                        for (int i = 0; i < menuCount; ++i) {
+                            int start = menuPositions[i];
+                            int end = (i == menuCount - 1) ? COLS : menuPositions[i + 1];
+                            if (ev.x >= start && ev.x < end) {
+                                newMenu = i;
+                                break;
+                            }
+                        }
                         if (newMenu >= 0 && newMenu < menuCount) {
                             *currentMenu = newMenu;
                             *currentItem = 0;
                             while (*currentItem < menus[*currentMenu].itemCount &&
                                    menus[*currentMenu].items[*currentItem].separator)
                                 (*currentItem)++; // Skip separators
-                            int startX = (*currentMenu) * 10;
+                            int startX = menuPositions[*currentMenu];
                             int startY = 1;
                             if (!drawMenu(&menus[*currentMenu], *currentItem, startX, startY)) {
                                 inMenu = false;
@@ -213,7 +227,7 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                         inMenu = false;
                         break;
                     }
-                    int startX = (*currentMenu) * 10;
+                    int startX = menuPositions[*currentMenu];
                     int startY = 1;
                     int boxWidth = 20;
                     int boxHeight = menus[*currentMenu].itemCount + 2;
@@ -350,12 +364,22 @@ void freeMenus() {
 
     free(menus);
     menus = NULL;
+    free(menuPositions);
+    menuPositions = NULL;
     menuCount = 0;
 }
 
 int menu_click_open(int x, int y) {
     if (y == 0) {
-        int currentMenu = x / 10;
+        int currentMenu = -1;
+        for (int i = 0; i < menuCount; ++i) {
+            int start = menuPositions[i];
+            int end = (i == menuCount - 1) ? COLS : menuPositions[i + 1];
+            if (x >= start && x < end) {
+                currentMenu = i;
+                break;
+            }
+        }
         if (currentMenu < 0 || currentMenu >= menuCount) {
             return 0;
         }

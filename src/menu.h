@@ -42,5 +42,6 @@ int menu_click_open(int x, int y);
 
 extern Menu *menus;
 extern int menuCount;
+extern int *menuPositions;
 
 #endif // MENU_H
