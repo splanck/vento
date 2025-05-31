@@ -50,12 +50,20 @@ int main(int argc, char *argv[]) {
 
     fm_init(&file_manager);
 
+    int first_index = -1;
+
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0 ||
             strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
             continue;
         }
+
         load_file(NULL, argv[i]);
+        if (first_index == -1)
+            first_index = file_manager.active_index;
+        else
+            fm_switch(&file_manager, first_index);
+
         file_count++;
     }
 
