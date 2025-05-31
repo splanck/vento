@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <locale.h>
 #include "editor.h"
 #include "config.h"
 #include "ui.h"
@@ -27,6 +28,7 @@ void apply_colors() {
 }
 
 void initialize() {
+    setlocale(LC_ALL, "");
     initscr();
     config_load(&app_config);
     apply_colors();
