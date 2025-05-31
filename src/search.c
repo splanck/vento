@@ -82,7 +82,9 @@ void find_next_occurrence(FileState *fs, const char *word) {
         mvprintw(LINES - 2, 0, "Found at Line: %d, Column: %d", *cursor_y + fs->start_line + 1, *cursor_x + 1);
     }
     refresh();
-    wmove(text_win, *cursor_y, *cursor_x);
+    int off = get_line_number_offset ? get_line_number_offset(fs) : 0;
+    wmove(text_win, *cursor_y,
+          *cursor_x + off);
     wrefresh(text_win);
 }
 
@@ -191,7 +193,9 @@ void replace_next_occurrence(FileState *fs, const char *search,
     werase(text_win);
     box(text_win, 0, 0);
     draw_text_buffer(active_file, text_win);
-    wmove(text_win, *cursor_y, *cursor_x);
+    int off = get_line_number_offset ? get_line_number_offset(fs) : 0;
+    wmove(text_win, *cursor_y,
+          *cursor_x + off);
     wrefresh(text_win);
 }
 

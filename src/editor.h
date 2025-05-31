@@ -55,6 +55,7 @@ void delete_current_line(struct FileState *fs);
 void insert_new_line(struct FileState *fs);
 void update_status_bar(struct FileState *fs);
 void go_to_line(struct FileState *fs, int line);
+__attribute__((weak)) int get_line_number_offset(struct FileState *fs);
 void handle_resize(int sig);
 void cleanup_on_exit(struct FileManager *fm);
 void disable_ctrl_c_z(void);

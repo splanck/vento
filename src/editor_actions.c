@@ -168,6 +168,7 @@ void go_to_line(FileState *fs, int line) {
     werase(text_win);
     box(text_win, 0, 0);
     draw_text_buffer(fs, text_win);
-    wmove(text_win, fs->cursor_y, fs->cursor_x);
+    wmove(text_win, fs->cursor_y,
+          fs->cursor_x + get_line_number_offset(fs));
     wnoutrefresh(text_win);
 }

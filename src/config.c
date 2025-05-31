@@ -11,6 +11,7 @@
 
 int enable_color = 1; // global flag used throughout the editor
 int enable_mouse = 1; // global mouse flag
+int show_line_numbers = 0; // global line number flag
 
 // default application configuration
 AppConfig app_config = {
@@ -22,7 +23,8 @@ AppConfig app_config = {
     .symbol_color = "RED",
     .theme = "",
     .enable_color = 1,
-    .enable_mouse = 1
+    .enable_mouse = 1,
+    .show_line_numbers = 0
 };
 
 // Helper to map color name to ncurses constant
@@ -113,7 +115,8 @@ void config_save(const AppConfig *cfg) {
         "symbol_color",
         "theme",
         "enable_color",
-        "enable_mouse"
+        "enable_mouse",
+        "show_line_numbers"
     };
 
     char path[256];
@@ -130,6 +133,7 @@ void config_save(const AppConfig *cfg) {
     fprintf(f, "%s=%s\n", keys[6], cfg->theme);
     fprintf(f, "%s=%s\n", keys[7], cfg->enable_color ? "true" : "false");
     fprintf(f, "%s=%s\n", keys[8], cfg->enable_mouse ? "true" : "false");
+    fprintf(f, "%s=%s\n", keys[9], cfg->show_line_numbers ? "true" : "false");
     fclose(f);
 }
 
@@ -218,6 +222,8 @@ void config_load(AppConfig *cfg) {
             tmp.enable_color = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0);
         } else if (strcmp(key, "enable_mouse") == 0) {
             tmp.enable_mouse = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0);
+        } else if (strcmp(key, "show_line_numbers") == 0) {
+            tmp.show_line_numbers = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0);
         } else {
             // Unknown key, ignore
             continue;
@@ -228,6 +234,7 @@ void config_load(AppConfig *cfg) {
     *cfg = tmp;
     enable_color = cfg->enable_color;
     enable_mouse = cfg->enable_mouse;
+    show_line_numbers = cfg->show_line_numbers;
 
     if (enable_color) {
         start_color();

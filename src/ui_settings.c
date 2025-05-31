@@ -34,6 +34,7 @@ typedef struct {
 static const Option options[] = {
     {"Enable color", OPT_BOOL, offsetof(AppConfig, enable_color), NULL},
     {"Enable mouse", OPT_BOOL, offsetof(AppConfig, enable_mouse), apply_mouse},
+    {"Show line numbers", OPT_BOOL, offsetof(AppConfig, show_line_numbers), NULL},
     {"Theme", OPT_THEME, offsetof(AppConfig, theme), NULL},
     {"Background color", OPT_COLOR, offsetof(AppConfig, background_color), NULL},
     {"Keyword color", OPT_COLOR, offsetof(AppConfig, keyword_color), NULL},
