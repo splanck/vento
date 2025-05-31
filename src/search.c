@@ -54,6 +54,8 @@ void find_next_occurrence(FileState *fs, const char *word) {
 
     if (!found_position) {
         mvprintw(LINES - 2, 0, "Word not found.");
+        clrtoeol();
+        refresh();
         fs->match_start_y = fs->match_end_y = -1;
         fs->match_start_x = fs->match_end_x = -1;
     } else {
@@ -80,8 +82,9 @@ void find_next_occurrence(FileState *fs, const char *word) {
         fs->match_end_x = fs->match_start_x + strlen(word) - 1;
 
         mvprintw(LINES - 2, 0, "Found at Line: %d, Column: %d", *cursor_y + fs->start_line + 1, *cursor_x + 1);
+        clrtoeol();
+        refresh();
     }
-    refresh();
     int off = get_line_number_offset ? get_line_number_offset(fs) : 0;
     wmove(text_win, *cursor_y,
           *cursor_x + off);
@@ -168,6 +171,7 @@ void replace_next_occurrence(FileState *fs, const char *search,
 
     if (!found_position) {
         mvprintw(LINES - 2, 0, "Word not found.");
+        clrtoeol();
         refresh();
         return;
     }
@@ -191,6 +195,7 @@ void replace_next_occurrence(FileState *fs, const char *search,
     *cursor_x = (found_position - fs->text_buffer[found_line]) + strlen(replacement) + 1;
 
     mvprintw(LINES - 2, 0, "Replaced at Line: %d, Column: %d", *cursor_y + fs->start_line + 1, *cursor_x);
+    clrtoeol();
     refresh();
     werase(text_win);
     box(text_win, 0, 0);
@@ -216,6 +221,7 @@ void replace_all_occurrences(FileState *fs, const char *search,
         char *old_text = strdup(line_text);
         if (!old_text) {
             mvprintw(LINES - 2, 0, "Memory allocation failed");
+            clrtoeol();
             refresh();
             continue;
         }
@@ -227,6 +233,7 @@ void replace_all_occurrences(FileState *fs, const char *search,
         if (!new_line) {
             free(old_text);
             mvprintw(LINES - 2, 0, "Memory allocation failed");
+            clrtoeol();
             refresh();
             continue;
         }
@@ -263,6 +270,7 @@ void replace_all_occurrences(FileState *fs, const char *search,
             free(old_text);
             free(new_line);
             mvprintw(LINES - 2, 0, "Memory allocation failed");
+            clrtoeol();
             refresh();
             continue;
         }
@@ -284,6 +292,7 @@ void replace_all_occurrences(FileState *fs, const char *search,
     box(text_win, 0, 0);
     draw_text_buffer(active_file, text_win);
     mvprintw(LINES - 2, 0, "All occurrences replaced.");
+    clrtoeol();
     refresh();
     wrefresh(text_win);
 }
