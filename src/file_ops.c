@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <string.h>
+#include <ctype.h>
 #include <stdio.h>
 #include "editor.h"
 #include "ui.h"
@@ -238,12 +239,18 @@ int set_syntax_mode(const char *filename) {
     if (fp) {
         char first[256];
         if (fgets(first, sizeof(first), fp)) {
-            if (strncmp(first, "#!", 2) == 0) {
-                if (strstr(first, "python")) {
+            char lower[256];
+            size_t i;
+            for (i = 0; i < sizeof(lower) - 1 && first[i]; i++) {
+                lower[i] = (char)tolower((unsigned char)first[i]);
+            }
+            lower[i] = '\0';
+            if (strncmp(lower, "#!", 2) == 0) {
+                if (strstr(lower, "python")) {
                     fclose(fp);
                     return PYTHON_SYNTAX;
                 }
-                if (strstr(first, "bash") || strstr(first, "sh")) {
+                if (strstr(lower, "bash") || strstr(lower, "sh")) {
                     fclose(fp);
                     return SHELL_SYNTAX;
                 }

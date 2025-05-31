@@ -92,6 +92,11 @@ gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_shebang_detection.c src/file_ops.
     obj_test/stubs_file_ops.o obj_test/syntax_regex.o -lncurses -o test_shebang_detection
 ./test_shebang_detection
 
+# build and run shebang case-insensitive detection test
+gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_shebang_case.c src/file_ops.c \
+    obj_test/stubs_file_ops.o obj_test/syntax_regex.o -lncurses -o test_shebang_case
+./test_shebang_case
+
 # build and run regex complex construct test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_c.c -o obj_test/syntax_c.o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_regex_complex.c \
