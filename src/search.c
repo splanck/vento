@@ -199,6 +199,9 @@ void replace_next_occurrence(FileState *fs, const char *search,
     wmove(text_win, *cursor_y,
           *cursor_x + off);
     wrefresh(text_win);
+
+    fs->match_start_x = fs->match_end_x = -1;
+    fs->match_start_y = fs->match_end_y = -1;
 }
 
 void replace_all_occurrences(FileState *fs, const char *search,
@@ -270,6 +273,9 @@ void replace_all_occurrences(FileState *fs, const char *search,
         mark_comment_state_dirty(fs);
         replaced = true;
     }
+
+    fs->match_start_x = fs->match_end_x = -1;
+    fs->match_start_y = fs->match_end_y = -1;
 
     if (replaced)
         fs->modified = true;

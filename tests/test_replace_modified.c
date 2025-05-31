@@ -56,6 +56,10 @@ int main(void){
 
     assert(strcmp(fs.text_buffer[0], "baz bar") == 0);
     assert(fs.modified);
+    assert(fs.match_start_x == -1);
+    assert(fs.match_end_x == -1);
+    assert(fs.match_start_y == -1);
+    assert(fs.match_end_y == -1);
 
     delwin(text_win);
     for(int i=0;i<fs.max_lines;i++) free(fs.text_buffer[i]);
