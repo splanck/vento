@@ -104,8 +104,8 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
         }
         own = 1;
     } else {
-        win_height = LINES - 4;
-        win_width = COLS - 4;
+        win_height = LINES - 6;
+        win_width = COLS - 10;
         if (win_width > COLS - 2)
             win_width = COLS - 2;
         if (win_width < 2)
@@ -158,8 +158,8 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
                 if (win_width < 2)
                     win_width = 2;
             } else {
-                win_height = LINES - 4;
-                win_width = COLS - 4;
+                win_height = LINES - 6;
+                win_width = COLS - 10;
                 if (win_width > COLS - 2)
                     win_width = COLS - 2;
                 if (win_width < 2)
