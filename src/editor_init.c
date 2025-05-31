@@ -75,6 +75,10 @@ void cleanup_on_exit(FileManager *fm) {
         free_file_state(fs, fs->max_lines);
     }
     freeMenus();
+    free(fm->files);
+    fm->files = NULL;
+    fm->count = 0;
+    fm->active_index = -1;
 }
 
 void close_editor() {
