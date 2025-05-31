@@ -167,3 +167,8 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_utf8_pr
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_confirm_quit.c \
     obj_test/files.o obj_test/file_manager.o obj_test/stub_enable_color.o -lncurses -o test_confirm_quit
 ./test_confirm_quit
+
+# build and run version option test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_cli_version.c -lncurses -o test_cli_version
+./test_cli_version

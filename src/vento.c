@@ -32,14 +32,34 @@ bool confirm_quit(void) {
  * @return 0 on successful execution.
  */
 int main(int argc, char *argv[]) {
+    int file_count = 0;
+
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+            printf("Usage: %s [options] [file...]\n", argv[0]);
+            printf("  -h, --help     Show this help and exit\n");
+            printf("  -v, --version  Print version information and exit\n");
+            return 0;
+        } else if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
+            printf("%s\n", VERSION);
+            return 0;
+        }
+    }
+
     initialize();
 
     fm_init(&file_manager);
 
-    // Load initial file or create a new one
-    if (argc > 1) {
-        load_file(NULL, argv[1]);
-    } else {
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0 ||
+            strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
+            continue;
+        }
+        load_file(NULL, argv[i]);
+        file_count++;
+    }
+
+    if (file_count == 0) {
         new_file(NULL);
     }
 
