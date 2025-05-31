@@ -237,22 +237,26 @@ void config_load(AppConfig *cfg) {
     show_line_numbers = cfg->show_line_numbers;
 
     if (enable_color) {
-        start_color();
-        use_default_colors();
-        short code;
-        short bg = get_color_code(cfg->background_color);
-        if (bg == -1) bg = -1;
-        init_pair(SYNTAX_BG, COLOR_WHITE, bg);
-        code = get_color_code(cfg->keyword_color);
-        if (code != -1) init_pair(SYNTAX_KEYWORD, code, -1);
-        code = get_color_code(cfg->comment_color);
-        if (code != -1) init_pair(SYNTAX_COMMENT, code, -1);
-        code = get_color_code(cfg->string_color);
-        if (code != -1) init_pair(SYNTAX_STRING, code, -1);
-        code = get_color_code(cfg->type_color);
-        if (code != -1) init_pair(SYNTAX_TYPE, code, -1);
-        code = get_color_code(cfg->symbol_color);
-        if (code != -1) init_pair(SYNTAX_SYMBOL, code, -1);
+        if (!has_colors()) {
+            enable_color = 0;
+        } else {
+            start_color();
+            use_default_colors();
+            short code;
+            short bg = get_color_code(cfg->background_color);
+            if (bg == -1) bg = -1;
+            init_pair(SYNTAX_BG, COLOR_WHITE, bg);
+            code = get_color_code(cfg->keyword_color);
+            if (code != -1) init_pair(SYNTAX_KEYWORD, code, -1);
+            code = get_color_code(cfg->comment_color);
+            if (code != -1) init_pair(SYNTAX_COMMENT, code, -1);
+            code = get_color_code(cfg->string_color);
+            if (code != -1) init_pair(SYNTAX_STRING, code, -1);
+            code = get_color_code(cfg->type_color);
+            if (code != -1) init_pair(SYNTAX_TYPE, code, -1);
+            code = get_color_code(cfg->symbol_color);
+            if (code != -1) init_pair(SYNTAX_SYMBOL, code, -1);
+        }
     }
 }
 
