@@ -37,12 +37,22 @@ FileState *active_file = NULL;
 /* text_buffer and line_count are now stored per file in FileState */
 int runeditor = 0;  // Flag to control the main loop of the editor
 WINDOW *text_win;  // Pointer to the ncurses window for displaying the text
+__attribute__((weak)) int show_line_numbers;
 
 // Undo and redo stacks are stored per file in FileState
 
 int exiting = 0;
 
 char search_text[256] = "";
+
+__attribute__((weak)) int get_line_number_offset(FileState *fs) {
+    if (!show_line_numbers || !fs)
+        return 0;
+    int lines = fs->line_count > 0 ? fs->line_count : 1;
+    int width = 1;
+    while (lines >= 10) { width++; lines /= 10; }
+    return width + 1;
+}
 
 int key_help = 8;  // Key code for the help command
 int key_about = 1;  // Key code for the about command
@@ -376,7 +386,8 @@ void run_editor() {
     int currentItem = 0;
     MEVENT event; // Mouse event structure
 
-    wmove(text_win, active_file->cursor_y, active_file->cursor_x);
+    wmove(text_win, active_file->cursor_y,
+          active_file->cursor_x + get_line_number_offset(active_file));
 
     while ((ch = wgetch(text_win)) && exiting == 0) { // Exit on ESC key
         if (ch == ERR) {
@@ -421,7 +432,8 @@ void run_editor() {
             break;
 
         update_status_bar(active_file);
-        wmove(text_win, active_file->cursor_y, active_file->cursor_x);  // Restore cursor position
+        wmove(text_win, active_file->cursor_y,
+              active_file->cursor_x + get_line_number_offset(active_file));  // Restore cursor position
         wnoutrefresh(text_win);
         doupdate();
     }
@@ -484,18 +496,33 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
     box(win, 0, 0);
     int max_lines = LINES - 4;  // Adjust for the status bar
 
+    int num_width = 0;
+    int offset = 0;
+    WINDOW *content = win;
+    if (show_line_numbers) {
+        int lines = fs->line_count > 0 ? fs->line_count : 1;
+        num_width = 1;
+        while (lines >= 10) { num_width++; lines /= 10; }
+        offset = num_width + 1; /* numbers plus space */
+        content = derwin(win, getmaxy(win), getmaxx(win) - offset, 0, offset);
+        if (!content) content = win;
+    }
+
     // Ensure enough lines are loaded for display
     ensure_line_loaded(fs, fs->start_line + max_lines);
 
     // Iterate over each line to be displayed on the window
     for (int i = 0; i < max_lines && i + fs->start_line < fs->line_count; ++i) {
         int line_idx = i + fs->start_line;
+        if (show_line_numbers) {
+            mvwprintw(win, i + 1, 1, "%*d ", num_width, line_idx + 1);
+        }
         // Apply syntax highlighting to the current line of text
-        apply_syntax_highlighting(fs, win, fs->text_buffer[line_idx], i + 1);
+        apply_syntax_highlighting(fs, content, fs->text_buffer[line_idx], i + 1);
 
         // Highlight current search match if it falls on this line
         if (fs->match_start_y == line_idx && fs->match_start_x >= 0) {
-            int start_x = fs->match_start_x;
+            int start_x = fs->match_start_x + offset;
             int len = fs->match_end_x - fs->match_start_x + 1;
             if (start_x < COLS - 2 && len > 0) {
                 if (start_x + len > COLS - 2)
@@ -529,6 +556,8 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
         mvwprintw(win, 1, COLS - 1, "|");
     }
 
+    if (content != win)
+        delwin(content);
     wrefresh(win);
 }
 
@@ -573,7 +602,8 @@ void redraw() {
     werase(text_win); // Clear the text window
     box(text_win, 0, 0); // Redraw the border of the text window
     draw_text_buffer(active_file, text_win); // Redraw the text buffer
-    wmove(text_win, active_file->cursor_y, active_file->cursor_x); // Move the cursor to its previous position
+    wmove(text_win, active_file->cursor_y,
+          active_file->cursor_x + get_line_number_offset(active_file)); // Move the cursor to its previous position
     wnoutrefresh(text_win); // Queue refresh for the text window
 }
 
@@ -624,7 +654,8 @@ void handle_resize(int sig) {
         active_file->cursor_y = 1;
 
     update_status_bar(active_file);
-    wmove(text_win, active_file->cursor_y, active_file->cursor_x);
+    wmove(text_win, active_file->cursor_y,
+          active_file->cursor_x + get_line_number_offset(active_file));
     wnoutrefresh(text_win);
 
     /* Redraw the menu bar after all windows have been updated */

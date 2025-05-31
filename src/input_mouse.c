@@ -14,7 +14,8 @@ void update_selection_mouse(FileState *fs, int x, int y) {
     werase(text_win);
     box(text_win, 0, 0);
     draw_text_buffer(fs, text_win);
-    wmove(text_win, fs->cursor_y, fs->cursor_x);
+    wmove(text_win, fs->cursor_y,
+          fs->cursor_x + get_line_number_offset(fs));
     wrefresh(text_win);
 }
 
@@ -23,9 +24,10 @@ void handle_mouse_event(FileState *fs, MEVENT *ev) {
     fs->match_start_y = fs->match_end_y = -1;
     int mx = ev->x;
     int my = ev->y - 1; // account for window border
+    int offset = get_line_number_offset(fs);
 
-    if (mx < COLS - 2 && my >= 0 && my < LINES - BOTTOM_MARGIN) {
-        fs->cursor_x = mx;
+    if (mx >= offset && mx < COLS - 2 && my >= 0 && my < LINES - BOTTOM_MARGIN) {
+        fs->cursor_x = mx - offset + 1;
         fs->cursor_y = my + 1;
     }
 

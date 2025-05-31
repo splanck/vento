@@ -5,6 +5,7 @@
 
 extern int enable_color;
 extern int enable_mouse;
+extern int show_line_numbers;
 
 typedef struct {
     char background_color[16];
@@ -16,6 +17,7 @@ typedef struct {
     char theme[32];
     int enable_color;
     int enable_mouse;
+    int show_line_numbers;
 } AppConfig;
 
 extern AppConfig app_config;

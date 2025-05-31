@@ -131,7 +131,7 @@ void load_file(FileState *fs_unused, const char *filename) {
     meta(text_win, TRUE);
 
     box(text_win, 0, 0);
-    wmove(text_win, 1, 1);
+    wmove(text_win, 1, 1 + get_line_number_offset(fs));
 
     draw_text_buffer(fs, text_win);
     wrefresh(text_win);
@@ -181,7 +181,8 @@ void new_file(FileState *fs_unused) {
     keypad(text_win, TRUE);
     meta(text_win, TRUE);
     box(text_win, 0, 0);
-    wmove(text_win, fs->cursor_y, fs->cursor_x);
+    wmove(text_win, fs->cursor_y,
+          fs->cursor_x + get_line_number_offset(fs));
     wrefresh(text_win);
 
     update_status_bar(active_file);
