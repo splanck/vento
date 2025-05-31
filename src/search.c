@@ -151,6 +151,7 @@ static void replace_in_line(FileState *fs, int line, char *pos,
     push(&fs->undo_stack, change);
     strncpy(fs->text_buffer[line], new_line, fs->line_capacity - 1);
     fs->text_buffer[line][fs->line_capacity - 1] = '\0';
+    fs->modified = true;
     mark_comment_state_dirty(fs);
 }
 
@@ -172,6 +173,7 @@ void replace_next_occurrence(FileState *fs, const char *search,
     }
 
     replace_in_line(fs, found_line, found_position, search, replacement);
+    fs->modified = true;
 
     if (fs->line_count <= lines_per_screen) {
         fs->start_line = 0;
@@ -201,6 +203,7 @@ void replace_next_occurrence(FileState *fs, const char *search,
 
 void replace_all_occurrences(FileState *fs, const char *search,
                              const char *replacement) {
+    bool replaced = false;
     for (int line = 0; line < fs->line_count; ++line) {
         char *line_text = fs->text_buffer[line];
         char *pos = strstr(line_text, search);
@@ -265,7 +268,11 @@ void replace_all_occurrences(FileState *fs, const char *search,
         fs->text_buffer[line][fs->line_capacity - 1] = '\0';
         free(new_line);
         mark_comment_state_dirty(fs);
+        replaced = true;
     }
+
+    if (replaced)
+        fs->modified = true;
 
     werase(text_win);
     box(text_win, 0, 0);
