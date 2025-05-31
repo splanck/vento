@@ -76,7 +76,8 @@ int show_message(const char *msg) {
     return ch;
 }
 
-int show_scrollable_window(const char **options, int count, WINDOW *parent) {
+int show_scrollable_window(const char **options, int count, WINDOW *parent,
+                           int width) {
     curs_set(0);
     int highlight = 0;
     int ch;
@@ -87,12 +88,16 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
 
     int own = 0;
     int win_height, win_width;
+    int desired_width = width;
     WINDOW *win;
     if (parent) {
         int ph, pw;
         getmaxyx(parent, ph, pw);
         win_height = ph - 4;
-        win_width = pw - 4;
+        if (desired_width <= 0 || desired_width > pw - 4)
+            win_width = pw - 4;
+        else
+            win_width = desired_width;
         if (win_width > COLS - 2)
             win_width = COLS - 2;
         if (win_width < 2)
@@ -105,7 +110,10 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
         own = 1;
     } else {
         win_height = LINES * 70 / 100;
-        win_width = COLS * 70 / 100;
+        if (desired_width <= 0)
+            win_width = COLS * 70 / 100;
+        else
+            win_width = desired_width;
         if (win_width > COLS - 2)
             win_width = COLS - 2;
         if (win_width < 2)
@@ -133,7 +141,7 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
             int idx = i + start;
             if (idx == highlight)
                 wattron(win, A_REVERSE);
-            mvwprintw(win, i + 1, 1, "%s", options[idx]);
+            mvwprintw(win, i + 1, 1, "%.*s", win_width - 2, options[idx]);
             wattroff(win, A_REVERSE);
         }
 
@@ -152,14 +160,20 @@ int show_scrollable_window(const char **options, int count, WINDOW *parent) {
                 int ph, pw;
                 getmaxyx(parent, ph, pw);
                 win_height = ph - 4;
-                win_width = pw - 4;
+                if (desired_width <= 0 || desired_width > pw - 4)
+                    win_width = pw - 4;
+                else
+                    win_width = desired_width;
                 if (win_width > COLS - 2)
                     win_width = COLS - 2;
                 if (win_width < 2)
                     win_width = 2;
             } else {
                 win_height = LINES * 70 / 100;
-                win_width = COLS * 70 / 100;
+                if (desired_width <= 0)
+                    win_width = COLS * 70 / 100;
+                else
+                    win_width = desired_width;
                 if (win_width > COLS - 2)
                     win_width = COLS - 2;
                 if (win_width < 2)
