@@ -158,3 +158,8 @@ gcc obj_test/test_info_newwin_fail.o obj_test/ui_info_fail.o obj_test/ui_common_
 # build and run UTF-8 print regression test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_utf8_print.c -lncurses -o test_utf8_print
 ./test_utf8_print
+
+# build and run confirm quit regression test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_confirm_quit.c \
+    obj_test/files.o obj_test/file_manager.o obj_test/stub_enable_color.o -lncurses -o test_confirm_quit
+./test_confirm_quit

@@ -9,6 +9,9 @@
 #include "undo.h"
 #include "config.h"
 
+/* confirm_quit implemented in vento.c */
+bool confirm_quit(void);
+
 Menu *menus = NULL;
 int menuCount = 0;
 int *menuPositions = NULL;
@@ -313,7 +316,8 @@ void menuSettings() {
 }
 
 void menuQuitEditor() {
-    close_editor();
+    if (confirm_quit())
+        close_editor();
 }
 
 void menuUndo() {

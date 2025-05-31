@@ -8,6 +8,20 @@
 #include "ui.h"
 #include "files.h"
 #include "file_manager.h"
+#include "ui_common.h"
+#include <stdbool.h>
+
+bool confirm_quit(void) {
+    if (!any_file_modified(&file_manager))
+        return true;
+
+    int ch = show_message("Unsaved changes. Quit anyway? (y/n)");
+    if (ch == 'y' || ch == 'Y')
+        return true;
+    if (ch == 'n' || ch == 'N')
+        return false;
+    return false;
+}
 
 
 /**
