@@ -35,10 +35,15 @@ bool drawMenu(Menu *menu, int currentItem, int startX, int startY) {
     box(menuWin, 0, 0);
 
     for (int i = 0; i < menu->itemCount; ++i) {
+        MenuItem *item = &menu->items[i];
+        if (item->separator) {
+            mvwhline(menuWin, 1 + i, 1, ACS_HLINE, boxWidth - 2);
+            continue;
+        }
         if (i == currentItem) {
             wattron(menuWin, A_REVERSE);
         }
-        mvwprintw(menuWin, 1 + i, 1, "%s", menu->items[i].label);
+        mvwprintw(menuWin, 1 + i, 1, "%s", item->label);
         if (i == currentItem) {
             wattroff(menuWin, A_REVERSE);
         }
