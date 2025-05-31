@@ -53,7 +53,8 @@ void show_help() {
     if (win_width > COLS - 2)
         win_width = COLS - 2;
 
-    show_scrollable_window(help_lines, help_count, NULL, win_width);
+    if (show_scrollable_window(help_lines, help_count, NULL, win_width) == ERR)
+        return;
     wrefresh(stdscr);
     curs_set(1);
 }
@@ -71,7 +72,8 @@ void show_about() {
 
     WINDOW *about_win = newwin(win_height, win_width, win_y, win_x);
     if (!about_win) {
-        show_message("Unable to create window");
+        if (show_message("Unable to create window") == ERR)
+            return;
         return;
     }
     keypad(about_win, TRUE);
@@ -107,7 +109,8 @@ void show_warning_dialog() {
 
     WINDOW *warning_win = newwin(win_height, win_width, win_y, win_x);
     if (!warning_win) {
-        show_message("Unable to create window");
+        if (show_message("Unable to create window") == ERR)
+            return;
         return;
     }
     keypad(warning_win, TRUE);

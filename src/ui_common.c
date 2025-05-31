@@ -64,6 +64,11 @@ int show_message(const char *msg) {
         win_x = 0;
 
     WINDOW *win = newwin(win_height, win_width, win_y, win_x);
+    if (!win) {
+        fprintf(stderr, "%s\n", msg);
+        curs_set(1);
+        return ERR;
+    }
     box(win, 0, 0);
     mvwprintw(win, 1, 2, "%s", msg);
     wrefresh(win);

@@ -148,6 +148,10 @@ gcc obj_test/test_dialog_color_disable.o obj_test/ui.o obj_test/ui_info.o obj_te
 gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_newwin_fail.c src/ui_common.c -lncurses -o test_newwin_fail
 ./test_newwin_fail
 
+# build and run show_message newwin failure test
+gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_show_message_fail.c src/ui_common.c -lncurses -o test_show_message_fail
+./test_show_message_fail
+
 # build and run info window creation failure test
 gcc -Wall -Wextra -std=c99 -g -Isrc -c tests/test_info_newwin_fail.c -o obj_test/test_info_newwin_fail.o
 gcc -Wall -Wextra -std=c99 -g -Isrc -c src/ui_info.c -o obj_test/ui_info_fail.o
