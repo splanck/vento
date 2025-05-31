@@ -109,7 +109,12 @@ void handle_key_enter(FileState *fs) {
     int indent_len = 0;
     while (line[indent_len] == ' ' || line[indent_len] == '\t')
         indent_len++;
-    char indent[indent_len + 1];
+    char *indent = malloc(indent_len + 1);
+    if (!indent) {
+        free(old_text);
+        allocation_failed("malloc failed");
+        return;
+    }
     strncpy(indent, line, indent_len);
     indent[indent_len] = '\0';
 
@@ -133,6 +138,7 @@ void handle_key_enter(FileState *fs) {
     char *new_text = strdup(line);
     if (!new_text) {
         free(old_text);
+        free(indent);
         allocation_failed("strdup failed");
         return;
     }
@@ -140,6 +146,7 @@ void handle_key_enter(FileState *fs) {
 
     char *insert_text = strdup(new_line);
     if (!insert_text) {
+        free(indent);
         allocation_failed("strdup failed");
         return;
     }
@@ -155,6 +162,7 @@ void handle_key_enter(FileState *fs) {
     box(text_win, 0, 0);
     draw_text_buffer(active_file, text_win);
     mark_comment_state_dirty(fs);
+    free(indent);
 }
 
 void handle_key_page_up(FileState *fs) {
