@@ -120,18 +120,14 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
     bool inMenu = true;
 
     curs_set(0);
+    /* Keep the existing text content displayed while the menu is open */
+    wnoutrefresh(text_win);
 
     while (inMenu) {
         if (*currentMenu < 0 || *currentMenu >= menuCount) {
             inMenu = false;
             continue;
         }
-        // Redraw the editor content
-        werase(text_win);
-        box(text_win, 0, 0);
-        draw_text_buffer(active_file, text_win);
-        update_status_bar(active_file);
-        wrefresh(text_win);
 
         // Draw menu bar and compute menu positions
         drawMenuBar(menus, menuCount);
