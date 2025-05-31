@@ -36,7 +36,7 @@ void initialize() {
     if (enable_mouse)
         mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
     timeout(10);
-    bkgd(COLOR_PAIR(1));
+    bkgd(enable_color ? COLOR_PAIR(1) : A_NORMAL);
     refresh();
     struct sigaction sa;
     sa.sa_handler = handle_resize;

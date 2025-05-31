@@ -102,3 +102,7 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_undo_re
 # build and run long line loading test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_long_line_load.c obj_test/files.o -lncurses -o test_long_line_load
 ./test_long_line_load
+
+# build and run color disable test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_color_disable.c -lncurses -o test_color_disable
+./test_color_disable
