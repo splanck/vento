@@ -18,6 +18,7 @@ typedef struct {
     int enable_color;
     int enable_mouse;
     int show_line_numbers;
+    int tab_width;
 } AppConfig;
 
 extern AppConfig app_config;

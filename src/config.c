@@ -25,7 +25,8 @@ AppConfig app_config = {
     .theme = "",
     .enable_color = 1,
     .enable_mouse = 1,
-    .show_line_numbers = 0
+    .show_line_numbers = 0,
+    .tab_width = 4
 };
 
 // Helper to map color name to ncurses constant
@@ -139,7 +140,8 @@ void config_save(const AppConfig *cfg) {
         "theme",
         "enable_color",
         "enable_mouse",
-        "show_line_numbers"
+        "show_line_numbers",
+        "tab_width"
     };
 
     char path[256];
@@ -157,6 +159,7 @@ void config_save(const AppConfig *cfg) {
     fprintf(f, "%s=%s\n", keys[7], cfg->enable_color ? "true" : "false");
     fprintf(f, "%s=%s\n", keys[8], cfg->enable_mouse ? "true" : "false");
     fprintf(f, "%s=%s\n", keys[9], cfg->show_line_numbers ? "true" : "false");
+    fprintf(f, "%s=%d\n", keys[10], cfg->tab_width);
     fclose(f);
 }
 
@@ -247,6 +250,10 @@ void config_load(AppConfig *cfg) {
             tmp.enable_mouse = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0);
         } else if (strcmp(key, "show_line_numbers") == 0) {
             tmp.show_line_numbers = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0);
+        } else if (strcmp(key, "tab_width") == 0) {
+            tmp.tab_width = atoi(value);
+            if (tmp.tab_width <= 0)
+                tmp.tab_width = 4;
         } else {
             // Unknown key, ignore
             continue;

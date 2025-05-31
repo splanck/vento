@@ -42,6 +42,7 @@ Vento currently supports the following features:
 - **Status Bar**: Displays the current line and column number.
 - **Scroll Bar**: Indicates your position within the document.
 - **Optional Line Numbers**: Toggle line numbers in the settings dialog.
+- **Adjustable Tab Width**: Choose how many spaces the Tab key inserts.
 - **Help Screen**: Press `CTRL-H` for a guide to Vento's features.
 - **About Box**: Press `CTRL-A` to view product information, version, and GPL message.
  - **Menu System**: Intuitive menu navigation for editor features.
@@ -67,6 +68,9 @@ This file is created automatically with default values if it does not exist. Unk
 - `enable_color`
 - `enable_mouse`
 - `show_line_numbers`
+- `tab_width`
+
+`tab_width` controls how many spaces are inserted when you press the Tab key.
 
 Set `theme` to the base name of a file in the `themes/` directory (without the
 `.theme` extension). The search for the file is case-insensitive. Colors defined in that theme are loaded before any

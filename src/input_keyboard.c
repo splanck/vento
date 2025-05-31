@@ -5,10 +5,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include "config.h"
 #include "input.h"
 #include "clipboard.h"
 #include "syntax.h"
 #include "files.h"
+
+__attribute__((weak)) AppConfig app_config = { .tab_width = 4 };
 
 void handle_ctrl_backtick() {
     // Do nothing on CTRL+Backtick to avoid segmentation fault
@@ -243,7 +246,7 @@ void handle_key_end(FileState *fs) {
 }
 
 void handle_tab_key(FileState *fs) {
-    const int TAB_SIZE = 4;
+    int tabsize = app_config.tab_width > 0 ? app_config.tab_width : 4;
     int inserted = 0;
 
     if (fs->cursor_x >= fs->line_capacity - 1)
@@ -255,7 +258,7 @@ void handle_tab_key(FileState *fs) {
         return;
     }
 
-    while (inserted < TAB_SIZE && fs->cursor_x < fs->line_capacity - 1) {
+    while (inserted < tabsize && fs->cursor_x < fs->line_capacity - 1) {
         int len = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]);
         if (len > fs->line_capacity - 1)
             len = fs->line_capacity - 1;
