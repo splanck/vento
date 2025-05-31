@@ -145,3 +145,7 @@ gcc -Wall -Wextra -std=c99 -g -Isrc -c src/ui_info.c -o obj_test/ui_info_fail.o
 gcc -Wall -Wextra -std=c99 -g -Isrc -DUSE_WEAK_MESSAGE -c src/ui_common.c -o obj_test/ui_common_fail.o
 gcc obj_test/test_info_newwin_fail.o obj_test/ui_info_fail.o obj_test/ui_common_fail.o -lncurses -o test_info_newwin_fail
 ./test_info_newwin_fail
+
+# build and run UTF-8 print regression test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_utf8_print.c -lncurses -o test_utf8_print
+./test_utf8_print
