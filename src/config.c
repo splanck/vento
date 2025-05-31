@@ -76,7 +76,7 @@ void load_theme(const char *name, AppConfig *cfg) {
                 continue;
             size_t len = dot - ent->d_name;
             if (len == strlen(name) && strncasecmp(ent->d_name, name, len) == 0) {
-                snprintf(path, sizeof(path), "themes/%s", ent->d_name);
+                snprintf(path, sizeof(path), "themes/%.*s", (int)(sizeof(path) - 8 - 1), ent->d_name);
                 break;
             }
         }
