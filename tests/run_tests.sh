@@ -5,6 +5,7 @@ rm -rf obj_test
 mkdir obj_test
 
 # compile sources for paste test
+gcc -Wall -Wextra -std=c99 -g -Isrc -c tests/stub_ui_settings_deps.c -o obj_test/stub_ui_settings_deps.o
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc -c src/clipboard.c -o obj_test/clipboard.o
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc -c src/files.c -o obj_test/files.o
 gcc -Wall -Wextra -std=c99 -g -Isrc -c tests/stub_enable_color.c -o obj_test/stub_enable_color.o
@@ -182,3 +183,15 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_main_multifile.c -lncurses -o test_main_multifile
 ./test_main_multifile
+
+# build and run select_int valid input test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_select_int_valid.c src/ui_settings.c \
+    obj_test/stub_ui_settings_deps.o -lncurses -o test_select_int_valid
+./test_select_int_valid
+
+# build and run select_int invalid input test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_select_int_invalid.c src/ui_settings.c \
+    obj_test/stub_ui_settings_deps.o -lncurses -o test_select_int_invalid
+./test_select_int_invalid

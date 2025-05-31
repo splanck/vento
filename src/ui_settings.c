@@ -3,6 +3,8 @@
 #include "config.h"
 #include <ncurses.h>
 #include <stdio.h>
+#include <errno.h>
+#include <limits.h>
 #include <string.h>
 #include <strings.h>
 #include <stdlib.h>
@@ -748,8 +750,12 @@ int select_int(const char *prompt, int current, WINDOW *parent) {
     }
     if (buf[0] == '\0')
         return current;
-    int val = atoi(buf);
-    if (val <= 0)
-        val = current;
-    return val;
+
+    errno = 0;
+    char *end;
+    long val = strtol(buf, &end, 10);
+    if (errno != 0 || *end != '\0' || val > INT_MAX || val <= 0)
+        return current;
+
+    return (int)val;
 }
