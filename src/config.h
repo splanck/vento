@@ -16,6 +16,7 @@ extern int show_line_numbers;
 
 typedef struct {
     char background_color[16];
+    char text_color[16];
     char keyword_color[16];
     char comment_color[16];
     char string_color[16];

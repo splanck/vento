@@ -60,6 +60,7 @@ dialog with changes, the updated configuration is automatically saved back to
 
 This file is created automatically with default values if it does not exist. Unknown keys are ignored when the file is parsed. You can also change these options interactively using the **Settings** dialog. Open it from *File → Settings* (press `CTRL-T` to open the menu) and navigate with the arrow keys. The recognized keys are:
 - `background_color`
+- `text_color`
 - `keyword_color`
 - `comment_color`
 - `string_color`

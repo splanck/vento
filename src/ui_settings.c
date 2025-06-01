@@ -43,6 +43,7 @@ static const Option options[] = {
     {"Tab width", OPT_INT, offsetof(AppConfig, tab_width), NULL},
     {"Theme", OPT_THEME, offsetof(AppConfig, theme), NULL},
     {"Background color", OPT_COLOR, offsetof(AppConfig, background_color), NULL},
+    {"Text color", OPT_COLOR, offsetof(AppConfig, text_color), NULL},
     {"Keyword color", OPT_COLOR, offsetof(AppConfig, keyword_color), NULL},
     {"Comment color", OPT_COLOR, offsetof(AppConfig, comment_color), NULL},
     {"String color", OPT_COLOR, offsetof(AppConfig, string_color), NULL},
@@ -57,6 +58,7 @@ static void render_theme_sample(const AppConfig *cfg, WINDOW *win, int row) {
         return;
 
     short bg = get_color_code(cfg->background_color);
+    short fg = get_color_code(cfg->text_color);
     short kw = get_color_code(cfg->keyword_color);
     short cm = get_color_code(cfg->comment_color);
     short st = get_color_code(cfg->string_color);
@@ -69,7 +71,7 @@ static void render_theme_sample(const AppConfig *cfg, WINDOW *win, int row) {
     if (base + 5 >= COLOR_PAIRS)
         return;
 
-    init_pair(base, COLOR_WHITE, bg);
+    init_pair(base, fg == -1 ? COLOR_WHITE : fg, bg);
     init_pair(base + 1, kw, bg);
     init_pair(base + 2, cm, bg);
     init_pair(base + 3, st, bg);
