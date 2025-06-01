@@ -48,6 +48,21 @@ char search_text[256] = "";
 
 volatile sig_atomic_t resize_pending = 0;
 
+void clamp_scroll_x(FileState *fs) {
+    int offset = get_line_number_offset(fs);
+    int visible_width = COLS - 2 - offset;
+    if (visible_width < 1)
+        visible_width = 1;
+    if (fs->cursor_x - 1 < fs->scroll_x)
+        fs->scroll_x = fs->cursor_x - 1;
+    if (fs->scroll_x < 0)
+        fs->scroll_x = 0;
+    if (fs->cursor_x - 1 >= fs->scroll_x + visible_width)
+        fs->scroll_x = fs->cursor_x - visible_width;
+    if (fs->scroll_x < 0)
+        fs->scroll_x = 0;
+}
+
 void on_sigwinch(int sig) {
     (void)sig;
     resize_pending = 1;
@@ -520,18 +535,30 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
     // Ensure enough lines are loaded for display
     ensure_line_loaded(fs, fs->start_line + max_lines);
 
+    int visible_width = COLS - 2 - offset;
+    if (visible_width < 1)
+        visible_width = 1;
+
     // Iterate over each line to be displayed on the window
     for (int i = 0; i < max_lines && i + fs->start_line < fs->line_count; ++i) {
         int line_idx = i + fs->start_line;
         if (show_line_numbers) {
             mvwprintw(win, i + 1, 1, "%*d ", num_width, line_idx + 1);
         }
+        const char *line = fs->text_buffer[line_idx];
+        const char *start = line + fs->scroll_x;
+        char temp[1024];
+        int use_w = visible_width;
+        if (use_w >= (int)sizeof(temp))
+            use_w = (int)sizeof(temp) - 1;
+        strncpy(temp, start, use_w);
+        temp[use_w] = '\0';
         // Apply syntax highlighting to the current line of text
-        apply_syntax_highlighting(fs, content, fs->text_buffer[line_idx], i + 1);
+        apply_syntax_highlighting(fs, content, temp, i + 1);
 
         // Highlight current search match if it falls on this line
         if (fs->match_start_y == line_idx && fs->match_start_x >= 0) {
-            int start_x = fs->match_start_x + offset;
+            int start_x = fs->match_start_x - fs->scroll_x + offset;
             int len = fs->match_end_x - fs->match_start_x + 1;
             if (start_x < COLS - 2 && len > 0) {
                 if (start_x + len > COLS - 2)
@@ -644,6 +671,7 @@ void perform_resize(void) {
 
         if (ensure_col_capacity(fs, new_capacity) < 0)
             allocation_failed("ensure_col_capacity failed");
+        clamp_scroll_x(fs);
     }
 
     /* Use the resized window of the active file */
@@ -656,6 +684,8 @@ void perform_resize(void) {
         active_file->cursor_x = COLS - 1;
     if (active_file->cursor_x < 1)
         active_file->cursor_x = 1;
+
+    clamp_scroll_x(active_file);
 
     if (active_file->cursor_y > LINES - BOTTOM_MARGIN)
         active_file->cursor_y = LINES - BOTTOM_MARGIN;

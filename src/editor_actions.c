@@ -93,6 +93,7 @@ void next_file(FileState *fs_unused, int *cx, int *cy) {
     fm_switch(&file_manager, idx);
     active_file = fm_current(&file_manager);
     text_win = active_file->text_win;
+    clamp_scroll_x(active_file);
     *cx = active_file->cursor_x;
     *cy = active_file->cursor_y;
     redraw();
@@ -109,6 +110,7 @@ void prev_file(FileState *fs_unused, int *cx, int *cy) {
     fm_switch(&file_manager, idx);
     active_file = fm_current(&file_manager);
     text_win = active_file->text_win;
+    clamp_scroll_x(active_file);
     *cx = active_file->cursor_x;
     *cy = active_file->cursor_y;
     redraw();

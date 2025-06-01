@@ -13,6 +13,22 @@
 
 __attribute__((weak)) AppConfig app_config = { .tab_width = 4 };
 
+static void update_scroll_x(FileState *fs) {
+    int offset = get_line_number_offset(fs);
+    int visible_width = COLS - 2 - offset;
+    if (visible_width < 1)
+        visible_width = 1;
+    if (fs->cursor_x - 1 < fs->scroll_x) {
+        fs->scroll_x = fs->cursor_x - 1;
+        if (fs->scroll_x < 0)
+            fs->scroll_x = 0;
+        draw_text_buffer(active_file, text_win);
+    } else if (fs->cursor_x - 1 >= fs->scroll_x + visible_width) {
+        fs->scroll_x = fs->cursor_x - visible_width;
+        draw_text_buffer(active_file, text_win);
+    }
+}
+
 void handle_ctrl_backtick() {
     // Do nothing on CTRL+Backtick to avoid segmentation fault
 }
@@ -40,12 +56,14 @@ void handle_key_left(FileState *fs) {
     if (fs->cursor_x > 1) {
         fs->cursor_x--;
     }
+    update_scroll_x(fs);
 }
 
 void handle_key_right(FileState *fs) {
     if (fs->cursor_x < (int)strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) + 1) {
         fs->cursor_x++;
     }
+    update_scroll_x(fs);
 }
 
 void handle_key_backspace(FileState *fs) {
@@ -231,18 +249,22 @@ void handle_ctrl_key_down(FileState *fs) {
 
 void handle_ctrl_key_left(FileState *fs) {
     fs->cursor_x = 1;
+    update_scroll_x(fs);
 }
 
 void handle_ctrl_key_right(FileState *fs) {
     fs->cursor_x = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) + 1;
+    update_scroll_x(fs);
 }
 
 void handle_key_home(FileState *fs) {
     fs->cursor_x = 1;
+    update_scroll_x(fs);
 }
 
 void handle_key_end(FileState *fs) {
     fs->cursor_x = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) + 1;
+    update_scroll_x(fs);
 }
 
 void handle_tab_key(FileState *fs) {

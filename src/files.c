@@ -38,6 +38,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     file_state->max_lines = max_lines;
     file_state->line_capacity = max_cols;
     file_state->start_line = 0;
+    file_state->scroll_x = 0;
     file_state->cursor_x = 1;
     file_state->cursor_y = 1;
     file_state->undo_stack = NULL; // Initialize your undo stack
