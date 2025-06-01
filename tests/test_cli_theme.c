@@ -16,6 +16,7 @@ WINDOW *text_win = NULL;
 int COLS = 80;
 int LINES = 24;
 int enable_mouse = 0;
+int start_line = 0;
 
 bool any_file_modified(FileManager *fm){(void)fm;return false;}
 int show_message(const char*msg){(void)msg;return 0;}

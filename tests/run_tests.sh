@@ -82,12 +82,12 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_shell_syntax.c
 # build and run shebang detection test (uses stubs for other functions)
 gcc -Wall -Wextra -std=c99 -g -Isrc -c tests/stubs_file_ops.c -o obj_test/stubs_file_ops.o
 gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_shebang_detection.c src/file_ops.c \
-    obj_test/stubs_file_ops.o obj_test/syntax_regex.o -lncurses -o test_shebang_detection
+    obj_test/stubs_file_ops.o obj_test/syntax_regex.o obj_test/globals.o -lncurses -o test_shebang_detection
 ./test_shebang_detection
 
 # build and run shebang case-insensitive detection test
 gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_shebang_case.c src/file_ops.c \
-    obj_test/stubs_file_ops.o obj_test/syntax_regex.o -lncurses -o test_shebang_case
+    obj_test/stubs_file_ops.o obj_test/syntax_regex.o obj_test/globals.o -lncurses -o test_shebang_case
 ./test_shebang_case
 
 # build and run regex complex construct test
@@ -190,12 +190,12 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
 
 # build and run version option test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
-    tests/test_cli_version.c -lncurses -o test_cli_version
+    tests/test_cli_version.c src/globals.c -lncurses -o test_cli_version
 ./test_cli_version
 
 # build and run multi-file main loading test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
-    tests/test_main_multifile.c -lncurses -o test_main_multifile
+    tests/test_main_multifile.c src/globals.c -lncurses -o test_main_multifile
 ./test_main_multifile
 
 # build and run select_int valid input test
@@ -214,6 +214,11 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_cli_theme.c src/config.c src/globals.c -lncurses -o test_cli_theme
 VENTO_THEME_DIR=./themes ./test_cli_theme
+
+# build and run line option test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_cli_line.c src/globals.c -lncurses -o test_cli_line
+./test_cli_line
 
 # build and run search ignore case test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc \

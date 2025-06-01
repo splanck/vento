@@ -201,6 +201,7 @@ vento [options] [file...]
 - `-h`, `--help` &mdash; show a short help message and exit.
 - `-v`, `--version` &mdash; print the current version number and exit.
 - `-t <name>`, `--theme=<name>` &mdash; load the specified color theme before opening files.
+- `+N`, `--line=N` &mdash; start editing at line `N`.
 
 Any additional arguments are treated as files to load on startup.
 

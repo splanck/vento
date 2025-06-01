@@ -2,7 +2,7 @@
 .SH NAME
 vento \- a simple text editor
 .SH SYNOPSIS
-.BR vento " [options] [file...]"
+.BR vento " [options] [+N|--line=N] [file...]"
 .SH DESCRIPTION
 .B Vento
 is a lightweight terminal based text editor focused on simplicity.  It supports editing multiple files at once, customizable color themes, optional line numbers and full mouse interaction.  A status bar shows the current line and column, and a scroll bar indicates your position in the document.  Basic syntax highlighting is provided for C, HTML and Python.  Files can be loaded from the command line or through a file dialog and a menu system exposes common actions.
@@ -19,6 +19,9 @@ Print the program version and exit.
 .TP
 .BR \-t , \-\-theme=\fIname\fP
 Load the specified color theme before opening files.
+.TP
+.BR +N , \-\-line=\fIN\fP
+Start editing at line \fIN\fP of the first file.
 .SH CONFIGURATION
 User preferences are stored in \fI~/.ventorc\fP.  The file is created automatically if it does not exist.  Recognized keys include:
 .IP \[bu] 2

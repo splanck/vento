@@ -12,11 +12,13 @@
 #include "config.h"
 #include "editor_state.h"
 #include <stdbool.h>
+#include <ctype.h>
 
 extern void load_theme(const char *name, AppConfig *cfg) __attribute__((weak));
 extern void apply_colors(void) __attribute__((weak));
 
-static EditorContext editor;
+EditorContext editor;
+extern int start_line;
 
 bool confirm_quit(void) {
     if (!any_file_modified(&file_manager))
@@ -41,6 +43,7 @@ bool confirm_quit(void) {
 int main(int argc, char *argv[]) {
     int file_count = 0;
     const char *theme_name = NULL;
+    start_line = 0;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
@@ -56,6 +59,10 @@ int main(int argc, char *argv[]) {
             theme_name = argv[i] + 8;
         } else if ((strcmp(argv[i], "-t") == 0 || strcmp(argv[i], "--theme") == 0) && i + 1 < argc) {
             theme_name = argv[++i];
+        } else if (strncmp(argv[i], "--line=", 7) == 0) {
+            start_line = atoi(argv[i] + 7);
+        } else if (argv[i][0] == '+' && isdigit((unsigned char)argv[i][1])) {
+            start_line = atoi(argv[i] + 1);
         }
     }
 
@@ -81,6 +88,9 @@ int main(int argc, char *argv[]) {
         if (strncmp(argv[i], "--theme=", 8) == 0 || strcmp(argv[i], "--theme") == 0 || strcmp(argv[i], "-t") == 0) {
             if ((strcmp(argv[i], "--theme") == 0 || strcmp(argv[i], "-t") == 0) && i + 1 < argc)
                 i++;
+            continue;
+        }
+        if (strncmp(argv[i], "--line=", 7) == 0 || (argv[i][0] == '+' && isdigit((unsigned char)argv[i][1]))) {
             continue;
         }
 
