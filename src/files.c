@@ -41,6 +41,8 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     file_state->scroll_x = 0;
     file_state->cursor_x = 1;
     file_state->cursor_y = 1;
+    file_state->saved_cursor_x = 1;
+    file_state->saved_cursor_y = 1;
     file_state->undo_stack = NULL; // Initialize your undo stack
     file_state->redo_stack = NULL; // Initialize your redo stack
     file_state->selection_mode = false;

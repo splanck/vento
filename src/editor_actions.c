@@ -91,11 +91,20 @@ void next_file(FileState *fs_unused, int *cx, int *cy) {
     }
     if (!confirm_switch())
         return;
+    FileState *cur = fm_current(&file_manager);
+    if (cur) {
+        cur->saved_cursor_x = cur->cursor_x;
+        cur->saved_cursor_y = cur->cursor_y;
+    }
     int idx = file_manager.active_index + 1;
     if (idx >= file_manager.count) idx = 0;
     fm_switch(&file_manager, idx);
     active_file = fm_current(&file_manager);
-    text_win = active_file->text_win;
+    if (active_file) {
+        active_file->cursor_x = active_file->saved_cursor_x;
+        active_file->cursor_y = active_file->saved_cursor_y;
+    }
+    text_win = active_file ? active_file->text_win : NULL;
     clamp_scroll_x(active_file);
     *cx = active_file->cursor_x;
     *cy = active_file->cursor_y;
@@ -110,11 +119,20 @@ void prev_file(FileState *fs_unused, int *cx, int *cy) {
     }
     if (!confirm_switch())
         return;
+    FileState *cur = fm_current(&file_manager);
+    if (cur) {
+        cur->saved_cursor_x = cur->cursor_x;
+        cur->saved_cursor_y = cur->cursor_y;
+    }
     int idx = file_manager.active_index - 1;
     if (idx < 0) idx = file_manager.count - 1;
     fm_switch(&file_manager, idx);
     active_file = fm_current(&file_manager);
-    text_win = active_file->text_win;
+    if (active_file) {
+        active_file->cursor_x = active_file->saved_cursor_x;
+        active_file->cursor_y = active_file->saved_cursor_y;
+    }
+    text_win = active_file ? active_file->text_win : NULL;
     clamp_scroll_x(active_file);
     *cx = active_file->cursor_x;
     *cy = active_file->cursor_y;
