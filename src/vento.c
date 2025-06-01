@@ -97,7 +97,8 @@ int main(int argc, char *argv[]) {
     active_file = fm_current(&file_manager);
 
     // Show the warning dialog before entering the main editor loop
-    show_warning_dialog();
+    if (app_config.show_startup_warning)
+        show_warning_dialog();
 
     // Finishes initializing editor window and begin accepting keyboard input.
     run_editor();

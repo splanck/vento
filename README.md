@@ -71,6 +71,7 @@ This file is created automatically with default values if it does not exist. Unk
 - `enable_color`
 - `enable_mouse`
 - `show_line_numbers`
+- `show_startup_warning`
 - `tab_width`
 
 `tab_width` controls how many spaces are inserted when you press the Tab key.
