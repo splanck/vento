@@ -16,6 +16,8 @@
 extern void load_theme(const char *name, AppConfig *cfg) __attribute__((weak));
 extern void apply_colors(void) __attribute__((weak));
 
+static EditorContext editor;
+
 bool confirm_quit(void) {
     if (!any_file_modified(&file_manager))
         return true;
@@ -57,7 +59,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    initialize();
+    initialize(&editor);
 
     if (theme_name && *theme_name && load_theme) {
         load_theme(theme_name, &app_config);
@@ -96,13 +98,17 @@ int main(int argc, char *argv[]) {
     }
 
     active_file = fm_current(&file_manager);
+    editor.active_file = active_file;
+    editor.text_win = text_win;
+    editor.enable_mouse = enable_mouse;
+    editor.enable_color = enable_color;
 
     // Show the warning dialog before entering the main editor loop
     if (app_config.show_startup_warning)
         show_warning_dialog();
 
     // Finishes initializing editor window and begin accepting keyboard input.
-    run_editor();
+    run_editor(&editor);
     
     endwin();
 

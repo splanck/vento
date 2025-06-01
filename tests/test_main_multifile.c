@@ -6,6 +6,7 @@
 #include "file_manager.h"
 #include "files.h"
 #include "editor.h"
+#include "editor_state.h"
 #include "ui.h"
 #include "ui_common.h"
 #include "config.h"
@@ -17,6 +18,8 @@ int COLS = 80;
 int LINES = 24;
 FileManager file_manager = {0};
 AppConfig app_config;
+int enable_mouse = 0;
+int enable_color = 0;
 
 void fm_init(FileManager *fm){fm->files=NULL;fm->count=0;fm->active_index=-1;}
 FileState* fm_current(FileManager *fm){if(!fm||fm->active_index<0||fm->active_index>=fm->count)return NULL;return fm->files[fm->active_index];}
@@ -26,9 +29,9 @@ int fm_switch(FileManager *fm,int idx){if(!fm||idx<0||idx>=fm->count)return -1;f
 /* stubs for unused functionality */
 bool any_file_modified(FileManager *fm){(void)fm;return false;}
 int show_message(const char*msg){(void)msg;return 0;}
-void initialize(void){}
+void initialize(EditorContext *ctx){(void)ctx;}
 void show_warning_dialog(void){}
-void run_editor(void){}
+void run_editor(EditorContext *ctx){(void)ctx;}
 int endwin(void){return 0;}
 void cleanup_on_exit(FileManager *fm){(void)fm;}
 

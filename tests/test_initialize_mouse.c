@@ -65,7 +65,10 @@ void config_load(AppConfig *cfg){ enable_mouse = cfg->enable_mouse; }
 int main(void){
     app_config.enable_mouse = 0;
     recorded_mask = (mmask_t)0xffff;
-    initialize();
+    EditorContext ctx = {0};
+    ctx.enable_mouse = 0;
+    ctx.enable_color = 0;
+    initialize(&ctx);
     assert(recorded_mask == 0);
     return 0;
 }

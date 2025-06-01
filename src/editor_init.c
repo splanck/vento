@@ -28,21 +28,23 @@ void apply_colors() {
     }
 }
 
-void initialize() {
+void initialize(EditorContext *ctx) {
     setlocale(LC_ALL, "");
     initscr();
     config_load(&app_config);
+    ctx->enable_color = enable_color;
+    ctx->enable_mouse = enable_mouse;
     apply_colors();
     cbreak();
     noecho();
     keypad(stdscr, TRUE);
     meta(stdscr, TRUE);
-    if (enable_mouse)
+    if (ctx->enable_mouse)
         mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
     else
         mousemask(0, NULL);
     timeout(10);
-    bkgd(enable_color ? COLOR_PAIR(1) : A_NORMAL);
+    bkgd(ctx->enable_color ? COLOR_PAIR(1) : A_NORMAL);
     refresh();
     struct sigaction sa;
     sa.sa_handler = on_sigwinch;
@@ -62,7 +64,7 @@ void initialize() {
     define_key("\024", KEY_CTRL_T);
     initialize_key_mappings();
     initializeMenus();
-    update_status_bar(active_file);
+    update_status_bar(ctx->active_file);
 }
 
 void cleanup_on_exit(FileManager *fm) {

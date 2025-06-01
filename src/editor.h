@@ -4,6 +4,7 @@
 #include <ncurses.h>
 #include <signal.h>
 #include <string.h>
+typedef struct EditorContext EditorContext;
 typedef struct Change {
     int line;
     char *old_text;
@@ -46,11 +47,11 @@ extern char search_text[256];
 extern volatile sig_atomic_t resize_pending;
 extern int exiting;
 void handle_regular_mode(struct FileState *fs, int ch);
-void initialize(void);
+void initialize(EditorContext *ctx);
 void draw_text_buffer(struct FileState *fs, WINDOW *win);
 void close_editor(void);
 void clear_text_buffer(void);
-void run_editor(void);
+void run_editor(EditorContext *ctx);
 void initialize_buffer(void);
 void redraw(void);
 void delete_current_line(struct FileState *fs);
