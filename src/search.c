@@ -247,7 +247,9 @@ void replace_all_occurrences(FileState *fs, const char *search,
     bool replaced = false;
     for (int line = 0; line < fs->buffer.count; ++line) {
         char *line_text = (char *)lb_get(&fs->buffer, line);
-        char *pos = strstr(line_text, search);
+        char *pos = app_config.search_ignore_case
+                        ? strcasestr_simple(line_text, search)
+                        : strstr(line_text, search);
         if (!pos)
             continue;
 
@@ -289,7 +291,9 @@ void replace_all_occurrences(FileState *fs, const char *search,
             }
 
             cursor = pos + search_len;
-            pos = strstr(cursor, search);
+            pos = app_config.search_ignore_case ?
+                    strcasestr_simple(cursor, search) :
+                    strstr(cursor, search);
         }
         size_t tail_len = strlen(cursor);
         if (idx + tail_len >= buf_size - 1)
