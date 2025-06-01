@@ -15,17 +15,14 @@ void delete_current_line(EditorContext *ctx, FileState *fs) {
         return;
     }
     int line_to_delete = fs->cursor_y - 1 + fs->start_line;
-    char *old_text = strdup(fs->buffer.lines[line_to_delete]);
+    const char *cur_line = lb_get(&fs->buffer, line_to_delete);
+    char *old_text = cur_line ? strdup(cur_line) : strdup("");
     if (!old_text) {
         allocation_failed("strdup failed");
         return;
     }
     push(&fs->undo_stack, (Change){line_to_delete, old_text, NULL});
-    for (int i = line_to_delete; i < fs->buffer.count - 1; ++i) {
-        strcpy(fs->buffer.lines[i], fs->buffer.lines[i + 1]);
-    }
-    memset(fs->buffer.lines[fs->buffer.count - 1], 0, fs->line_capacity);
-    fs->buffer.count--;
+    lb_delete(&fs->buffer, line_to_delete);
     fs->modified = true;
     if (fs->cursor_y < LINES - 4 && fs->cursor_y <= fs->buffer.count) {
         fs->cursor_y++;
@@ -44,13 +41,14 @@ void delete_current_line(EditorContext *ctx, FileState *fs) {
 
 void insert_new_line(EditorContext *ctx, FileState *fs) {
     (void)ctx;
-    if (ensure_line_capacity(fs, fs->buffer.count + 1) < 0)
-        allocation_failed("ensure_line_capacity failed");
-    for (int i = fs->buffer.count; i > fs->cursor_y + fs->start_line - 1; --i) {
-        strcpy(fs->buffer.lines[i], fs->buffer.lines[i - 1]);
-    }
-    fs->buffer.count++;
-    fs->buffer.lines[fs->cursor_y + fs->start_line - 1][0] = '\0';
+    int idx = fs->cursor_y + fs->start_line - 1;
+    if (lb_insert(&fs->buffer, idx, "") < 0)
+        allocation_failed("lb_insert failed");
+    char *p = realloc(fs->buffer.lines[idx], fs->line_capacity);
+    if (!p)
+        allocation_failed("realloc failed");
+    fs->buffer.lines[idx] = p;
+    fs->buffer.lines[idx][0] = '\0';
     Change change;
     change.line = fs->cursor_y + fs->start_line - 1;
     change.old_text = NULL;

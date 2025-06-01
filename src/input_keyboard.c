@@ -62,7 +62,8 @@ void handle_key_left(EditorContext *ctx, FileState *fs) {
 }
 
 void handle_key_right(EditorContext *ctx, FileState *fs) {
-    if (fs->cursor_x < (int)strlen(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]) + 1) {
+    const char *line = lb_get(&fs->buffer, fs->cursor_y - 1 + fs->start_line);
+    if (line && fs->cursor_x < (int)strlen(line) + 1) {
         fs->cursor_x++;
     }
     update_scroll_x(ctx, fs);
@@ -75,14 +76,13 @@ void handle_key_backspace(EditorContext *ctx, FileState *fs) {
                 &fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
                 strlen(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]) - fs->cursor_x + 1);
     } else if (fs->cursor_y > 1 || fs->start_line > 0) {
-        size_t prev_len = strlen(fs->buffer.lines[fs->cursor_y - 2 + fs->start_line]);
-        if (prev_len + strlen(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]) < (size_t)fs->line_capacity) {
-            strcat(fs->buffer.lines[fs->cursor_y - 2 + fs->start_line], fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]);
-            for (int i = fs->cursor_y - 1 + fs->start_line; i < fs->buffer.count - 1; ++i) {
-                strcpy(fs->buffer.lines[i], fs->buffer.lines[i + 1]);
-            }
-            fs->buffer.lines[fs->buffer.count - 1][0] = '\0';
-            fs->buffer.count--;
+        int idx = fs->cursor_y - 1 + fs->start_line;
+        char *prev = fs->buffer.lines[idx - 1];
+        char *curr = fs->buffer.lines[idx];
+        size_t prev_len = strlen(prev);
+        if (prev_len + strlen(curr) < (size_t)fs->line_capacity) {
+            strcat(prev, curr);
+            lb_delete(&fs->buffer, idx);
             if (fs->cursor_y > 1) {
                 fs->cursor_y--;
             } else {
@@ -99,17 +99,15 @@ void handle_key_backspace(EditorContext *ctx, FileState *fs) {
 }
 
 void handle_key_delete(EditorContext *ctx, FileState *fs) {
-    if (fs->cursor_x < (int)strlen(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line])) {
+    const char *line_curr = lb_get(&fs->buffer, fs->cursor_y - 1 + fs->start_line);
+    if (line_curr && fs->cursor_x < (int)strlen(line_curr)) {
         memmove(&fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
                 &fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
                 strlen(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]) - fs->cursor_x + 1);
     } else if (fs->cursor_y + fs->start_line < fs->buffer.count) {
-        strcat(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line], fs->buffer.lines[fs->cursor_y + fs->start_line]);
-        for (int i = fs->cursor_y + fs->start_line; i < fs->buffer.count - 1; ++i) {
-            strcpy(fs->buffer.lines[i], fs->buffer.lines[i + 1]);
-        }
-        fs->buffer.lines[fs->buffer.count - 1][0] = '\0';
-        fs->buffer.count--;
+        int idx = fs->cursor_y - 1 + fs->start_line;
+        strcat(fs->buffer.lines[idx], fs->buffer.lines[idx + 1]);
+        lb_delete(&fs->buffer, idx + 1);
     }
     werase(text_win);
     box(text_win, 0, 0);
@@ -118,9 +116,6 @@ void handle_key_delete(EditorContext *ctx, FileState *fs) {
 }
 
 void handle_key_enter(EditorContext *ctx, FileState *fs) {
-    if (ensure_line_capacity(fs, fs->buffer.count + 1) < 0)
-        allocation_failed("ensure_line_capacity failed");
-
     int line_idx = fs->cursor_y - 1 + fs->start_line;
     char *line = fs->buffer.lines[line_idx];
     char *old_text = strdup(line);
@@ -141,20 +136,15 @@ void handle_key_enter(EditorContext *ctx, FileState *fs) {
     strncpy(indent, line, indent_len);
     indent[indent_len] = '\0';
 
-    for (int i = fs->buffer.count; i > line_idx + 1; --i) {
-        strcpy(fs->buffer.lines[i], fs->buffer.lines[i - 1]);
-    }
-    fs->buffer.count++;
-
-    char *new_line = fs->buffer.lines[line_idx + 1];
-    new_line[0] = '\0';
-    strncat(new_line, indent, fs->line_capacity - 1);
+    char new_line_tmp[fs->line_capacity];
+    new_line_tmp[0] = '\0';
+    strncat(new_line_tmp, indent, fs->line_capacity - 1);
 
     char *remainder = &line[fs->cursor_x - 1];
     int remaining_indent = indent_len - (fs->cursor_x - 1);
     if (remaining_indent > 0)
         remainder += remaining_indent;
-    strncat(new_line, remainder, fs->line_capacity - strlen(new_line) - 1);
+    strncat(new_line_tmp, remainder, fs->line_capacity - strlen(new_line_tmp) - 1);
 
     line[fs->cursor_x - 1] = '\0';
 
@@ -167,7 +157,20 @@ void handle_key_enter(EditorContext *ctx, FileState *fs) {
     }
     push(&fs->undo_stack, (Change){ line_idx, old_text, new_text });
 
-    char *insert_text = strdup(new_line);
+    if (lb_insert(&fs->buffer, line_idx + 1, new_line_tmp) < 0) {
+        free(old_text);
+        free(indent);
+        allocation_failed("lb_insert failed");
+        return;
+    }
+    char *p = realloc(fs->buffer.lines[line_idx + 1], fs->line_capacity);
+    if (!p) {
+        allocation_failed("realloc failed");
+        return;
+    }
+    fs->buffer.lines[line_idx + 1] = p;
+
+    char *insert_text = strdup(new_line_tmp);
     if (!insert_text) {
         free(indent);
         allocation_failed("strdup failed");
@@ -258,7 +261,8 @@ void handle_ctrl_key_left(EditorContext *ctx, FileState *fs) {
 }
 
 void handle_ctrl_key_right(EditorContext *ctx, FileState *fs) {
-    fs->cursor_x = strlen(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]) + 1;
+    const char *line = lb_get(&fs->buffer, fs->cursor_y - 1 + fs->start_line);
+    fs->cursor_x = line ? strlen(line) + 1 : 1;
     update_scroll_x(ctx, fs);
 }
 
@@ -268,7 +272,8 @@ void handle_key_home(EditorContext *ctx, FileState *fs) {
 }
 
 void handle_key_end(EditorContext *ctx, FileState *fs) {
-    fs->cursor_x = strlen(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]) + 1;
+    const char *line = lb_get(&fs->buffer, fs->cursor_y - 1 + fs->start_line);
+    fs->cursor_x = line ? strlen(line) + 1 : 1;
     update_scroll_x(ctx, fs);
 }
 
@@ -373,7 +378,9 @@ void handle_default_key(EditorContext *ctx, FileState *fs, int ch) {
 void move_forward_to_next_word(EditorContext *ctx, FileState *fs) {
     (void)ctx;
     while (fs->cursor_y - 1 + fs->start_line < fs->buffer.count) {
-        char *line = fs->buffer.lines[fs->cursor_y - 1 + fs->start_line];
+        const char *line = lb_get(&fs->buffer, fs->cursor_y - 1 + fs->start_line);
+        if (!line)
+            break;
         int len = strlen(line);
         while (fs->cursor_x < len && isalnum(line[fs->cursor_x - 1])) {
             fs->cursor_x++;
@@ -392,7 +399,9 @@ void move_forward_to_next_word(EditorContext *ctx, FileState *fs) {
 void move_backward_to_previous_word(EditorContext *ctx, FileState *fs) {
     (void)ctx;
     while (fs->cursor_y - 1 + fs->start_line >= 0) {
-        char *line = fs->buffer.lines[fs->cursor_y - 1 + fs->start_line];
+        const char *line = lb_get(&fs->buffer, fs->cursor_y - 1 + fs->start_line);
+        if (!line)
+            break;
         while (fs->cursor_x > 1 && isalnum(line[fs->cursor_x - 2])) {
             fs->cursor_x--;
         }
@@ -404,8 +413,8 @@ void move_backward_to_previous_word(EditorContext *ctx, FileState *fs) {
         }
         if (fs->cursor_y > 1) {
             fs->cursor_y--;
-            line = fs->buffer.lines[fs->cursor_y - 1 + fs->start_line];
-            fs->cursor_x = strlen(line) + 1;
+            line = lb_get(&fs->buffer, fs->cursor_y - 1 + fs->start_line);
+            fs->cursor_x = line ? strlen(line) + 1 : 1;
         } else {
             fs->cursor_x = 1;
             break;
