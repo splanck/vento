@@ -64,27 +64,27 @@ int show_find_dialog(char*out,int sz,const char*def){(void)out;(void)sz;(void)de
 int show_replace_dialog(char*s,int ss,char*r,int rs){(void)s;(void)ss;(void)r;(void)rs;return 0;}
 void push(Node **stack, Change change){(void)stack;(void)change;}
 void mark_comment_state_dirty(FileState *fs){(void)fs;}
-void handle_key_up(FileState*fs){(void)fs;}
-void handle_key_down(FileState*fs){(void)fs;}
-void handle_key_left(FileState*fs){(void)fs;}
-void handle_key_right(FileState*fs){(void)fs;}
-void handle_key_backspace(FileState*fs){(void)fs;}
-void handle_key_delete(FileState*fs){(void)fs;}
-void handle_key_enter(FileState*fs){(void)fs;}
-void handle_key_page_up(FileState*fs){(void)fs;}
-void handle_key_page_down(FileState*fs){(void)fs;}
-void handle_ctrl_key_left(FileState*fs){(void)fs;}
-void handle_ctrl_key_right(FileState*fs){(void)fs;}
-void handle_ctrl_key_pgup(FileState*fs){(void)fs;}
-void handle_ctrl_key_pgdn(FileState*fs){(void)fs;}
-void handle_ctrl_key_up(FileState*fs){(void)fs;}
-void handle_ctrl_key_down(FileState*fs){(void)fs;}
-void handle_key_home(FileState*fs){(void)fs;}
-void handle_key_end(FileState*fs){(void)fs;}
-void handle_default_key(FileState*fs,int ch){(void)fs;(void)ch;}
-void handle_mouse_event(FileState*fs,MEVENT*ev){(void)fs;(void)ev;}
+void handle_key_up(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_key_down(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_key_left(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_key_right(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_key_backspace(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_key_delete(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_key_enter(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_key_page_up(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_key_page_down(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_ctrl_key_left(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_ctrl_key_right(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_ctrl_key_pgup(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_ctrl_key_pgdn(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_ctrl_key_up(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_ctrl_key_down(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_key_home(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_key_end(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void handle_default_key(EditorContext*ctx,FileState*fs,int ch){(void)ctx;(void)fs;(void)ch;}
+void handle_mouse_event(EditorContext*ctx,FileState*fs,MEVENT*ev){(void)ctx;(void)fs;(void)ev;}
 void start_selection_mode(FileState*fs,int x,int y){(void)fs;(void)x;(void)y;}
-void update_selection_mouse(FileState*fs,int x,int y){(void)fs;(void)x;(void)y;}
+void update_selection_mouse(EditorContext*ctx,FileState*fs,int x,int y){(void)ctx;(void)fs;(void)x;(void)y;}
 void end_selection_mode(FileState*fs){(void)fs;}
 void paste_clipboard(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void delete_current_line(FileState*fs){(void)fs;}
@@ -93,8 +93,8 @@ void next_file(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void prev_file(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void handle_redo_wrapper(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void handle_undo_wrapper(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
-void move_forward_to_next_word(FileState*fs){(void)fs;}
-void move_backward_to_previous_word(FileState*fs){(void)fs;}
+void move_forward_to_next_word(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void move_backward_to_previous_word(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void show_about(void){}
 void show_help(void){}
 void handleMenuNavigation(Menu*m,int mc,int*cm,int*ci){(void)m;(void)mc;(void)cm;(void)ci;}

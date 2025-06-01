@@ -14,7 +14,7 @@
 
 __attribute__((weak)) AppConfig app_config = { .tab_width = 4 };
 
-static void update_scroll_x(FileState *fs) {
+static void update_scroll_x(EditorContext *ctx, FileState *fs) {
     int offset = get_line_number_offset(fs);
     int visible_width = COLS - 2 - offset;
     if (visible_width < 1)
@@ -23,51 +23,52 @@ static void update_scroll_x(FileState *fs) {
         fs->scroll_x = fs->cursor_x - 1;
         if (fs->scroll_x < 0)
             fs->scroll_x = 0;
-        draw_text_buffer(active_file, text_win);
+        draw_text_buffer(ctx->active_file, text_win);
     } else if (fs->cursor_x - 1 >= fs->scroll_x + visible_width) {
         fs->scroll_x = fs->cursor_x - visible_width;
-        draw_text_buffer(active_file, text_win);
+        draw_text_buffer(ctx->active_file, text_win);
     }
 }
 
-void handle_ctrl_backtick() {
+void handle_ctrl_backtick(EditorContext *ctx) {
+    (void)ctx;
     // Do nothing on CTRL+Backtick to avoid segmentation fault
 }
 
-void handle_key_up(FileState *fs) {
+void handle_key_up(EditorContext *ctx, FileState *fs) {
     if (fs->cursor_y > 1) {
         fs->cursor_y--;
     } else if (fs->start_line > 0) {
         fs->start_line--;
-        draw_text_buffer(active_file, text_win);
+        draw_text_buffer(ctx->active_file, text_win);
     }
 }
 
-void handle_key_down(FileState *fs) {
+void handle_key_down(EditorContext *ctx, FileState *fs) {
     ensure_line_loaded(fs, fs->start_line + fs->cursor_y);
     if (fs->cursor_y < LINES - BOTTOM_MARGIN && fs->cursor_y < fs->line_count) {
         fs->cursor_y++;
     } else if (fs->start_line + fs->cursor_y < fs->line_count) {
         fs->start_line++;
-        draw_text_buffer(active_file, text_win);
+        draw_text_buffer(ctx->active_file, text_win);
     }
 }
 
-void handle_key_left(FileState *fs) {
+void handle_key_left(EditorContext *ctx, FileState *fs) {
     if (fs->cursor_x > 1) {
         fs->cursor_x--;
     }
-    update_scroll_x(fs);
+    update_scroll_x(ctx, fs);
 }
 
-void handle_key_right(FileState *fs) {
+void handle_key_right(EditorContext *ctx, FileState *fs) {
     if (fs->cursor_x < (int)strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) + 1) {
         fs->cursor_x++;
     }
-    update_scroll_x(fs);
+    update_scroll_x(ctx, fs);
 }
 
-void handle_key_backspace(FileState *fs) {
+void handle_key_backspace(EditorContext *ctx, FileState *fs) {
     if (fs->cursor_x > 1) {
         fs->cursor_x--;
         memmove(&fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
@@ -86,18 +87,18 @@ void handle_key_backspace(FileState *fs) {
                 fs->cursor_y--;
             } else {
                 fs->start_line--;
-                draw_text_buffer(active_file, text_win);
+                draw_text_buffer(ctx->active_file, text_win);
             }
             fs->cursor_x = prev_len + 1;
         }
     }
     werase(text_win);
     box(text_win, 0, 0);
-    draw_text_buffer(active_file, text_win);
+    draw_text_buffer(ctx->active_file, text_win);
     mark_comment_state_dirty(fs);
 }
 
-void handle_key_delete(FileState *fs) {
+void handle_key_delete(EditorContext *ctx, FileState *fs) {
     if (fs->cursor_x < (int)strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line])) {
         memmove(&fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
                 &fs->text_buffer[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
@@ -112,11 +113,11 @@ void handle_key_delete(FileState *fs) {
     }
     werase(text_win);
     box(text_win, 0, 0);
-    draw_text_buffer(active_file, text_win);
+    draw_text_buffer(ctx->active_file, text_win);
     mark_comment_state_dirty(fs);
 }
 
-void handle_key_enter(FileState *fs) {
+void handle_key_enter(EditorContext *ctx, FileState *fs) {
     if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
         allocation_failed("ensure_line_capacity failed");
 
@@ -182,24 +183,24 @@ void handle_key_enter(FileState *fs) {
     }
     werase(text_win);
     box(text_win, 0, 0);
-    draw_text_buffer(active_file, text_win);
+    draw_text_buffer(ctx->active_file, text_win);
     mark_comment_state_dirty(fs);
     free(indent);
 }
 
-void handle_key_page_up(FileState *fs) {
+void handle_key_page_up(EditorContext *ctx, FileState *fs) {
     int page_size = LINES - 4;
     if (fs->start_line > 0) {
         fs->start_line -= page_size;
         if (fs->start_line < 0) {
             fs->start_line = 0;
         }
-        draw_text_buffer(active_file, text_win);
+        draw_text_buffer(ctx->active_file, text_win);
     }
     fs->cursor_y = 1;
 }
 
-void handle_key_page_down(FileState *fs) {
+void handle_key_page_down(EditorContext *ctx, FileState *fs) {
     ensure_line_loaded(fs, fs->start_line + (LINES - 4));
     int max_lines = LINES - 4;
     if (fs->start_line + max_lines < fs->line_count) {
@@ -222,13 +223,13 @@ void handle_key_page_down(FileState *fs) {
     }
 }
 
-void handle_ctrl_key_pgup(FileState *fs) {
+void handle_ctrl_key_pgup(EditorContext *ctx, FileState *fs) {
     fs->cursor_y = 1;
     fs->start_line = 0;
-    draw_text_buffer(active_file, text_win);
+    draw_text_buffer(ctx->active_file, text_win);
 }
 
-void handle_ctrl_key_pgdn(FileState *fs) {
+void handle_ctrl_key_pgdn(EditorContext *ctx, FileState *fs) {
     load_all_remaining_lines(fs);
     fs->cursor_y = LINES - 4;
     if (fs->line_count > LINES - 4) {
@@ -237,38 +238,40 @@ void handle_ctrl_key_pgdn(FileState *fs) {
         fs->start_line = 0;
         fs->cursor_y = fs->line_count;
     }
-    draw_text_buffer(active_file, text_win);
+    draw_text_buffer(ctx->active_file, text_win);
 }
 
-void handle_ctrl_key_up(FileState *fs) {
+void handle_ctrl_key_up(EditorContext *ctx, FileState *fs) {
+    (void)ctx;
     fs->cursor_y = 1;
 }
 
-void handle_ctrl_key_down(FileState *fs) {
+void handle_ctrl_key_down(EditorContext *ctx, FileState *fs) {
+    (void)ctx;
     fs->cursor_y = LINES - 4;
 }
 
-void handle_ctrl_key_left(FileState *fs) {
+void handle_ctrl_key_left(EditorContext *ctx, FileState *fs) {
     fs->cursor_x = 1;
-    update_scroll_x(fs);
+    update_scroll_x(ctx, fs);
 }
 
-void handle_ctrl_key_right(FileState *fs) {
+void handle_ctrl_key_right(EditorContext *ctx, FileState *fs) {
     fs->cursor_x = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) + 1;
-    update_scroll_x(fs);
+    update_scroll_x(ctx, fs);
 }
 
-void handle_key_home(FileState *fs) {
+void handle_key_home(EditorContext *ctx, FileState *fs) {
     fs->cursor_x = 1;
-    update_scroll_x(fs);
+    update_scroll_x(ctx, fs);
 }
 
-void handle_key_end(FileState *fs) {
+void handle_key_end(EditorContext *ctx, FileState *fs) {
     fs->cursor_x = strlen(fs->text_buffer[fs->cursor_y - 1 + fs->start_line]) + 1;
-    update_scroll_x(fs);
+    update_scroll_x(ctx, fs);
 }
 
-void handle_tab_key(FileState *fs) {
+void handle_tab_key(EditorContext *ctx, FileState *fs) {
     int tabsize = app_config.tab_width > 0 ? app_config.tab_width : 4;
     int inserted = 0;
 
@@ -313,19 +316,19 @@ void handle_tab_key(FileState *fs) {
 
         werase(text_win);
         box(text_win, 0, 0);
-        draw_text_buffer(active_file, text_win);
+        draw_text_buffer(ctx->active_file, text_win);
     } else {
         free(old_text);
     }
 }
 
-void handle_default_key(FileState *fs, int ch) {
+void handle_default_key(EditorContext *ctx, FileState *fs, int ch) {
 #ifdef KEY_TAB
     if (ch == KEY_TAB || ch == '\t') {
 #else
     if (ch == '\t') {
 #endif
-        handle_tab_key(fs);
+        handle_tab_key(ctx, fs);
         return;
     }
     if (fs->cursor_x < fs->line_capacity - 1) {
@@ -363,10 +366,11 @@ void handle_default_key(FileState *fs, int ch) {
 
     werase(text_win);
     box(text_win, 0, 0);
-    draw_text_buffer(active_file, text_win);
+    draw_text_buffer(ctx->active_file, text_win);
 }
 
-void move_forward_to_next_word(FileState *fs) {
+void move_forward_to_next_word(EditorContext *ctx, FileState *fs) {
+    (void)ctx;
     while (fs->cursor_y - 1 + fs->start_line < fs->line_count) {
         char *line = fs->text_buffer[fs->cursor_y - 1 + fs->start_line];
         int len = strlen(line);
@@ -384,7 +388,8 @@ void move_forward_to_next_word(FileState *fs) {
     }
 }
 
-void move_backward_to_previous_word(FileState *fs) {
+void move_backward_to_previous_word(EditorContext *ctx, FileState *fs) {
+    (void)ctx;
     while (fs->cursor_y - 1 + fs->start_line >= 0) {
         char *line = fs->text_buffer[fs->cursor_y - 1 + fs->start_line];
         while (fs->cursor_x > 1 && isalnum(line[fs->cursor_x - 2])) {

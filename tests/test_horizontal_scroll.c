@@ -33,16 +33,18 @@ int main(void) {
     fs.cursor_y = 1;
     fs.start_line = 0;
     fs.scroll_x = 0;
+    EditorContext ctx = {0};
+    ctx.active_file = &fs;
     active_file = &fs;
 
     for (int i = 0; i < 15; i++)
-        handle_key_right(&fs);
+        handle_key_right(&ctx, &fs);
     int visible = COLS - 2; /* no line numbers */
     assert(fs.cursor_x == 16);
     assert(fs.scroll_x == fs.cursor_x - visible);
 
     for (int i = 15; i > 0; i--)
-        handle_key_left(&fs);
+        handle_key_left(&ctx, &fs);
     assert(fs.cursor_x == 1);
     assert(fs.scroll_x == 0);
 

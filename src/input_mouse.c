@@ -8,7 +8,7 @@
 #define BUTTON1_DRAGGED (BUTTON1_PRESSED | REPORT_MOUSE_POSITION)
 #endif
 
-void update_selection_mouse(FileState *fs, int x, int y) {
+void update_selection_mouse(EditorContext *ctx, FileState *fs, int x, int y) {
     fs->sel_end_x = x;
     fs->sel_end_y = y;
 
@@ -20,7 +20,7 @@ void update_selection_mouse(FileState *fs, int x, int y) {
     wrefresh(text_win);
 }
 
-void handle_mouse_event(FileState *fs, MEVENT *ev) {
+void handle_mouse_event(EditorContext *ctx, FileState *fs, MEVENT *ev) {
     fs->match_start_x = fs->match_end_x = -1;
     fs->match_start_y = fs->match_end_y = -1;
     int mx = ev->x;
@@ -41,20 +41,20 @@ void handle_mouse_event(FileState *fs, MEVENT *ev) {
     }
 
     if (ev->bstate & BUTTON1_DRAGGED) {
-        update_selection_mouse(fs, fs->cursor_x, fs->cursor_y);
+        update_selection_mouse(ctx, fs, fs->cursor_x, fs->cursor_y);
     }
 
 #ifdef BUTTON4_PRESSED
     /* Some systems may not define BUTTON4_PRESSED */
     if (ev->bstate & BUTTON4_PRESSED) {
-        handle_key_up(fs);
+        handle_key_up(ctx, fs);
     }
 #endif
 
 #ifdef BUTTON5_PRESSED
     /* Some systems may not define BUTTON5_PRESSED */
     if (ev->bstate & BUTTON5_PRESSED) {
-        handle_key_down(fs);
+        handle_key_down(ctx, fs);
     }
 #endif
 }

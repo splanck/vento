@@ -46,7 +46,7 @@ extern struct FileManager file_manager;
 extern char search_text[256];
 extern volatile sig_atomic_t resize_pending;
 extern int exiting;
-void handle_regular_mode(struct FileState *fs, int ch);
+void handle_regular_mode(EditorContext *ctx, struct FileState *fs, int ch);
 void initialize(EditorContext *ctx);
 void draw_text_buffer(struct FileState *fs, WINDOW *win);
 void close_editor(void);

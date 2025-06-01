@@ -4,29 +4,30 @@
 #define BOTTOM_MARGIN 4 // Define the bottom UI margin
 
 #include "files.h"
-void handle_ctrl_backtick(void);
-void handle_key_up(struct FileState *fs);
-void handle_key_down(struct FileState *fs);
-void handle_key_left(struct FileState *fs);
-void handle_key_right(struct FileState *fs);
-void handle_key_home(struct FileState *fs);
-void handle_key_end(struct FileState *fs);
-void handle_key_backspace(struct FileState *fs);
-void handle_key_delete(struct FileState *fs);
-void handle_key_enter(struct FileState *fs);
-void handle_key_page_up(struct FileState *fs);
-void handle_key_page_down(struct FileState *fs);
-void handle_ctrl_key_left(struct FileState *fs);
-void handle_ctrl_key_right(struct FileState *fs);
-void handle_ctrl_key_pgup(struct FileState *fs);
-void handle_ctrl_key_pgdn(struct FileState *fs);
-void handle_ctrl_key_up(struct FileState *fs);
-void handle_ctrl_key_down(struct FileState *fs);
-void handle_tab_key(struct FileState *fs);
-void handle_default_key(struct FileState *fs, int ch);
-void move_forward_to_next_word(struct FileState *fs);
-void move_backward_to_previous_word(struct FileState *fs);
-void handle_mouse_event(struct FileState *fs, MEVENT *ev);
-void update_selection_mouse(struct FileState *fs, int x, int y);
+#include "editor_state.h"
+void handle_ctrl_backtick(EditorContext *ctx);
+void handle_key_up(EditorContext *ctx, struct FileState *fs);
+void handle_key_down(EditorContext *ctx, struct FileState *fs);
+void handle_key_left(EditorContext *ctx, struct FileState *fs);
+void handle_key_right(EditorContext *ctx, struct FileState *fs);
+void handle_key_home(EditorContext *ctx, struct FileState *fs);
+void handle_key_end(EditorContext *ctx, struct FileState *fs);
+void handle_key_backspace(EditorContext *ctx, struct FileState *fs);
+void handle_key_delete(EditorContext *ctx, struct FileState *fs);
+void handle_key_enter(EditorContext *ctx, struct FileState *fs);
+void handle_key_page_up(EditorContext *ctx, struct FileState *fs);
+void handle_key_page_down(EditorContext *ctx, struct FileState *fs);
+void handle_ctrl_key_left(EditorContext *ctx, struct FileState *fs);
+void handle_ctrl_key_right(EditorContext *ctx, struct FileState *fs);
+void handle_ctrl_key_pgup(EditorContext *ctx, struct FileState *fs);
+void handle_ctrl_key_pgdn(EditorContext *ctx, struct FileState *fs);
+void handle_ctrl_key_up(EditorContext *ctx, struct FileState *fs);
+void handle_ctrl_key_down(EditorContext *ctx, struct FileState *fs);
+void handle_tab_key(EditorContext *ctx, struct FileState *fs);
+void handle_default_key(EditorContext *ctx, struct FileState *fs, int ch);
+void move_forward_to_next_word(EditorContext *ctx, struct FileState *fs);
+void move_backward_to_previous_word(EditorContext *ctx, struct FileState *fs);
+void handle_mouse_event(EditorContext *ctx, struct FileState *fs, MEVENT *ev);
+void update_selection_mouse(EditorContext *ctx, struct FileState *fs, int x, int y);
 
 #endif
