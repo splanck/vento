@@ -55,7 +55,6 @@ void draw_text_buffer(struct FileState *fs, WINDOW *win);
 void close_editor(void);
 void clear_text_buffer(void);
 void run_editor(EditorContext *ctx);
-void initialize_buffer(void);
 void redraw(void);
 void delete_current_line(EditorContext *ctx, struct FileState *fs);
 void insert_new_line(EditorContext *ctx, struct FileState *fs);

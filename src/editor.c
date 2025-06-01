@@ -509,38 +509,6 @@ void run_editor(EditorContext *ctx) {
 
 
 
-/**
- * Initializes the text buffer by allocating memory for each line and setting initial values.
- * 
- * This function is responsible for initializing the text buffer by allocating memory for each line
- * and setting initial values such as line count and start line. It is called during the editor's
- * initialization process to ensure that the text buffer is properly set up before any editing
- * operations are performed.
- * 
- * @param None
- * @return None
- */
-void initialize_buffer() {
-    // Allocate memory for each line in the text buffer
-    for (int i = 0; i < active_file->buffer.capacity; ++i) {
-        if (active_file->buffer.lines[i] != NULL) {
-            free(active_file->buffer.lines[i]);
-            active_file->buffer.lines[i] = NULL;
-        }
-        active_file->buffer.lines[i] = (char *)calloc(active_file->line_capacity, sizeof(char));
-        if (active_file->buffer.lines[i] == NULL) {
-            allocation_failed("calloc failed in initialize_buffer");
-        }
-    }
-    
-    // Set the initial line count to 1
-    active_file->buffer.count = 1;
-    
-    // Set the initial start line to 0
-    if (active_file)
-        active_file->start_line = 0;
-
-}
 
 /**
  * Draws the text buffer on the specified window.
