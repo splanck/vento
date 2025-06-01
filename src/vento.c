@@ -8,6 +8,7 @@
 #include "ui.h"
 #include "files.h"
 #include "file_manager.h"
+#include "menu.h"
 #include "ui_common.h"
 #include "config.h"
 #include "editor_state.h"
