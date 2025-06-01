@@ -34,8 +34,10 @@ int main(void){
     fs.start_line = 0;
 
     active_file = &fs;
+    EditorContext ctx = {0};
+    ctx.active_file = &fs;
 
-    handle_key_enter(&fs);
+    handle_key_enter(&ctx, &fs);
 
     assert(fs.line_count == 2);
     assert(strlen(fs.text_buffer[0]) == 1100);
