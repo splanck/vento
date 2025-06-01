@@ -9,6 +9,7 @@
 #endif
 
 void update_selection_mouse(EditorContext *ctx, FileState *fs, int x, int y) {
+    (void)ctx;
     fs->sel_end_x = x;
     fs->sel_end_y = y;
 

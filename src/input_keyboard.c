@@ -201,6 +201,7 @@ void handle_key_page_up(EditorContext *ctx, FileState *fs) {
 }
 
 void handle_key_page_down(EditorContext *ctx, FileState *fs) {
+    (void)ctx;
     ensure_line_loaded(fs, fs->start_line + (LINES - 4));
     int max_lines = LINES - 4;
     if (fs->start_line + max_lines < fs->line_count) {

@@ -62,6 +62,7 @@ void show_help(EditorContext *ctx) {
 }
 
 void show_about(EditorContext *ctx) {
+    (void)ctx;
     int win_height = 10;
     int win_width = COLS - 20;
     WINDOW *about_win = dialog_open(win_height, win_width, "About");

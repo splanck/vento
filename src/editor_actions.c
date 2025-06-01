@@ -43,6 +43,7 @@ void delete_current_line(EditorContext *ctx, FileState *fs) {
 }
 
 void insert_new_line(EditorContext *ctx, FileState *fs) {
+    (void)ctx;
     if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
         allocation_failed("ensure_line_capacity failed");
     for (int i = fs->line_count; i > fs->cursor_y + fs->start_line - 1; --i) {
