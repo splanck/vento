@@ -700,6 +700,9 @@ void redraw() {
  */
 void perform_resize(void) {
 
+    if (!active_file || !active_file->text_win)
+        return;
+
     endwin(); // End the curses mode
     resizeterm(0, 0); // update ncurses internal size
     clear(); // Clear the screen
