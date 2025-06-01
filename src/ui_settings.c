@@ -406,55 +406,68 @@ const char *select_color(const char *current, WINDOW *parent) {
 
 const char *select_theme(const char *current, WINDOW *parent) {
     curs_set(0);
-    DIR *dir = opendir("themes");
-    if (!dir)
-        return NULL;
+    const char *dirs[3];
+    size_t dir_count = 0;
+
+    const char *env_dir = getenv("VENTO_THEME_DIR");
+    if (env_dir && *env_dir)
+        dirs[dir_count++] = env_dir;
+
+    dirs[dir_count++] = THEME_DIR;
+
+    if (strcmp(THEME_DIR, "themes") != 0)
+        dirs[dir_count++] = "themes";
 
     size_t count = 0;
     struct dirent *ent;
     char **names = NULL;
 
-    while ((ent = readdir(dir)) != NULL) {
-        if (ent->d_name[0] == '.')
+    for (size_t d = 0; d < dir_count; ++d) {
+        DIR *dir = opendir(dirs[d]);
+        if (!dir)
             continue;
-        const char *dot = strrchr(ent->d_name, '.');
-        if (!dot || strcasecmp(dot, ".theme") != 0)
-            continue;
-        char name[64];
-        size_t len = dot - ent->d_name;
-        if (len >= sizeof(name))
-            len = sizeof(name) - 1;
-        strncpy(name, ent->d_name, len);
-        name[len] = '\0';
-        int exists = 0;
-        for (size_t i = 0; i < count; ++i) {
-            if (strcasecmp(name, names[i]) == 0) {
-                exists = 1;
-                break;
+        while ((ent = readdir(dir)) != NULL) {
+            if (ent->d_name[0] == '.')
+                continue;
+            const char *dot = strrchr(ent->d_name, '.');
+            if (!dot || strcasecmp(dot, ".theme") != 0)
+                continue;
+            char name[64];
+            size_t len = dot - ent->d_name;
+            if (len >= sizeof(name))
+                len = sizeof(name) - 1;
+            strncpy(name, ent->d_name, len);
+            name[len] = '\0';
+            int exists = 0;
+            for (size_t i = 0; i < count; ++i) {
+                if (strcasecmp(name, names[i]) == 0) {
+                    exists = 1;
+                    break;
+                }
+            }
+            if (!exists) {
+                char **tmp = realloc(names, sizeof(char *) * (count + 1));
+                if (!tmp) {
+                    closedir(dir);
+                    for (size_t i = 0; i < count; ++i)
+                        free(names[i]);
+                    free(names);
+                    return NULL;
+                }
+                names = tmp;
+                names[count] = strdup(name);
+                if (!names[count]) {
+                    closedir(dir);
+                    for (size_t i = 0; i < count; ++i)
+                        free(names[i]);
+                    free(names);
+                    return NULL;
+                }
+                ++count;
             }
         }
-        if (!exists) {
-            char **tmp = realloc(names, sizeof(char *) * (count + 1));
-            if (!tmp) {
-                closedir(dir);
-                for (size_t i = 0; i < count; ++i)
-                    free(names[i]);
-                free(names);
-                return NULL;
-            }
-            names = tmp;
-            names[count] = strdup(name);
-            if (!names[count]) {
-                closedir(dir);
-                for (size_t i = 0; i < count; ++i)
-                    free(names[i]);
-                free(names);
-                return NULL;
-            }
-            ++count;
-        }
+        closedir(dir);
     }
-    closedir(dir);
 
     if (count == 0) {
         free(names);
