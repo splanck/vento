@@ -146,8 +146,9 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     -Dshow_message=stub_show_message -c tests/test_dialog_color_disable.c -o obj_test/test_dialog_color_disable.o
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc -c src/ui.c -o obj_test/ui.o
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc -c src/ui_info.c -o obj_test/ui_info.o
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc -c src/dialog.c -o obj_test/dialog.o
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc -c src/ui_common.c -o obj_test/ui_common.o
-gcc obj_test/test_dialog_color_disable.o obj_test/ui.o obj_test/ui_info.o obj_test/ui_common.o -lncurses -o test_dialog_color_disable
+gcc obj_test/test_dialog_color_disable.o obj_test/ui.o obj_test/ui_info.o obj_test/dialog.o obj_test/ui_common.o -lncurses -o test_dialog_color_disable
 ./test_dialog_color_disable
 
 # build and run newwin failure handling test
@@ -161,8 +162,9 @@ gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_show_message_fail.c src/ui_common
 # build and run info window creation failure test
 gcc -Wall -Wextra -std=c99 -g -Isrc -c tests/test_info_newwin_fail.c -o obj_test/test_info_newwin_fail.o
 gcc -Wall -Wextra -std=c99 -g -Isrc -c src/ui_info.c -o obj_test/ui_info_fail.o
+gcc -Wall -Wextra -std=c99 -g -Isrc -c src/dialog.c -o obj_test/dialog_fail.o
 gcc -Wall -Wextra -std=c99 -g -Isrc -DUSE_WEAK_MESSAGE -c src/ui_common.c -o obj_test/ui_common_fail.o
-gcc obj_test/test_info_newwin_fail.o obj_test/ui_info_fail.o obj_test/ui_common_fail.o -lncurses -o test_info_newwin_fail
+gcc obj_test/test_info_newwin_fail.o obj_test/ui_info_fail.o obj_test/dialog_fail.o obj_test/ui_common_fail.o -lncurses -o test_info_newwin_fail
 ./test_info_newwin_fail
 
 # build and run UTF-8 print regression test

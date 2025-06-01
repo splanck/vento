@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <ncurses.h>
 #include "ui.h"
+#include "dialog.h"
 #include "files.h"
 #include "config.h"
 #include "syntax.h"
@@ -23,6 +24,8 @@
 #undef wclear
 #undef werase
 #undef wborder
+#undef getbegyx
+#undef getmaxyx
 
 /* minimal WINDOW stub */
 typedef struct { int dummy; } SIMPLE_WIN;
@@ -76,6 +79,8 @@ int wgetch(WINDOW*w){ (void)w; return '\n'; }
 int wclear(WINDOW*w){ (void)w; return 0; }
 int werase(WINDOW*w){ (void)w; return 0; }
 int wborder(WINDOW*w,chtype ls,chtype rs,chtype ts,chtype bs,chtype tl,chtype tr,chtype bl,chtype br){(void)w;(void)ls;(void)rs;(void)ts;(void)bs;(void)tl;(void)tr;(void)bl;(void)br; return 0; }
+#define getbegyx(win,y,x) do{ (void)(win); y=0; x=0; }while(0)
+#define getmaxyx(win,y,x) do{ (void)(win); y=LINES; x=COLS; }while(0)
 
 /* stubs for other functions */
 void draw_text_buffer(FileState*fs, WINDOW*w){ (void)fs; (void)w; }
@@ -83,13 +88,13 @@ void update_status_bar(FileState*fs){ (void)fs; }
 int show_message(const char*msg){ (void)msg; return 0; }
 
 int main(void){
-    char buf[32];
     /* color disabled */
     enable_color = 0;
     wattron_color_calls = 0;
     wattroff_color_calls = 0;
-    printf("create_dialog\n");
-    create_dialog("Test", buf, sizeof(buf));
+    printf("dialog_open\n");
+    WINDOW *win = dialog_open(7, 20, "Test");
+    dialog_close(win);
     assert(wbkgd_attr_last == A_NORMAL);
     assert(wattron_color_calls == 0);
     assert(wattroff_color_calls == 0);
@@ -110,11 +115,12 @@ int main(void){
     enable_color = 1;
     wattron_color_calls = 0;
     wattroff_color_calls = 0;
-    printf("create_dialog color\n");
-    create_dialog("Test", buf, sizeof(buf));
+    printf("dialog_open color\n");
+    win = dialog_open(7, 20, "Test");
+    dialog_close(win);
     assert(wbkgd_attr_last == COLOR_PAIR(SYNTAX_BG));
-    assert(wattron_color_calls == 1);
-    assert(wattroff_color_calls == 1);
+    assert(wattron_color_calls == 0);
+    assert(wattroff_color_calls == 0);
 
     printf("show_help color\n");
     show_help();
