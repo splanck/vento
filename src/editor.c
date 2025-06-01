@@ -36,7 +36,7 @@ void allocation_failed(const char *msg) {
 }
 
 FileState *active_file = NULL;
-/* text_buffer and line_count are now stored per file in FileState */
+/* Each FileState holds its own LineBuffer in the `buffer` field */
 int runeditor = 0;  // Flag to control the main loop of the editor
 WINDOW *text_win;  // Pointer to the ncurses window for displaying the text
 __attribute__((weak)) int show_line_numbers;
