@@ -148,13 +148,23 @@ static int read_line_into(FileState *fs, const char *line) {
     if (ensure_col_capacity(fs, (int)len + 1) < 0)
         return -1;
 
-    if (len > (size_t)(fs->line_capacity - 1))
-        len = fs->line_capacity - 1;
+    char tmp[PATH_MAX];
+    if (len >= sizeof(tmp))
+        len = sizeof(tmp) - 1;
+    memcpy(tmp, line, len);
+    tmp[len] = '\0';
 
-    memcpy(fs->buffer.lines[fs->buffer.count], line, len);
-    fs->buffer.lines[fs->buffer.count][len] = '\0';
+    int idx = fs->buffer.count;
+    if (lb_insert(&fs->buffer, idx, tmp) < 0)
+        return -1;
 
-    fs->buffer.count++;
+    if ((size_t)fs->line_capacity > len + 1) {
+        char *p = realloc(fs->buffer.lines[idx], fs->line_capacity);
+        if (!p)
+            return -1;
+        fs->buffer.lines[idx] = p;
+    }
+
     return 0;
 }
 
