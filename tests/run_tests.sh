@@ -124,6 +124,11 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_horizontal_scroll.c src/input_keyboard.c -lncurses -o test_horizontal_scroll
 ./test_horizontal_scroll
 
+# build and run long horizontal scroll test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_long_horizontal_scroll.c src/input_keyboard.c -lncurses -o test_long_horizontal_scroll
+./test_long_horizontal_scroll
+
 # build and run color disable test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_color_disable.c src/globals.c -lncurses -o test_color_disable
 VENTO_THEME_DIR=./themes ./test_color_disable
