@@ -80,11 +80,14 @@ int werase(WINDOW*w){ (void)w; return 0; }
 int wborder(WINDOW*w,chtype ls,chtype rs,chtype ts,chtype bs,chtype tl,chtype tr,chtype bl,chtype br){(void)w;(void)ls;(void)rs;(void)ts;(void)bs;(void)tl;(void)tr;(void)bl;(void)br; return 0; }
 #define getbegyx(win,y,x) do{ (void)(win); y=0; x=0; }while(0)
 #define getmaxyx(win,y,x) do{ (void)(win); y=LINES; x=COLS; }while(0)
+int wnoutrefresh(WINDOW*w){(void)w;return 0;}
+int doupdate(void){return 0;}
 
 /* stubs for other functions */
 void draw_text_buffer(FileState*fs, WINDOW*w){ (void)fs; (void)w; }
 void update_status_bar(EditorContext *ctx, FileState*fs){ (void)fs; }
 int show_message(const char*msg){ (void)msg; return 0; }
+void drawBar(void){}
 
 int main(void){
     /* color disabled */

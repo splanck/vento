@@ -429,6 +429,10 @@ void run_editor(EditorContext *ctx) {
     wmove(ctx->text_win, ctx->active_file->cursor_y,
           ctx->active_file->cursor_x + get_line_number_offset(ctx->active_file));
 
+    drawBar();
+    update_status_bar(ctx, ctx->active_file);
+    doupdate();
+
     while (exiting == 0) {
         ch = wgetch(ctx->text_win);
         if (resize_pending || ch == KEY_RESIZE) {
