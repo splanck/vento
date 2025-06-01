@@ -14,6 +14,7 @@
 #define INITIAL_LOAD_LINES 1024
 
 void save_file(EditorContext *ctx, FileState *fs) {
+    (void)ctx;
     if (strlen(fs->filename) == 0) {
         save_file_as(ctx, fs);
     } else {
@@ -37,6 +38,7 @@ void save_file(EditorContext *ctx, FileState *fs) {
 }
 
 void save_file_as(EditorContext *ctx, FileState *fs) {
+    (void)ctx;
     char newpath[256];
     if (!show_save_file_dialog(ctx, newpath, sizeof(newpath)))
         return;    // user cancelled
