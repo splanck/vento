@@ -19,6 +19,12 @@ int select_bool(const char *prompt, int current, WINDOW *parent);
 int select_int(EditorContext *ctx, const char *prompt, int current,
                WINDOW *parent);
 
+static int str_casecmp(const void *a, const void *b) {
+    const char *as = *(const char * const *)a;
+    const char *bs = *(const char * const *)b;
+    return strcasecmp(as, bs);
+}
+
 static void apply_mouse(AppConfig *cfg) {
     enable_mouse = cfg->enable_mouse;
     if (enable_mouse)
@@ -479,14 +485,16 @@ const char *select_theme(const char *current, WINDOW *parent) {
                 }
                 ++count;
             }
-        }
-        closedir(dir);
     }
+    closedir(dir);
+}
 
     if (count == 0) {
         free(names);
         return NULL;
     }
+
+    qsort(names, count, sizeof(char *), str_casecmp);
 
     int highlight = 0;
     if (current) {
