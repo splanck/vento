@@ -1,4 +1,4 @@
-#include <ncursesw/curses.h>
+#include <ncurses.h>
 #include <wchar.h>
 #include <string.h>
 #include <stdlib.h>
