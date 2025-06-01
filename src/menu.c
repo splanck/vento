@@ -118,12 +118,18 @@ void initializeMenus() {
 void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *currentItem) {
     int ch;
     bool inMenu = true;
+    int prevMenu = -1;
 
     curs_set(0);
     /* Keep the existing text content displayed while the menu is open */
     wnoutrefresh(text_win);
 
     while (inMenu) {
+        if (*currentMenu != prevMenu) {
+            touchwin(text_win);
+            wnoutrefresh(text_win);
+            prevMenu = *currentMenu;
+        }
         if (*currentMenu < 0 || *currentMenu >= menuCount) {
             inMenu = false;
             continue;
@@ -267,6 +273,10 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                 break;
         }
     }
+    touchwin(text_win);
+    wnoutrefresh(text_win);
+    wnoutrefresh(stdscr);
+    doupdate();
     curs_set(1);
 }
 

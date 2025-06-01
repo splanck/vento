@@ -174,6 +174,11 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_menu_no_clear.c -lncurses -o test_menu_no_clear
 ./test_menu_no_clear
 
+# build and run menu switch clear regression test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_menu_switch.c -lncurses -o test_menu_switch
+./test_menu_switch
+
 # build and run version option test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_cli_version.c -lncurses -o test_cli_version
