@@ -1,6 +1,7 @@
 #include "ui_common.h"
 #include "ui.h"
 #include "config.h"
+#include "editor.h"
 #include "editor_state.h"
 #include <ncurses.h>
 #include <stdio.h>

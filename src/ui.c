@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "config.h"
+#include "editor.h"
 #include "ui.h"
 #include "syntax.h"
 #include "ui_common.h"
