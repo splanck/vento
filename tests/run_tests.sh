@@ -200,3 +200,8 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_select_int_invalid.c src/ui_settings.c \
     obj_test/stub_ui_settings_deps.o -lncurses -o test_select_int_invalid
 ./test_select_int_invalid
+
+# build and run theme option test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_cli_theme.c src/config.c -lncurses -o test_cli_theme
+VENTO_THEME_DIR=./themes ./test_cli_theme
