@@ -194,6 +194,10 @@ make CFLAGS="-D_DARWIN_C_SOURCE"
 The code already guards `SIGWINCH`, but enabling additional feature macros may
 be required for full functionality.
 
+When linking on macOS, use the non-wide curses library. The Makefile and
+test script automatically select `-lncurses` instead of the wide-character
+version `-lncursesw` when `uname` reports `Darwin`.
+
 ## Command Line Options
 
 You can pass a few simple flags when starting Vento:
