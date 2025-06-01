@@ -89,21 +89,21 @@ void save_file_as(FileState*fs){(void)fs;}
 void load_file(FileState*fs,const char*fn){(void)fs;(void)fn;}
 void close_current_file(FileState*fs,int*cx,int*cy){(void)fs;(void)cx;(void)cy;}
 int menu_click_open(int x,int y){(void)x;(void)y; return 0;}
-void menuNewFile(void){}
-void menuLoadFile(void){}
-void menuSaveFile(void){}
-void menuSaveAs(void){}
-void menuCloseFile(void){}
-void menuNextFile(void){}
-void menuPrevFile(void){}
-void menuSettings(void){}
-void menuQuitEditor(void){}
-void menuUndo(void){}
-void menuRedo(void){}
-void menuFind(void){}
-void menuReplace(void){}
-void menuAbout(void){}
-void menuHelp(void){}
+void menuNewFile(EditorContext*ctx){(void)ctx;}
+void menuLoadFile(EditorContext*ctx){(void)ctx;}
+void menuSaveFile(EditorContext*ctx){(void)ctx;}
+void menuSaveAs(EditorContext*ctx){(void)ctx;}
+void menuCloseFile(EditorContext*ctx){(void)ctx;}
+void menuNextFile(EditorContext*ctx){(void)ctx;}
+void menuPrevFile(EditorContext*ctx){(void)ctx;}
+void menuSettings(EditorContext*ctx){(void)ctx;}
+void menuQuitEditor(EditorContext*ctx){(void)ctx;}
+void menuUndo(EditorContext*ctx){(void)ctx;}
+void menuRedo(EditorContext*ctx){(void)ctx;}
+void menuFind(EditorContext*ctx){(void)ctx;}
+void menuReplace(EditorContext*ctx){(void)ctx;}
+void menuAbout(EditorContext*ctx){(void)ctx;}
+void menuHelp(EditorContext*ctx){(void)ctx;}
 int show_goto_dialog(int *line){(void)line;return 0;}
 void go_to_line(FileState *fs,int line){(void)fs;(void)line;}
 

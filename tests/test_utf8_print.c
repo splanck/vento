@@ -51,7 +51,7 @@ int define_key(const char*s,int k){ (void)s; (void)k; return 0; }
 int addstr(const char*s){ printed = s; return 0; }
 
 void initialize_key_mappings(void){}
-void initializeMenus(void){}
+void initializeMenus(EditorContext *ctx){(void)ctx;}
 void update_status_bar(FileState*fs){ (void)fs; }
 void freeMenus(void){}
 void syntax_cleanup(void){}
