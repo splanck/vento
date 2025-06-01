@@ -10,6 +10,7 @@ typedef struct LineBuffer {
 } LineBuffer;
 
 LineBuffer *lb_create(int initial_capacity);
+void lb_init(LineBuffer *lb, int initial_capacity);
 void lb_free(LineBuffer *lb);
 const char *lb_get(LineBuffer *lb, int index);
 int lb_insert(LineBuffer *lb, int index, const char *line);

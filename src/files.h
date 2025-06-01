@@ -5,12 +5,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "editor.h"
+#include "line_buffer.h"
 
 typedef struct FileState {
     char filename[256];
-    char **text_buffer;
-    int line_count;
-    int max_lines;
+    LineBuffer buffer;
     int start_line;
     int scroll_x; /* leftmost visible column */
     int cursor_x, cursor_y;

@@ -5,6 +5,7 @@
 #include "syntax.h"
 #include "config.h"
 #include "editor_state.h"
+#include "line_buffer.h"
 #include <limits.h>
 
 // Function to initialize a new FileState for a given filename
@@ -18,25 +19,24 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     file_state->filename[sizeof(file_state->filename) - 1] = '\0';
 
     // Initialize text buffer
-    file_state->text_buffer = malloc(max_lines * sizeof(char *));
-    if (!file_state->text_buffer) {
+    lb_init(&file_state->buffer, max_lines);
+    if (!file_state->buffer.lines) {
         free(file_state);
         return NULL;
     }
     for (int i = 0; i < max_lines; i++) {
-        file_state->text_buffer[i] = calloc(max_cols, sizeof(char));
-        if (!file_state->text_buffer[i]) {
-            for (int j = 0; j < i; j++) {
-                free(file_state->text_buffer[j]);
-            }
-            free(file_state->text_buffer);
+        file_state->buffer.lines[i] = calloc(max_cols, sizeof(char));
+        if (!file_state->buffer.lines[i]) {
+            for (int j = 0; j < i; j++)
+                free(file_state->buffer.lines[j]);
+            lb_free(&file_state->buffer);
             free(file_state);
             return NULL;
         }
     }
 
-    file_state->line_count = 1; // Start with a single empty line ready for editing
-    file_state->max_lines = max_lines;
+    file_state->buffer.count = 1; // Start with a single empty line ready for editing
+    file_state->buffer.capacity = max_lines;
     file_state->line_capacity = max_cols;
     file_state->start_line = 0;
     file_state->scroll_x = 0;
@@ -60,10 +60,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     file_state->last_comment_state = false;
     file_state->text_win = newwin(LINES - 2, COLS, 1, 0); // Create a new window for the file
     if (!file_state->text_win) {
-        for (int j = 0; j < max_lines; j++) {
-            free(file_state->text_buffer[j]);
-        }
-        free(file_state->text_buffer);
+        lb_free(&file_state->buffer);
         free(file_state);
         return NULL;
     }
@@ -79,10 +76,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
 
 // Function to free allocated resources in FileState
 void free_file_state(FileState *file_state) {
-    for (int i = 0; i < file_state->max_lines; i++) {
-        free(file_state->text_buffer[i]);
-    }
-    free(file_state->text_buffer);
+    lb_free(&file_state->buffer);
     if (file_state->fp) {
         fclose(file_state->fp);
         file_state->fp = NULL;
@@ -94,29 +88,29 @@ void free_file_state(FileState *file_state) {
 }
 
 int ensure_line_capacity(FileState *fs, int min_needed) {
-    if (min_needed < fs->max_lines)
+    if (min_needed < fs->buffer.capacity)
         return 0;
 
-    int new_max = fs->max_lines * 2;
+    int new_max = fs->buffer.capacity * 2;
     if (new_max <= min_needed)
         new_max = min_needed + 1;
 
-    char **new_buffer = realloc(fs->text_buffer, new_max * sizeof(char *));
+    char **new_buffer = realloc(fs->buffer.lines, new_max * sizeof(char *));
     if (!new_buffer)
         return -1;
-    fs->text_buffer = new_buffer;
+    fs->buffer.lines = new_buffer;
 
-    for (int i = fs->max_lines; i < new_max; ++i) {
-        fs->text_buffer[i] = calloc(fs->line_capacity, sizeof(char));
-        if (!fs->text_buffer[i]) {
-            for (int j = fs->max_lines; j < i; ++j)
-                free(fs->text_buffer[j]);
-            fs->text_buffer = realloc(fs->text_buffer, fs->max_lines * sizeof(char *));
+    for (int i = fs->buffer.capacity; i < new_max; ++i) {
+        fs->buffer.lines[i] = calloc(fs->line_capacity, sizeof(char));
+        if (!fs->buffer.lines[i]) {
+            for (int j = fs->buffer.capacity; j < i; ++j)
+                free(fs->buffer.lines[j]);
+            fs->buffer.lines = realloc(fs->buffer.lines, fs->buffer.capacity * sizeof(char *));
             return -1;
         }
     }
 
-    fs->max_lines = new_max;
+    fs->buffer.capacity = new_max;
     return 0;
 }
 
@@ -125,18 +119,18 @@ int ensure_col_capacity(FileState *fs, int cols) {
         return 0;
 
     int old_capacity = fs->line_capacity;
-    for (int i = 0; i < fs->max_lines; ++i) {
-        char *tmp = realloc(fs->text_buffer[i], cols);
+    for (int i = 0; i < fs->buffer.capacity; ++i) {
+        char *tmp = realloc(fs->buffer.lines[i], cols);
         if (!tmp) {
             for (int j = 0; j < i; ++j) {
-                char *restore = realloc(fs->text_buffer[j], old_capacity);
+                char *restore = realloc(fs->buffer.lines[j], old_capacity);
                 if (restore)
-                    fs->text_buffer[j] = restore;
+                    fs->buffer.lines[j] = restore;
             }
             return -1;
         }
-        fs->text_buffer[i] = tmp;
-        memset(fs->text_buffer[i] + old_capacity, 0, cols - old_capacity);
+        fs->buffer.lines[i] = tmp;
+        memset(fs->buffer.lines[i] + old_capacity, 0, cols - old_capacity);
     }
 
     fs->line_capacity = cols;
@@ -144,7 +138,7 @@ int ensure_col_capacity(FileState *fs, int cols) {
 }
 
 static int read_line_into(FileState *fs, const char *line) {
-    if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
+    if (ensure_line_capacity(fs, fs->buffer.count + 1) < 0)
         return -1;
 
     size_t len = strlen(line);
@@ -157,10 +151,10 @@ static int read_line_into(FileState *fs, const char *line) {
     if (len > (size_t)(fs->line_capacity - 1))
         len = fs->line_capacity - 1;
 
-    memcpy(fs->text_buffer[fs->line_count], line, len);
-    fs->text_buffer[fs->line_count][len] = '\0';
+    memcpy(fs->buffer.lines[fs->buffer.count], line, len);
+    fs->buffer.lines[fs->buffer.count][len] = '\0';
 
-    fs->line_count++;
+    fs->buffer.count++;
     return 0;
 }
 
@@ -192,9 +186,9 @@ int load_next_lines(FileState *fs, int count) {
 }
 
 void ensure_line_loaded(FileState *fs, int idx) {
-    if (idx < fs->line_count)
+    if (idx < fs->buffer.count)
         return;
-    int to_load = idx - fs->line_count + 1;
+    int to_load = idx - fs->buffer.count + 1;
     if (to_load < 0)
         to_load = 0;
     load_next_lines(fs, to_load);
@@ -212,7 +206,7 @@ int load_file_into_buffer(FileState *file_state) {
     if (!file_state->fp)
         return -1;
     file_state->file_complete = false;
-    file_state->line_count = 0;
+    file_state->buffer.count = 0;
     int res = load_next_lines(file_state, INT_MAX);
     file_state->last_scanned_line = 0;
     file_state->last_comment_state = false;

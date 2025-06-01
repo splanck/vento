@@ -39,8 +39,8 @@ static char *strcasestr_simple(const char *h, const char *n) {
  */
 static char *scan_next(FileState *fs, const char *word, int start_search,
                        int cursor_x, int *found_line) {
-    for (int line = start_search; line < fs->line_count; ++line) {
-        char *line_text = fs->text_buffer[line];
+    for (int line = start_search; line < fs->buffer.count; ++line) {
+        char *line_text = fs->buffer.lines[line];
         char *pos;
         if (app_config.search_ignore_case)
             pos = strcasestr_simple(line == start_search ? line_text + cursor_x : line_text,
@@ -55,7 +55,7 @@ static char *scan_next(FileState *fs, const char *word, int start_search,
     }
 
     for (int line = 0; line < start_search; ++line) {
-        char *line_text = fs->text_buffer[line];
+        char *line_text = fs->buffer.lines[line];
         char *pos = app_config.search_ignore_case ?
                         strcasestr_simple(line_text, word) : strstr(line_text, word);
         if (pos) {
@@ -85,15 +85,15 @@ void find_next_occurrence(FileState *fs, const char *word) {
         fs->match_start_x = fs->match_end_x = -1;
     } else {
         *cursor_y = found_line - fs->start_line + 1;
-        *cursor_x = found_position - fs->text_buffer[found_line] + 1;
+        *cursor_x = found_position - fs->buffer.lines[found_line] + 1;
 
-        if (fs->line_count <= lines_per_screen) {
+        if (fs->buffer.count <= lines_per_screen) {
             fs->start_line = 0;
         } else {
             if (found_line < middle_line) {
                 fs->start_line = 0;
-            } else if (found_line > fs->line_count - middle_line) {
-                fs->start_line = fs->line_count - lines_per_screen;
+            } else if (found_line > fs->buffer.count - middle_line) {
+                fs->start_line = fs->buffer.count - lines_per_screen;
             } else {
                 fs->start_line = found_line - middle_line;
             }
@@ -103,7 +103,7 @@ void find_next_occurrence(FileState *fs, const char *word) {
 
         fs->match_start_y = found_line;
         fs->match_end_y = found_line;
-        fs->match_start_x = found_position - fs->text_buffer[found_line];
+        fs->match_start_x = found_position - fs->buffer.lines[found_line];
         fs->match_end_x = fs->match_start_x + strlen(word) - 1;
 
         mvprintw(LINES - 2, 0, "Found at Line: %d, Column: %d", *cursor_y + fs->start_line + 1, *cursor_x + 1);
@@ -143,7 +143,7 @@ void find(EditorContext *ctx, FileState *fs, int new_search)
 
 static void replace_in_line(FileState *fs, int line, char *pos,
                              const char *search, const char *replacement) {
-    char *line_text = fs->text_buffer[line];
+    char *line_text = fs->buffer.lines[line];
     char *old_text = strdup(line_text);
 
     size_t prefix_len = pos - line_text;
@@ -182,8 +182,8 @@ static void replace_in_line(FileState *fs, int line, char *pos,
     char *new_text = strdup(new_line);
     Change change = { line, old_text, new_text };
     push(&fs->undo_stack, change);
-    strncpy(fs->text_buffer[line], new_line, fs->line_capacity - 1);
-    fs->text_buffer[line][fs->line_capacity - 1] = '\0';
+    strncpy(fs->buffer.lines[line], new_line, fs->line_capacity - 1);
+    fs->buffer.lines[line][fs->line_capacity - 1] = '\0';
     free(new_line);
     fs->modified = true;
     mark_comment_state_dirty(fs);
@@ -210,20 +210,20 @@ void replace_next_occurrence(FileState *fs, const char *search,
     replace_in_line(fs, found_line, found_position, search, replacement);
     fs->modified = true;
 
-    if (fs->line_count <= lines_per_screen) {
+    if (fs->buffer.count <= lines_per_screen) {
         fs->start_line = 0;
     } else {
         if (found_line < middle_line) {
             fs->start_line = 0;
-        } else if (found_line > fs->line_count - middle_line) {
-            fs->start_line = fs->line_count - lines_per_screen;
+        } else if (found_line > fs->buffer.count - middle_line) {
+            fs->start_line = fs->buffer.count - lines_per_screen;
         } else {
             fs->start_line = found_line - middle_line;
         }
     }
 
     *cursor_y = found_line - fs->start_line + 1;
-    *cursor_x = (found_position - fs->text_buffer[found_line]) + strlen(replacement) + 1;
+    *cursor_x = (found_position - fs->buffer.lines[found_line]) + strlen(replacement) + 1;
 
     mvprintw(LINES - 2, 0, "Replaced at Line: %d, Column: %d", *cursor_y + fs->start_line + 1, *cursor_x);
     clrtoeol();
@@ -243,8 +243,8 @@ void replace_next_occurrence(FileState *fs, const char *search,
 void replace_all_occurrences(FileState *fs, const char *search,
                              const char *replacement) {
     bool replaced = false;
-    for (int line = 0; line < fs->line_count; ++line) {
-        char *line_text = fs->text_buffer[line];
+    for (int line = 0; line < fs->buffer.count; ++line) {
+        char *line_text = fs->buffer.lines[line];
         char *pos = strstr(line_text, search);
         if (!pos)
             continue;
@@ -306,8 +306,8 @@ void replace_all_occurrences(FileState *fs, const char *search,
             continue;
         }
         push(&fs->undo_stack, (Change){ line, old_text, new_text });
-        strncpy(fs->text_buffer[line], new_line, fs->line_capacity - 1);
-        fs->text_buffer[line][fs->line_capacity - 1] = '\0';
+        strncpy(fs->buffer.lines[line], new_line, fs->line_capacity - 1);
+        fs->buffer.lines[line][fs->line_capacity - 1] = '\0';
         free(new_line);
         mark_comment_state_dirty(fs);
         replaced = true;

@@ -8,10 +8,11 @@ mkdir obj_test
 gcc -Wall -Wextra -std=c99 -g -Isrc -c tests/stub_ui_settings_deps.c -o obj_test/stub_ui_settings_deps.o
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc -c src/clipboard.c -o obj_test/clipboard.o
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc -c src/files.c -o obj_test/files.o
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc -c src/line_buffer.c -o obj_test/line_buffer.o
 gcc -Wall -Wextra -std=c99 -g -Isrc -c tests/stub_enable_color.c -o obj_test/stub_enable_color.o
 
 # build and run paste test (provides its own stubs)
-gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_paste.c obj_test/clipboard.o obj_test/files.o obj_test/stub_enable_color.o -lncurses -o test_paste
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_paste.c obj_test/clipboard.o obj_test/files.o obj_test/line_buffer.o obj_test/stub_enable_color.o -lncurses -o test_paste
 ./test_paste
 
 # compile additional source for file state test
@@ -19,15 +20,15 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc -c src/file_manage
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc -c src/globals.c -o obj_test/globals.o
 
 # build and run file state initialization/switching test
-gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_file_state.c obj_test/files.o obj_test/file_manager.o obj_test/globals.o obj_test/stub_enable_color.o -lncurses -o test_file_state
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_file_state.c obj_test/files.o obj_test/line_buffer.o obj_test/file_manager.o obj_test/globals.o obj_test/stub_enable_color.o -lncurses -o test_file_state
 ./test_file_state
 
 # build and run resize handling test (provides many stubs)
-gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_resize.c obj_test/files.o obj_test/file_manager.o obj_test/globals.o obj_test/stub_enable_color.o -lncurses -o test_resize
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_resize.c obj_test/files.o obj_test/line_buffer.o obj_test/file_manager.o obj_test/globals.o obj_test/stub_enable_color.o -lncurses -o test_resize
 ./test_resize
 
 # build and run line truncation resize test
-gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_resize_trunc.c obj_test/files.o obj_test/file_manager.o obj_test/globals.o obj_test/stub_enable_color.o -lncurses -o test_resize_trunc
+gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_resize_trunc.c obj_test/files.o obj_test/line_buffer.o obj_test/file_manager.o obj_test/globals.o obj_test/stub_enable_color.o -lncurses -o test_resize_trunc
 ./test_resize_trunc
 
 # build and run resize allocation failure test
@@ -36,7 +37,7 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_resize_
 
 # build and run resize signal handling test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
-    tests/test_resize_signal.c obj_test/files.o obj_test/file_manager.o obj_test/globals.o \
+    tests/test_resize_signal.c obj_test/files.o obj_test/line_buffer.o obj_test/file_manager.o obj_test/globals.o \
     obj_test/stub_enable_color.o -lncurses -o test_resize_signal
 ./test_resize_signal
 
@@ -51,32 +52,32 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_long_identifie
 # build and run HTML comment boundary test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_html.c -o obj_test/syntax_html.o
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_html_comment.c \
-    obj_test/syntax_html.o obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/stub_enable_color.o -lncurses -o test_html_comment
+    obj_test/syntax_html.o obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/line_buffer.o obj_test/stub_enable_color.o -lncurses -o test_html_comment
 ./test_html_comment
 
 # build and run python syntax test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_python_syntax.c \
-    obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/stub_enable_color.o -lncurses -o test_python_syntax
+    obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/line_buffer.o obj_test/stub_enable_color.o -lncurses -o test_python_syntax
 ./test_python_syntax
 
 # build and run JavaScript syntax test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_js_syntax.c \
-    obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/stub_enable_color.o -lncurses -o test_js_syntax
+    obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/line_buffer.o obj_test/stub_enable_color.o -lncurses -o test_js_syntax
 ./test_js_syntax
 
 # build and run CSS syntax test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_css_syntax.c \
-    obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/stub_enable_color.o -lncurses -o test_css_syntax
+    obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/line_buffer.o obj_test/stub_enable_color.o -lncurses -o test_css_syntax
 ./test_css_syntax
 
 # build and run HTML nested syntax test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_html_nested.c \
-    obj_test/syntax_html.o obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/stub_enable_color.o -lncurses -o test_html_nested
+    obj_test/syntax_html.o obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/line_buffer.o obj_test/stub_enable_color.o -lncurses -o test_html_nested
 ./test_html_nested
 
 # build and run shell syntax highlighting test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_shell_syntax.c \
-    obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/stub_enable_color.o -lncurses -o test_shell_syntax
+    obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/line_buffer.o obj_test/stub_enable_color.o -lncurses -o test_shell_syntax
 ./test_shell_syntax
 
 # build and run shebang detection test (uses stubs for other functions)
@@ -92,7 +93,7 @@ gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_shebang_case.c src/file_ops.c \
 
 # build and run regex complex construct test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_regex_complex.c \
-    obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/stub_enable_color.o -lncurses -o test_regex_complex
+    obj_test/syntax_common.o obj_test/syntax_regex.o obj_test/syntax_registry.o obj_test/files.o obj_test/line_buffer.o obj_test/stub_enable_color.o -lncurses -o test_regex_complex
 ./test_regex_complex
 
 # build and run search highlight test
@@ -112,7 +113,7 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_undo_re
 ./test_undo_redo_modified
 
 # build and run long line loading test
-gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_long_line_load.c obj_test/files.o obj_test/stub_enable_color.o -lncurses -o test_long_line_load
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_long_line_load.c obj_test/files.o obj_test/line_buffer.o obj_test/stub_enable_color.o -lncurses -o test_long_line_load
 ./test_long_line_load
 
 # build and run long indent enter test
@@ -169,7 +170,7 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_utf8_pr
 
 # build and run confirm quit regression test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_confirm_quit.c \
-    obj_test/files.o obj_test/file_manager.o obj_test/globals.o obj_test/stub_enable_color.o -lncurses -o test_confirm_quit
+    obj_test/files.o obj_test/line_buffer.o obj_test/file_manager.o obj_test/globals.o obj_test/stub_enable_color.o -lncurses -o test_confirm_quit
 ./test_confirm_quit
 
 # build and run confirm switch regression test

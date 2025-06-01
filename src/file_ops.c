@@ -21,8 +21,8 @@ void save_file(EditorContext *ctx, FileState *fs) {
         load_all_remaining_lines(fs);
         FILE *fp = fopen(fs->filename, "w");
         if (fp) {
-            for (int i = 0; i < fs->line_count; ++i) {
-                fprintf(fp, "%s\n", fs->text_buffer[i]);
+            for (int i = 0; i < fs->buffer.count; ++i) {
+                fprintf(fp, "%s\n", fs->buffer.lines[i]);
             }
             fclose(fp);
             fs->modified = false;
@@ -51,8 +51,8 @@ void save_file_as(EditorContext *ctx, FileState *fs) {
 
     FILE *fp = fopen(fs->filename, "w");
     if (fp) {
-        for (int i = 0; i < fs->line_count; ++i) {
-            fprintf(fp, "%s\n", fs->text_buffer[i]);
+        for (int i = 0; i < fs->buffer.count; ++i) {
+            fprintf(fp, "%s\n", fs->buffer.lines[i]);
         }
         fclose(fp);
         fs->modified = false;
@@ -105,7 +105,7 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         return;
     }
     fs->file_complete = false;
-    fs->line_count = 0;
+    fs->buffer.count = 0;
     if (load_next_lines(fs, INITIAL_LOAD_LINES) < 0) {
         mvprintw(LINES - 2, 2, "Error loading file!");
         refresh();

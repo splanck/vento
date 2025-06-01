@@ -20,15 +20,15 @@ void load_all_remaining_lines(FileState *fs){ (void)fs; }
 int main(void){
     FileState fs = {0};
     fs.line_capacity = 2000;
-    fs.max_lines = 5;
-    fs.text_buffer = calloc(fs.max_lines, sizeof(char*));
-    for(int i=0;i<fs.max_lines;i++)
-        fs.text_buffer[i] = calloc(fs.line_capacity, 1);
-    fs.line_count = 1;
+    fs.buffer.capacity = 5;
+    fs.buffer.lines = calloc(fs.buffer.capacity, sizeof(char*));
+    for(int i=0;i<fs.buffer.capacity;i++)
+        fs.buffer.lines[i] = calloc(fs.line_capacity, 1);
+    fs.buffer.count = 1;
 
-    memset(fs.text_buffer[0], ' ', 1100);
-    fs.text_buffer[0][1100] = 'x';
-    fs.text_buffer[0][1101] = '\0';
+    memset(fs.buffer.lines[0], ' ', 1100);
+    fs.buffer.lines[0][1100] = 'x';
+    fs.buffer.lines[0][1101] = '\0';
     fs.cursor_x = 1101; // position after spaces
     fs.cursor_y = 1;
     fs.start_line = 0;
@@ -39,16 +39,16 @@ int main(void){
 
     handle_key_enter(&ctx, &fs);
 
-    assert(fs.line_count == 2);
-    assert(strlen(fs.text_buffer[0]) == 1100);
+    assert(fs.buffer.count == 2);
+    assert(strlen(fs.buffer.lines[0]) == 1100);
     for(int i=0;i<1100;i++)
-        assert(fs.text_buffer[0][i] == ' ');
+        assert(fs.buffer.lines[0][i] == ' ');
     for(int i=0;i<1100;i++)
-        assert(fs.text_buffer[1][i] == ' ');
-    assert(fs.text_buffer[1][1100] == 'x');
+        assert(fs.buffer.lines[1][i] == ' ');
+    assert(fs.buffer.lines[1][1100] == 'x');
 
-    for(int i=0;i<fs.max_lines;i++)
-        free(fs.text_buffer[i]);
-    free(fs.text_buffer);
+    for(int i=0;i<fs.buffer.capacity;i++)
+        free(fs.buffer.lines[i]);
+    free(fs.buffer.lines);
     return 0;
 }

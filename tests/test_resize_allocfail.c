@@ -137,11 +137,11 @@ void exit(int status){longjmp(jb,status);}
 int main(void){
     FileState fs = {0};
     fs.line_capacity = 20;
-    fs.max_lines = 2;
-    fs.text_buffer = calloc(fs.max_lines,sizeof(char*));
-    for(int i=0;i<fs.max_lines;i++)
-        fs.text_buffer[i] = calloc(fs.line_capacity,1);
-    fs.line_count = 1;
+    fs.buffer.capacity = 2;
+    fs.buffer.lines = calloc(fs.buffer.capacity,sizeof(char*));
+    for(int i=0;i<fs.buffer.capacity;i++)
+        fs.buffer.lines[i] = calloc(fs.line_capacity,1);
+    fs.buffer.count = 1;
     fs.text_win = newwin(LINES-2,COLS,1,0);
     active_file = &fs;
 
@@ -156,9 +156,9 @@ int main(void){
         return 1;
     }
 
-    for(int i=0;i<fs.max_lines;i++)
-        free(fs.text_buffer[i]);
-    free(fs.text_buffer);
+    for(int i=0;i<fs.buffer.capacity;i++)
+        free(fs.buffer.lines[i]);
+    free(fs.buffer.lines);
     free(file_manager.files);
     delwin(fs.text_win);
     return 0;

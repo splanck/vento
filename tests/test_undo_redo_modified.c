@@ -26,11 +26,11 @@ FileState *active_file = NULL;
 int main(void){
     FileState fs = {0};
     fs.line_capacity = 32;
-    fs.max_lines = 1;
-    fs.text_buffer = calloc(fs.max_lines, sizeof(char*));
-    fs.text_buffer[0] = calloc(fs.line_capacity, sizeof(char));
-    strcpy(fs.text_buffer[0], "new");
-    fs.line_count = 1;
+    fs.buffer.capacity = 1;
+    fs.buffer.lines = calloc(fs.buffer.capacity, sizeof(char*));
+    fs.buffer.lines[0] = calloc(fs.line_capacity, sizeof(char));
+    strcpy(fs.buffer.lines[0], "new");
+    fs.buffer.count = 1;
 
     active_file = &fs;
 
@@ -40,17 +40,17 @@ int main(void){
 
     fs.modified = false;
     undo(&fs);
-    assert(strcmp(fs.text_buffer[0], "old") == 0);
+    assert(strcmp(fs.buffer.lines[0], "old") == 0);
     assert(fs.modified);
 
     fs.modified = false;
     redo(&fs);
-    assert(strcmp(fs.text_buffer[0], "new") == 0);
+    assert(strcmp(fs.buffer.lines[0], "new") == 0);
     assert(fs.modified);
 
     free_stack(fs.undo_stack);
     free_stack(fs.redo_stack);
-    free(fs.text_buffer[0]);
-    free(fs.text_buffer);
+    free(fs.buffer.lines[0]);
+    free(fs.buffer.lines);
     return 0;
 }

@@ -19,19 +19,30 @@ static int lb_grow(LineBuffer *lb, int min_capacity) {
 }
 
 LineBuffer *lb_create(int initial_capacity) {
-    if (initial_capacity <= 0)
-        initial_capacity = INITIAL_CAPACITY;
     LineBuffer *lb = malloc(sizeof(LineBuffer));
     if (!lb)
         return NULL;
-    lb->lines = calloc(initial_capacity, sizeof(char *));
+    lb_init(lb, initial_capacity);
     if (!lb->lines) {
         free(lb);
         return NULL;
     }
+    return lb;
+}
+
+void lb_init(LineBuffer *lb, int initial_capacity) {
+    if (!lb)
+        return;
+    if (initial_capacity <= 0)
+        initial_capacity = INITIAL_CAPACITY;
+    lb->lines = calloc(initial_capacity, sizeof(char *));
+    if (!lb->lines) {
+        lb->count = 0;
+        lb->capacity = 0;
+        return;
+    }
     lb->count = 0;
     lb->capacity = initial_capacity;
-    return lb;
 }
 
 void lb_free(LineBuffer *lb) {
@@ -40,7 +51,9 @@ void lb_free(LineBuffer *lb) {
     for (int i = 0; i < lb->count; ++i)
         free(lb->lines[i]);
     free(lb->lines);
-    free(lb);
+    lb->lines = NULL;
+    lb->count = 0;
+    lb->capacity = 0;
 }
 
 const char *lb_get(LineBuffer *lb, int index) {

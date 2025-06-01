@@ -123,9 +123,9 @@ int main(void){
     fm_add(&file_manager, fs);
     active_file = fs;
 
-    memset(fs->text_buffer[0], 'A', 45);
-    fs->text_buffer[0][45] = '\0';
-    size_t original_len = strlen(fs->text_buffer[0]);
+    memset(fs->buffer.lines[0], 'A', 45);
+    fs->buffer.lines[0][45] = '\0';
+    size_t original_len = strlen(fs->buffer.lines[0]);
     int original_capacity = fs->line_capacity;
 
     int new_LINES = 20, new_COLS = 22; /* shrink */
@@ -133,9 +133,9 @@ int main(void){
     perform_resize();
 
     assert(fs->line_capacity == original_capacity);
-    assert(strlen(fs->text_buffer[0]) == original_len);
+    assert(strlen(fs->buffer.lines[0]) == original_len);
     for(size_t i=0;i<original_len;i++)
-        assert(fs->text_buffer[0][i] == 'A');
+        assert(fs->buffer.lines[0][i] == 'A');
 
     free_file_state(fs);
     return 0;
