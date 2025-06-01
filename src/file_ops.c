@@ -218,6 +218,16 @@ void close_current_file(FileState *fs_unused, int *cx, int *cy) {
     update_status_bar(active_file);
 }
 
+bool confirm_switch(void) {
+    if (!any_file_modified(&file_manager))
+        return true;
+
+    int ch = show_message("Unsaved changes. Switch files?");
+    if (ch == 'n' || ch == 'N')
+        return false;
+    return true;
+}
+
 int set_syntax_mode(const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (ext && ext[1] != '\0') {

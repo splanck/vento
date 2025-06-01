@@ -174,6 +174,12 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_confirm
     obj_test/files.o obj_test/file_manager.o obj_test/stub_enable_color.o -lncurses -o test_confirm_quit
 ./test_confirm_quit
 
+# build and run confirm switch regression test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_confirm_switch.c src/editor_actions.c src/file_manager.c \
+    -lncurses -o test_confirm_switch
+./test_confirm_switch
+
 # build and run menu overlay clear regression test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_menu_no_clear.c -lncurses -o test_menu_no_clear
