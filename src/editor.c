@@ -116,6 +116,7 @@ int key_next_file = KEY_F(6);  // Key code for switching to the next file
 int key_prev_file = KEY_F(7);  // Key code for switching to the previous file
 int key_replace = 18;  // Key code for replacing text (CTRL-R)
 int key_goto_line = 7;  // Key code for go to line (CTRL-G)
+int key_menu_open = KEY_F(10);  // Key code for opening the menu (F10)
 
 static void handle_key_up_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
@@ -406,6 +407,7 @@ void initialize_key_mappings(void) {
     key_mappings[key_mapping_count++] = (KeyMapping){key_next_file, handle_next_file_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_prev_file, handle_prev_file_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_T, NULL}; /* placeholder for menu key, handled elsewhere */
+    key_mappings[key_mapping_count++] = (KeyMapping){key_menu_open, NULL}; /* placeholder for F10 menu key */
 
     key_mappings[key_mapping_count++] = (KeyMapping){0, NULL}; /* terminator */
 }
@@ -477,7 +479,7 @@ void run_editor(EditorContext *ctx) {
         
         if (ctx->active_file->selection_mode) {
             handle_selection_mode(ctx->active_file, ch, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
-        } else if (ch == KEY_CTRL_T) { // CTRL-T
+        } else if (ch == KEY_CTRL_T || ch == key_menu_open) { // CTRL-T or F10
             doupdate();
             handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
             // Redraw the editor screen after closing the menu

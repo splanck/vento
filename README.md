@@ -46,7 +46,7 @@ Vento currently supports the following features:
 - **Adjustable Tab Width**: Choose how many spaces the Tab key inserts.
 - **Help Screen**: Press `CTRL-H` for a guide to Vento's features.
 - **About Box**: Press `CTRL-A` to view product information, version, and GPL message.
- - **Menu System**: Intuitive menu navigation for editor features.
+ - **Menu System**: Intuitive menu navigation for editor features. Press `CTRL-T` or `F10` to open the menu.
 - **Mouse Support**: Click to move the cursor, drag to select text, scroll with the wheel, and click the menu bar and its items.
 - **Resizes Without Truncation**: When the terminal window is resized, Vento preserves all text so nothing gets cut off.
 
