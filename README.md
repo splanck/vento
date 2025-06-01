@@ -73,9 +73,11 @@ This file is created automatically with default values if it does not exist. Unk
 `tab_width` controls how many spaces are inserted when you press the Tab key.
 
 Set `theme` to the base name of a file in the `themes/` directory (without the
-`.theme` extension). The search for the file is case-insensitive. Colors defined in that theme are loaded before any
-individual color overrides. Set `enable_mouse` to `false` if you want to disable
-mouse input entirely.
+`.theme` extension). The search for the file is case-insensitive. Colors defined
+in that theme are loaded before any individual color overrides. You can override
+the directory used to locate themes by setting the `VENTO_THEME_DIR`
+environment variable to the directory containing your `.theme` files. Set
+`enable_mouse` to `false` if you want to disable mouse input entirely.
 
 ### Multi-File Support
 
