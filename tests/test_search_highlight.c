@@ -18,6 +18,7 @@
 
 #include "files.h"
 #include "search.h"
+#include "config.h"
 #include "syntax.h"
 #include "menu.h"
 #include "file_manager.h"
@@ -126,6 +127,7 @@ WINDOW *stdscr = NULL;
 FileManager file_manager = {0};
 FileState *active_file;
 char search_text[256];
+AppConfig app_config;
 
 #include "../src/editor.c"
 

@@ -1,6 +1,8 @@
 #include <ncurses.h>
 #include <string.h>
+#include <strings.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "editor.h"
 #include "ui.h"
@@ -8,8 +10,24 @@
 #include "files.h"
 #include "undo.h"
 #include "syntax.h"
+#include "config.h"
 
 extern char search_text[256];
+
+static char *strcasestr_simple(const char *h, const char *n) {
+    if (!*n) return (char *)h;
+    for (; *h; ++h) {
+        const char *hp = h;
+        const char *np = n;
+        while (*hp && *np && tolower((unsigned char)*hp) == tolower((unsigned char)*np)) {
+            ++hp;
+            ++np;
+        }
+        if (*np == '\0')
+            return (char *)h;
+    }
+    return NULL;
+}
 
 /*
  * Scan the text buffer starting from the given line and column for the next
@@ -22,8 +40,13 @@ static char *scan_next(FileState *fs, const char *word, int start_search,
                        int cursor_x, int *found_line) {
     for (int line = start_search; line < fs->line_count; ++line) {
         char *line_text = fs->text_buffer[line];
-        char *pos = strstr(line == start_search ? line_text + cursor_x : line_text,
-                           word);
+        char *pos;
+        if (app_config.search_ignore_case)
+            pos = strcasestr_simple(line == start_search ? line_text + cursor_x : line_text,
+                                    word);
+        else
+            pos = strstr(line == start_search ? line_text + cursor_x : line_text,
+                         word);
         if (pos) {
             *found_line = line;
             return pos;
@@ -32,7 +55,8 @@ static char *scan_next(FileState *fs, const char *word, int start_search,
 
     for (int line = 0; line < start_search; ++line) {
         char *line_text = fs->text_buffer[line];
-        char *pos = strstr(line_text, word);
+        char *pos = app_config.search_ignore_case ?
+                        strcasestr_simple(line_text, word) : strstr(line_text, word);
         if (pos) {
             *found_line = line;
             return pos;

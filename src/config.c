@@ -29,6 +29,7 @@ AppConfig app_config = {
     .enable_mouse = 1,
     .show_line_numbers = 0,
     .show_startup_warning = 1,
+    .search_ignore_case = 0,
     .tab_width = 4
 };
 
@@ -169,6 +170,7 @@ void config_save(const AppConfig *cfg) {
         "enable_mouse",
         "show_line_numbers",
         "show_startup_warning",
+        "search_ignore_case",
         "tab_width"
     };
 
@@ -190,7 +192,8 @@ void config_save(const AppConfig *cfg) {
     fprintf(f, "%s=%s\n", keys[10], cfg->enable_mouse ? "true" : "false");
     fprintf(f, "%s=%s\n", keys[11], cfg->show_line_numbers ? "true" : "false");
     fprintf(f, "%s=%s\n", keys[12], cfg->show_startup_warning ? "true" : "false");
-    fprintf(f, "%s=%d\n", keys[13], cfg->tab_width);
+    fprintf(f, "%s=%s\n", keys[13], cfg->search_ignore_case ? "true" : "false");
+    fprintf(f, "%s=%d\n", keys[14], cfg->tab_width);
     fclose(f);
 }
 
@@ -289,6 +292,8 @@ void config_load(AppConfig *cfg) {
             tmp.show_line_numbers = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0);
         } else if (strcmp(key, "show_startup_warning") == 0) {
             tmp.show_startup_warning = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0);
+        } else if (strcmp(key, "search_ignore_case") == 0) {
+            tmp.search_ignore_case = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0);
         } else if (strcmp(key, "tab_width") == 0) {
             tmp.tab_width = atoi(value);
             if (tmp.tab_width <= 0)

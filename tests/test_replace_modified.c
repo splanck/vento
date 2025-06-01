@@ -11,6 +11,7 @@
 #include "files.h"
 #include "search.h"
 #include "editor.h"
+#include "config.h"
 
 /* minimal WINDOW stub */
 typedef struct { int dummy; } SIMPLE_WIN;
@@ -29,6 +30,7 @@ FileState *active_file = NULL;
 int COLS = 80;
 int LINES = 24;
 char search_text[256];
+AppConfig app_config;
 int show_find_dialog(char*out,int sz,const char*def){(void)out;(void)sz;(void)def;return 0;}
 int show_replace_dialog(char*s,int ss,char*r,int rs){(void)s;(void)ss;(void)r;(void)rs;return 0;}
 
