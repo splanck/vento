@@ -160,6 +160,7 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     extern int start_line;
     if (start_line > 0 && go_to_line)
         go_to_line(ctx, active_file, start_line);
+    start_line = 0;    /* only apply once */
 }
 
 void new_file(FileState *fs_unused) {
