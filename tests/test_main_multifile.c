@@ -16,6 +16,7 @@ WINDOW *text_win = NULL;
 int COLS = 80;
 int LINES = 24;
 FileManager file_manager = {0};
+AppConfig app_config;
 
 void fm_init(FileManager *fm){fm->files=NULL;fm->count=0;fm->active_index=-1;}
 FileState* fm_current(FileManager *fm){if(!fm||fm->active_index<0||fm->active_index>=fm->count)return NULL;return fm->files[fm->active_index];}

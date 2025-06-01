@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <ncurses.h>
@@ -15,7 +14,6 @@ FileState *active_file = NULL;
 WINDOW *text_win = NULL;
 int COLS = 80;
 int LINES = 24;
-AppConfig app_config;
 
 bool any_file_modified(FileManager *fm){(void)fm;return false;}
 int show_message(const char*msg){(void)msg;return 0;}
@@ -28,27 +26,19 @@ int fm_switch(FileManager *fm,int idx){(void)fm;(void)idx;return 0;}
 void show_warning_dialog(void){}
 void run_editor(void){}
 void cleanup_on_exit(FileManager *fm){(void)fm;}
+int endwin(void){return 0;}
+void apply_colors(void){}
 
 #define main vento_main
 #include "../src/vento.c"
 #undef main
 
 int main(void){
-    char *argv[] = {"vento", "--version"};
-    FILE *tmp = tmpfile();
-    assert(tmp);
-    int fd = fileno(tmp);
-    int saved = dup(1);
-    dup2(fd,1);
+    setenv("VENTO_THEME_DIR","./themes",1);
+    char *argv[] = {"vento", "--theme=default"};
     vento_main(2, argv);
-    fflush(stdout);
-    dup2(saved,1);
-    lseek(fd,0,SEEK_SET);
-    char buf[64];
-    size_t n = fread(buf,1,sizeof(buf)-1,tmp);
-    buf[n] = '\0';
-    assert(strstr(buf, VERSION) != NULL);
-    fclose(tmp);
-    close(saved);
+    assert(strcmp(app_config.theme, "default") == 0);
+    assert(strcmp(app_config.keyword_color, "CYAN") == 0);
+    assert(strcmp(app_config.comment_color, "GREEN") == 0);
     return 0;
 }
