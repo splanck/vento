@@ -6,8 +6,9 @@ OBJ_DIR = ./obj
 BIN_DIR = ./bin
 DOC_DIR = ./docs
 
-# Include all source files
-SRCS := $(sort $(wildcard $(SRC_DIR)/*.c))
+# Include all source files. Explicitly list new line buffer module so
+# builds pick it up even if wildcard caching occurs.
+SRCS := $(sort $(wildcard $(SRC_DIR)/*.c) $(SRC_DIR)/line_buffer.c)
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 DEPS = $(wildcard $(SRC_DIR)/*.h)
 MANPAGE = $(DOC_DIR)/vento.1
