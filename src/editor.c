@@ -116,6 +116,7 @@ int key_next_file = KEY_F(6);  // Key code for switching to the next file
 int key_prev_file = KEY_F(7);  // Key code for switching to the previous file
 int key_replace = 18;  // Key code for replacing text (CTRL-R)
 int key_goto_line = 7;  // Key code for go to line (CTRL-G)
+int key_quit_editor = KEY_F(12);  // Key code for quitting the editor
 
 static void handle_key_up_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
@@ -347,6 +348,13 @@ static void handle_prev_file_wrapper(struct FileState *fs, int *cx, int *cy) {
     prev_file(input_ctx, fs, cx, cy);
 }
 
+static void handle_quit_editor_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cx;
+    (void)cy;
+    menuQuitEditor(input_ctx);
+}
+
 static void handle_clear_buffer_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)fs;
     clear_text_buffer();
@@ -405,6 +413,7 @@ void initialize_key_mappings(void) {
     key_mappings[key_mapping_count++] = (KeyMapping){key_undo, handle_undo_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_next_file, handle_next_file_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_prev_file, handle_prev_file_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_quit_editor, handle_quit_editor_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_T, NULL}; /* placeholder for menu key, handled elsewhere */
 
     key_mappings[key_mapping_count++] = (KeyMapping){0, NULL}; /* terminator */

@@ -30,6 +30,7 @@ Vento currently supports the following features:
 - **Delete Current Line**: Press `CTRL-D` to delete the current line.
 - **Word Navigation**: Use `CTRL-W` to move to the next word and `CTRL-B` to move to the previous word.
 - **Close Current File**: Press `CTRL-Q` to close the active file.
+- **Quit the Editor**: Press `F12` to exit directly without opening the menu.
 - **Customizable Configuration**: Customize settings through a configuration file.
 - **Interactive Settings Dialog**: Open **File → Settings** and use the arrow
   keys or mouse clicks to choose options. Mouse support can be enabled or
