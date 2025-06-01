@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ncurses.h>
 #include "files.h"
+#include "line_buffer.h"
 #include "input.h"
 #include "editor.h"
 
@@ -25,13 +26,16 @@ int main(void) {
     const int len = 2050; /* > 2000 */
     FileState fs = {0};
     fs.line_capacity = len + 10;
-    fs.buffer.capacity = 1;
-    fs.buffer.lines = calloc(1, sizeof(char*));
-    fs.buffer.lines[0] = calloc(fs.line_capacity, 1);
-    memset(fs.buffer.lines[0], 'a', len - 1);
-    fs.buffer.lines[0][len - 1] = 'Z';
-    fs.buffer.lines[0][len] = '\0';
-    fs.buffer.count = 1;
+    lb_init(&fs.buffer, 1);
+    char *line = malloc(len + 1);
+    memset(line, 'a', len - 1);
+    line[len - 1] = 'Z';
+    line[len] = '\0';
+    lb_insert(&fs.buffer, 0, line);
+    free(line);
+    char *tmp_line = realloc(fs.buffer.lines[0], fs.line_capacity);
+    if (!tmp_line) abort();
+    fs.buffer.lines[0] = tmp_line;
     fs.cursor_x = 1;
     fs.cursor_y = 1;
     fs.start_line = 0;
@@ -59,7 +63,6 @@ int main(void) {
     assert(fs.cursor_x == 1);
     assert(fs.scroll_x == 0);
 
-    free(fs.buffer.lines[0]);
-    free(fs.buffer.lines);
+    lb_free(&fs.buffer);
     return 0;
 }

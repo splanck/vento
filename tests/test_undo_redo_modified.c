@@ -9,6 +9,7 @@
 
 #include "undo.h"
 #include "files.h"
+#include "line_buffer.h"
 
 /* stub simple WINDOW functions */
 int wrefresh(WINDOW *w){ (void)w; return 0; }
@@ -26,11 +27,11 @@ FileState *active_file = NULL;
 int main(void){
     FileState fs = {0};
     fs.line_capacity = 32;
-    fs.buffer.capacity = 1;
-    fs.buffer.lines = calloc(fs.buffer.capacity, sizeof(char*));
-    fs.buffer.lines[0] = calloc(fs.line_capacity, sizeof(char));
-    strcpy(fs.buffer.lines[0], "new");
-    fs.buffer.count = 1;
+    lb_init(&fs.buffer, 1);
+    lb_insert(&fs.buffer, 0, "new");
+    char *tmp = realloc(fs.buffer.lines[0], fs.line_capacity);
+    if (!tmp) abort();
+    fs.buffer.lines[0] = tmp;
 
     active_file = &fs;
 
@@ -50,7 +51,6 @@ int main(void){
 
     free_stack(fs.undo_stack);
     free_stack(fs.redo_stack);
-    free(fs.buffer.lines[0]);
-    free(fs.buffer.lines);
+    lb_free(&fs.buffer);
     return 0;
 }
