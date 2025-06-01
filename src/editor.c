@@ -564,14 +564,17 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
         }
         const char *line = fs->text_buffer[line_idx];
         const char *start = line + fs->scroll_x;
-        char temp[1024];
         int use_w = visible_width;
-        if (use_w >= (int)sizeof(temp))
-            use_w = (int)sizeof(temp) - 1;
+        char *temp = malloc(use_w + 1);
+        if (!temp) {
+            allocation_failed("malloc failed");
+            return;
+        }
         strncpy(temp, start, use_w);
         temp[use_w] = '\0';
         // Apply syntax highlighting to the current line of text
         apply_syntax_highlighting(fs, content, temp, i + 1);
+        free(temp);
 
         // Highlight current search match if it falls on this line
         if (fs->match_start_y == line_idx && fs->match_start_x >= 0) {
