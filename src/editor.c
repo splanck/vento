@@ -247,7 +247,7 @@ static void handle_replace_wrapper(struct FileState *fs, int *cx, int *cy) {
 static void handle_goto_line_wrapper(struct FileState *fs, int *cx, int *cy) {
     int line;
     if (show_goto_dialog(input_ctx, &line)) {
-        go_to_line(fs, line);
+        go_to_line(input_ctx, fs, line);
         *cx = fs->cursor_x;
         *cy = fs->cursor_y;
     }
@@ -255,12 +255,12 @@ static void handle_goto_line_wrapper(struct FileState *fs, int *cx, int *cy) {
 
 static void handle_delete_line_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
-    delete_current_line(fs);
+    delete_current_line(input_ctx, fs);
     *cy = fs->cursor_y;
 }
 
 static void handle_insert_line_wrapper(struct FileState *fs, int *cx, int *cy) {
-    insert_new_line(fs);
+    insert_new_line(input_ctx, fs);
     *cx = fs->cursor_x;
     *cy = fs->cursor_y;
 }
@@ -326,6 +326,14 @@ static void handle_cut_selection_wrapper(struct FileState *fs, int *cx, int *cy)
     cut_selection(fs);
 }
 
+static void handle_next_file_wrapper(struct FileState *fs, int *cx, int *cy) {
+    next_file(input_ctx, fs, cx, cy);
+}
+
+static void handle_prev_file_wrapper(struct FileState *fs, int *cx, int *cy) {
+    prev_file(input_ctx, fs, cx, cy);
+}
+
 static void handle_clear_buffer_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)fs;
     clear_text_buffer();
@@ -382,8 +390,8 @@ void initialize_key_mappings(void) {
     key_mappings[key_mapping_count++] = (KeyMapping){key_clear_buffer, handle_clear_buffer_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_redo, handle_redo_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_undo, handle_undo_wrapper};
-    key_mappings[key_mapping_count++] = (KeyMapping){key_next_file, next_file};
-    key_mappings[key_mapping_count++] = (KeyMapping){key_prev_file, prev_file};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_next_file, handle_next_file_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_prev_file, handle_prev_file_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_T, NULL}; /* placeholder for menu key, handled elsewhere */
 
     key_mappings[key_mapping_count++] = (KeyMapping){0, NULL}; /* terminator */
@@ -438,7 +446,7 @@ void run_editor(EditorContext *ctx) {
 
         //mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
         drawBar();
-        update_status_bar(ctx->active_file);
+        update_status_bar(ctx, ctx->active_file);
         doupdate();
         
         if (ctx->active_file->selection_mode) {
@@ -464,7 +472,7 @@ void run_editor(EditorContext *ctx) {
         if (exiting == 1)
             break;
 
-        update_status_bar(ctx->active_file);
+        update_status_bar(ctx, ctx->active_file);
         wmove(ctx->text_win, ctx->active_file->cursor_y,
               ctx->active_file->cursor_x + get_line_number_offset(ctx->active_file));  // Restore cursor position
         wnoutrefresh(ctx->text_win);
@@ -701,7 +709,7 @@ void perform_resize(void) {
     if (active_file->cursor_y < 1)
         active_file->cursor_y = 1;
 
-    update_status_bar(active_file);
+    update_status_bar(input_ctx, active_file);
     wmove(text_win, active_file->cursor_y,
           active_file->cursor_x + get_line_number_offset(active_file));
     wnoutrefresh(text_win);

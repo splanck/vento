@@ -100,6 +100,7 @@ int main(int argc, char *argv[]) {
     active_file = fm_current(&file_manager);
     editor.active_file = active_file;
     editor.text_win = text_win;
+    editor.file_manager = file_manager;
     editor.enable_mouse = enable_mouse;
     editor.enable_color = enable_color;
 

@@ -52,7 +52,7 @@ int addstr(const char*s){ printed = s; return 0; }
 
 void initialize_key_mappings(void){}
 void initializeMenus(EditorContext *ctx){(void)ctx;}
-void update_status_bar(FileState*fs){ (void)fs; }
+void update_status_bar(EditorContext *ctx, FileState*fs){ (void)fs; }
 void freeMenus(void){}
 void syntax_cleanup(void){}
 void free_stack(Node*stack){ (void)stack; }

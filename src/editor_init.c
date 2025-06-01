@@ -64,7 +64,7 @@ void initialize(EditorContext *ctx) {
     define_key("\024", KEY_CTRL_T);
     initialize_key_mappings();
     initializeMenus(ctx);
-    update_status_bar(ctx->active_file);
+    update_status_bar(ctx, ctx->active_file);
 }
 
 void cleanup_on_exit(FileManager *fm) {

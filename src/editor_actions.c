@@ -10,7 +10,7 @@
 #include "undo.h"
 #include "file_ops.h"
 
-void delete_current_line(FileState *fs) {
+void delete_current_line(EditorContext *ctx, FileState *fs) {
     if (fs->line_count == 0) {
         return;
     }
@@ -36,13 +36,13 @@ void delete_current_line(FileState *fs) {
             fs->start_line--;
         }
     }
-    werase(text_win);
-    box(text_win, 0, 0);
-    draw_text_buffer(fs, text_win);
+    werase(ctx->text_win);
+    box(ctx->text_win, 0, 0);
+    draw_text_buffer(fs, ctx->text_win);
     mark_comment_state_dirty(fs);
 }
 
-void insert_new_line(FileState *fs) {
+void insert_new_line(EditorContext *ctx, FileState *fs) {
     if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
         allocation_failed("ensure_line_capacity failed");
     for (int i = fs->line_count; i > fs->cursor_y + fs->start_line - 1; --i) {
@@ -85,66 +85,78 @@ void handle_undo_wrapper(FileState *fs, int *cx, int *cy) {
     undo(fs);
 }
 
-void next_file(FileState *fs_unused, int *cx, int *cy) {
+void next_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     (void)fs_unused;
-    if (file_manager.count == 0) {
+    if (ctx->file_manager.count == 0) {
         return;
     }
     if (!confirm_switch())
         return;
-    FileState *cur = fm_current(&file_manager);
+    FileState *cur = fm_current(&ctx->file_manager);
     if (cur) {
         cur->saved_cursor_x = cur->cursor_x;
         cur->saved_cursor_y = cur->cursor_y;
     }
-    int idx = file_manager.active_index + 1;
-    if (idx >= file_manager.count) idx = 0;
-    fm_switch(&file_manager, idx);
-    active_file = fm_current(&file_manager);
-    if (active_file) {
-        active_file->cursor_x = active_file->saved_cursor_x;
-        active_file->cursor_y = active_file->saved_cursor_y;
+    int idx = ctx->file_manager.active_index + 1;
+    if (idx >= ctx->file_manager.count) idx = 0;
+    fm_switch(&ctx->file_manager, idx);
+    ctx->active_file = fm_current(&ctx->file_manager);
+    if (ctx->active_file) {
+        ctx->active_file->cursor_x = ctx->active_file->saved_cursor_x;
+        ctx->active_file->cursor_y = ctx->active_file->saved_cursor_y;
     }
-    text_win = active_file ? active_file->text_win : NULL;
-    clamp_scroll_x(active_file);
-    *cx = active_file->cursor_x;
-    *cy = active_file->cursor_y;
+    ctx->text_win = ctx->active_file ? ctx->active_file->text_win : NULL;
+    clamp_scroll_x(ctx->active_file);
+    if (cx && cy && ctx->active_file) {
+        *cx = ctx->active_file->cursor_x;
+        *cy = ctx->active_file->cursor_y;
+    }
     redraw();
-    update_status_bar(active_file);
+    update_status_bar(ctx, ctx->active_file);
+
+    active_file = ctx->active_file;
+    text_win = ctx->text_win;
+    file_manager = ctx->file_manager;
 }
 
-void prev_file(FileState *fs_unused, int *cx, int *cy) {
+void prev_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     (void)fs_unused;
-    if (file_manager.count == 0) {
+    if (ctx->file_manager.count == 0) {
         return;
     }
     if (!confirm_switch())
         return;
-    FileState *cur = fm_current(&file_manager);
+    FileState *cur = fm_current(&ctx->file_manager);
     if (cur) {
         cur->saved_cursor_x = cur->cursor_x;
         cur->saved_cursor_y = cur->cursor_y;
     }
-    int idx = file_manager.active_index - 1;
-    if (idx < 0) idx = file_manager.count - 1;
-    fm_switch(&file_manager, idx);
-    active_file = fm_current(&file_manager);
-    if (active_file) {
-        active_file->cursor_x = active_file->saved_cursor_x;
-        active_file->cursor_y = active_file->saved_cursor_y;
+    int idx = ctx->file_manager.active_index - 1;
+    if (idx < 0) idx = ctx->file_manager.count - 1;
+    fm_switch(&ctx->file_manager, idx);
+    ctx->active_file = fm_current(&ctx->file_manager);
+    if (ctx->active_file) {
+        ctx->active_file->cursor_x = ctx->active_file->saved_cursor_x;
+        ctx->active_file->cursor_y = ctx->active_file->saved_cursor_y;
     }
-    text_win = active_file ? active_file->text_win : NULL;
-    clamp_scroll_x(active_file);
-    *cx = active_file->cursor_x;
-    *cy = active_file->cursor_y;
+    ctx->text_win = ctx->active_file ? ctx->active_file->text_win : NULL;
+    clamp_scroll_x(ctx->active_file);
+    if (cx && cy && ctx->active_file) {
+        *cx = ctx->active_file->cursor_x;
+        *cy = ctx->active_file->cursor_y;
+    }
     redraw();
-    update_status_bar(active_file);
+    update_status_bar(ctx, ctx->active_file);
+
+    active_file = ctx->active_file;
+    text_win = ctx->text_win;
+    file_manager = ctx->file_manager;
 }
 
-void update_status_bar(FileState *fs) {
+void update_status_bar(EditorContext *ctx, FileState *fs) {
     move(0, 0);
-    int idx = file_manager.active_index + 1;
-    int total = file_manager.count > 0 ? file_manager.count : 1;
+    int idx = ctx->file_manager.active_index + 1;
+    int total = ctx->file_manager.count > 0 ? ctx->file_manager.count : 1;
     const char *name = "untitled";
     if (fs && fs->filename[0] != '\0') {
         name = fs->filename;
@@ -165,7 +177,7 @@ void update_status_bar(FileState *fs) {
     wnoutrefresh(stdscr);
 }
 
-void go_to_line(FileState *fs, int line) {
+void go_to_line(EditorContext *ctx, FileState *fs, int line) {
     if (fs->line_count == 0)
         return;
 
@@ -191,10 +203,10 @@ void go_to_line(FileState *fs, int line) {
     fs->cursor_y = idx - fs->start_line + 1;
     fs->cursor_x = 1;
 
-    werase(text_win);
-    box(text_win, 0, 0);
-    draw_text_buffer(fs, text_win);
-    wmove(text_win, fs->cursor_y,
+    werase(ctx->text_win);
+    box(ctx->text_win, 0, 0);
+    draw_text_buffer(fs, ctx->text_win);
+    wmove(ctx->text_win, fs->cursor_y,
           fs->cursor_x + get_line_number_offset(fs));
-    wnoutrefresh(text_win);
+    wnoutrefresh(ctx->text_win);
 }

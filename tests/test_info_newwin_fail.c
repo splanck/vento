@@ -52,7 +52,7 @@ int werase(WINDOW*w){(void)w;return 0;}
 #define getmaxyx(win,y,x) do{ (void)(win); y=LINES; x=COLS; }while(0)
 
 void draw_text_buffer(FileState*fs, WINDOW*w){(void)fs;(void)w;}
-void update_status_bar(FileState*fs){(void)fs;}
+void update_status_bar(EditorContext *ctx, FileState*fs){(void)fs;}
 
 int main(void){
     show_message_called = 0;
