@@ -235,6 +235,11 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc
     tests/test_search_ignore_case.c src/search.c src/line_buffer.c -lncursesw -o test_search_ignore_case
 ./test_search_ignore_case
 
+# build and run replace ignore case test
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_replace_ignore_case.c src/search.c src/line_buffer.c -lncursesw -o test_replace_ignore_case
+./test_replace_ignore_case
+
 # build and run cursor position restore test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_cursor_restore.c src/editor_actions.c src/file_manager.c src/globals.c \
