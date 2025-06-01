@@ -49,9 +49,12 @@ int curs_set(int c){(void)c;return 0;}
 int werase(WINDOW*w){(void)w;return 0;}
 #define getbegyx(win,y,x) do{ (void)(win); y=0; x=0; }while(0)
 #define getmaxyx(win,y,x) do{ (void)(win); y=LINES; x=COLS; }while(0)
+int wnoutrefresh(WINDOW*w){(void)w;return 0;}
+int doupdate(void){return 0;}
 
 void draw_text_buffer(FileState*fs, WINDOW*w){(void)fs;(void)w;}
 void update_status_bar(EditorContext *ctx, FileState*fs){(void)fs;}
+void drawBar(void){}
 
 int main(void){
     show_message_called = 0;
