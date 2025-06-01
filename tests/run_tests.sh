@@ -41,6 +41,12 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     obj_test/stub_enable_color.o -lncurses -o test_resize_signal
 ./test_resize_signal
 
+# build and run resize flush input test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_resize_flushinp.c obj_test/files.o obj_test/line_buffer.o obj_test/file_manager.o obj_test/globals.o \
+    obj_test/stub_enable_color.o -lncurses -o test_resize_flushinp
+./test_resize_flushinp
+
 # build and run identifier overflow test with AddressSanitizer
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc -c src/syntax_common.c -o obj_test/syntax_common.o
 gcc -Wall -Wextra -std=c99 -g -Isrc -c src/syntax_regex.c -o obj_test/syntax_regex.o
