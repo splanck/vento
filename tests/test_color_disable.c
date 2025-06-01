@@ -10,6 +10,7 @@
 #include "file_manager.h"
 #include "files.h"
 #include "editor.h"
+#include "editor_state.h"
 
 #undef start_color
 #undef use_default_colors
@@ -57,8 +58,6 @@ struct passwd *getpwuid(uid_t uid){ (void)uid; return NULL; }
 /* required globals */
 WINDOW *stdscr = (WINDOW*)1;
 FileManager file_manager = {0};
-WINDOW *text_win = NULL;
-FileState *active_file = NULL;
 int COLS = 80;
 int LINES = 24;
 int exiting = 0;

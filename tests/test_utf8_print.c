@@ -5,6 +5,7 @@
 #include "file_manager.h"
 #include "files.h"
 #include "editor.h"
+#include "editor_state.h"
 
 #undef initscr
 #undef cbreak
@@ -23,8 +24,6 @@
 /* global state required by editor_init.c */
 WINDOW *stdscr = (WINDOW*)1;
 FileManager file_manager = {0};
-WINDOW *text_win = NULL;
-FileState *active_file = NULL;
 int COLS = 80;
 int LINES = 24;
 int exiting = 0;

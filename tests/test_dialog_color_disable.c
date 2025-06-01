@@ -6,6 +6,7 @@
 #include "files.h"
 #include "config.h"
 #include "syntax.h"
+#include "editor_state.h"
 
 #undef curs_set
 #undef newwin
@@ -31,8 +32,6 @@
 typedef struct { int dummy; } SIMPLE_WIN;
 static SIMPLE_WIN dummy_win;
 WINDOW *stdscr = (WINDOW*)&dummy_win;
-WINDOW *text_win = (WINDOW*)&dummy_win;
-FileState *active_file = NULL;
 int COLS = 80;
 int LINES = 24;
 int enable_color = 0; /* disable color globally */
