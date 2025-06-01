@@ -30,10 +30,12 @@ void save_file(EditorContext *ctx, FileState *fs) {
         } else {
             mvprintw(LINES - 2, 2, "Error saving file!");
         }
+        clrtoeol();
         refresh();
-        getch();
-        mvprintw(LINES - 2, 2, "                            ");
+        napms(1000);      /* display for one second */
+        mvprintw(LINES - 2, 2, "%*s", COLS - 4, "");
         refresh();
+        return;
     }
 }
 
@@ -59,10 +61,12 @@ void save_file_as(EditorContext *ctx, FileState *fs) {
         mvprintw(LINES - 2, 2, "Error saving file!");
     }
 
+    clrtoeol();
     refresh();
-    getch();
-    mvprintw(LINES - 2, 2, "                            ");
+    napms(1000);      /* display for one second */
+    mvprintw(LINES - 2, 2, "%*s", COLS - 4, "");
     refresh();
+    return;
 }
 
 void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
