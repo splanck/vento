@@ -63,7 +63,7 @@ void initialize(EditorContext *ctx) {
     define_key("\033[1;5B", KEY_CTRL_DOWN);
     define_key("\024", KEY_CTRL_T);
     initialize_key_mappings();
-    initializeMenus();
+    initializeMenus(ctx);
     update_status_bar(ctx->active_file);
 }
 

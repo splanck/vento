@@ -94,7 +94,8 @@ int main(void){
     active_file = &fs;
 
     close_called = 0;
-    menuQuitEditor();
+    EditorContext ctx = {0};
+    menuQuitEditor(&ctx);
     assert(close_called == 0);
 
     free(file_manager.files);

@@ -49,7 +49,7 @@ int refresh(void){ return 0; }
 int sigaction(int s,const struct sigaction*a, struct sigaction*o){ (void)s;(void)a;(void)o; return 0; }
 int define_key(const char*s,int k){ (void)s; (void)k; return 0; }
 void initialize_key_mappings(void){}
-void initializeMenus(void){}
+void initializeMenus(EditorContext *ctx){(void)ctx;}
 void update_status_bar(FileState*fs){ (void)fs; }
 void freeMenus(void){}
 void syntax_cleanup(void){}

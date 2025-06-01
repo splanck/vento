@@ -16,12 +16,30 @@ bool confirm_quit(void);
 Menu *menus = NULL;
 int menuCount = 0;
 int *menuPositions = NULL;
+static EditorContext *menu_ctx = NULL;
+
+static void menuNewFile_cb(void)    { menuNewFile(menu_ctx); }
+static void menuLoadFile_cb(void)   { menuLoadFile(menu_ctx); }
+static void menuSaveFile_cb(void)   { menuSaveFile(menu_ctx); }
+static void menuSaveAs_cb(void)     { menuSaveAs(menu_ctx); }
+static void menuCloseFile_cb(void)  { menuCloseFile(menu_ctx); }
+static void menuNextFile_cb(void)   { menuNextFile(menu_ctx); }
+static void menuPrevFile_cb(void)   { menuPrevFile(menu_ctx); }
+static void menuSettings_cb(void)   { menuSettings(menu_ctx); }
+static void menuQuitEditor_cb(void) { menuQuitEditor(menu_ctx); }
+static void menuUndo_cb(void)       { menuUndo(menu_ctx); }
+static void menuRedo_cb(void)       { menuRedo(menu_ctx); }
+static void menuFind_cb(void)       { menuFind(menu_ctx); }
+static void menuReplace_cb(void)    { menuReplace(menu_ctx); }
+static void menuAbout_cb(void)      { menuAbout(menu_ctx); }
+static void menuHelp_cb(void)       { menuHelp(menu_ctx); }
 
 
 /**
  * Initializes the menus.
  */
-void initializeMenus() {
+void initializeMenus(EditorContext *ctx) {
+    menu_ctx = ctx;
     // Set the number of menus
     menuCount = 5;
 
@@ -44,13 +62,13 @@ void initializeMenus() {
         freeMenus();
         allocation_failed("initializeMenus");
     }
-    fileMenuItems[0] = (MenuItem){"New File", menuNewFile, false};
-    fileMenuItems[1] = (MenuItem){"Load File", menuLoadFile, false};
-    fileMenuItems[2] = (MenuItem){"Save File", menuSaveFile, false};
-    fileMenuItems[3] = (MenuItem){"Save As", menuSaveAs, false};
+    fileMenuItems[0] = (MenuItem){"New File", menuNewFile_cb, false};
+    fileMenuItems[1] = (MenuItem){"Load File", menuLoadFile_cb, false};
+    fileMenuItems[2] = (MenuItem){"Save File", menuSaveFile_cb, false};
+    fileMenuItems[3] = (MenuItem){"Save As", menuSaveAs_cb, false};
     fileMenuItems[4] = (MenuItem){"", NULL, true};
-    fileMenuItems[5] = (MenuItem){"Close File", menuCloseFile, false};
-    fileMenuItems[6] = (MenuItem){"Quit", menuQuitEditor, false};
+    fileMenuItems[5] = (MenuItem){"Close File", menuCloseFile_cb, false};
+    fileMenuItems[6] = (MenuItem){"Quit", menuQuitEditor_cb, false};
 
     // Initialize and assign the file menu
     Menu fileMenu = {"File", fileMenuItems, 7};
@@ -62,11 +80,11 @@ void initializeMenus() {
         freeMenus();
         allocation_failed("initializeMenus");
     }
-    editMenuItems[0] = (MenuItem){"Undo", menuUndo, false};
-    editMenuItems[1] = (MenuItem){"Redo", menuRedo, false};
+    editMenuItems[0] = (MenuItem){"Undo", menuUndo_cb, false};
+    editMenuItems[1] = (MenuItem){"Redo", menuRedo_cb, false};
     editMenuItems[2] = (MenuItem){"", NULL, true};
-    editMenuItems[3] = (MenuItem){"Find", menuFind, false};
-    editMenuItems[4] = (MenuItem){"Replace", menuReplace, false};
+    editMenuItems[3] = (MenuItem){"Find", menuFind_cb, false};
+    editMenuItems[4] = (MenuItem){"Replace", menuReplace_cb, false};
 
     // Initialize and assign the edit menu
     Menu editMenu = {"Edit", editMenuItems, 5};
@@ -78,8 +96,8 @@ void initializeMenus() {
         freeMenus();
         allocation_failed("initializeMenus");
     }
-    navMenuItems[0] = (MenuItem){"Next File", menuNextFile, false};
-    navMenuItems[1] = (MenuItem){"Previous File", menuPrevFile, false};
+    navMenuItems[0] = (MenuItem){"Next File", menuNextFile_cb, false};
+    navMenuItems[1] = (MenuItem){"Previous File", menuPrevFile_cb, false};
     Menu navMenu = {"Navigate", navMenuItems, 2};
     menus[2] = navMenu;
 
@@ -89,7 +107,7 @@ void initializeMenus() {
         freeMenus();
         allocation_failed("initializeMenus");
     }
-    optMenuItems[0] = (MenuItem){"Settings", menuSettings, false};
+    optMenuItems[0] = (MenuItem){"Settings", menuSettings_cb, false};
     Menu optMenu = {"Options", optMenuItems, 1};
     menus[3] = optMenu;
 
@@ -99,8 +117,8 @@ void initializeMenus() {
         freeMenus();
         allocation_failed("initializeMenus");
     }
-    helpMenuItems[0] = (MenuItem){"Help Screen", menuHelp, false};
-    helpMenuItems[1] = (MenuItem){"About Vento", menuAbout, false};
+    helpMenuItems[0] = (MenuItem){"Help Screen", menuHelp_cb, false};
+    helpMenuItems[1] = (MenuItem){"About Vento", menuAbout_cb, false};
     // Initialize and assign the help menu
     Menu helpMenu = {"Help", helpMenuItems, 2};
     menus[4] = helpMenu;
@@ -282,39 +300,51 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
 }
 
 
-void menuNewFile() {
-    new_file(active_file);
+void menuNewFile(EditorContext *ctx) {
+    new_file(ctx->active_file);
+    ctx->active_file = active_file;
+    ctx->text_win = text_win;
 }
 
-void menuLoadFile() {
-    load_file(active_file, NULL);
+void menuLoadFile(EditorContext *ctx) {
+    load_file(ctx->active_file, NULL);
+    ctx->active_file = active_file;
+    ctx->text_win = text_win;
 }
 
-void menuSaveFile() {
-    save_file(active_file);
+void menuSaveFile(EditorContext *ctx) {
+    save_file(ctx->active_file);
 }
 
-void menuSaveAs() {
-    save_file_as(active_file);
+void menuSaveAs(EditorContext *ctx) {
+    save_file_as(ctx->active_file);
 }
 
-void menuCloseFile() {
-    close_current_file(active_file, &active_file->cursor_x, &active_file->cursor_y);
+void menuCloseFile(EditorContext *ctx) {
+    close_current_file(ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
+    ctx->active_file = active_file;
+    ctx->text_win = text_win;
 }
 
-void menuNextFile() {
-    next_file(active_file, &active_file->cursor_x, &active_file->cursor_y);
+void menuNextFile(EditorContext *ctx) {
+    next_file(ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
+    ctx->active_file = active_file;
+    ctx->text_win = text_win;
 }
 
-void menuPrevFile() {
-    prev_file(active_file, &active_file->cursor_x, &active_file->cursor_y);
+void menuPrevFile(EditorContext *ctx) {
+    prev_file(ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
+    ctx->active_file = active_file;
+    ctx->text_win = text_win;
 }
 
-void menuSettings() {
-    if (show_settings_dialog(&app_config)) {
-        config_save(&app_config);
-        config_load(&app_config);
-        if (enable_mouse)
+void menuSettings(EditorContext *ctx) {
+    if (show_settings_dialog(&ctx->config)) {
+        config_save(&ctx->config);
+        config_load(&ctx->config);
+        ctx->enable_mouse = enable_mouse;
+        ctx->enable_color = enable_color;
+        if (ctx->enable_mouse)
             mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
         else
             mousemask(0, NULL);
@@ -324,32 +354,32 @@ void menuSettings() {
     }
 }
 
-void menuQuitEditor() {
+void menuQuitEditor(EditorContext *ctx) {
     if (confirm_quit())
         close_editor();
 }
 
-void menuUndo() {
-    undo(active_file);
+void menuUndo(EditorContext *ctx) {
+    undo(ctx->active_file);
 }
 
-void menuRedo() {
-    redo(active_file);
+void menuRedo(EditorContext *ctx) {
+    redo(ctx->active_file);
 }
 
-void menuFind() {
-    find(active_file, 1);
+void menuFind(EditorContext *ctx) {
+    find(ctx->active_file, 1);
 }
 
-void menuReplace() {
-    replace(active_file);
+void menuReplace(EditorContext *ctx) {
+    replace(ctx->active_file);
 }
 
-void menuAbout() {
+void menuAbout(EditorContext *ctx) {
     show_about();
 }
 
-void menuHelp() {
+void menuHelp(EditorContext *ctx) {
     show_help();
 }
 
