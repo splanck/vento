@@ -726,6 +726,7 @@ void perform_resize(void) {
     /* Redraw the menu bar after all windows have been updated */
     drawBar();
     doupdate();
+    flushinp();
 }
 
 /**
