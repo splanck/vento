@@ -5,6 +5,13 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <signal.h>
+
+#if defined(NCURSES_WIDECHAR) || defined(_XOPEN_SOURCE_EXTENDED)
+#define USE_WIDE_INPUT 1
+#else
+#define USE_WIDE_INPUT 0
+#endif
+
 #include "editor.h"
 #include "input.h"
 #include "ui.h"
@@ -435,7 +442,14 @@ void run_editor(EditorContext *ctx) {
     doupdate();
 
     while (exiting == 0) {
-        int rc = wget_wch(ctx->text_win, &ch);
+        int rc;
+#if USE_WIDE_INPUT
+        rc = wget_wch(ctx->text_win, &ch);
+#else
+        int ch_tmp = wgetch(ctx->text_win);
+        rc = (ch_tmp == ERR) ? ERR : OK;
+        ch = ch_tmp;
+#endif
         if (resize_pending || ch == KEY_RESIZE) {
             perform_resize();
             resize_pending = 0;
