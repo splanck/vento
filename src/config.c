@@ -11,29 +11,6 @@
 #include "editor_state.h"
 #include "syntax.h"
 
-int enable_color = 1; // global flag used throughout the editor
-int enable_mouse = 1; // global mouse flag
-int show_line_numbers = 0; // global line number flag
-
-// default application configuration
-AppConfig app_config = {
-    .background_color = "BLACK",
-    .text_color = "WHITE",
-    .keyword_color = "CYAN",
-    .comment_color = "GREEN",
-    .string_color = "YELLOW",
-    .type_color = "MAGENTA",
-    .symbol_color = "RED",
-    .search_color = "YELLOW",
-    .theme = "",
-    .enable_color = 1,
-    .enable_mouse = 1,
-    .show_line_numbers = 0,
-    .show_startup_warning = 1,
-    .search_ignore_case = 0,
-    .tab_width = 4
-};
-
 // Helper to map color name to ncurses constant
 short get_color_code(const char *color_name) {
     if (strcasecmp(color_name, "BLACK") == 0) return COLOR_BLACK;
@@ -346,6 +323,7 @@ void config_load(AppConfig *cfg) {
 }
 
 // Compatibility wrapper
-void read_config_file() {
-    config_load(&app_config);
+void read_config_file(AppConfig *cfg) {
+    if (cfg)
+        config_load(cfg);
 }
