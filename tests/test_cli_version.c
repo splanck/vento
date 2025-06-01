@@ -32,6 +32,8 @@ int fm_switch(FileManager *fm,int idx){(void)fm;(void)idx;return 0;}
 void show_warning_dialog(EditorContext*ctx){(void)ctx;}
 void run_editor(EditorContext *ctx){(void)ctx;}
 void cleanup_on_exit(FileManager *fm){(void)fm;}
+void drawBar(void){}
+void update_status_bar(EditorContext *ctx, FileState *fs){(void)ctx;(void)fs;}
 
 #define main vento_main
 #include "../src/vento.c"

@@ -31,6 +31,7 @@ void cleanup_on_exit(FileManager *fm){(void)fm;}
 int endwin(void){return 0;}
 void update_status_bar(EditorContext *ctx, FileState *fs){(void)ctx;(void)fs;}
 void apply_colors(void){}
+void drawBar(void){}
 
 static FileState dummy = {0};
 void go_to_line(EditorContext *ctx, FileState *fs, int line){(void)ctx;fs->cursor_y=line;}
