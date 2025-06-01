@@ -8,6 +8,7 @@
 #include "ui.h"
 #include "undo.h"
 #include "config.h"
+#include "editor_state.h"
 
 /* confirm_quit implemented in vento.c */
 bool confirm_quit(void);

@@ -1,5 +1,6 @@
 #include "editor.h"
 #include "config.h"
+#include "editor_state.h"
 #include "ui_common.h"
 #include "syntax.h"
 #include "dialog.h"

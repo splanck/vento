@@ -10,6 +10,7 @@
 #include "file_manager.h"
 #include "ui_common.h"
 #include "config.h"
+#include "editor_state.h"
 #include <stdbool.h>
 
 extern void load_theme(const char *name, AppConfig *cfg) __attribute__((weak));

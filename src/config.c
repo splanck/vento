@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include "editor.h"
 #include "config.h"
+#include "editor_state.h"
 #include "syntax.h"
 
 int enable_color = 1; // global flag used throughout the editor

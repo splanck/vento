@@ -4,6 +4,7 @@
 #include "editor.h"
 #include "syntax.h"
 #include "config.h"
+#include "editor_state.h"
 #include <limits.h>
 
 // Function to initialize a new FileState for a given filename

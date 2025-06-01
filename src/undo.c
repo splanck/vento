@@ -4,6 +4,7 @@
 #include "editor.h"
 #include "undo.h"
 #include "files.h"
+#include "editor_state.h"
 
 void push(Node **stack, Change change) {
     Node *new_node = (Node *)malloc(sizeof(Node));

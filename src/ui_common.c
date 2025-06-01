@@ -1,5 +1,6 @@
 #include "ui_common.h"
 #include "config.h"
+#include "editor_state.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>

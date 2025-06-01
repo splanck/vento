@@ -16,6 +16,7 @@
 #include "file_ops.h"
 #include "search.h"
 #include "file_manager.h"
+#include "editor_state.h"
 
 __attribute__((weak)) void copy_selection_keyboard(FileState *fs) {
     (void)fs;

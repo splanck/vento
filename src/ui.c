@@ -7,6 +7,7 @@
 #include "syntax.h"
 #include "ui_common.h"
 #include "dialog.h"
+#include "editor_state.h"
 
 void create_dialog(const char *message, char *output, int max_input_len) {
     int win_width = (int)strlen(message) + 30;

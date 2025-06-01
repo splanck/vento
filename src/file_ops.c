@@ -9,6 +9,7 @@
 #include "files.h"
 #include "file_manager.h"
 #include "ui_common.h"
+#include "editor_state.h"
 
 #define INITIAL_LOAD_LINES 1024
 

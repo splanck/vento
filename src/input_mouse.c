@@ -2,6 +2,7 @@
 #include <ncurses.h>
 #include "input.h"
 #include "clipboard.h"
+#include "editor_state.h"
 
 #ifndef BUTTON1_DRAGGED
 #define BUTTON1_DRAGGED (BUTTON1_PRESSED | REPORT_MOUSE_POSITION)
