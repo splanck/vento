@@ -1,5 +1,6 @@
 #include <string.h>
 #include <ncurses.h>
+#include <stdlib.h>
 #include "editor.h"
 #include "clipboard.h"
 #include "files.h"
@@ -40,7 +41,8 @@ void copy_selection(FileState *fs) {
     size_t clip_len = 0;
     for (int y = start_y; y <= end_y && clip_len < CLIPBOARD_SIZE - 1; y++) {
         if (y == start_y) {
-            const char *src = &fs->buffer.lines[y - 1 + fs->start_line][start_x - 1];
+            const char *line = lb_get(&fs->buffer, y - 1 + fs->start_line);
+            const char *src = line ? line + start_x - 1 : "";
             size_t to_copy = end_x - start_x + 1;
             if (to_copy > CLIPBOARD_SIZE - 1 - clip_len) {
                 to_copy = CLIPBOARD_SIZE - 1 - clip_len;
@@ -53,7 +55,7 @@ void copy_selection(FileState *fs) {
                 global_clipboard[clip_len++] = '\n';
                 global_clipboard[clip_len] = '\0';
             }
-            const char *src = fs->buffer.lines[y - 1 + fs->start_line];
+            const char *src = lb_get(&fs->buffer, y - 1 + fs->start_line);
             size_t to_copy = strlen(src);
             if (to_copy > CLIPBOARD_SIZE - 1 - clip_len) {
                 to_copy = CLIPBOARD_SIZE - 1 - clip_len;
@@ -96,9 +98,12 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
             (*cursor_y)++;
             fs->cursor_x = *cursor_x = 1;
             fs->cursor_y = *cursor_y;
-            if (ensure_line_capacity(fs, fs->buffer.count + 1) < 0)
-                allocation_failed("ensure_line_capacity failed");
-            insert_new_line(NULL, fs);
+            if (lb_insert(&fs->buffer, *cursor_y - 1 + fs->start_line, "") < 0)
+                allocation_failed("lb_insert failed");
+            char *p = realloc(fs->buffer.lines[*cursor_y - 1 + fs->start_line], fs->line_capacity);
+            if (!p)
+                allocation_failed("realloc failed");
+            fs->buffer.lines[*cursor_y - 1 + fs->start_line] = p;
         }
     }
 
@@ -168,13 +173,10 @@ void cut_selection(FileState *fs) {
         strncat(first, &last[end_x], fs->line_capacity - strlen(first) - 1);
 
         int remove_count = end_y - start_y;
-        for (int i = start_y; i < fs->buffer.count - remove_count; ++i) {
-            strcpy(fs->buffer.lines[i], fs->buffer.lines[i + remove_count]);
+        int del_idx = start_y - 1 + fs->start_line + 1;
+        for (int i = 0; i < remove_count; ++i) {
+            lb_delete(&fs->buffer, del_idx);
         }
-        for (int i = fs->buffer.count - remove_count; i < fs->buffer.count; ++i) {
-            fs->buffer.lines[i][0] = '\0';
-        }
-        fs->buffer.count -= remove_count;
     }
 
     fs->cursor_x = start_x;

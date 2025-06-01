@@ -119,17 +119,17 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_long_li
 ./test_long_line_load
 
 # build and run long indent enter test
-gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_long_indent.c src/input_keyboard.c -lncurses -o test_long_indent
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_long_indent.c src/input_keyboard.c obj_test/line_buffer.o -lncurses -o test_long_indent
 ./test_long_indent
 
 # build and run horizontal scroll test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
-    tests/test_horizontal_scroll.c src/input_keyboard.c -lncurses -o test_horizontal_scroll
+    tests/test_horizontal_scroll.c src/input_keyboard.c obj_test/line_buffer.o -lncurses -o test_horizontal_scroll
 ./test_horizontal_scroll
 
 # build and run long horizontal scroll test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
-    tests/test_long_horizontal_scroll.c src/input_keyboard.c -lncurses -o test_long_horizontal_scroll
+    tests/test_long_horizontal_scroll.c src/input_keyboard.c obj_test/line_buffer.o -lncurses -o test_long_horizontal_scroll
 ./test_long_horizontal_scroll
 
 # build and run color disable test
@@ -178,7 +178,7 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_confirm
 # build and run confirm switch regression test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_confirm_switch.c src/editor_actions.c src/file_manager.c src/globals.c \
-    -lncurses -o test_confirm_switch
+    obj_test/line_buffer.o -lncurses -o test_confirm_switch
 ./test_confirm_switch
 
 # build and run menu overlay clear regression test
@@ -231,5 +231,5 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc
 # build and run cursor position restore test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_cursor_restore.c src/editor_actions.c src/file_manager.c src/globals.c \
-    -lncurses -o test_cursor_restore
+    obj_test/line_buffer.o -lncurses -o test_cursor_restore
 ./test_cursor_restore
