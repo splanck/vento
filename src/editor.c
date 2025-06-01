@@ -77,7 +77,8 @@ __attribute__((weak)) int get_line_number_offset(FileState *fs) {
     return width + 1;
 }
 
-int key_help = 8;  // Key code for the help command
+int key_help = 8;  // Key code for the help command (CTRL-H)
+int key_f1_help = KEY_F(1);  // F1 also opens help
 int key_about = 1;  // Key code for the about command
 int key_delete_line = 4;  // Key code for the delete line command
 int key_insert_line = KEY_F(5);  // Key code for the insert line command
@@ -354,6 +355,7 @@ void initialize_key_mappings(void) {
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_UP, handle_ctrl_up_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_DOWN, handle_ctrl_down_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_help, handle_help_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_f1_help, handle_help_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_about, handle_about_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_find, handle_find_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_find_next, handle_find_next_wrapper};
