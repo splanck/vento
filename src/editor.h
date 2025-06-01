@@ -60,6 +60,7 @@ void go_to_line(struct FileState *fs, int line);
 __attribute__((weak)) int get_line_number_offset(struct FileState *fs);
 void on_sigwinch(int sig);
 void perform_resize(void);
+void clamp_scroll_x(struct FileState *fs);
 void cleanup_on_exit(struct FileManager *fm);
 void disable_ctrl_c_z(void);
 void apply_colors(void);

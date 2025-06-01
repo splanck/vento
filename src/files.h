@@ -12,6 +12,7 @@ typedef struct FileState {
     int line_count;
     int max_lines;
     int start_line;
+    int scroll_x; /* leftmost visible column */
     int cursor_x, cursor_y;
     int line_capacity;
     Node *undo_stack;
