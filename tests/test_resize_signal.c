@@ -40,7 +40,7 @@ int doupdate(void){return 0;}
 static int gcalls=0;
 int wgetch(WINDOW*w){(void)w;gcalls++; if(gcalls==2) exiting=1; return ERR;}
 
-void update_status_bar(FileState*fs){(void)fs;}
+void update_status_bar(EditorContext *ctx, FileState*fs){(void)fs;}
 void drawBar(void){}
 void handle_key_up(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void handle_key_down(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
@@ -68,10 +68,10 @@ void handleMenuNavigation(Menu*m,int mc,int*cm,int*ci){(void)m;(void)mc;(void)cm
 int menu_click_open(int x,int y){(void)x;(void)y;return 0;}
 void handle_mouse_event(EditorContext*ctx,FileState*fs,MEVENT*ev){(void)ctx;(void)fs;(void)ev;}
 void paste_clipboard(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
-void delete_current_line(FileState*fs){(void)fs;}
-void insert_new_line(FileState*fs){(void)fs;}
-void next_file(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
-void prev_file(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
+void delete_current_line(EditorContext *ctx, FileState*fs){(void)fs;}
+void insert_new_line(EditorContext *ctx, FileState*fs){(void)fs;}
+void next_file(EditorContext *ctx, FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
+void prev_file(EditorContext *ctx, FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void handle_redo_wrapper(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void handle_undo_wrapper(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void move_forward_to_next_word(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
@@ -102,7 +102,7 @@ void menuReplace(EditorContext*ctx){(void)ctx;}
 void menuAbout(EditorContext*ctx){(void)ctx;}
 void menuHelp(EditorContext*ctx){(void)ctx;}
 int show_goto_dialog(EditorContext*ctx,int*line){(void)ctx;(void)line;return 0;}
-void go_to_line(FileState*fs,int line){(void)fs;(void)line;}
+void go_to_line(EditorContext *ctx, FileState*fs,int line){(void)fs;(void)line;}
 
 int enable_mouse=0;
 Menu*menus=NULL;int menuCount=0;

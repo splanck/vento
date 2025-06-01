@@ -69,8 +69,8 @@ void load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;
 void save_file(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void save_file_as(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void close_current_file(EditorContext*ctx,FileState*fs,int*cx,int*cy){(void)ctx;(void)fs;(void)cx;(void)cy;}
-void next_file(FileState*fs,int*cx,int*cy){(void)fs;(void)cx;(void)cy;}
-void prev_file(FileState*fs,int*cx,int*cy){(void)fs;(void)cx;(void)cy;}
+void next_file(EditorContext *ctx, FileState*fs,int*cx,int*cy){(void)fs;(void)cx;(void)cy;}
+void prev_file(EditorContext *ctx, FileState*fs,int*cx,int*cy){(void)fs;(void)cx;(void)cy;}
 int show_settings_dialog(EditorContext*ctx,AppConfig*cfg){(void)ctx;(void)cfg;return 0;}
 void config_save(const AppConfig*cfg){(void)cfg;}
 void config_load(AppConfig*cfg){(void)cfg;}

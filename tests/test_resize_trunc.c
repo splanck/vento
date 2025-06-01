@@ -40,7 +40,7 @@ int wnoutrefresh(WINDOW *w){(void)w; return 0;}
 int doupdate(void){return 0;}
 
 /* stubs for editor dependencies */
-void update_status_bar(FileState *fs){(void)fs;}
+void update_status_bar(EditorContext *ctx, FileState *fs){(void)fs;}
 static int drawBar_called = 0;
 void drawBar(void){drawBar_called=1;}
 
@@ -68,10 +68,10 @@ void start_selection_mode(FileState*fs,int x,int y){(void)fs;(void)x;(void)y;}
 void update_selection_mouse(EditorContext*ctx,FileState*fs,int x,int y){(void)ctx;(void)fs;(void)x;(void)y;}
 void end_selection_mode(FileState*fs){(void)fs;}
 void paste_clipboard(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
-void delete_current_line(FileState*fs){(void)fs;}
-void insert_new_line(FileState*fs){(void)fs;}
-void next_file(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
-void prev_file(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
+void delete_current_line(EditorContext *ctx, FileState*fs){(void)fs;}
+void insert_new_line(EditorContext *ctx, FileState*fs){(void)fs;}
+void next_file(EditorContext *ctx, FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
+void prev_file(EditorContext *ctx, FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void handle_redo_wrapper(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void handle_undo_wrapper(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void move_forward_to_next_word(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
@@ -105,7 +105,7 @@ void menuReplace(EditorContext*ctx){(void)ctx;}
 void menuAbout(EditorContext*ctx){(void)ctx;}
 void menuHelp(EditorContext*ctx){(void)ctx;}
 int show_goto_dialog(EditorContext*ctx,int *line){(void)ctx;(void)line;return 0;}
-void go_to_line(FileState *fs,int line){(void)fs;(void)line;}
+void go_to_line(EditorContext *ctx, FileState *fs,int line){(void)fs;(void)line;}
 
 /* minimal global vars */
 int enable_mouse = 0;

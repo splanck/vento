@@ -4,6 +4,7 @@
 #include <string.h>
 #include "file_manager.h"
 #include "editor.h"
+#include "editor_state.h"
 #include "file_ops.h"
 
 int COLS = 80;
@@ -39,8 +40,14 @@ int main(void){
     active_file = &fs1;
     fs1.modified = true;
 
+    EditorContext ctx = {0};
+    ctx.file_manager = file_manager;
+    ctx.active_file = active_file;
+    ctx.text_win = text_win;
+
     int cx = 0, cy = 0;
-    next_file(active_file, &cx, &cy);
+    next_file(&ctx, active_file, &cx, &cy);
+    active_file = ctx.active_file;
 
     assert(confirm_calls == 1);
     assert(file_manager.active_index == 0);

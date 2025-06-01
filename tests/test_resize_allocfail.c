@@ -54,7 +54,7 @@ int mvwprintw(WINDOW*w,int y,int x,const char*fmt,...){(void)w;(void)y;(void)x;(
 int mvwchgat(WINDOW*w,int y,int x,int n,attr_t attr,short c,const void*opts){(void)w;(void)y;(void)x;(void)n;(void)attr;(void)c;(void)opts;return 0;}
 
 /* editor dependency stubs */
-void update_status_bar(FileState*fs){(void)fs;}
+void update_status_bar(EditorContext *ctx, FileState*fs){(void)fs;}
 void drawBar(void){}
 void handle_key_up(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void handle_key_down(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
@@ -79,10 +79,10 @@ void start_selection_mode(FileState*fs,int x,int y){(void)fs;(void)x;(void)y;}
 void update_selection_mouse(EditorContext*ctx,FileState*fs,int x,int y){(void)ctx;(void)fs;(void)x;(void)y;}
 void end_selection_mode(FileState*fs){(void)fs;}
 void paste_clipboard(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
-void delete_current_line(FileState*fs){(void)fs;}
-void insert_new_line(FileState*fs){(void)fs;}
-void next_file(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
-void prev_file(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
+void delete_current_line(EditorContext *ctx, FileState*fs){(void)fs;}
+void insert_new_line(EditorContext *ctx, FileState*fs){(void)fs;}
+void next_file(EditorContext *ctx, FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
+void prev_file(EditorContext *ctx, FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void handle_redo_wrapper(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void handle_undo_wrapper(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void move_forward_to_next_word(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
@@ -116,7 +116,7 @@ void menuReplace(EditorContext*ctx){(void)ctx;}
 void menuAbout(EditorContext*ctx){(void)ctx;}
 void menuHelp(EditorContext*ctx){(void)ctx;}
 int show_goto_dialog(EditorContext*ctx,int*line){(void)ctx;(void)line;return 0;}
-void go_to_line(FileState*fs,int line){(void)fs;(void)line;}
+void go_to_line(EditorContext *ctx, FileState*fs,int line){(void)fs;(void)line;}
 void ensure_line_loaded(FileState*fs,int idx){(void)fs;(void)idx;}
 
 /* globals */

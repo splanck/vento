@@ -103,6 +103,6 @@ void show_warning_dialog(EditorContext *ctx) {
     box(ctx->text_win, 0, 0);
     draw_text_buffer(ctx->active_file, ctx->text_win);
     wrefresh(ctx->text_win);
-    update_status_bar(ctx->active_file);
+    update_status_bar(ctx, ctx->active_file);
     wrefresh(stdscr);
 }

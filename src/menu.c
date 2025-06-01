@@ -328,15 +328,11 @@ void menuCloseFile(EditorContext *ctx) {
 }
 
 void menuNextFile(EditorContext *ctx) {
-    next_file(ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
-    ctx->active_file = active_file;
-    ctx->text_win = text_win;
+    next_file(ctx, ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
 }
 
 void menuPrevFile(EditorContext *ctx) {
-    prev_file(ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
-    ctx->active_file = active_file;
-    ctx->text_win = text_win;
+    prev_file(ctx, ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
 }
 
 void menuSettings(EditorContext *ctx) {

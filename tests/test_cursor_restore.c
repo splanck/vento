@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include "file_manager.h"
 #include "editor.h"
+#include "editor_state.h"
 #include "file_ops.h"
 
 int COLS = 80;
@@ -39,14 +40,21 @@ int main(void){
     file_manager.active_index = 0;
     active_file = &fs1;
 
+    EditorContext ctx = {0};
+    ctx.file_manager = file_manager;
+    ctx.active_file = active_file;
+    ctx.text_win = text_win;
+
     int cx = 0, cy = 0;
-    next_file(active_file, &cx, &cy);
+    next_file(&ctx, active_file, &cx, &cy);
     assert(fs1.saved_cursor_x == 5 && fs1.saved_cursor_y == 6);
+    active_file = ctx.active_file;
     assert(active_file == &fs2);
     assert(cx == 2 && cy == 3);
 
     fs2.cursor_x = 10; fs2.cursor_y = 11;
-    prev_file(active_file, &cx, &cy);
+    prev_file(&ctx, active_file, &cx, &cy);
+    active_file = ctx.active_file;
     assert(fs2.saved_cursor_x == 10 && fs2.saved_cursor_y == 11);
     assert(active_file == &fs1);
     assert(cx == 5 && cy == 6);

@@ -84,7 +84,7 @@ int wborder(WINDOW*w,chtype ls,chtype rs,chtype ts,chtype bs,chtype tl,chtype tr
 
 /* stubs for other functions */
 void draw_text_buffer(FileState*fs, WINDOW*w){ (void)fs; (void)w; }
-void update_status_bar(FileState*fs){ (void)fs; }
+void update_status_bar(EditorContext *ctx, FileState*fs){ (void)fs; }
 int show_message(const char*msg){ (void)msg; return 0; }
 
 int main(void){
