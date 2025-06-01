@@ -188,7 +188,7 @@ sudo make install
 On macOS you may need to pass feature macros when compiling, for example:
 
 ```bash
-make CFLAGS="-D_DARWIN_C_SOURCE"
+make CFLAGS="-D_XOPEN_SOURCE_EXTENDED -D_DARWIN_C_SOURCE"
 ```
 
 The code already guards `SIGWINCH`, but enabling additional feature macros may
