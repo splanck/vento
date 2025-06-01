@@ -19,7 +19,8 @@ typedef enum {
     SYNTAX_COMMENT,
     SYNTAX_STRING,
     SYNTAX_TYPE,
-    SYNTAX_SYMBOL
+    SYNTAX_SYMBOL,
+    SYNTAX_SEARCH
 } SyntaxColor;
 
 typedef struct {

@@ -5,3 +5,4 @@ comment_color=GREEN
 string_color=YELLOW
 type_color=MAGENTA
 symbol_color=RED
+search_color=YELLOW

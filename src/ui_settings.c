@@ -49,6 +49,7 @@ static const Option options[] = {
     {"String color", OPT_COLOR, offsetof(AppConfig, string_color), NULL},
     {"Type color", OPT_COLOR, offsetof(AppConfig, type_color), NULL},
     {"Symbol color", OPT_COLOR, offsetof(AppConfig, symbol_color), NULL},
+    {"Search color", OPT_COLOR, offsetof(AppConfig, search_color), NULL},
 };
 
 #define FIELD_COUNT ((int)(sizeof(options) / sizeof(options[0])))
@@ -64,11 +65,11 @@ static void render_theme_sample(const AppConfig *cfg, WINDOW *win, int row) {
     short st = get_color_code(cfg->string_color);
     short ty = get_color_code(cfg->type_color);
     short sy = get_color_code(cfg->symbol_color);
-
-    short base = COLOR_PAIRS - 6;
+    short se = get_color_code(cfg->search_color);
+    short base = COLOR_PAIRS - 7;
     if (base < 1)
         base = 1;
-    if (base + 5 >= COLOR_PAIRS)
+    if (base + 6 >= COLOR_PAIRS)
         return;
 
     init_pair(base, fg == -1 ? COLOR_WHITE : fg, bg);
@@ -77,6 +78,7 @@ static void render_theme_sample(const AppConfig *cfg, WINDOW *win, int row) {
     init_pair(base + 3, st, bg);
     init_pair(base + 4, ty, bg);
     init_pair(base + 5, sy, bg);
+    init_pair(base + 6, se, bg);
 
     int width = getmaxx(win) - 2;
     wattron(win, COLOR_PAIR(base));
@@ -100,16 +102,20 @@ static void render_theme_sample(const AppConfig *cfg, WINDOW *win, int row) {
     col = getcurx(win);
 
     wattron(win, COLOR_PAIR(base + 5));
-    mvwprintw(win, row, col, "symbol");
+    mvwprintw(win, row, col, "symbol ");
+    col = getcurx(win);
+
+    wattron(win, COLOR_PAIR(base + 6));
+    mvwprintw(win, row, col, "search");
 }
 
 static void clear_theme_sample_pairs(void) {
-    short base = COLOR_PAIRS - 6;
+    short base = COLOR_PAIRS - 7;
     if (base < 1)
         base = 1;
-    if (base + 5 >= COLOR_PAIRS)
+    if (base + 6 >= COLOR_PAIRS)
         return;
-    for (short i = 0; i < 6; ++i)
+    for (short i = 0; i < 7; ++i)
         init_pair(base + i, -1, -1);
 }
 

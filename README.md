@@ -66,6 +66,7 @@ This file is created automatically with default values if it does not exist. Unk
 - `string_color`
 - `type_color`
 - `symbol_color`
+- `search_color`
 - `theme`
 - `enable_color`
 - `enable_mouse`

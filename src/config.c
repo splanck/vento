@@ -23,6 +23,7 @@ AppConfig app_config = {
     .string_color = "YELLOW",
     .type_color = "MAGENTA",
     .symbol_color = "RED",
+    .search_color = "YELLOW",
     .theme = "",
     .enable_color = 1,
     .enable_mouse = 1,
@@ -144,6 +145,9 @@ void load_theme(const char *name, AppConfig *cfg) {
         } else if (strcmp(key, "symbol_color") == 0) {
             strncpy(cfg->symbol_color, value, sizeof(cfg->symbol_color)-1);
             cfg->symbol_color[sizeof(cfg->symbol_color)-1] = '\0';
+        } else if (strcmp(key, "search_color") == 0) {
+            strncpy(cfg->search_color, value, sizeof(cfg->search_color)-1);
+            cfg->search_color[sizeof(cfg->search_color)-1] = '\0';
         }
     }
     fclose(f);
@@ -158,6 +162,7 @@ void config_save(const AppConfig *cfg) {
         "string_color",
         "type_color",
         "symbol_color",
+        "search_color",
         "theme",
         "enable_color",
         "enable_mouse",
@@ -177,11 +182,12 @@ void config_save(const AppConfig *cfg) {
     fprintf(f, "%s=%s\n", keys[4], cfg->string_color);
     fprintf(f, "%s=%s\n", keys[5], cfg->type_color);
     fprintf(f, "%s=%s\n", keys[6], cfg->symbol_color);
-    fprintf(f, "%s=%s\n", keys[7], cfg->theme);
-    fprintf(f, "%s=%s\n", keys[8], cfg->enable_color ? "true" : "false");
-    fprintf(f, "%s=%s\n", keys[9], cfg->enable_mouse ? "true" : "false");
-    fprintf(f, "%s=%s\n", keys[10], cfg->show_line_numbers ? "true" : "false");
-    fprintf(f, "%s=%d\n", keys[11], cfg->tab_width);
+    fprintf(f, "%s=%s\n", keys[7], cfg->search_color);
+    fprintf(f, "%s=%s\n", keys[8], cfg->theme);
+    fprintf(f, "%s=%s\n", keys[9], cfg->enable_color ? "true" : "false");
+    fprintf(f, "%s=%s\n", keys[10], cfg->enable_mouse ? "true" : "false");
+    fprintf(f, "%s=%s\n", keys[11], cfg->show_line_numbers ? "true" : "false");
+    fprintf(f, "%s=%d\n", keys[12], cfg->tab_width);
     fclose(f);
 }
 
@@ -266,6 +272,9 @@ void config_load(AppConfig *cfg) {
         } else if (strcmp(key, "symbol_color") == 0) {
             strncpy(tmp.symbol_color, value, sizeof(tmp.symbol_color)-1);
             tmp.symbol_color[sizeof(tmp.symbol_color)-1] = '\0';
+        } else if (strcmp(key, "search_color") == 0) {
+            strncpy(tmp.search_color, value, sizeof(tmp.search_color)-1);
+            tmp.search_color[sizeof(tmp.search_color)-1] = '\0';
         } else if (strcmp(key, "theme") == 0) {
             strncpy(tmp.theme, value, sizeof(tmp.theme)-1);
             tmp.theme[sizeof(tmp.theme)-1] = '\0';
@@ -318,6 +327,9 @@ void config_load(AppConfig *cfg) {
 
             code = get_color_code(cfg->symbol_color);
             if (code != -1) init_pair(SYNTAX_SYMBOL, code, bg);
+
+            code = get_color_code(cfg->search_color);
+            if (code != -1) init_pair(SYNTAX_SEARCH, code, bg);
         }
     }
 }
