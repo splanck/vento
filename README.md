@@ -72,9 +72,13 @@ This file is created automatically with default values if it does not exist. Unk
 - `enable_mouse`
 - `show_line_numbers`
 - `show_startup_warning`
+- `search_ignore_case`
 - `tab_width`
 
 `tab_width` controls how many spaces are inserted when you press the Tab key.
+
+Set `search_ignore_case` to `true` if you want searches performed with
+`CTRL-F` or `CTRL-R` to ignore case differences.
 
 Set `theme` to the base name of a file in the theme directory (without the
 `.theme` extension). The editor searches for the theme case-insensitively. It

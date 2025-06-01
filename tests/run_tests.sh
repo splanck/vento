@@ -216,3 +216,8 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_cli_theme.c src/config.c -lncurses -o test_cli_theme
 VENTO_THEME_DIR=./themes ./test_cli_theme
+
+# build and run search ignore case test
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_search_ignore_case.c src/search.c -lncurses -o test_search_ignore_case
+./test_search_ignore_case

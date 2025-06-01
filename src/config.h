@@ -28,6 +28,7 @@ typedef struct {
     int enable_mouse;
     int show_line_numbers;
     int show_startup_warning;
+    int search_ignore_case;
     int tab_width;
 } AppConfig;
 
