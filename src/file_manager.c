@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "file_manager.h"
+#include "editor_state.h"
 
 FileManager file_manager;
 

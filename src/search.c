@@ -11,6 +11,7 @@
 #include "undo.h"
 #include "syntax.h"
 #include "config.h"
+#include "editor_state.h"
 
 extern char search_text[256];
 

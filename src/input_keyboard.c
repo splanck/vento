@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "config.h"
+#include "editor_state.h"
 #include "input.h"
 #include "clipboard.h"
 #include "syntax.h"

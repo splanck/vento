@@ -4,6 +4,7 @@
 #include "menu.h"
 #include "config.h"
 #include "syntax.h"
+#include "editor_state.h"
 
 /* Draws the top menu bar using the global menu list */
 void drawMenuBar(Menu *menus, int menuCount) {

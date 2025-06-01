@@ -6,6 +6,7 @@
 #include "syntax.h"
 #include "files.h"
 #include "file_manager.h"
+#include "editor_state.h"
 #include "undo.h"
 #include "file_ops.h"
 

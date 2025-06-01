@@ -2,6 +2,7 @@
 #include "ui_common.h"
 #include "syntax.h"
 #include "config.h"
+#include "editor_state.h"
 #include <string.h>
 #include <ctype.h>
 

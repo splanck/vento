@@ -10,6 +10,7 @@
 #include "undo.h"
 #include "files.h"
 #include "syntax.h"
+#include "editor_state.h"
 
 void disable_ctrl_c_z() {
     signal(SIGINT, SIG_IGN);
