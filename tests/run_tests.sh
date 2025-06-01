@@ -254,5 +254,5 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
 
 # build and run line buffer insert/delete test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
-    tests/test_linebuffer_insert_delete.c src/line_buffer.c -o test_linebuffer_insert_delete
+    tests/test_linebuffer_insert_delete.c src/line_buffer.c $CURSES_LIB -o test_linebuffer_insert_delete
 ./test_linebuffer_insert_delete
