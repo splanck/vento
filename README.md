@@ -34,10 +34,11 @@ Vento currently supports the following features:
 - **Interactive Settings Dialog**: Open **File → Settings** and use the arrow
   keys or mouse clicks to choose options. Mouse support can be enabled or
   disabled in this dialog, and all dialogs accept mouse input.
-- **Theme Selection**: Choose from predefined color themes located in the
-  `themes/` directory. Theme names are matched case-insensitively, and the
-  picker shows a live preview of the highlighted colors while you navigate
-  the list.
+- **Theme Selection**: Choose from predefined color themes. The editor first
+  looks in the directory specified by `VENTO_THEME_DIR`, then in the
+  compile-time `THEME_DIR` path (default `themes/`). Theme names are matched
+  case-insensitively, and the picker shows a live preview of the highlighted
+  colors while you navigate the list.
 - **Basic Syntax Highlighting**: Simple syntax highlighting for C, HTML, and Python files.
 - **Status Bar**: Displays the current line and column number.
 - **Scroll Bar**: Indicates your position within the document.
@@ -72,12 +73,12 @@ This file is created automatically with default values if it does not exist. Unk
 
 `tab_width` controls how many spaces are inserted when you press the Tab key.
 
-Set `theme` to the base name of a file in the `themes/` directory (without the
-`.theme` extension). The search for the file is case-insensitive. Colors defined
-in that theme are loaded before any individual color overrides. You can override
-the directory used to locate themes by setting the `VENTO_THEME_DIR`
-environment variable to the directory containing your `.theme` files. Set
-`enable_mouse` to `false` if you want to disable mouse input entirely.
+Set `theme` to the base name of a file in the theme directory (without the
+`.theme` extension). The editor searches for the theme case-insensitively. It
+first checks the `VENTO_THEME_DIR` environment variable and falls back to the
+compiled `THEME_DIR` path, which defaults to `themes`. Colors defined in that
+theme are loaded before any individual color overrides. Set `enable_mouse` to
+`false` if you want to disable mouse input entirely.
 
 ### Multi-File Support
 

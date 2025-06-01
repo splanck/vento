@@ -21,7 +21,7 @@ User preferences are stored in \fI~/.ventorc\fP.  The file is created automatica
 .IP \[bu] 2
 background_color, keyword_color, comment_color, string_color, type_color, symbol_color
 .IP \[bu] 2
-theme \- base name of a file in the \fBthemes\fP directory
+theme \- base name of a file in the theme directory (\fBVENTO_THEME_DIR\fP or the compiled \fBTHEME_DIR\fP)
 .IP \[bu] 2
 enable_color \- enable or disable colored output
 .IP \[bu] 2
@@ -32,6 +32,10 @@ show_line_numbers \- display line numbers in the editor
 tab_width \- number of spaces inserted when Tab is pressed
 .PP
 Configuration options can also be changed interactively using the \fBFile\fP \-> \fBSettings\fP dialog which writes updates back to \fI~/.ventorc\fP.
+.SH ENVIRONMENT
+.TP
+.B VENTO_THEME_DIR
+Directory to search for \fI.theme\fP files. Overrides \fBTHEME_DIR\fP, which defaults to \fBthemes\fP.
 .SH KEYBOARD SHORTCUTS
 .TP
 .B CTRL-S
