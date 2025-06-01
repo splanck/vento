@@ -434,6 +434,8 @@ void run_editor(EditorContext *ctx) {
         if (resize_pending || ch == KEY_RESIZE) {
             perform_resize();
             resize_pending = 0;
+            if (ch == KEY_RESIZE)
+                continue;              /* skip further processing */
         }
 
         if (ch == ERR) {
