@@ -317,6 +317,7 @@ void menuSettings(EditorContext *ctx) {
 }
 
 void menuQuitEditor(EditorContext *ctx) {
+    (void)ctx;
     if (confirm_quit())
         close_editor();
 }
