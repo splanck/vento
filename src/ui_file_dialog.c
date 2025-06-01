@@ -62,7 +62,7 @@ void free_dir_contents(char **choices, int n_choices) {
     free(choices);
 }
 
-static int file_dialog_loop(char *path, int max_len,
+static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
                             int cursor_on_enter, int cursor_on_mouse) {
     curs_set(0);
     int highlight = 0;
@@ -173,7 +173,7 @@ static int file_dialog_loop(char *path, int max_len,
                     return 1;
                 }
             }
-        } else if (ch == KEY_MOUSE && enable_mouse) {
+        } else if (ch == KEY_MOUSE && ctx->enable_mouse) {
             MEVENT ev;
             if (getmouse(&ev) == OK &&
                 (ev.bstate & (BUTTON1_PRESSED | BUTTON1_CLICKED |
@@ -249,11 +249,11 @@ static int file_dialog_loop(char *path, int max_len,
     return 0;
 }
 
-int show_open_file_dialog(char *path, int max_len) {
-    return file_dialog_loop(path, max_len, 1, 0);
+int show_open_file_dialog(EditorContext *ctx, char *path, int max_len) {
+    return file_dialog_loop(ctx, path, max_len, 1, 0);
 }
 
-int show_save_file_dialog(char *path, int max_len) {
-    return file_dialog_loop(path, max_len, 0, 1);
+int show_save_file_dialog(EditorContext *ctx, char *path, int max_len) {
+    return file_dialog_loop(ctx, path, max_len, 0, 1);
 }
 

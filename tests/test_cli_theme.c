@@ -21,11 +21,11 @@ bool any_file_modified(FileManager *fm){(void)fm;return false;}
 int show_message(const char*msg){(void)msg;return 0;}
 void initialize(EditorContext *ctx){(void)ctx;}
 void fm_init(FileManager *fm){(void)fm;}
-void load_file(FileState *fs,const char*fn){(void)fs;(void)fn;}
+void load_file(EditorContext *ctx,FileState *fs,const char*fn){(void)ctx;(void)fs;(void)fn;}
 void new_file(FileState *fs){(void)fs;}
 FileState* fm_current(FileManager *fm){(void)fm;return NULL;}
 int fm_switch(FileManager *fm,int idx){(void)fm;(void)idx;return 0;}
-void show_warning_dialog(void){}
+void show_warning_dialog(EditorContext*ctx){(void)ctx;}
 void run_editor(EditorContext *ctx){(void)ctx;}
 void cleanup_on_exit(FileManager *fm){(void)fm;}
 int endwin(void){return 0;}

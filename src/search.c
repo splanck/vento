@@ -116,13 +116,13 @@ void find_next_occurrence(FileState *fs, const char *word) {
     wrefresh(text_win);
 }
 
-void find(FileState *fs, int new_search)
+void find(EditorContext *ctx, FileState *fs, int new_search)
 {
     char output[256];
 
     if (new_search) {
         while (1) {
-            int confirmed = show_find_dialog(output, sizeof(output),
+            int confirmed = show_find_dialog(ctx, output, sizeof(output),
                                             search_text[0] ? search_text : NULL);
             if (!confirmed)
                 break; /* ESC pressed */
@@ -328,11 +328,12 @@ void replace_all_occurrences(FileState *fs, const char *search,
     wrefresh(text_win);
 }
 
-void replace(FileState *fs) {
+void replace(EditorContext *ctx, FileState *fs) {
     char search[256];
     char replacement[256];
 
-    if (!show_replace_dialog(search, sizeof(search), replacement, sizeof(replacement)))
+    if (!show_replace_dialog(ctx, search, sizeof(search), replacement,
+                             sizeof(replacement)))
         return;
 
     const char *options[] = {"Replace Next", "Replace All", "Cancel"};

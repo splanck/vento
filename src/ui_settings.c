@@ -15,7 +15,8 @@
 const char *select_color(const char *current, WINDOW *parent);
 const char *select_theme(const char *current, WINDOW *parent);
 int select_bool(const char *prompt, int current, WINDOW *parent);
-int select_int(const char *prompt, int current, WINDOW *parent);
+int select_int(EditorContext *ctx, const char *prompt, int current,
+               WINDOW *parent);
 
 static void apply_mouse(AppConfig *cfg) {
     enable_mouse = cfg->enable_mouse;
@@ -122,7 +123,8 @@ static void clear_theme_sample_pairs(void) {
         init_pair(base + i, -1, -1);
 }
 
-static void edit_option(AppConfig *cfg, WINDOW *win, const Option *opt) {
+static void edit_option(EditorContext *ctx, AppConfig *cfg, WINDOW *win,
+                        const Option *opt) {
     if (opt->type == OPT_BOOL) {
         int *val = (int *)((char *)cfg + opt->offset);
         *val = select_bool(opt->label, *val, win);
@@ -143,13 +145,13 @@ static void edit_option(AppConfig *cfg, WINDOW *win, const Option *opt) {
         }
     } else if (opt->type == OPT_INT) {
         int *val = (int *)((char *)cfg + opt->offset);
-        *val = select_int(opt->label, *val, win);
+        *val = select_int(ctx, opt->label, *val, win);
     }
     if (opt->after_change)
         opt->after_change(cfg);
 }
 
-int show_settings_dialog(AppConfig *cfg) {
+int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
     curs_set(0);
     AppConfig original = *cfg;
 
@@ -225,7 +227,7 @@ int show_settings_dialog(AppConfig *cfg) {
             if (highlight < FIELD_COUNT - 1)
                 ++highlight;
         } else if (ch == '\n') {
-            edit_option(cfg, win, &options[highlight]);
+            edit_option(ctx, cfg, win, &options[highlight]);
         } else if (ch == KEY_MOUSE) {
             MEVENT ev;
             if (getmouse(&ev) == OK &&
@@ -239,7 +241,7 @@ int show_settings_dialog(AppConfig *cfg) {
                     col >= 0 && col < win_width - 4) {
                     highlight = row;
                     if (ev.bstate & (BUTTON1_RELEASED | BUTTON1_CLICKED)) {
-                        edit_option(cfg, win, &options[highlight]);
+                        edit_option(ctx, cfg, win, &options[highlight]);
                     }
                 }
             }
@@ -760,12 +762,13 @@ int select_bool(const char *prompt, int current, WINDOW *parent) {
     return current;
 }
 
-int select_int(const char *prompt, int current, WINDOW *parent) {
+int select_int(EditorContext *ctx, const char *prompt, int current,
+               WINDOW *parent) {
     char buf[32];
     snprintf(buf, sizeof(buf), "%d", current);
     char msg[64];
     snprintf(msg, sizeof(msg), "%s", prompt ? prompt : "Value");
-    create_dialog(msg, buf, sizeof(buf));
+    create_dialog(ctx, msg, buf, sizeof(buf));
     if (parent) {
         touchwin(parent);
         wrefresh(parent);

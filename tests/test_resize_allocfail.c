@@ -89,16 +89,16 @@ void move_forward_to_next_word(EditorContext*ctx,FileState*fs){(void)ctx;(void)f
 void move_backward_to_previous_word(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void sync_multiline_comment(FileState*fs,int line){(void)fs;(void)line;}
 void apply_syntax_highlighting(FileState*fs,WINDOW*win,const char*line,int y){(void)fs;(void)win;(void)line;(void)y;}
-void show_about(void){}
-void show_help(void){}
-void find(FileState*fs,int new_search){(void)fs;(void)new_search;}
+void show_about(EditorContext*ctx){(void)ctx;}
+void show_help(EditorContext*ctx){(void)ctx;}
+void find(EditorContext*ctx,FileState*fs,int new_search){(void)ctx;(void)fs;(void)new_search;}
 void handleMenuNavigation(Menu*m,int mc,int*cm,int*ci){(void)m;(void)mc;(void)cm;(void)ci;}
 void handle_selection_mode(FileState*fs,int ch,int*cx,int*cy){(void)fs;(void)ch;(void)cx;(void)cy;}
-void replace(FileState*fs){(void)fs;}
-void save_file(FileState*fs){(void)fs;}
-void save_file_as(FileState*fs){(void)fs;}
-void load_file(FileState*fs,const char*fn){(void)fs;(void)fn;}
-void close_current_file(FileState*fs,int*cx,int*cy){(void)fs;(void)cx;(void)cy;}
+void replace(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void save_file(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void save_file_as(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;(void)fn;}
+void close_current_file(EditorContext*ctx,FileState*fs,int*cx,int*cy){(void)ctx;(void)fs;(void)cx;(void)cy;}
 int menu_click_open(int x,int y){(void)x;(void)y;return 0;}
 void menuNewFile(EditorContext*ctx){(void)ctx;}
 void menuLoadFile(EditorContext*ctx){(void)ctx;}
@@ -115,7 +115,7 @@ void menuFind(EditorContext*ctx){(void)ctx;}
 void menuReplace(EditorContext*ctx){(void)ctx;}
 void menuAbout(EditorContext*ctx){(void)ctx;}
 void menuHelp(EditorContext*ctx){(void)ctx;}
-int show_goto_dialog(int*line){(void)line;return 0;}
+int show_goto_dialog(EditorContext*ctx,int*line){(void)ctx;(void)line;return 0;}
 void go_to_line(FileState*fs,int line){(void)fs;(void)line;}
 void ensure_line_loaded(FileState*fs,int idx){(void)fs;(void)idx;}
 

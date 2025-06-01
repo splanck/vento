@@ -31,8 +31,8 @@ int COLS = 80;
 int LINES = 24;
 char search_text[256];
 AppConfig app_config;
-int show_find_dialog(char*out,int sz,const char*def){(void)out;(void)sz;(void)def;return 0;}
-int show_replace_dialog(char*s,int ss,char*r,int rs){(void)s;(void)ss;(void)r;(void)rs;return 0;}
+int show_find_dialog(EditorContext*ctx,char*out,int sz,const char*def){(void)ctx;(void)out;(void)sz;(void)def;return 0;}
+int show_replace_dialog(EditorContext*ctx,char*s,int ss,char*r,int rs){(void)ctx;(void)s;(void)ss;(void)r;(void)rs;return 0;}
 
 void draw_text_buffer(FileState*fs, WINDOW*w){(void)fs;(void)w;}
 void push(Node **stack, Change change){(void)stack; free(change.old_text); free(change.new_text);}

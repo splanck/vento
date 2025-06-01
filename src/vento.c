@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        load_file(NULL, argv[i]);
+        load_file(&editor, NULL, argv[i]);
         if (first_index == -1)
             first_index = file_manager.active_index;
         else
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
 
     // Show the warning dialog before entering the main editor loop
     if (app_config.show_startup_warning)
-        show_warning_dialog();
+        show_warning_dialog(&editor);
 
     // Finishes initializing editor window and begin accepting keyboard input.
     run_editor(&editor);

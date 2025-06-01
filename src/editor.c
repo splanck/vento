@@ -211,7 +211,7 @@ static void handle_help_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)fs;
     (void)cx;
     (void)cy;
-    show_help();
+    show_help(input_ctx);
     redraw();
 }
 
@@ -219,34 +219,34 @@ static void handle_about_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)fs;
     (void)cx;
     (void)cy;
-    show_about();
+    show_about(input_ctx);
     redraw();
 }
 
 static void handle_find_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
     (void)cy;
-    find(fs, 1);
+    find(input_ctx, fs, 1);
     redraw();
 }
 
 static void handle_find_next_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
     (void)cy;
-    find(fs, 0);
+    find(input_ctx, fs, 0);
     redraw();
 }
 
 static void handle_replace_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
     (void)cy;
-    replace(fs);
+    replace(input_ctx, fs);
     redraw();
 }
 
 static void handle_goto_line_wrapper(struct FileState *fs, int *cx, int *cy) {
     int line;
-    if (show_goto_dialog(&line)) {
+    if (show_goto_dialog(input_ctx, &line)) {
         go_to_line(fs, line);
         *cx = fs->cursor_x;
         *cy = fs->cursor_y;
@@ -280,22 +280,26 @@ static void handle_move_backward_wrapper(struct FileState *fs, int *cx, int *cy)
 static void handle_load_file_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
     (void)cy;
-    load_file(fs, NULL);
+    load_file(input_ctx, fs, NULL);
     redraw();
 }
 
 static void handle_save_as_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
     (void)cy;
-    save_file_as(fs);
+    save_file_as(input_ctx, fs);
     redraw();
 }
 
 static void handle_save_file_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
     (void)cy;
-    save_file(fs);
+    save_file(input_ctx, fs);
     redraw();
+}
+
+static void handle_close_file_wrapper(struct FileState *fs, int *cx, int *cy) {
+    close_current_file(input_ctx, fs, cx, cy);
 }
 
 static void handle_selection_mode_wrapper(struct FileState *fs, int *cx, int *cy) {
@@ -370,7 +374,7 @@ void initialize_key_mappings(void) {
     key_mappings[key_mapping_count++] = (KeyMapping){key_load_file, handle_load_file_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_save_as, handle_save_as_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_save_file, handle_save_file_wrapper};
-    key_mappings[key_mapping_count++] = (KeyMapping){key_close_file, close_current_file};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_close_file, handle_close_file_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_selection_mode, handle_selection_mode_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_paste_clipboard, handle_paste_clipboard_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_copy_selection, handle_copy_selection_wrapper};

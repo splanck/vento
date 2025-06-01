@@ -307,21 +307,22 @@ void menuNewFile(EditorContext *ctx) {
 }
 
 void menuLoadFile(EditorContext *ctx) {
-    load_file(ctx->active_file, NULL);
+    load_file(ctx, ctx->active_file, NULL);
     ctx->active_file = active_file;
     ctx->text_win = text_win;
 }
 
 void menuSaveFile(EditorContext *ctx) {
-    save_file(ctx->active_file);
+    save_file(ctx, ctx->active_file);
 }
 
 void menuSaveAs(EditorContext *ctx) {
-    save_file_as(ctx->active_file);
+    save_file_as(ctx, ctx->active_file);
 }
 
 void menuCloseFile(EditorContext *ctx) {
-    close_current_file(ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
+    close_current_file(ctx, ctx->active_file, &ctx->active_file->cursor_x,
+                      &ctx->active_file->cursor_y);
     ctx->active_file = active_file;
     ctx->text_win = text_win;
 }
@@ -339,7 +340,7 @@ void menuPrevFile(EditorContext *ctx) {
 }
 
 void menuSettings(EditorContext *ctx) {
-    if (show_settings_dialog(&ctx->config)) {
+    if (show_settings_dialog(ctx, &ctx->config)) {
         config_save(&ctx->config);
         config_load(&ctx->config);
         ctx->enable_mouse = enable_mouse;
@@ -368,19 +369,19 @@ void menuRedo(EditorContext *ctx) {
 }
 
 void menuFind(EditorContext *ctx) {
-    find(ctx->active_file, 1);
+    find(ctx, ctx->active_file, 1);
 }
 
 void menuReplace(EditorContext *ctx) {
-    replace(ctx->active_file);
+    replace(ctx, ctx->active_file);
 }
 
 void menuAbout(EditorContext *ctx) {
-    show_about();
+    show_about(ctx);
 }
 
 void menuHelp(EditorContext *ctx) {
-    show_help();
+    show_help(ctx);
 }
 
 

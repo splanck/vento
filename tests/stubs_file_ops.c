@@ -18,8 +18,8 @@ int fm_add(FileManager *fm, FileState *fs){(void)fm;(void)fs;return 0;}
 void fm_close(FileManager *fm,int i){(void)fm;(void)i;}
 FileState *fm_current(FileManager *fm){(void)fm;return NULL;}
 int fm_switch(FileManager *fm,int i){(void)fm;(void)i;return 0;}
-int show_open_file_dialog(char *p,int m){(void)p;(void)m;return 0;}
-int show_save_file_dialog(char *p,int m){(void)p;(void)m;return 0;}
+int show_open_file_dialog(EditorContext *ctx,char *p,int m){(void)ctx;(void)p;(void)m;return 0;}
+int show_save_file_dialog(EditorContext *ctx,char *p,int m){(void)ctx;(void)p;(void)m;return 0;}
 void update_status_bar(FileState *fs){(void)fs;}
 void redraw(void){}
 int show_message(const char *msg){(void)msg;return 0;}

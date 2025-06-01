@@ -65,13 +65,13 @@ int touchwin(WINDOW*w){(void)w;return 0;}
 
 /* stubs for external editor functions referenced in menu.c */
 void new_file(FileState*fs){(void)fs;}
-void load_file(FileState*fs,const char*fn){(void)fs;(void)fn;}
-void save_file(FileState*fs){(void)fs;}
-void save_file_as(FileState*fs){(void)fs;}
-void close_current_file(FileState*fs,int*cx,int*cy){(void)fs;(void)cx;(void)cy;}
+void load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;(void)fn;}
+void save_file(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void save_file_as(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void close_current_file(EditorContext*ctx,FileState*fs,int*cx,int*cy){(void)ctx;(void)fs;(void)cx;(void)cy;}
 void next_file(FileState*fs,int*cx,int*cy){(void)fs;(void)cx;(void)cy;}
 void prev_file(FileState*fs,int*cx,int*cy){(void)fs;(void)cx;(void)cy;}
-int show_settings_dialog(AppConfig*cfg){(void)cfg;return 0;}
+int show_settings_dialog(EditorContext*ctx,AppConfig*cfg){(void)ctx;(void)cfg;return 0;}
 void config_save(const AppConfig*cfg){(void)cfg;}
 void config_load(AppConfig*cfg){(void)cfg;}
 mmask_t mousemask(mmask_t newmask, mmask_t *old){(void)newmask;if(old)*old=0;return 0;}
@@ -81,10 +81,10 @@ bool confirm_quit(void){return false;}
 void close_editor(void){}
 void undo(FileState*fs){(void)fs;}
 void redo(FileState*fs){(void)fs;}
-void find(FileState*fs,int n){(void)fs;(void)n;}
-void replace(FileState*fs){(void)fs;}
-void show_about(void){}
-void show_help(void){}
+void find(EditorContext*ctx,FileState*fs,int n){(void)ctx;(void)fs;(void)n;}
+void replace(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void show_about(EditorContext*ctx){(void)ctx;}
+void show_help(EditorContext*ctx){(void)ctx;}
 void allocation_failed(const char*msg){(void)msg;abort();}
 
 #include "../src/menu_draw.c"
