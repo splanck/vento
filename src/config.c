@@ -17,6 +17,7 @@ int show_line_numbers = 0; // global line number flag
 // default application configuration
 AppConfig app_config = {
     .background_color = "BLACK",
+    .text_color = "WHITE",
     .keyword_color = "CYAN",
     .comment_color = "GREEN",
     .string_color = "YELLOW",
@@ -125,6 +126,9 @@ void load_theme(const char *name, AppConfig *cfg) {
         if (strcmp(key, "background_color") == 0) {
             strncpy(cfg->background_color, value, sizeof(cfg->background_color)-1);
             cfg->background_color[sizeof(cfg->background_color)-1] = '\0';
+        } else if (strcmp(key, "text_color") == 0) {
+            strncpy(cfg->text_color, value, sizeof(cfg->text_color)-1);
+            cfg->text_color[sizeof(cfg->text_color)-1] = '\0';
         } else if (strcmp(key, "keyword_color") == 0) {
             strncpy(cfg->keyword_color, value, sizeof(cfg->keyword_color)-1);
             cfg->keyword_color[sizeof(cfg->keyword_color)-1] = '\0';
@@ -148,6 +152,7 @@ void load_theme(const char *name, AppConfig *cfg) {
 void config_save(const AppConfig *cfg) {
     static const char *keys[] = {
         "background_color",
+        "text_color",
         "keyword_color",
         "comment_color",
         "string_color",
@@ -166,16 +171,17 @@ void config_save(const AppConfig *cfg) {
     if (!f) return;
 
     fprintf(f, "%s=%s\n", keys[0], cfg->background_color);
-    fprintf(f, "%s=%s\n", keys[1], cfg->keyword_color);
-    fprintf(f, "%s=%s\n", keys[2], cfg->comment_color);
-    fprintf(f, "%s=%s\n", keys[3], cfg->string_color);
-    fprintf(f, "%s=%s\n", keys[4], cfg->type_color);
-    fprintf(f, "%s=%s\n", keys[5], cfg->symbol_color);
-    fprintf(f, "%s=%s\n", keys[6], cfg->theme);
-    fprintf(f, "%s=%s\n", keys[7], cfg->enable_color ? "true" : "false");
-    fprintf(f, "%s=%s\n", keys[8], cfg->enable_mouse ? "true" : "false");
-    fprintf(f, "%s=%s\n", keys[9], cfg->show_line_numbers ? "true" : "false");
-    fprintf(f, "%s=%d\n", keys[10], cfg->tab_width);
+    fprintf(f, "%s=%s\n", keys[1], cfg->text_color);
+    fprintf(f, "%s=%s\n", keys[2], cfg->keyword_color);
+    fprintf(f, "%s=%s\n", keys[3], cfg->comment_color);
+    fprintf(f, "%s=%s\n", keys[4], cfg->string_color);
+    fprintf(f, "%s=%s\n", keys[5], cfg->type_color);
+    fprintf(f, "%s=%s\n", keys[6], cfg->symbol_color);
+    fprintf(f, "%s=%s\n", keys[7], cfg->theme);
+    fprintf(f, "%s=%s\n", keys[8], cfg->enable_color ? "true" : "false");
+    fprintf(f, "%s=%s\n", keys[9], cfg->enable_mouse ? "true" : "false");
+    fprintf(f, "%s=%s\n", keys[10], cfg->show_line_numbers ? "true" : "false");
+    fprintf(f, "%s=%d\n", keys[11], cfg->tab_width);
     fclose(f);
 }
 
@@ -242,6 +248,9 @@ void config_load(AppConfig *cfg) {
         if (strcmp(key, "background_color") == 0) {
             strncpy(tmp.background_color, value, sizeof(tmp.background_color)-1);
             tmp.background_color[sizeof(tmp.background_color)-1] = '\0';
+        } else if (strcmp(key, "text_color") == 0) {
+            strncpy(tmp.text_color, value, sizeof(tmp.text_color)-1);
+            tmp.text_color[sizeof(tmp.text_color)-1] = '\0';
         } else if (strcmp(key, "keyword_color") == 0) {
             strncpy(tmp.keyword_color, value, sizeof(tmp.keyword_color)-1);
             tmp.keyword_color[sizeof(tmp.keyword_color)-1] = '\0';
@@ -291,7 +300,9 @@ void config_load(AppConfig *cfg) {
             short code;
             short bg = get_color_code(cfg->background_color);
             if (bg == -1) bg = -1;
-            init_pair(SYNTAX_BG, COLOR_WHITE, bg);
+            short fg = get_color_code(cfg->text_color);
+            if (fg == -1) fg = COLOR_WHITE;
+            init_pair(SYNTAX_BG, fg, bg);
 
             code = get_color_code(cfg->keyword_color);
             if (code != -1) init_pair(SYNTAX_KEYWORD, code, bg);
