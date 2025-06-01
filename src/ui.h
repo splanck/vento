@@ -2,6 +2,7 @@
 #define UI_H
 
 #include "config.h"
+#include "editor.h"
 #include "editor_state.h"
 #include <ncurses.h>
 

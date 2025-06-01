@@ -8,6 +8,7 @@
 #include <ncurses.h>
 #include <stdio.h>
 #include "config.h"
+#include "editor.h"
 #include "editor_state.h"
 
 void get_dir_contents(const char *dir_path, char ***choices, int *n_choices) {

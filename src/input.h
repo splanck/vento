@@ -4,6 +4,7 @@
 #define BOTTOM_MARGIN 4 // Define the bottom UI margin
 
 #include "files.h"
+#include "editor.h"
 #include "editor_state.h"
 void handle_ctrl_backtick(EditorContext *ctx);
 void handle_key_up(EditorContext *ctx, struct FileState *fs);
