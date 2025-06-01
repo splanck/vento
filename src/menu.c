@@ -8,15 +8,16 @@
 #include "ui.h"
 #include "undo.h"
 #include "config.h"
+
 #include "editor_state.h"
+
+#define ARRAY_LEN(arr) ((int)(sizeof(arr) / sizeof((arr)[0])))
 
 /* confirm_quit implemented in vento.c */
 bool confirm_quit(void);
 
-Menu *menus = NULL;
-int menuCount = 0;
-int *menuPositions = NULL;
 static EditorContext *menu_ctx = NULL;
+
 
 static void menuNewFile_cb(void)    { menuNewFile(menu_ctx); }
 static void menuLoadFile_cb(void)   { menuLoadFile(menu_ctx); }
@@ -34,96 +35,60 @@ static void menuReplace_cb(void)    { menuReplace(menu_ctx); }
 static void menuAbout_cb(void)      { menuAbout(menu_ctx); }
 static void menuHelp_cb(void)       { menuHelp(menu_ctx); }
 
+static MenuItem file_items[] = {
+    {"New File", menuNewFile_cb, false},
+    {"Load File", menuLoadFile_cb, false},
+    {"Save File", menuSaveFile_cb, false},
+    {"Save As", menuSaveAs_cb, false},
+    {"", NULL, true},
+    {"Close File", menuCloseFile_cb, false},
+    {"Quit", menuQuitEditor_cb, false},
+};
+
+static MenuItem edit_items[] = {
+    {"Undo", menuUndo_cb, false},
+    {"Redo", menuRedo_cb, false},
+    {"", NULL, true},
+    {"Find", menuFind_cb, false},
+    {"Replace", menuReplace_cb, false},
+};
+
+static MenuItem nav_items[] = {
+    {"Next File", menuNextFile_cb, false},
+    {"Previous File", menuPrevFile_cb, false},
+};
+
+static MenuItem opt_items[] = {
+    {"Settings", menuSettings_cb, false},
+};
+
+static MenuItem help_items[] = {
+    {"Help Screen", menuHelp_cb, false},
+    {"About Vento", menuAbout_cb, false},
+};
+
+static Menu menus_static[] = {
+    {"File", file_items, ARRAY_LEN(file_items)},
+    {"Edit", edit_items, ARRAY_LEN(edit_items)},
+    {"Navigate", nav_items, ARRAY_LEN(nav_items)},
+    {"Options", opt_items, ARRAY_LEN(opt_items)},
+    {"Help", help_items, ARRAY_LEN(help_items)},
+};
+
+static int menuPositions_static[ARRAY_LEN(menus_static)] = {0};
+
+Menu *menus = menus_static;
+int menuCount = ARRAY_LEN(menus_static);
+int *menuPositions = menuPositions_static;
 
 /**
  * Initializes the menus.
  */
 void initializeMenus(EditorContext *ctx) {
     menu_ctx = ctx;
-    // Set the number of menus
-    menuCount = 5;
-
-    // Allocate memory for the menus array
-    menus = calloc(menuCount, sizeof(Menu));
-    if (menus == NULL) {
-        freeMenus();
-        allocation_failed("initializeMenus");
-    }
-
-    menuPositions = calloc(menuCount, sizeof(int));
-    if (!menuPositions) {
-        freeMenus();
-        allocation_failed("initializeMenus");
-    }
-
-    // Create the file menu
-    MenuItem *fileMenuItems = malloc(7 * sizeof(MenuItem));
-    if (fileMenuItems == NULL) {
-        freeMenus();
-        allocation_failed("initializeMenus");
-    }
-    fileMenuItems[0] = (MenuItem){"New File", menuNewFile_cb, false};
-    fileMenuItems[1] = (MenuItem){"Load File", menuLoadFile_cb, false};
-    fileMenuItems[2] = (MenuItem){"Save File", menuSaveFile_cb, false};
-    fileMenuItems[3] = (MenuItem){"Save As", menuSaveAs_cb, false};
-    fileMenuItems[4] = (MenuItem){"", NULL, true};
-    fileMenuItems[5] = (MenuItem){"Close File", menuCloseFile_cb, false};
-    fileMenuItems[6] = (MenuItem){"Quit", menuQuitEditor_cb, false};
-
-    // Initialize and assign the file menu
-    Menu fileMenu = {"File", fileMenuItems, 7};
-    menus[0] = fileMenu;
-
-    // Create the edit menu
-    MenuItem *editMenuItems = malloc(5 * sizeof(MenuItem));
-    if (editMenuItems == NULL) {
-        freeMenus();
-        allocation_failed("initializeMenus");
-    }
-    editMenuItems[0] = (MenuItem){"Undo", menuUndo_cb, false};
-    editMenuItems[1] = (MenuItem){"Redo", menuRedo_cb, false};
-    editMenuItems[2] = (MenuItem){"", NULL, true};
-    editMenuItems[3] = (MenuItem){"Find", menuFind_cb, false};
-    editMenuItems[4] = (MenuItem){"Replace", menuReplace_cb, false};
-
-    // Initialize and assign the edit menu
-    Menu editMenu = {"Edit", editMenuItems, 5};
-    menus[1] = editMenu;
-
-    // Create the navigate menu
-    MenuItem *navMenuItems = malloc(2 * sizeof(MenuItem));
-    if (navMenuItems == NULL) {
-        freeMenus();
-        allocation_failed("initializeMenus");
-    }
-    navMenuItems[0] = (MenuItem){"Next File", menuNextFile_cb, false};
-    navMenuItems[1] = (MenuItem){"Previous File", menuPrevFile_cb, false};
-    Menu navMenu = {"Navigate", navMenuItems, 2};
-    menus[2] = navMenu;
-
-    // Create the options menu
-    MenuItem *optMenuItems = malloc(1 * sizeof(MenuItem));
-    if (optMenuItems == NULL) {
-        freeMenus();
-        allocation_failed("initializeMenus");
-    }
-    optMenuItems[0] = (MenuItem){"Settings", menuSettings_cb, false};
-    Menu optMenu = {"Options", optMenuItems, 1};
-    menus[3] = optMenu;
-
-    // Create the help menu
-    MenuItem *helpMenuItems = malloc(2 * sizeof(MenuItem));
-    if (helpMenuItems == NULL) {
-        freeMenus();
-        allocation_failed("initializeMenus");
-    }
-    helpMenuItems[0] = (MenuItem){"Help Screen", menuHelp_cb, false};
-    helpMenuItems[1] = (MenuItem){"About Vento", menuAbout_cb, false};
-    // Initialize and assign the help menu
-    Menu helpMenu = {"Help", helpMenuItems, 2};
-    menus[4] = helpMenu;
-
-    drawMenuBar(menus, menuCount);
+    menus = menus_static;
+    menuPositions = menuPositions_static;
+    menuCount = ARRAY_LEN(menus_static);
 }
 
 /**
@@ -385,22 +350,11 @@ void menuHelp(EditorContext *ctx) {
  * Frees the memory allocated for all menus and their menu items.
  */
 void freeMenus() {
-    if (menus == NULL) {
-        return;
-    }
-
-    for (int i = 0; i < menuCount; ++i) {
-        if (menus[i].items != NULL) {
-            free(menus[i].items);
-            menus[i].items = NULL;  // Avoid dangling pointer
-        }
-    }
-
-    free(menus);
-    menus = NULL;
-    free(menuPositions);
-    menuPositions = NULL;
-    menuCount = 0;
+    (void)menus;
+    (void)menuPositions;
+    menuCount = ARRAY_LEN(menus_static);
+    menus = menus_static;
+    menuPositions = menuPositions_static;
 }
 
 int menu_click_open(int x, int y) {
