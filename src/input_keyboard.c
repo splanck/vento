@@ -1,5 +1,5 @@
 #include "editor.h"
-#include <ncursesw/curses.h>
+#include <ncurses.h>
 #include <wchar.h>
 #include <wctype.h>
 #include "undo.h"
