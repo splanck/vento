@@ -7,6 +7,7 @@
 #include "files.h"
 #include "file_manager.h"
 #include "undo.h"
+#include "file_ops.h"
 
 void delete_current_line(FileState *fs) {
     if (fs->line_count == 0) {
@@ -88,6 +89,8 @@ void next_file(FileState *fs_unused, int *cx, int *cy) {
     if (file_manager.count == 0) {
         return;
     }
+    if (!confirm_switch())
+        return;
     int idx = file_manager.active_index + 1;
     if (idx >= file_manager.count) idx = 0;
     fm_switch(&file_manager, idx);
@@ -105,6 +108,8 @@ void prev_file(FileState *fs_unused, int *cx, int *cy) {
     if (file_manager.count == 0) {
         return;
     }
+    if (!confirm_switch())
+        return;
     int idx = file_manager.active_index - 1;
     if (idx < 0) idx = file_manager.count - 1;
     fm_switch(&file_manager, idx);
