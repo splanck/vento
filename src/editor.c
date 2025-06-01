@@ -536,7 +536,8 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
             if (start_x < COLS - 2 && len > 0) {
                 if (start_x + len > COLS - 2)
                     len = COLS - 2 - start_x;
-                mvwchgat(win, i + 1, start_x + 1, len, A_REVERSE, 0, NULL);
+                mvwchgat(win, i + 1, start_x + 1, len,
+                         COLOR_PAIR(SYNTAX_SEARCH) | A_BOLD, 0, NULL);
             }
         }
     }

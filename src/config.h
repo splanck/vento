@@ -22,6 +22,7 @@ typedef struct {
     char string_color[16];
     char type_color[16];
     char symbol_color[16];
+    char search_color[16];
     char theme[32];
     int enable_color;
     int enable_mouse;

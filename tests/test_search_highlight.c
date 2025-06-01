@@ -18,6 +18,7 @@
 
 #include "files.h"
 #include "search.h"
+#include "syntax.h"
 #include "menu.h"
 #include "file_manager.h"
 #include "menu.h"
@@ -148,7 +149,7 @@ int main(void){
     assert(chgat_y==2);
     assert(chgat_x==1);
     assert(chgat_len==3);
-    assert(chgat_attr==A_REVERSE);
+    assert(chgat_attr==(COLOR_PAIR(SYNTAX_SEARCH)|A_BOLD));
 
     delwin(text_win);
     for(int i=0;i<fs.max_lines;i++) free(fs.text_buffer[i]);
