@@ -141,8 +141,6 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     mvprintw(LINES - 2, 2, "                            ");
     refresh();
     text_win = fs->text_win;
-    keypad(text_win, TRUE);
-    meta(text_win, TRUE);
 
     box(text_win, 0, 0);
     wmove(text_win, 1, 1 + get_line_number_offset(fs));
@@ -198,9 +196,6 @@ void new_file(FileState *fs_unused) {
 
     active_file = fm_current(&file_manager);
     text_win = fs->text_win;
-
-    keypad(text_win, TRUE);
-    meta(text_win, TRUE);
     box(text_win, 0, 0);
     fs->cursor_x = fs->saved_cursor_x;
     fs->cursor_y = fs->saved_cursor_y;

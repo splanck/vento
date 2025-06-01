@@ -29,6 +29,8 @@ int werase(WINDOW*w){(void)w;return 0;}
 int box(WINDOW*w,chtype a,chtype b){(void)w;(void)a;(void)b;return 0;}
 int wrefresh(WINDOW*w){(void)w;return 0;}
 int wmove(WINDOW*w,int y,int x){(void)w;(void)y;(void)x;return 0;}
+int keypad(WINDOW*w,bool b){(void)w;(void)b;return 0;}
+int meta(WINDOW*w,bool b){(void)w;(void)b;return 0;}
 int endwin(void){return 0;}
 int refresh(void){return 0;}
 int clear(void){return 0;}

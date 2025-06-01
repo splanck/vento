@@ -64,6 +64,8 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
         free(file_state);
         return NULL;
     }
+    keypad(file_state->text_win, TRUE);
+    meta(file_state->text_win, TRUE);
     wtimeout(file_state->text_win, 10);
     wbkgd(file_state->text_win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
 
