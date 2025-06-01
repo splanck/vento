@@ -2,6 +2,7 @@
 #include "config.h"
 #include "ui_common.h"
 #include "syntax.h"
+#include "dialog.h"
 #include <ncurses.h>
 #include <string.h>
 
@@ -60,26 +61,11 @@ void show_help() {
 }
 
 void show_about() {
-    curs_set(0);
     int win_height = 10;
     int win_width = COLS - 20;
-    if (win_width > COLS - 2 || win_width < 2)
-        win_width = COLS - 2;
-    int win_y = (LINES - win_height) / 2;
-    int win_x = (COLS - win_width) / 2;
-    if (win_x < 0)
-        win_x = 0;
-
-    WINDOW *about_win = newwin(win_height, win_width, win_y, win_x);
-    if (!about_win) {
-        if (show_message("Unable to create window") == ERR)
-            return;
+    WINDOW *about_win = dialog_open(win_height, win_width, "About");
+    if (!about_win)
         return;
-    }
-    keypad(about_win, TRUE);
-    wbkgd(about_win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
-    wrefresh(stdscr);
-    box(about_win, 0, 0);
 
     mvwprintw(about_win, 1, 2, "Vento Text Editor");
     mvwprintw(about_win, 2, 2, "Version: %s", VERSION);
@@ -89,34 +75,15 @@ void show_about() {
     wrefresh(about_win);
     wgetch(about_win);
 
-    wclear(about_win);
-    wrefresh(about_win);
-    delwin(about_win);
-    wrefresh(stdscr);
-    curs_set(1);
+    dialog_close(about_win);
 }
 
 void show_warning_dialog() {
-    curs_set(0);
     int win_height = 7;
     int win_width = COLS - 20;
-    if (win_width > COLS - 2 || win_width < 2)
-        win_width = COLS - 2;
-    int win_y = (LINES - win_height) / 2;
-    int win_x = (COLS - win_width) / 2;
-    if (win_x < 0)
-        win_x = 0;
-
-    WINDOW *warning_win = newwin(win_height, win_width, win_y, win_x);
-    if (!warning_win) {
-        if (show_message("Unable to create window") == ERR)
-            return;
+    WINDOW *warning_win = dialog_open(win_height, win_width, "Warning");
+    if (!warning_win)
         return;
-    }
-    keypad(warning_win, TRUE);
-    wbkgd(warning_win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
-    wrefresh(stdscr);
-    box(warning_win, 0, 0);
 
     char *message1 = "Warning: This is experimental software.";
     char *message2 = "It is under development and not intended for production use.";
@@ -129,10 +96,7 @@ void show_warning_dialog() {
     wrefresh(warning_win);
     wgetch(warning_win);
 
-    werase(warning_win);
-    wrefresh(warning_win);
-    delwin(warning_win);
-    wrefresh(stdscr);
+    dialog_close(warning_win);
 
     werase(text_win);
     box(text_win, 0, 0);
@@ -140,5 +104,4 @@ void show_warning_dialog() {
     wrefresh(text_win);
     update_status_bar(active_file);
     wrefresh(stdscr);
-    curs_set(1);
 }

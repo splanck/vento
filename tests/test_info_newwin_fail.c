@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <ncurses.h>
 #include "ui.h"
+#include "dialog.h"
 #include "editor.h"
 #include "files.h"
 #include "config.h"
@@ -16,6 +17,8 @@
 #undef delwin
 #undef curs_set
 #undef werase
+#undef getbegyx
+#undef getmaxyx
 
 /* simple WINDOW stub */
 typedef struct { int dummy; } SIMPLE_WIN;
@@ -45,11 +48,18 @@ int wclear(WINDOW*w){(void)w;return 0;}
 int delwin(WINDOW*w){(void)w;return 0;}
 int curs_set(int c){(void)c;return 0;}
 int werase(WINDOW*w){(void)w;return 0;}
+#define getbegyx(win,y,x) do{ (void)(win); y=0; x=0; }while(0)
+#define getmaxyx(win,y,x) do{ (void)(win); y=LINES; x=COLS; }while(0)
 
 void draw_text_buffer(FileState*fs, WINDOW*w){(void)fs;(void)w;}
 void update_status_bar(FileState*fs){(void)fs;}
 
 int main(void){
+    show_message_called = 0;
+    WINDOW *w = dialog_open(5, 20, "Test");
+    assert(w == NULL);
+    assert(show_message_called == 1);
+
     show_message_called = 0;
     show_help();
     assert(show_message_called == 1);
