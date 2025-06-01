@@ -9,6 +9,8 @@
 /* minimal WINDOW stubs */
 WINDOW *newwin(int nlines,int ncols,int y,int x){(void)nlines;(void)ncols;(void)y;(void)x;return (WINDOW*)1;}
 int delwin(WINDOW*w){(void)w;return 0;}
+int keypad(WINDOW*w,bool b){(void)w;(void)b;return 0;}
+int meta(WINDOW*w,bool b){(void)w;(void)b;return 0;}
 
 int main(void){
     const char *fname = "tmp_long_line.txt";
