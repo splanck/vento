@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <assert.h>
 #include <string.h>
 #include <stdarg.h>
@@ -17,6 +18,7 @@
 #undef wattroff
 
 #include "files.h"
+#include "line_buffer.h"
 #include "search.h"
 #include "config.h"
 #include "syntax.h"
@@ -134,12 +136,15 @@ AppConfig app_config;
 int main(void){
     FileState fs = {0};
     fs.line_capacity = 32;
-    fs.buffer.capacity = 3;
-    fs.buffer.lines = calloc(fs.buffer.capacity,sizeof(char*));
-    for(int i=0;i<fs.buffer.capacity;i++) fs.buffer.lines[i]=calloc(fs.line_capacity,sizeof(char));
-    strcpy(fs.buffer.lines[0],"hello");
-    strcpy(fs.buffer.lines[1],"foo bar");
-    fs.buffer.count = 2;
+    lb_init(&fs.buffer, 3);
+    lb_insert(&fs.buffer, 0, "hello");
+    lb_insert(&fs.buffer, 1, "foo bar");
+    char *tmp = realloc(fs.buffer.lines[0], fs.line_capacity);
+    if (!tmp) abort();
+    fs.buffer.lines[0] = tmp;
+    tmp = realloc(fs.buffer.lines[1], fs.line_capacity);
+    if (!tmp) abort();
+    fs.buffer.lines[1] = tmp;
     fs.cursor_x = 0; fs.cursor_y = 0;
     fs.start_line = 0;
 
@@ -154,7 +159,6 @@ int main(void){
     assert(chgat_attr==(COLOR_PAIR(SYNTAX_SEARCH)|A_BOLD));
 
     delwin(text_win);
-    for(int i=0;i<fs.buffer.capacity;i++) free(fs.buffer.lines[i]);
-    free(fs.buffer.lines);
+    lb_free(&fs.buffer);
     return 0;
 }

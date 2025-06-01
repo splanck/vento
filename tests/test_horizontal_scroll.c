@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ncurses.h>
 #include "files.h"
+#include "line_buffer.h"
 #include "input.h"
 #include "editor.h"
 
@@ -24,11 +25,11 @@ void load_all_remaining_lines(FileState *fs){ (void)fs; }
 int main(void) {
     FileState fs = {0};
     fs.line_capacity = 64;
-    fs.buffer.capacity = 1;
-    fs.buffer.lines = calloc(1, sizeof(char*));
-    fs.buffer.lines[0] = calloc(fs.line_capacity, 1);
-    strcpy(fs.buffer.lines[0], "abcdefghijklmnopqrstuvwxyz");
-    fs.buffer.count = 1;
+    lb_init(&fs.buffer, 1);
+    lb_insert(&fs.buffer, 0, "abcdefghijklmnopqrstuvwxyz");
+    char *tmp = realloc(fs.buffer.lines[0], fs.line_capacity);
+    if (!tmp) abort();
+    fs.buffer.lines[0] = tmp;
     fs.cursor_x = 1;
     fs.cursor_y = 1;
     fs.start_line = 0;
@@ -48,7 +49,6 @@ int main(void) {
     assert(fs.cursor_x == 1);
     assert(fs.scroll_x == 0);
 
-    free(fs.buffer.lines[0]);
-    free(fs.buffer.lines);
+    lb_free(&fs.buffer);
     return 0;
 }

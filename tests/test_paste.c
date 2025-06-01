@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ncurses.h>
 #include "files.h"
+#include "line_buffer.h"
 #include "clipboard.h"
 #include "editor.h"
 
@@ -25,13 +26,11 @@ void insert_new_line(EditorContext *ctx, FileState *fs) {
 int main(void) {
     FileState fs = {0};
     fs.line_capacity = 128;
-    fs.buffer.capacity = 10;
-    fs.buffer.lines = calloc(fs.buffer.capacity, sizeof(char*));
-    for (int i = 0; i < fs.buffer.capacity; ++i) {
-        fs.buffer.lines[i] = calloc(fs.line_capacity, sizeof(char));
-    }
-    fs.buffer.count = 1;
-    strcpy(fs.buffer.lines[0], "hello");
+    lb_init(&fs.buffer, 10);
+    lb_insert(&fs.buffer, 0, "hello");
+    char *tmp = realloc(fs.buffer.lines[0], fs.line_capacity);
+    if (!tmp) abort();
+    fs.buffer.lines[0] = tmp;
     fs.text_win = NULL;
     strcpy(global_clipboard, "world\nfoo");
     active_file = &fs;
@@ -47,9 +46,7 @@ int main(void) {
     assert(cx == 4);
     assert(cy == 2);
 
-    for (int i = 0; i < fs.buffer.capacity; ++i)
-        free(fs.buffer.lines[i]);
-    free(fs.buffer.lines);
+    lb_free(&fs.buffer);
 
     return 0;
 }

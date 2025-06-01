@@ -32,7 +32,7 @@ gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_resize_trunc.c obj_test/files.o o
 ./test_resize_trunc
 
 # build and run resize allocation failure test
-gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_resize_allocfail.c -lncurses -o test_resize_allocfail
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_resize_allocfail.c src/line_buffer.c -lncurses -o test_resize_allocfail
 ./test_resize_allocfail
 
 # build and run resize signal handling test
@@ -99,7 +99,7 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_regex_complex.
 ./test_regex_complex
 
 # build and run search highlight test
-gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_search_highlight.c src/search.c src/line_buffer.c -lncurses -o test_search_highlight
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc tests/test_search_highlight.c src/search.c src/line_buffer.c -lncurses -o test_search_highlight
 ./test_search_highlight
 
 # build and run replace modified test
@@ -234,3 +234,8 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_cursor_restore.c src/editor_actions.c src/file_manager.c src/globals.c \
     obj_test/line_buffer.o -lncurses -o test_cursor_restore
 ./test_cursor_restore
+
+# build and run line buffer insert/delete test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_linebuffer_insert_delete.c src/line_buffer.c -o test_linebuffer_insert_delete
+./test_linebuffer_insert_delete

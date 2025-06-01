@@ -18,6 +18,7 @@
 #undef clear
 #undef box
 #include "files.h"
+#include "line_buffer.h"
 #include "file_manager.h"
 #include "editor.h"
 #include "menu.h"
@@ -137,11 +138,11 @@ void exit(int status){longjmp(jb,status);}
 int main(void){
     FileState fs = {0};
     fs.line_capacity = 20;
-    fs.buffer.capacity = 2;
-    fs.buffer.lines = calloc(fs.buffer.capacity,sizeof(char*));
-    for(int i=0;i<fs.buffer.capacity;i++)
-        fs.buffer.lines[i] = calloc(fs.line_capacity,1);
-    fs.buffer.count = 1;
+    lb_init(&fs.buffer, 2);
+    lb_insert(&fs.buffer, 0, "");
+    char *tmp = realloc(fs.buffer.lines[0], fs.line_capacity);
+    if (!tmp) abort();
+    fs.buffer.lines[0] = tmp;
     fs.text_win = newwin(LINES-2,COLS,1,0);
     active_file = &fs;
 
@@ -156,9 +157,7 @@ int main(void){
         return 1;
     }
 
-    for(int i=0;i<fs.buffer.capacity;i++)
-        free(fs.buffer.lines[i]);
-    free(fs.buffer.lines);
+    lb_free(&fs.buffer);
     free(file_manager.files);
     delwin(fs.text_win);
     return 0;

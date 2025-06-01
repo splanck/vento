@@ -9,6 +9,7 @@
 #undef refresh
 
 #include "files.h"
+#include "line_buffer.h"
 #include "search.h"
 #include "config.h"
 
@@ -35,11 +36,11 @@ char search_text[256];
 int main(void){
     FileState fs = {0};
     fs.line_capacity = 32;
-    fs.buffer.capacity = 2;
-    fs.buffer.lines = calloc(fs.buffer.capacity, sizeof(char*));
-    for(int i=0;i<fs.buffer.capacity;i++) fs.buffer.lines[i]=calloc(fs.line_capacity, sizeof(char));
-    strcpy(fs.buffer.lines[0], "Hello");
-    fs.buffer.count = 1;
+    lb_init(&fs.buffer, 2);
+    lb_insert(&fs.buffer, 0, "Hello");
+    char *tmp = realloc(fs.buffer.lines[0], fs.line_capacity);
+    if (!tmp) abort();
+    fs.buffer.lines[0] = tmp;
     fs.cursor_x = 0; fs.cursor_y = 0;
     fs.start_line = 0;
 
@@ -54,7 +55,6 @@ int main(void){
     assert(fs.match_start_y == 0);
     assert(fs.match_start_x == 0);
 
-    for(int i=0;i<fs.buffer.capacity;i++) free(fs.buffer.lines[i]);
-    free(fs.buffer.lines);
+    lb_free(&fs.buffer);
     return 0;
 }

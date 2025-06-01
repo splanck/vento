@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ncurses.h>
 #include "files.h"
+#include "line_buffer.h"
 #include "editor.h"
 #include "input.h"
 
@@ -20,15 +21,15 @@ void load_all_remaining_lines(FileState *fs){ (void)fs; }
 int main(void){
     FileState fs = {0};
     fs.line_capacity = 2000;
-    fs.buffer.capacity = 5;
-    fs.buffer.lines = calloc(fs.buffer.capacity, sizeof(char*));
-    for(int i=0;i<fs.buffer.capacity;i++)
-        fs.buffer.lines[i] = calloc(fs.line_capacity, 1);
-    fs.buffer.count = 1;
-
-    memset(fs.buffer.lines[0], ' ', 1100);
-    fs.buffer.lines[0][1100] = 'x';
-    fs.buffer.lines[0][1101] = '\0';
+    lb_init(&fs.buffer, 5);
+    char tmp[1102];
+    memset(tmp, ' ', 1100);
+    tmp[1100] = 'x';
+    tmp[1101] = '\0';
+    lb_insert(&fs.buffer, 0, tmp);
+    char *p = realloc(fs.buffer.lines[0], fs.line_capacity);
+    if (!p) abort();
+    fs.buffer.lines[0] = p;
     fs.cursor_x = 1101; // position after spaces
     fs.cursor_y = 1;
     fs.start_line = 0;
@@ -47,8 +48,6 @@ int main(void){
         assert(fs.buffer.lines[1][i] == ' ');
     assert(fs.buffer.lines[1][1100] == 'x');
 
-    for(int i=0;i<fs.buffer.capacity;i++)
-        free(fs.buffer.lines[i]);
-    free(fs.buffer.lines);
+    lb_free(&fs.buffer);
     return 0;
 }
