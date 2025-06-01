@@ -221,3 +221,9 @@ VENTO_THEME_DIR=./themes ./test_cli_theme
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_search_ignore_case.c src/search.c -lncurses -o test_search_ignore_case
 ./test_search_ignore_case
+
+# build and run cursor position restore test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_cursor_restore.c src/editor_actions.c src/file_manager.c \
+    -lncurses -o test_cursor_restore
+./test_cursor_restore

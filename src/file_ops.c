@@ -135,6 +135,10 @@ void load_file(FileState *fs_unused, const char *filename) {
     wmove(text_win, 1, 1 + get_line_number_offset(fs));
 
     draw_text_buffer(fs, text_win);
+    fs->cursor_x = fs->saved_cursor_x;
+    fs->cursor_y = fs->saved_cursor_y;
+    wmove(text_win, fs->cursor_y,
+          fs->cursor_x + get_line_number_offset(fs));
     wrefresh(text_win);
 
     int idx = fm_add(&file_manager, fs);
@@ -182,6 +186,8 @@ void new_file(FileState *fs_unused) {
     keypad(text_win, TRUE);
     meta(text_win, TRUE);
     box(text_win, 0, 0);
+    fs->cursor_x = fs->saved_cursor_x;
+    fs->cursor_y = fs->saved_cursor_y;
     wmove(text_win, fs->cursor_y,
           fs->cursor_x + get_line_number_offset(fs));
     wrefresh(text_win);
@@ -192,6 +198,10 @@ void new_file(FileState *fs_unused) {
 void close_current_file(FileState *fs_unused, int *cx, int *cy) {
     (void)fs_unused;
     FileState *current = fm_current(&file_manager);
+    if (current) {
+        current->saved_cursor_x = current->cursor_x;
+        current->saved_cursor_y = current->cursor_y;
+    }
     if (current && current->modified) {
         int ch = show_message("File modified. Save before closing? (y/n)");
         if (ch == 'y' || ch == 'Y') {
@@ -210,6 +220,10 @@ void close_current_file(FileState *fs_unused, int *cx, int *cy) {
     }
 
     active_file = fm_current(&file_manager);
+    if (active_file) {
+        active_file->cursor_x = active_file->saved_cursor_x;
+        active_file->cursor_y = active_file->saved_cursor_y;
+    }
     if (cx && cy && active_file) {
         *cx = active_file->cursor_x;
         *cy = active_file->cursor_y;
