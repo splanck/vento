@@ -3,8 +3,6 @@
 #include "file_manager.h"
 #include "editor_state.h"
 
-FileManager file_manager;
-
 void fm_init(FileManager *fm) {
     fm->files = NULL;
     fm->count = 0;

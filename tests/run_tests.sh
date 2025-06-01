@@ -16,17 +16,18 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_paste.c
 
 # compile additional source for file state test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc -c src/file_manager.c -o obj_test/file_manager.o
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc -c src/globals.c -o obj_test/globals.o
 
 # build and run file state initialization/switching test
-gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_file_state.c obj_test/files.o obj_test/file_manager.o obj_test/stub_enable_color.o -lncurses -o test_file_state
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_file_state.c obj_test/files.o obj_test/file_manager.o obj_test/globals.o obj_test/stub_enable_color.o -lncurses -o test_file_state
 ./test_file_state
 
 # build and run resize handling test (provides many stubs)
-gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_resize.c obj_test/files.o obj_test/file_manager.o obj_test/stub_enable_color.o -lncurses -o test_resize
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_resize.c obj_test/files.o obj_test/file_manager.o obj_test/globals.o obj_test/stub_enable_color.o -lncurses -o test_resize
 ./test_resize
 
 # build and run line truncation resize test
-gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_resize_trunc.c obj_test/files.o obj_test/file_manager.o obj_test/stub_enable_color.o -lncurses -o test_resize_trunc
+gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_resize_trunc.c obj_test/files.o obj_test/file_manager.o obj_test/globals.o obj_test/stub_enable_color.o -lncurses -o test_resize_trunc
 ./test_resize_trunc
 
 # build and run resize allocation failure test
@@ -35,7 +36,7 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_resize_
 
 # build and run resize signal handling test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
-    tests/test_resize_signal.c obj_test/files.o obj_test/file_manager.o \
+    tests/test_resize_signal.c obj_test/files.o obj_test/file_manager.o obj_test/globals.o \
     obj_test/stub_enable_color.o -lncurses -o test_resize_signal
 ./test_resize_signal
 
@@ -134,7 +135,7 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
 ./test_horizontal_scroll
 
 # build and run color disable test
-gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_color_disable.c -lncurses -o test_color_disable
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_color_disable.c src/globals.c -lncurses -o test_color_disable
 VENTO_THEME_DIR=./themes ./test_color_disable
 
 # build and run initialize mouse test
@@ -173,12 +174,12 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_utf8_pr
 
 # build and run confirm quit regression test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_confirm_quit.c \
-    obj_test/files.o obj_test/file_manager.o obj_test/stub_enable_color.o -lncurses -o test_confirm_quit
+    obj_test/files.o obj_test/file_manager.o obj_test/globals.o obj_test/stub_enable_color.o -lncurses -o test_confirm_quit
 ./test_confirm_quit
 
 # build and run confirm switch regression test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
-    tests/test_confirm_switch.c src/editor_actions.c src/file_manager.c \
+    tests/test_confirm_switch.c src/editor_actions.c src/file_manager.c src/globals.c \
     -lncurses -o test_confirm_switch
 ./test_confirm_switch
 
@@ -216,7 +217,7 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
 
 # build and run theme option test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
-    tests/test_cli_theme.c src/config.c -lncurses -o test_cli_theme
+    tests/test_cli_theme.c src/config.c src/globals.c -lncurses -o test_cli_theme
 VENTO_THEME_DIR=./themes ./test_cli_theme
 
 # build and run search ignore case test
@@ -226,6 +227,6 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc
 
 # build and run cursor position restore test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
-    tests/test_cursor_restore.c src/editor_actions.c src/file_manager.c \
+    tests/test_cursor_restore.c src/editor_actions.c src/file_manager.c src/globals.c \
     -lncurses -o test_cursor_restore
 ./test_cursor_restore

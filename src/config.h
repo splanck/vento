@@ -38,6 +38,6 @@ short get_color_code(const char *color_name);
 void load_theme(const char *name, AppConfig *cfg);
 void config_load(AppConfig *cfg);
 void config_save(const AppConfig *cfg);
-void read_config_file(void);
+void read_config_file(AppConfig *cfg);
 
 #endif // CONFIG_H
