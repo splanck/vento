@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <ncurses.h>
 #include "menu.h"
 #include "config.h"
@@ -39,29 +40,27 @@ int enable_mouse = 0;
 AppConfig app_config;
 FileState *active_file = NULL;
 
-/* counters for unwanted calls */
-static int bkgd_called = 0;
-static int wbkgd_called = 0;
-static int refresh_called = 0;
+static int touch_calls = 0;
+static int wnout_calls = 0;
 
 int move(int y,int x){(void)y;(void)x;return 0;}
 int clrtoeol(void){return 0;}
 int mvprintw(int y,int x,const char*fmt,...){(void)y;(void)x;(void)fmt;return 0;}
 int wattron(WINDOW*w,int a){(void)w;(void)a;return 0;}
 int wattroff(WINDOW*w,int a){(void)w;(void)a;return 0;}
-int wnoutrefresh(WINDOW*w){(void)w;return 0;}
+int wnoutrefresh(WINDOW*w){if(w==text_win)wnout_calls++;return 0;}
 int wrefresh(WINDOW*w){(void)w;return 0;}
-int getch(void){return 27;} /* ESC */
+int getch(void){static int c=0;return c++==0?KEY_RIGHT:27;}
 WINDOW* newwin(int nlines,int ncols,int y,int x){(void)nlines;(void)ncols;(void)y;(void)x;return (WINDOW*)&dummy_win;}
 int box(WINDOW*w,chtype a,chtype b){(void)w;(void)a;(void)b;return 0;}
 int mvwprintw(WINDOW*w,int y,int x,const char*fmt,...){(void)w;(void)y;(void)x;(void)fmt;return 0;}
 int mvwhline(WINDOW*w,int y,int x,chtype ch,int n){(void)w;(void)y;(void)x;(void)ch;(void)n;return 0;}
 int delwin(WINDOW*w){(void)w;return 0;}
-int bkgd(chtype ch){(void)ch;bkgd_called++;return 0;}
-int wbkgd(WINDOW*w,chtype ch){(void)w;(void)ch;wbkgd_called++;return 0;}
-int refresh(void){refresh_called++;return 0;}
+int bkgd(chtype ch){(void)ch;return 0;}
+int wbkgd(WINDOW*w,chtype ch){(void)w;(void)ch;return 0;}
+int refresh(void){return 0;}
 int curs_set(int c){(void)c;return 0;}
-int touchwin(WINDOW*w){(void)w;return 0;}
+int touchwin(WINDOW*w){if(w==text_win)touch_calls++;return 0;}
 
 /* stubs for external editor functions referenced in menu.c */
 void new_file(FileState*fs){(void)fs;}
@@ -91,17 +90,17 @@ void allocation_failed(const char*msg){(void)msg;abort();}
 #include "../src/menu.c"
 
 int main(void){
-    MenuItem items[1] = {{"Item", NULL, false}};
-    Menu menu = {"File", items, 1};
+    MenuItem items1[1] = {{"One", NULL, false}};
+    MenuItem items2[1] = {{"Two", NULL, false}};
+    Menu menus_arr[2] = {{"A", items1, 1}, {"B", items2, 1}};
     int currentMenu = 0;
     int currentItem = 0;
-    int positions[1] = {0};
+    int positions[2] = {0,4};
     menuPositions = positions;
 
-    handleMenuNavigation(&menu, 1, &currentMenu, &currentItem);
+    handleMenuNavigation(menus_arr, 2, &currentMenu, &currentItem);
 
-    assert(bkgd_called == 0);
-    assert(wbkgd_called == 0);
-    assert(refresh_called == 0);
+    assert(touch_calls >= 2);
+    assert(wnout_calls >= touch_calls);
     return 0;
 }
