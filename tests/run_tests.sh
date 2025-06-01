@@ -111,7 +111,8 @@ gcc -Wall -Wextra -std=c99 -g tests/test_status_line_clear.c -lncurses -o test_s
 ./test_status_line_clear
 
 # build and run undo/redo modified flag test
-gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_undo_redo_modified.c src/undo.c -lncurses -o test_undo_redo_modified
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_undo_redo_modified.c src/undo.c src/line_buffer.c -lncurses -o test_undo_redo_modified
 ./test_undo_redo_modified
 
 # build and run long line loading test

@@ -5,6 +5,7 @@
 #include "undo.h"
 #include "files.h"
 #include "editor_state.h"
+#include "line_buffer.h"
 
 void push(Node **stack, Change change) {
     Node *new_node = (Node *)malloc(sizeof(Node));
@@ -40,32 +41,27 @@ void undo(FileState *fs) {
     Change change = pop(&fs->undo_stack);
 
     if (change.old_text && !change.new_text) { /* Deletion */
-        if (ensure_line_capacity(fs, fs->buffer.count + 1) < 0)
-            allocation_failed("ensure_line_capacity failed");
-        for (int i = fs->buffer.count; i > change.line; --i) {
-            strncpy(fs->buffer.lines[i], fs->buffer.lines[i - 1], fs->line_capacity - 1);
-            fs->buffer.lines[i][fs->line_capacity - 1] = '\0';
-        }
-        fs->buffer.count++;
-
-        strncpy(fs->buffer.lines[change.line], change.old_text, fs->line_capacity - 1);
+        if (lb_insert(&fs->buffer, change.line, change.old_text) < 0)
+            allocation_failed("lb_insert failed");
+        char *p = realloc(fs->buffer.lines[change.line], fs->line_capacity);
+        if (!p)
+            allocation_failed("realloc failed");
+        fs->buffer.lines[change.line] = p;
         fs->buffer.lines[change.line][fs->line_capacity - 1] = '\0';
 
         push(&fs->redo_stack, (Change){ change.line, strdup(change.old_text), NULL });
         free(change.old_text);
     } else if (!change.old_text && change.new_text) { /* Insertion */
-        for (int i = change.line; i < fs->buffer.count - 1; ++i) {
-            strncpy(fs->buffer.lines[i], fs->buffer.lines[i + 1], fs->line_capacity - 1);
-            fs->buffer.lines[i][fs->line_capacity - 1] = '\0';
-        }
-        fs->buffer.lines[fs->buffer.count - 1][0] = '\0';
-        fs->buffer.count--;
+        lb_delete(&fs->buffer, change.line);
 
         push(&fs->redo_stack, (Change){ change.line, NULL, strdup(change.new_text) });
         free(change.new_text);
     } else if (change.old_text && change.new_text) { /* Edit */
-        strncpy(fs->buffer.lines[change.line], change.old_text, fs->line_capacity - 1);
-        fs->buffer.lines[change.line][fs->line_capacity - 1] = '\0';
+        char *line = (char *)lb_get(&fs->buffer, change.line);
+        if (line) {
+            strncpy(line, change.old_text, fs->line_capacity - 1);
+            line[fs->line_capacity - 1] = '\0';
+        }
 
         push(&fs->redo_stack,
              (Change){ change.line, strdup(change.old_text), strdup(change.new_text) });
@@ -88,30 +84,26 @@ void redo(FileState *fs) {
 
     if (change.old_text && !change.new_text) { /* Deletion */
         push(&fs->undo_stack, (Change){ change.line, strdup(change.old_text), NULL });
-        for (int i = change.line; i < fs->buffer.count - 1; ++i) {
-            strncpy(fs->buffer.lines[i], fs->buffer.lines[i + 1], fs->line_capacity - 1);
-            fs->buffer.lines[i][fs->line_capacity - 1] = '\0';
-        }
-        fs->buffer.lines[fs->buffer.count - 1][0] = '\0';
-        fs->buffer.count--;
+        lb_delete(&fs->buffer, change.line);
         free(change.old_text);
     } else if (!change.old_text && change.new_text) { /* Insertion */
-        if (ensure_line_capacity(fs, fs->buffer.count + 1) < 0)
-            allocation_failed("ensure_line_capacity failed");
-        for (int i = fs->buffer.count; i > change.line; --i) {
-            strncpy(fs->buffer.lines[i], fs->buffer.lines[i - 1], fs->line_capacity - 1);
-            fs->buffer.lines[i][fs->line_capacity - 1] = '\0';
-        }
-        fs->buffer.count++;
-        strncpy(fs->buffer.lines[change.line], change.new_text, fs->line_capacity - 1);
+        if (lb_insert(&fs->buffer, change.line, change.new_text) < 0)
+            allocation_failed("lb_insert failed");
+        char *p = realloc(fs->buffer.lines[change.line], fs->line_capacity);
+        if (!p)
+            allocation_failed("realloc failed");
+        fs->buffer.lines[change.line] = p;
         fs->buffer.lines[change.line][fs->line_capacity - 1] = '\0';
         push(&fs->undo_stack, (Change){ change.line, NULL, strdup(change.new_text) });
         free(change.new_text);
     } else if (change.old_text && change.new_text) { /* Edit */
         push(&fs->undo_stack,
              (Change){ change.line, strdup(change.old_text), strdup(change.new_text) });
-        strncpy(fs->buffer.lines[change.line], change.new_text, fs->line_capacity - 1);
-        fs->buffer.lines[change.line][fs->line_capacity - 1] = '\0';
+        char *line = (char *)lb_get(&fs->buffer, change.line);
+        if (line) {
+            strncpy(line, change.new_text, fs->line_capacity - 1);
+            line[fs->line_capacity - 1] = '\0';
+        }
         free(change.old_text);
         free(change.new_text);
     }
