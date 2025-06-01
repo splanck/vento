@@ -25,6 +25,13 @@ short get_color_code(const char *color_name) {
 }
 
 static void get_config_path(char *buf, size_t size) {
+    const char *cfg = getenv("VENTO_CONFIG");
+    if (cfg && *cfg) {
+        strncpy(buf, cfg, size - 1);
+        buf[size - 1] = '\0';
+        return;
+    }
+
     struct passwd *pw = getpwuid(getuid());
     const char *homedir = pw ? pw->pw_dir : getenv("HOME");
     if (!homedir || homedir[0] == '\0')

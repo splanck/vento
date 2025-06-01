@@ -58,6 +58,9 @@ The file is written in the same key order as the defaults.  When you exit the se
 dialog with changes, the updated configuration is automatically saved back to
 `~/.ventorc`.
 
+You can override the location of this file by setting the `VENTO_CONFIG`
+environment variable to an alternate path.
+
 This file is created automatically with default values if it does not exist. Unknown keys are ignored when the file is parsed. You can also change these options interactively using the **Settings** dialog. Open it from *File → Settings* (press `CTRL-T` to open the menu) and navigate with the arrow keys. The recognized keys are:
 - `background_color`
 - `text_color`
