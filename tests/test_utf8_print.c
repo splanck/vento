@@ -65,7 +65,10 @@ void config_load(AppConfig *cfg){ (void)cfg; }
 #include "../src/editor_init.c"
 
 int main(void){
-    initialize();
+    EditorContext ctx = {0};
+    ctx.enable_mouse = 0;
+    ctx.enable_color = 0;
+    initialize(&ctx);
     addstr("UTF-8: \xCF\x80");
     assert(printed != NULL);
     return 0;

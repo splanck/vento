@@ -401,7 +401,7 @@ void initialize_key_mappings(void) {
  * @param None
  * @return None
  */
-void run_editor() {
+void run_editor(EditorContext *ctx) {
     if (runeditor == 0)
         runeditor = 1;
     else
@@ -412,11 +412,11 @@ void run_editor() {
     int currentItem = 0;
     MEVENT event; // Mouse event structure
 
-    wmove(text_win, active_file->cursor_y,
-          active_file->cursor_x + get_line_number_offset(active_file));
+    wmove(ctx->text_win, ctx->active_file->cursor_y,
+          ctx->active_file->cursor_x + get_line_number_offset(ctx->active_file));
 
     while (exiting == 0) {
-        ch = wgetch(text_win);
+        ch = wgetch(ctx->text_win);
         if (resize_pending || ch == KEY_RESIZE) {
             perform_resize();
             resize_pending = 0;
@@ -432,36 +432,36 @@ void run_editor() {
 
         //mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
         drawBar();
-        update_status_bar(active_file);
+        update_status_bar(ctx->active_file);
         doupdate();
         
-        if (active_file->selection_mode) {
-            handle_selection_mode(active_file, ch, &active_file->cursor_x, &active_file->cursor_y);
+        if (ctx->active_file->selection_mode) {
+            handle_selection_mode(ctx->active_file, ch, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
         } else if (ch == KEY_CTRL_T) { // CTRL-T
             doupdate();
             handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
             // Redraw the editor screen after closing the menu
             redraw();
-        } else if (ch == KEY_MOUSE && enable_mouse) {
+        } else if (ch == KEY_MOUSE && ctx->enable_mouse) {
             if (getmouse(&event) == OK) {
                 if (menu_click_open(event.x, event.y)) {
                     flushinp();
                     redraw();
                 } else {
-                    handle_mouse_event(active_file, &event);
+                    handle_mouse_event(ctx->active_file, &event);
                 }
             }
         } else {
-            handle_regular_mode(active_file, ch);
+            handle_regular_mode(ctx->active_file, ch);
         }
 
         if (exiting == 1)
             break;
 
-        update_status_bar(active_file);
-        wmove(text_win, active_file->cursor_y,
-              active_file->cursor_x + get_line_number_offset(active_file));  // Restore cursor position
-        wnoutrefresh(text_win);
+        update_status_bar(ctx->active_file);
+        wmove(ctx->text_win, ctx->active_file->cursor_y,
+              ctx->active_file->cursor_x + get_line_number_offset(ctx->active_file));  // Restore cursor position
+        wnoutrefresh(ctx->text_win);
         doupdate();
     }
 

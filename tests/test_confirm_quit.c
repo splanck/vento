@@ -4,6 +4,7 @@
 #include "file_manager.h"
 #include "menu.h"
 #include "editor.h"
+#include "editor_state.h"
 #include "config.h"
 #include "ui_common.h"
 
@@ -64,9 +65,9 @@ void replace(FileState*fs){(void)fs;}
 void show_about(void){}
 void show_help(void){}
 void allocation_failed(const char*msg){(void)msg;abort();}
-void initialize(void){}
+void initialize(EditorContext *ctx){(void)ctx;}
 void show_warning_dialog(void){}
-void run_editor(void){}
+void run_editor(EditorContext *ctx){(void)ctx;}
 void cleanup_on_exit(FileManager*fm){(void)fm;}
 
 /* intercept close_editor */

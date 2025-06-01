@@ -6,6 +6,7 @@
 #include "file_manager.h"
 #include "files.h"
 #include "editor.h"
+#include "editor_state.h"
 #include "ui.h"
 #include "ui_common.h"
 #include "config.h"
@@ -16,17 +17,19 @@ WINDOW *text_win = NULL;
 int COLS = 80;
 int LINES = 24;
 AppConfig app_config;
+int enable_mouse = 0;
+int enable_color = 0;
 
 bool any_file_modified(FileManager *fm){(void)fm;return false;}
 int show_message(const char*msg){(void)msg;return 0;}
-void initialize(void){}
+void initialize(EditorContext *ctx){(void)ctx;}
 void fm_init(FileManager *fm){(void)fm;}
 void load_file(FileState *fs,const char*fn){(void)fs;(void)fn;}
 void new_file(FileState *fs){(void)fs;}
 FileState* fm_current(FileManager *fm){(void)fm;return NULL;}
 int fm_switch(FileManager *fm,int idx){(void)fm;(void)idx;return 0;}
 void show_warning_dialog(void){}
-void run_editor(void){}
+void run_editor(EditorContext *ctx){(void)ctx;}
 void cleanup_on_exit(FileManager *fm){(void)fm;}
 
 #define main vento_main

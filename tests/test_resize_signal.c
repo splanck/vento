@@ -8,6 +8,7 @@
 #include "files.h"
 #include "file_manager.h"
 #include "editor.h"
+#include "editor_state.h"
 #include "menu.h"
 
 int COLS = 80;
@@ -118,7 +119,12 @@ int main(void){
     active_file=fs;
 
     resize_pending = 1;
-    run_editor();
+    EditorContext ctx = {0};
+    ctx.active_file = fs;
+    ctx.text_win = fs->text_win;
+    ctx.enable_mouse = enable_mouse;
+    ctx.enable_color = enable_color;
+    run_editor(&ctx);
 
     assert(resized_win==fs->text_win);
 
