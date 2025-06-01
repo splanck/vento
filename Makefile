@@ -2,7 +2,10 @@ CC = gcc
 CFLAGS = -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L
 
 ifeq ($(shell uname),Darwin)
+    CURSES_LIB = -lncurses
     CFLAGS += -D_XOPEN_SOURCE_EXTENDED
+else
+    CURSES_LIB = -lncursesw
 endif
 
 SRC_DIR = ./src
@@ -19,7 +22,7 @@ MANPAGE = $(DOC_DIR)/vento.1
 
 $(BIN_DIR)/vento: $(OBJS)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $@ $^ -lncursesw
+	$(CC) $(CFLAGS) -o $@ $^ $(CURSES_LIB)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(DEPS)
 	@mkdir -p $(OBJ_DIR)
