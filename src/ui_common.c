@@ -14,6 +14,11 @@ WINDOW *create_centered_window(int height, int width, WINDOW *parent) {
     if (width < 2)
         width = 2;
 
+    if (height > LINES - 2)
+        height = LINES - 2;
+    if (height < 2)
+        height = 2;
+
     if (parent) {
         int py, px, ph, pw;
         getbegyx(parent, py, px);
