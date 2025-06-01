@@ -66,8 +66,22 @@ void load_theme(const char *name, AppConfig *cfg) {
 
     char path[256] = "";
 
-    DIR *dir = opendir("themes");
-    if (dir) {
+    const char *dirs[3];
+    size_t dir_count = 0;
+
+    const char *env_dir = getenv("VENTO_THEME_DIR");
+    if (env_dir && *env_dir)
+        dirs[dir_count++] = env_dir;
+
+    dirs[dir_count++] = THEME_DIR;
+
+    if (strcmp(THEME_DIR, "themes") != 0)
+        dirs[dir_count++] = "themes";
+
+    for (size_t i = 0; i < dir_count; ++i) {
+        DIR *dir = opendir(dirs[i]);
+        if (!dir)
+            continue;
         struct dirent *ent;
         while ((ent = readdir(dir)) != NULL) {
             if (ent->d_name[0] == '.')
@@ -77,15 +91,17 @@ void load_theme(const char *name, AppConfig *cfg) {
                 continue;
             size_t len = dot - ent->d_name;
             if (len == strlen(name) && strncasecmp(ent->d_name, name, len) == 0) {
-                snprintf(path, sizeof(path), "themes/%.*s", (int)(sizeof(path) - 8 - 1), ent->d_name);
+                snprintf(path, sizeof(path), "%s/%.*s", dirs[i], (int)len, ent->d_name);
                 break;
             }
         }
         closedir(dir);
+        if (path[0])
+            break;
     }
 
     if (path[0] == '\0')
-        snprintf(path, sizeof(path), "themes/%s.theme", name);
+        snprintf(path, sizeof(path), "%s/%s.theme", dirs[0], name);
 
     FILE *f = fopen(path, "r");
     if (!f)

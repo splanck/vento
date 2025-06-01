@@ -3,6 +3,13 @@
 
 #define VERSION "0.1.3"
 
+/* Directory containing installed color themes. Can be overridden at compile
+ * time by defining THEME_DIR. Defaults to "themes" which resolves to the
+ * local directory at runtime. */
+#ifndef THEME_DIR
+#define THEME_DIR "themes"
+#endif
+
 extern int enable_color;
 extern int enable_mouse;
 extern int show_line_numbers;

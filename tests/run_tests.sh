@@ -130,7 +130,7 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_long_in
 
 # build and run color disable test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_color_disable.c -lncurses -o test_color_disable
-./test_color_disable
+VENTO_THEME_DIR=./themes ./test_color_disable
 
 # build and run initialize mouse test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc tests/test_initialize_mouse.c -lncurses -o test_initialize_mouse
