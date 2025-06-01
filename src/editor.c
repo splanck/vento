@@ -1,3 +1,8 @@
+#ifdef __APPLE__
+#  ifndef _XOPEN_SOURCE_EXTENDED
+#    define _XOPEN_SOURCE_EXTENDED
+#  endif
+#endif
 #include <ncurses.h>
 #include <wchar.h>
 #include <string.h>
