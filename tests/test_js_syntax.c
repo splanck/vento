@@ -31,7 +31,8 @@ int main(void){
     WINDOW *w = newwin(1,1,0,0);
 
     const char *line = "if (x) return 42;";
-    highlight_js_syntax(&fs, w, line, 0);
+    const SyntaxDef *def = syntax_get(JS_SYNTAX);
+    highlight_by_patterns(&fs, w, line, 0, def);
     int kw = 0, num = 0;
     for(int i=0;i<call_index;i++){
         if(strcmp(printed[i], "if") == 0 || strcmp(printed[i], "return") == 0){

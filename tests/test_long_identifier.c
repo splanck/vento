@@ -27,8 +27,10 @@ int main(void){
     line[sizeof(line)-2] = ' ';
     line[sizeof(line)-1] = '\0';
 
-    highlight_c_syntax(&fs, w, line, 0);
-    highlight_csharp_syntax(&fs, w, line, 0);
+    const SyntaxDef *cdef = syntax_get(C_SYNTAX);
+    highlight_by_patterns(&fs, w, line, 0, cdef);
+    const SyntaxDef *csdef = syntax_get(CSHARP_SYNTAX);
+    highlight_by_patterns(&fs, w, line, 0, csdef);
 
     delwin(w);
     return 0;

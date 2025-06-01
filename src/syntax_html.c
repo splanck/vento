@@ -73,7 +73,8 @@ void highlight_html_syntax(FileState *fs, WINDOW *win, const char *line, int y) 
             while (line[i]) mvwprintw(win, y, x++, "%c", line[i++]);
             fs->nested_mode = NESTED_NONE;
         } else {
-            highlight_js_syntax(fs, win, line, y);
+            const SyntaxDef *def = syntax_get(JS_SYNTAX);
+            highlight_by_patterns(fs, win, line, y, def);
         }
         return;
     } else if (fs->nested_mode == NESTED_CSS) {
@@ -86,7 +87,8 @@ void highlight_html_syntax(FileState *fs, WINDOW *win, const char *line, int y) 
             while (line[i]) mvwprintw(win, y, x++, "%c", line[i++]);
             fs->nested_mode = NESTED_NONE;
         } else {
-            highlight_css_syntax(fs, win, line, y);
+            const SyntaxDef *def = syntax_get(CSS_SYNTAX);
+            highlight_by_patterns(fs, win, line, y, def);
         }
         return;
     }
