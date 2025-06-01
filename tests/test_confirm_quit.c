@@ -39,6 +39,7 @@ int mvwprintw(WINDOW*w,int y,int x,const char*fmt,...){(void)w;(void)y;(void)x;(
 FileState *active_file = NULL;
 int enable_mouse = 0;
 AppConfig app_config;
+int start_line = 0;
 
 /* stubs for external editor functions */
 void draw_text_buffer(FileState*fs,WINDOW*w){(void)fs;(void)w;}

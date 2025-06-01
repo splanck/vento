@@ -20,6 +20,7 @@ FileManager file_manager = {0};
 AppConfig app_config;
 int enable_mouse = 0;
 int enable_color = 0;
+int start_line = 0;
 
 void fm_init(FileManager *fm){fm->files=NULL;fm->count=0;fm->active_index=-1;}
 FileState* fm_current(FileManager *fm){if(!fm||fm->active_index<0||fm->active_index>=fm->count)return NULL;return fm->files[fm->active_index];}

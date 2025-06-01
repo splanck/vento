@@ -5,6 +5,7 @@
 __attribute__((weak)) int enable_color = 1;
 __attribute__((weak)) int enable_mouse = 1;
 __attribute__((weak)) int show_line_numbers = 0;
+__attribute__((weak)) int start_line = 0;
 
 __attribute__((weak)) AppConfig app_config = {
     .background_color = "BLACK",
