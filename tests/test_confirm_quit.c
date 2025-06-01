@@ -46,13 +46,13 @@ void update_status_bar(FileState*fs){(void)fs;}
 bool drawMenu(Menu*menu,int ci,int sx,int sy){(void)menu;(void)ci;(void)sx;(void)sy;return true;}
 void drawMenuBar(Menu*m,int mc){(void)m;(void)mc;}
 void new_file(FileState*fs){(void)fs;}
-void load_file(FileState*fs,const char*fn){(void)fs;(void)fn;}
-void save_file(FileState*fs){(void)fs;}
-void save_file_as(FileState*fs){(void)fs;}
-void close_current_file(FileState*fs,int*cx,int*cy){(void)fs;(void)cx;(void)cy;}
+void load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;(void)fn;}
+void save_file(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void save_file_as(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void close_current_file(EditorContext*ctx,FileState*fs,int*cx,int*cy){(void)ctx;(void)fs;(void)cx;(void)cy;}
 void next_file(FileState*fs,int*cx,int*cy){(void)fs;(void)cx;(void)cy;}
 void prev_file(FileState*fs,int*cx,int*cy){(void)fs;(void)cx;(void)cy;}
-int show_settings_dialog(AppConfig*cfg){(void)cfg;return 0;}
+int show_settings_dialog(EditorContext*ctx,AppConfig*cfg){(void)ctx;(void)cfg;return 0;}
 void config_save(const AppConfig*cfg){(void)cfg;}
 void config_load(AppConfig*cfg){(void)cfg;}
 void apply_colors(void){}
@@ -60,13 +60,13 @@ void redraw(void){}
 void drawBar(void){}
 void undo(FileState*fs){(void)fs;}
 void redo(FileState*fs){(void)fs;}
-void find(FileState*fs,int n){(void)fs;(void)n;}
-void replace(FileState*fs){(void)fs;}
-void show_about(void){}
-void show_help(void){}
+void find(EditorContext*ctx,FileState*fs,int n){(void)ctx;(void)fs;(void)n;}
+void replace(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void show_about(EditorContext*ctx){(void)ctx;}
+void show_help(EditorContext*ctx){(void)ctx;}
 void allocation_failed(const char*msg){(void)msg;abort();}
 void initialize(EditorContext *ctx){(void)ctx;}
-void show_warning_dialog(void){}
+void show_warning_dialog(EditorContext*ctx){(void)ctx;}
 void run_editor(EditorContext *ctx){(void)ctx;}
 void cleanup_on_exit(FileManager*fm){(void)fm;}
 

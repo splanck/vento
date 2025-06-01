@@ -60,16 +60,17 @@ int main(void){
     assert(w == NULL);
     assert(show_message_called == 1);
 
+    EditorContext ctx = {0};
     show_message_called = 0;
-    show_help();
+    show_help(&ctx);
     assert(show_message_called == 1);
 
     show_message_called = 0;
-    show_about();
+    show_about(&ctx);
     assert(show_message_called == 1);
 
     show_message_called = 0;
-    show_warning_dialog();
+    show_warning_dialog(&ctx);
     assert(show_message_called == 1);
 
     return 0;

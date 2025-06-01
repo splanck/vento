@@ -13,9 +13,9 @@
 
 #define INITIAL_LOAD_LINES 1024
 
-void save_file(FileState *fs) {
+void save_file(EditorContext *ctx, FileState *fs) {
     if (strlen(fs->filename) == 0) {
-        save_file_as(fs);
+        save_file_as(ctx, fs);
     } else {
         load_all_remaining_lines(fs);
         FILE *fp = fopen(fs->filename, "w");
@@ -36,9 +36,9 @@ void save_file(FileState *fs) {
     }
 }
 
-void save_file_as(FileState *fs) {
+void save_file_as(EditorContext *ctx, FileState *fs) {
     char newpath[256];
-    if (!show_save_file_dialog(newpath, sizeof(newpath)))
+    if (!show_save_file_dialog(ctx, newpath, sizeof(newpath)))
         return;    // user cancelled
     strncpy(fs->filename, newpath, sizeof(fs->filename) - 1);
     fs->filename[sizeof(fs->filename) - 1] = '\0';
@@ -63,13 +63,13 @@ void save_file_as(FileState *fs) {
     refresh();
 }
 
-void load_file(FileState *fs_unused, const char *filename) {
+void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     (void)fs_unused;
     char file_to_load[256];
     FileState *previous_active = active_file;
 
     if (filename == NULL) {
-        if (show_open_file_dialog(file_to_load, sizeof(file_to_load)) == 0) {
+        if (show_open_file_dialog(ctx, file_to_load, sizeof(file_to_load)) == 0) {
             return; // user cancelled
         }
         filename = file_to_load;
@@ -196,7 +196,7 @@ void new_file(FileState *fs_unused) {
     update_status_bar(active_file);
 }
 
-void close_current_file(FileState *fs_unused, int *cx, int *cy) {
+void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     (void)fs_unused;
     FileState *current = fm_current(&file_manager);
     if (current) {
@@ -206,7 +206,7 @@ void close_current_file(FileState *fs_unused, int *cx, int *cy) {
     if (current && current->modified) {
         int ch = show_message("File modified. Save before closing? (y/n)");
         if (ch == 'y' || ch == 'Y') {
-            save_file(current);
+            save_file(ctx, current);
         } else if (ch != 'n' && ch != 'N') {
             return; /* cancel on other keys */
         }

@@ -60,8 +60,8 @@ void update_status_bar(FileState*fs){(void)fs;}
 static int drawBar_called=0;
 void drawBar(void){drawBar_called=1;}
 int ensure_col_capacity(FileState*fs,int cols){(void)fs;(void)cols;return 0;}
-int show_find_dialog(char*out,int sz,const char*def){(void)out;(void)sz;(void)def;return 0;}
-int show_replace_dialog(char*s,int ss,char*r,int rs){(void)s;(void)ss;(void)r;(void)rs;return 0;}
+int show_find_dialog(EditorContext*ctx,char*out,int sz,const char*def){(void)ctx;(void)out;(void)sz;(void)def;return 0;}
+int show_replace_dialog(EditorContext*ctx,char*s,int ss,char*r,int rs){(void)ctx;(void)s;(void)ss;(void)r;(void)rs;return 0;}
 void push(Node **stack, Change change){(void)stack;(void)change;}
 void mark_comment_state_dirty(FileState *fs){(void)fs;}
 void handle_key_up(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
@@ -95,14 +95,14 @@ void handle_redo_wrapper(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void handle_undo_wrapper(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void move_forward_to_next_word(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void move_backward_to_previous_word(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
-void show_about(void){}
-void show_help(void){}
+void show_about(EditorContext*ctx){(void)ctx;}
+void show_help(EditorContext*ctx){(void)ctx;}
 void handleMenuNavigation(Menu*m,int mc,int*cm,int*ci){(void)m;(void)mc;(void)cm;(void)ci;}
 void handle_selection_mode(FileState*fs,int ch,int*cx,int*cy){(void)fs;(void)ch;(void)cx;(void)cy;}
-void save_file(FileState*fs){(void)fs;}
-void save_file_as(FileState*fs){(void)fs;}
-void load_file(FileState*fs,const char*fn){(void)fs;(void)fn;}
-void close_current_file(FileState*fs,int*cx,int*cy){(void)fs;(void)cx;(void)cy;}
+void save_file(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void save_file_as(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
+void load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;(void)fn;}
+void close_current_file(EditorContext*ctx,FileState*fs,int*cx,int*cy){(void)ctx;(void)fs;(void)cx;(void)cy;}
 int menu_click_open(int x,int y){(void)x;(void)y;return 0;}
 void menuNewFile(EditorContext*ctx){(void)ctx;}
 void menuLoadFile(EditorContext*ctx){(void)ctx;}
@@ -119,7 +119,7 @@ void menuFind(EditorContext*ctx){(void)ctx;}
 void menuReplace(EditorContext*ctx){(void)ctx;}
 void menuAbout(EditorContext*ctx){(void)ctx;}
 void menuHelp(EditorContext*ctx){(void)ctx;}
-int show_goto_dialog(int*line){(void)line;return 0;}
+int show_goto_dialog(EditorContext*ctx,int*line){(void)ctx;(void)line;return 0;}
 void go_to_line(FileState*fs,int line){(void)fs;(void)line;}
 int enable_mouse = 0;
 Menu *menus = NULL; int menuCount = 0;

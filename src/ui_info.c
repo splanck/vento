@@ -7,9 +7,9 @@
 #include <ncurses.h>
 #include <string.h>
 
-void show_help() {
+void show_help(EditorContext *ctx) {
     curs_set(0);
-    wbkgd(stdscr, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
+    wbkgd(stdscr, ctx->enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
 
     const char *help_lines[] = {
         "CTRL-H: Show this help",
@@ -61,7 +61,7 @@ void show_help() {
     curs_set(1);
 }
 
-void show_about() {
+void show_about(EditorContext *ctx) {
     int win_height = 10;
     int win_width = COLS - 20;
     WINDOW *about_win = dialog_open(win_height, win_width, "About");
@@ -79,7 +79,7 @@ void show_about() {
     dialog_close(about_win);
 }
 
-void show_warning_dialog() {
+void show_warning_dialog(EditorContext *ctx) {
     int win_height = 7;
     int win_width = COLS - 20;
     WINDOW *warning_win = dialog_open(win_height, win_width, "Warning");
@@ -99,10 +99,10 @@ void show_warning_dialog() {
 
     dialog_close(warning_win);
 
-    werase(text_win);
-    box(text_win, 0, 0);
-    draw_text_buffer(active_file, text_win);
-    wrefresh(text_win);
-    update_status_bar(active_file);
+    werase(ctx->text_win);
+    box(ctx->text_win, 0, 0);
+    draw_text_buffer(ctx->active_file, ctx->text_win);
+    wrefresh(ctx->text_win);
+    update_status_bar(ctx->active_file);
     wrefresh(stdscr);
 }

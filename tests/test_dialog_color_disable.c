@@ -99,16 +99,20 @@ int main(void){
     assert(wattron_color_calls == 0);
     assert(wattroff_color_calls == 0);
 
+    EditorContext ctx = {0};
     printf("show_help\n");
-    show_help();
+    ctx.enable_color = enable_color;
+    show_help(&ctx);
     assert(wbkgd_attr_last == A_NORMAL);
 
     printf("show_about\n");
-    show_about();
+    ctx.enable_color = enable_color;
+    show_about(&ctx);
     assert(wbkgd_attr_last == A_NORMAL);
 
     printf("show_warning\n");
-    show_warning_dialog();
+    ctx.enable_color = enable_color;
+    show_warning_dialog(&ctx);
     assert(wbkgd_attr_last == A_NORMAL);
     
     /* color enabled */
@@ -123,15 +127,18 @@ int main(void){
     assert(wattroff_color_calls == 0);
 
     printf("show_help color\n");
-    show_help();
+    ctx.enable_color = enable_color;
+    show_help(&ctx);
     assert(wbkgd_attr_last == COLOR_PAIR(SYNTAX_BG));
 
     printf("show_about color\n");
-    show_about();
+    ctx.enable_color = enable_color;
+    show_about(&ctx);
     assert(wbkgd_attr_last == COLOR_PAIR(SYNTAX_BG));
 
     printf("show_warning color\n");
-    show_warning_dialog();
+    ctx.enable_color = enable_color;
+    show_warning_dialog(&ctx);
     assert(wbkgd_attr_last == COLOR_PAIR(SYNTAX_BG));
 
     return 0;

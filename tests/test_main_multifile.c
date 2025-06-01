@@ -30,13 +30,14 @@ int fm_switch(FileManager *fm,int idx){if(!fm||idx<0||idx>=fm->count)return -1;f
 bool any_file_modified(FileManager *fm){(void)fm;return false;}
 int show_message(const char*msg){(void)msg;return 0;}
 void initialize(EditorContext *ctx){(void)ctx;}
-void show_warning_dialog(void){}
+void show_warning_dialog(EditorContext*ctx){(void)ctx;}
 void run_editor(EditorContext *ctx){(void)ctx;}
 int endwin(void){return 0;}
 void cleanup_on_exit(FileManager *fm){(void)fm;}
 
 /* simplified file loader used by main */
-void load_file(FileState *fs_unused,const char *filename){
+void load_file(EditorContext *ctx,FileState *fs_unused,const char *filename){
+    (void)ctx;
     (void)fs_unused;
     FileState *fs = calloc(1, sizeof(FileState));
     assert(fs);
