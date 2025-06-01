@@ -1,6 +1,10 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L
 
+ifeq ($(shell uname),Darwin)
+    CFLAGS += -D_XOPEN_SOURCE_EXTENDED
+endif
+
 SRC_DIR = ./src
 OBJ_DIR = ./obj
 BIN_DIR = ./bin
