@@ -99,11 +99,11 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_regex_complex.
 ./test_regex_complex
 
 # build and run search highlight test
-gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_search_highlight.c src/search.c -lncurses -o test_search_highlight
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_search_highlight.c src/search.c src/line_buffer.c -lncurses -o test_search_highlight
 ./test_search_highlight
 
 # build and run replace modified test
-gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc tests/test_replace_modified.c src/search.c -lncurses -o test_replace_modified
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc tests/test_replace_modified.c src/search.c src/line_buffer.c -lncurses -o test_replace_modified
 ./test_replace_modified
 
 # build and run status line clear test
@@ -226,7 +226,7 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
 
 # build and run search ignore case test
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -D_POSIX_C_SOURCE=200809L -Isrc \
-    tests/test_search_ignore_case.c src/search.c -lncurses -o test_search_ignore_case
+    tests/test_search_ignore_case.c src/search.c src/line_buffer.c -lncurses -o test_search_ignore_case
 ./test_search_ignore_case
 
 # build and run cursor position restore test

@@ -40,7 +40,7 @@ static char *strcasestr_simple(const char *h, const char *n) {
 static char *scan_next(FileState *fs, const char *word, int start_search,
                        int cursor_x, int *found_line) {
     for (int line = start_search; line < fs->buffer.count; ++line) {
-        char *line_text = fs->buffer.lines[line];
+        char *line_text = (char *)lb_get(&fs->buffer, line);
         char *pos;
         if (app_config.search_ignore_case)
             pos = strcasestr_simple(line == start_search ? line_text + cursor_x : line_text,
@@ -55,7 +55,7 @@ static char *scan_next(FileState *fs, const char *word, int start_search,
     }
 
     for (int line = 0; line < start_search; ++line) {
-        char *line_text = fs->buffer.lines[line];
+        char *line_text = (char *)lb_get(&fs->buffer, line);
         char *pos = app_config.search_ignore_case ?
                         strcasestr_simple(line_text, word) : strstr(line_text, word);
         if (pos) {
@@ -85,7 +85,8 @@ void find_next_occurrence(FileState *fs, const char *word) {
         fs->match_start_x = fs->match_end_x = -1;
     } else {
         *cursor_y = found_line - fs->start_line + 1;
-        *cursor_x = found_position - fs->buffer.lines[found_line] + 1;
+        const char *found_line_text = lb_get(&fs->buffer, found_line);
+        *cursor_x = found_position - found_line_text + 1;
 
         if (fs->buffer.count <= lines_per_screen) {
             fs->start_line = 0;
@@ -103,7 +104,7 @@ void find_next_occurrence(FileState *fs, const char *word) {
 
         fs->match_start_y = found_line;
         fs->match_end_y = found_line;
-        fs->match_start_x = found_position - fs->buffer.lines[found_line];
+        fs->match_start_x = found_position - found_line_text;
         fs->match_end_x = fs->match_start_x + strlen(word) - 1;
 
         mvprintw(LINES - 2, 0, "Found at Line: %d, Column: %d", *cursor_y + fs->start_line + 1, *cursor_x + 1);
@@ -143,7 +144,7 @@ void find(EditorContext *ctx, FileState *fs, int new_search)
 
 static void replace_in_line(FileState *fs, int line, char *pos,
                              const char *search, const char *replacement) {
-    char *line_text = fs->buffer.lines[line];
+    char *line_text = (char *)lb_get(&fs->buffer, line);
     char *old_text = strdup(line_text);
 
     size_t prefix_len = pos - line_text;
@@ -223,7 +224,8 @@ void replace_next_occurrence(FileState *fs, const char *search,
     }
 
     *cursor_y = found_line - fs->start_line + 1;
-    *cursor_x = (found_position - fs->buffer.lines[found_line]) + strlen(replacement) + 1;
+    const char *found_line_text2 = lb_get(&fs->buffer, found_line);
+    *cursor_x = (found_position - found_line_text2) + strlen(replacement) + 1;
 
     mvprintw(LINES - 2, 0, "Replaced at Line: %d, Column: %d", *cursor_y + fs->start_line + 1, *cursor_x);
     clrtoeol();
@@ -244,7 +246,7 @@ void replace_all_occurrences(FileState *fs, const char *search,
                              const char *replacement) {
     bool replaced = false;
     for (int line = 0; line < fs->buffer.count; ++line) {
-        char *line_text = fs->buffer.lines[line];
+        char *line_text = (char *)lb_get(&fs->buffer, line);
         char *pos = strstr(line_text, search);
         if (!pos)
             continue;
