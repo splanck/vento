@@ -141,7 +141,7 @@ Before you can compile Vento, make sure you have the following installed:
 
 - **GCC**: The GNU Compiler Collection for compiling the source code.
 - **Binutils**: A collection of binary tools.
-- **Ncurses Dev Libraries**: Development libraries for Ncurses (necessary for text-based user interfaces).
+- **Ncurses Dev Libraries**: Development libraries for Ncurses (necessary for text-based user interfaces). The wide-character version (`libncursesw`) is recommended.
 
 On Debian-based systems, you can install these with:
 
