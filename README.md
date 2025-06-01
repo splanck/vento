@@ -194,9 +194,9 @@ make CFLAGS="-D_DARWIN_C_SOURCE"
 The code already guards `SIGWINCH`, but enabling additional feature macros may
 be required for full functionality.
 
-When linking on macOS, use the non-wide curses library. The Makefile and
-test script automatically select `-lncurses` instead of the wide-character
-version `-lncursesw` when `uname` reports `Darwin`.
+When building on macOS the non-wide curses library is used automatically.
+Both the Makefile and test script select `-lncurses` when `uname` reports
+`Darwin`, while other systems link with `-lncursesw`.
 
 ## Command Line Options
 
