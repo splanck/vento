@@ -16,8 +16,10 @@ WINDOW *dialog_open(int height, int width, const char *title) {
     wrefresh(stdscr);
     box(win, 0, 0);
     if (title && *title) {
-        int h, w;
-        getmaxyx(win, h, w);
+        int w;
+        int dummy;
+        getmaxyx(win, dummy, w);
+        (void)dummy; /* avoid unused-variable warning on some compilers */
         wattron(win, A_BOLD);
         mvwprintw(win, 1, (w - (int)strlen(title)) / 2, "%s", title);
         wattroff(win, A_BOLD);
