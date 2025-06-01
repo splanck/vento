@@ -22,7 +22,10 @@ void save_file(EditorContext *ctx, FileState *fs) {
         FILE *fp = fopen(fs->filename, "w");
         if (fp) {
             for (int i = 0; i < fs->buffer.count; ++i) {
-                fprintf(fp, "%s\n", fs->buffer.lines[i]);
+                const char *ln = lb_get(&fs->buffer, i);
+                if (!ln)
+                    ln = "";
+                fprintf(fp, "%s\n", ln);
             }
             fclose(fp);
             fs->modified = false;
@@ -52,7 +55,10 @@ void save_file_as(EditorContext *ctx, FileState *fs) {
     FILE *fp = fopen(fs->filename, "w");
     if (fp) {
         for (int i = 0; i < fs->buffer.count; ++i) {
-            fprintf(fp, "%s\n", fs->buffer.lines[i]);
+            const char *ln = lb_get(&fs->buffer, i);
+            if (!ln)
+                ln = "";
+            fprintf(fp, "%s\n", ln);
         }
         fclose(fp);
         fs->modified = false;

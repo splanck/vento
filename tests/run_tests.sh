@@ -83,12 +83,14 @@ gcc -Wall -Wextra -std=c99 -g -fsanitize=address -Isrc tests/test_shell_syntax.c
 # build and run shebang detection test (uses stubs for other functions)
 gcc -Wall -Wextra -std=c99 -g -Isrc -c tests/stubs_file_ops.c -o obj_test/stubs_file_ops.o
 gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_shebang_detection.c src/file_ops.c \
-    obj_test/stubs_file_ops.o obj_test/syntax_regex.o obj_test/globals.o -lncurses -o test_shebang_detection
+    obj_test/stubs_file_ops.o obj_test/syntax_regex.o obj_test/globals.o \
+    obj_test/line_buffer.o -lncurses -o test_shebang_detection
 ./test_shebang_detection
 
 # build and run shebang case-insensitive detection test
 gcc -Wall -Wextra -std=c99 -g -Isrc tests/test_shebang_case.c src/file_ops.c \
-    obj_test/stubs_file_ops.o obj_test/syntax_regex.o obj_test/globals.o -lncurses -o test_shebang_case
+    obj_test/stubs_file_ops.o obj_test/syntax_regex.o obj_test/globals.o \
+    obj_test/line_buffer.o -lncurses -o test_shebang_case
 ./test_shebang_case
 
 # build and run regex complex construct test
