@@ -40,7 +40,7 @@ void copy_selection(FileState *fs) {
     size_t clip_len = 0;
     for (int y = start_y; y <= end_y && clip_len < CLIPBOARD_SIZE - 1; y++) {
         if (y == start_y) {
-            const char *src = &fs->text_buffer[y - 1 + fs->start_line][start_x - 1];
+            const char *src = &fs->buffer.lines[y - 1 + fs->start_line][start_x - 1];
             size_t to_copy = end_x - start_x + 1;
             if (to_copy > CLIPBOARD_SIZE - 1 - clip_len) {
                 to_copy = CLIPBOARD_SIZE - 1 - clip_len;
@@ -53,7 +53,7 @@ void copy_selection(FileState *fs) {
                 global_clipboard[clip_len++] = '\n';
                 global_clipboard[clip_len] = '\0';
             }
-            const char *src = fs->text_buffer[y - 1 + fs->start_line];
+            const char *src = fs->buffer.lines[y - 1 + fs->start_line];
             size_t to_copy = strlen(src);
             if (to_copy > CLIPBOARD_SIZE - 1 - clip_len) {
                 to_copy = CLIPBOARD_SIZE - 1 - clip_len;
@@ -73,7 +73,7 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
     char *line = strtok(tmp, "\n");
     while (line) {
         size_t len = strlen(line);
-        char *dest = fs->text_buffer[*cursor_y - 1 + fs->start_line];
+        char *dest = fs->buffer.lines[*cursor_y - 1 + fs->start_line];
         size_t dest_len = strlen(dest);
 
         if (dest_len + len >= (size_t)fs->line_capacity) {
@@ -96,7 +96,7 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
             (*cursor_y)++;
             fs->cursor_x = *cursor_x = 1;
             fs->cursor_y = *cursor_y;
-            if (ensure_line_capacity(fs, fs->line_count + 1) < 0)
+            if (ensure_line_capacity(fs, fs->buffer.count + 1) < 0)
                 allocation_failed("ensure_line_capacity failed");
             insert_new_line(NULL, fs);
         }
@@ -158,8 +158,8 @@ void cut_selection(FileState *fs) {
 
     copy_selection(fs);
 
-    char *first = fs->text_buffer[start_y - 1 + fs->start_line];
-    char *last = fs->text_buffer[end_y - 1 + fs->start_line];
+    char *first = fs->buffer.lines[start_y - 1 + fs->start_line];
+    char *last = fs->buffer.lines[end_y - 1 + fs->start_line];
 
     if (start_y == end_y) {
         memmove(&first[start_x - 1], &first[end_x], strlen(first) - end_x + 1);
@@ -168,13 +168,13 @@ void cut_selection(FileState *fs) {
         strncat(first, &last[end_x], fs->line_capacity - strlen(first) - 1);
 
         int remove_count = end_y - start_y;
-        for (int i = start_y; i < fs->line_count - remove_count; ++i) {
-            strcpy(fs->text_buffer[i], fs->text_buffer[i + remove_count]);
+        for (int i = start_y; i < fs->buffer.count - remove_count; ++i) {
+            strcpy(fs->buffer.lines[i], fs->buffer.lines[i + remove_count]);
         }
-        for (int i = fs->line_count - remove_count; i < fs->line_count; ++i) {
-            fs->text_buffer[i][0] = '\0';
+        for (int i = fs->buffer.count - remove_count; i < fs->buffer.count; ++i) {
+            fs->buffer.lines[i][0] = '\0';
         }
-        fs->line_count -= remove_count;
+        fs->buffer.count -= remove_count;
     }
 
     fs->cursor_x = start_x;

@@ -131,8 +131,8 @@ int main(void){
     active_file = fs;
 
     /* put content and cursor beyond the new bounds */
-    memset(fs->text_buffer[0], 'A', 40);
-    fs->text_buffer[0][40] = '\0';
+    memset(fs->buffer.lines[0], 'A', 40);
+    fs->buffer.lines[0][40] = '\0';
     fs->cursor_x = 45;
     fs->cursor_y = 15;
 
@@ -147,9 +147,9 @@ int main(void){
     assert(fs->line_capacity == initial_cols);
     assert(fs->cursor_x == COLS - 1);
     assert(fs->cursor_y == LINES - BOTTOM_MARGIN);
-    assert(strlen(fs->text_buffer[0]) == 40);
+    assert(strlen(fs->buffer.lines[0]) == 40);
     for(int i=0;i<40;i++)
-        assert(fs->text_buffer[0][i] == 'A');
+        assert(fs->buffer.lines[0][i] == 'A');
 
     assert(drawBar_called);
 
@@ -163,9 +163,9 @@ int main(void){
     assert(last_resize_h == LINES - 2);
     assert(last_resize_w == COLS);
     assert(fs->line_capacity > prev_capacity);
-    assert(strlen(fs->text_buffer[0]) == 40);
+    assert(strlen(fs->buffer.lines[0]) == 40);
     for(int i=0;i<40;i++)
-        assert(fs->text_buffer[0][i] == 'A');
+        assert(fs->buffer.lines[0][i] == 'A');
     assert(drawBar_called);
 
     free_file_state(fs);

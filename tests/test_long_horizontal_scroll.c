@@ -25,13 +25,13 @@ int main(void) {
     const int len = 2050; /* > 2000 */
     FileState fs = {0};
     fs.line_capacity = len + 10;
-    fs.max_lines = 1;
-    fs.text_buffer = calloc(1, sizeof(char*));
-    fs.text_buffer[0] = calloc(fs.line_capacity, 1);
-    memset(fs.text_buffer[0], 'a', len - 1);
-    fs.text_buffer[0][len - 1] = 'Z';
-    fs.text_buffer[0][len] = '\0';
-    fs.line_count = 1;
+    fs.buffer.capacity = 1;
+    fs.buffer.lines = calloc(1, sizeof(char*));
+    fs.buffer.lines[0] = calloc(fs.line_capacity, 1);
+    memset(fs.buffer.lines[0], 'a', len - 1);
+    fs.buffer.lines[0][len - 1] = 'Z';
+    fs.buffer.lines[0][len] = '\0';
+    fs.buffer.count = 1;
     fs.cursor_x = 1;
     fs.cursor_y = 1;
     fs.start_line = 0;
@@ -48,7 +48,7 @@ int main(void) {
     assert(fs.scroll_x + visible >= len);
 
     char *tmp = malloc(visible + 1);
-    strncpy(tmp, fs.text_buffer[0] + fs.scroll_x, visible);
+    strncpy(tmp, fs.buffer.lines[0] + fs.scroll_x, visible);
     tmp[visible] = '\0';
     size_t tmplen = strlen(tmp);
     assert(tmplen > 0 && tmp[tmplen - 1] == 'Z');
@@ -59,7 +59,7 @@ int main(void) {
     assert(fs.cursor_x == 1);
     assert(fs.scroll_x == 0);
 
-    free(fs.text_buffer[0]);
-    free(fs.text_buffer);
+    free(fs.buffer.lines[0]);
+    free(fs.buffer.lines);
     return 0;
 }

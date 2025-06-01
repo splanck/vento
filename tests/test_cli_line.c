@@ -37,7 +37,7 @@ void go_to_line(EditorContext *ctx, FileState *fs, int line){(void)ctx;fs->curso
 void load_file(EditorContext *ctx, FileState *unused, const char *filename){
     (void)ctx;(void)unused;
     strncpy(dummy.filename, filename, sizeof(dummy.filename)-1);
-    dummy.line_count = 10;
+    dummy.buffer.count = 10;
     dummy.cursor_x = 1;
     dummy.cursor_y = 1;
     active_file = &dummy;

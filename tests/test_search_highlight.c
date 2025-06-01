@@ -134,12 +134,12 @@ AppConfig app_config;
 int main(void){
     FileState fs = {0};
     fs.line_capacity = 32;
-    fs.max_lines = 3;
-    fs.text_buffer = calloc(fs.max_lines,sizeof(char*));
-    for(int i=0;i<fs.max_lines;i++) fs.text_buffer[i]=calloc(fs.line_capacity,sizeof(char));
-    strcpy(fs.text_buffer[0],"hello");
-    strcpy(fs.text_buffer[1],"foo bar");
-    fs.line_count = 2;
+    fs.buffer.capacity = 3;
+    fs.buffer.lines = calloc(fs.buffer.capacity,sizeof(char*));
+    for(int i=0;i<fs.buffer.capacity;i++) fs.buffer.lines[i]=calloc(fs.line_capacity,sizeof(char));
+    strcpy(fs.buffer.lines[0],"hello");
+    strcpy(fs.buffer.lines[1],"foo bar");
+    fs.buffer.count = 2;
     fs.cursor_x = 0; fs.cursor_y = 0;
     fs.start_line = 0;
 
@@ -154,7 +154,7 @@ int main(void){
     assert(chgat_attr==(COLOR_PAIR(SYNTAX_SEARCH)|A_BOLD));
 
     delwin(text_win);
-    for(int i=0;i<fs.max_lines;i++) free(fs.text_buffer[i]);
-    free(fs.text_buffer);
+    for(int i=0;i<fs.buffer.capacity;i++) free(fs.buffer.lines[i]);
+    free(fs.buffer.lines);
     return 0;
 }

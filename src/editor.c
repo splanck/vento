@@ -73,7 +73,7 @@ void on_sigwinch(int sig) {
 __attribute__((weak)) int get_line_number_offset(FileState *fs) {
     if (!show_line_numbers || !fs)
         return 0;
-    int lines = fs->line_count > 0 ? fs->line_count : 1;
+    int lines = fs->buffer.count > 0 ? fs->buffer.count : 1;
     int width = 1;
     while (lines >= 10) { width++; lines /= 10; }
     return width + 1;
@@ -496,19 +496,19 @@ void run_editor(EditorContext *ctx) {
  */
 void initialize_buffer() {
     // Allocate memory for each line in the text buffer
-    for (int i = 0; i < active_file->max_lines; ++i) {
-        if (active_file->text_buffer[i] != NULL) {
-            free(active_file->text_buffer[i]);
-            active_file->text_buffer[i] = NULL;
+    for (int i = 0; i < active_file->buffer.capacity; ++i) {
+        if (active_file->buffer.lines[i] != NULL) {
+            free(active_file->buffer.lines[i]);
+            active_file->buffer.lines[i] = NULL;
         }
-        active_file->text_buffer[i] = (char *)calloc(active_file->line_capacity, sizeof(char));
-        if (active_file->text_buffer[i] == NULL) {
+        active_file->buffer.lines[i] = (char *)calloc(active_file->line_capacity, sizeof(char));
+        if (active_file->buffer.lines[i] == NULL) {
             allocation_failed("calloc failed in initialize_buffer");
         }
     }
     
     // Set the initial line count to 1
-    active_file->line_count = 1;
+    active_file->buffer.count = 1;
     
     // Set the initial start line to 0
     if (active_file)
@@ -541,7 +541,7 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
     int offset = 0;
     WINDOW *content = win;
     if (show_line_numbers) {
-        int lines = fs->line_count > 0 ? fs->line_count : 1;
+        int lines = fs->buffer.count > 0 ? fs->buffer.count : 1;
         num_width = 1;
         while (lines >= 10) { num_width++; lines /= 10; }
         offset = num_width + 1; /* numbers plus space */
@@ -557,12 +557,12 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
         visible_width = 1;
 
     // Iterate over each line to be displayed on the window
-    for (int i = 0; i < max_lines && i + fs->start_line < fs->line_count; ++i) {
+    for (int i = 0; i < max_lines && i + fs->start_line < fs->buffer.count; ++i) {
         int line_idx = i + fs->start_line;
         if (show_line_numbers) {
             mvwprintw(win, i + 1, 1, "%*d ", num_width, line_idx + 1);
         }
-        const char *line = fs->text_buffer[line_idx];
+        const char *line = fs->buffer.lines[line_idx];
         const char *start = line + fs->scroll_x;
         int use_w = visible_width;
         char *temp = malloc(use_w + 1);
@@ -594,9 +594,9 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
     int scrollbar_start = 0;
     int scrollbar_end = 0;
 
-    if (fs->line_count > 0) {
-        scrollbar_start = (fs->start_line * scrollbar_height) / fs->line_count;
-        scrollbar_end = ((fs->start_line + max_lines) * scrollbar_height) / fs->line_count;
+    if (fs->buffer.count > 0) {
+        scrollbar_start = (fs->start_line * scrollbar_height) / fs->buffer.count;
+        scrollbar_end = ((fs->start_line + max_lines) * scrollbar_height) / fs->buffer.count;
     }
 
     // Draw scrollbar
@@ -732,12 +732,12 @@ void perform_resize(void) {
  */
 void clear_text_buffer() {
     // Set all elements of the text buffer to 0
-    for (int i = 0; i < active_file->max_lines; ++i) {
-        memset(active_file->text_buffer[i], 0, active_file->line_capacity);
+    for (int i = 0; i < active_file->buffer.capacity; ++i) {
+        memset(active_file->buffer.lines[i], 0, active_file->line_capacity);
     }
 
     // Reset line count and start line variables
-    active_file->line_count = 1;
+    active_file->buffer.count = 1;
     if (active_file)
         active_file->start_line = 0;
     

@@ -43,11 +43,11 @@ void allocation_failed(const char*msg){(void)msg; abort();}
 int main(void){
     FileState fs = {0};
     fs.line_capacity = 2048;
-    fs.max_lines = 2;
-    fs.text_buffer = calloc(fs.max_lines, sizeof(char*));
-    for(int i=0;i<fs.max_lines;i++) fs.text_buffer[i]=calloc(fs.line_capacity, sizeof(char));
-    strcpy(fs.text_buffer[0], "foo bar");
-    fs.line_count = 1;
+    fs.buffer.capacity = 2;
+    fs.buffer.lines = calloc(fs.buffer.capacity, sizeof(char*));
+    for(int i=0;i<fs.buffer.capacity;i++) fs.buffer.lines[i]=calloc(fs.line_capacity, sizeof(char));
+    strcpy(fs.buffer.lines[0], "foo bar");
+    fs.buffer.count = 1;
     fs.cursor_x = 0; fs.cursor_y = 0;
     fs.start_line = 0;
 
@@ -57,7 +57,7 @@ int main(void){
     fs.modified = false;
     replace_next_occurrence(&fs, "foo", "baz");
 
-    assert(strcmp(fs.text_buffer[0], "baz bar") == 0);
+    assert(strcmp(fs.buffer.lines[0], "baz bar") == 0);
     assert(fs.modified);
     assert(fs.match_start_x == -1);
     assert(fs.match_end_x == -1);
@@ -65,7 +65,7 @@ int main(void){
     assert(fs.match_end_y == -1);
 
     delwin(text_win);
-    for(int i=0;i<fs.max_lines;i++) free(fs.text_buffer[i]);
-    free(fs.text_buffer);
+    for(int i=0;i<fs.buffer.capacity;i++) free(fs.buffer.lines[i]);
+    free(fs.buffer.lines);
     return 0;
 }

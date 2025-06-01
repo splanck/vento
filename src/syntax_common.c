@@ -82,9 +82,9 @@ void sync_multiline_comment(FileState *fs, int line) {
         in_comment = fs->last_comment_state;
     }
 
-    int max = line < fs->line_count ? line : fs->line_count;
+    int max = line < fs->buffer.count ? line : fs->buffer.count;
     for (int l = start; l < max; l++) {
-        char *p = fs->text_buffer[l];
+        char *p = fs->buffer.lines[l];
         for (int i = 0; p[i] != '\0'; i++) {
             char c = p[i];
 

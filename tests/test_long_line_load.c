@@ -22,9 +22,9 @@ int main(void){
     FileState *fs = initialize_file_state(fname, 5, 10);
     assert(fs);
     assert(load_file_into_buffer(fs) == 0);
-    assert(fs->line_count == 1);
-    assert(strlen(fs->text_buffer[0]) == strlen(longline));
-    assert(strcmp(fs->text_buffer[0], longline) == 0);
+    assert(fs->buffer.count == 1);
+    assert(strlen(fs->buffer.lines[0]) == strlen(longline));
+    assert(strcmp(fs->buffer.lines[0], longline) == 0);
 
     free_file_state(fs);
     unlink(fname);

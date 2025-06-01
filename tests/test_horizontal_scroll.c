@@ -24,11 +24,11 @@ void load_all_remaining_lines(FileState *fs){ (void)fs; }
 int main(void) {
     FileState fs = {0};
     fs.line_capacity = 64;
-    fs.max_lines = 1;
-    fs.text_buffer = calloc(1, sizeof(char*));
-    fs.text_buffer[0] = calloc(fs.line_capacity, 1);
-    strcpy(fs.text_buffer[0], "abcdefghijklmnopqrstuvwxyz");
-    fs.line_count = 1;
+    fs.buffer.capacity = 1;
+    fs.buffer.lines = calloc(1, sizeof(char*));
+    fs.buffer.lines[0] = calloc(fs.line_capacity, 1);
+    strcpy(fs.buffer.lines[0], "abcdefghijklmnopqrstuvwxyz");
+    fs.buffer.count = 1;
     fs.cursor_x = 1;
     fs.cursor_y = 1;
     fs.start_line = 0;
@@ -48,7 +48,7 @@ int main(void) {
     assert(fs.cursor_x == 1);
     assert(fs.scroll_x == 0);
 
-    free(fs.text_buffer[0]);
-    free(fs.text_buffer);
+    free(fs.buffer.lines[0]);
+    free(fs.buffer.lines);
     return 0;
 }
