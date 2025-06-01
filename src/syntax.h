@@ -36,7 +36,18 @@ void highlight_regex_line(WINDOW *win, int y, int x_start, const char *line,
                           SyntaxRegex *patterns, int count);
 
 void apply_syntax_highlighting(struct FileState *fs, WINDOW *win, const char *line, int y);
-void highlight_c_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
+
+typedef struct {
+    const char *ext;
+    SyntaxRegex *patterns;
+    int count;
+} SyntaxDef;
+
+void syntax_register(int mode, const SyntaxDef *def);
+const SyntaxDef *syntax_get(int mode);
+void highlight_by_patterns(struct FileState *fs, WINDOW *win, const char *line, int y,
+                           const SyntaxDef *def);
+
 void highlight_html_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
 void handle_html_tag(WINDOW *win, const char *line, int *i, int y, int *x);
 void handle_html_comment(WINDOW *win, const char *line, int *i, int y, int *x);
@@ -44,11 +55,6 @@ void print_char_with_attr(WINDOW *win, int y, int *x, char c, int attr);
 void highlight_no_syntax(WINDOW *win, const char *line, int y);
 void highlight_with_keywords(struct FileState *fs, WINDOW *win, const char *line,
                              int y, const char **keywords, int keyword_count);
-void highlight_python_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
-void highlight_csharp_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
-void highlight_js_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
-void highlight_css_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
-void highlight_shell_syntax(struct FileState *fs, WINDOW *win, const char *line, int y);
 void sync_multiline_comment(struct FileState *fs, int line);
 void mark_comment_state_dirty(struct FileState *fs);
 

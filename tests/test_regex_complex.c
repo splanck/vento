@@ -29,7 +29,8 @@ int main(void){
     FileState fs = {0};
     WINDOW *w = newwin(1,1,0,0);
     const char *line = "const char *s = \"hello\"; int x = 0x1A;";
-    highlight_c_syntax(&fs,w,line,0);
+    const SyntaxDef *def = syntax_get(C_SYNTAX);
+    highlight_by_patterns(&fs, w, line, 0, def);
     int found_str=0, found_hex=0;
     for(int i=0;i<call_index;i++){
         if(strcmp(printed[i],"\"hello\"")==0){

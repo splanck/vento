@@ -29,7 +29,8 @@ int main(void){
     FileState fs = {0};
     WINDOW *w = newwin(1,1,0,0);
     const char *line = "for i in 1; do echo $i; done";
-    highlight_shell_syntax(&fs,w,line,0);
+    const SyntaxDef *def = syntax_get(SHELL_SYNTAX);
+    highlight_by_patterns(&fs, w, line, 0, def);
     int kw=0;
     for(int i=0;i<call_index;i++){
         if(strcmp(printed[i],"for")==0||strcmp(printed[i],"do")==0||strcmp(printed[i],"done")==0){

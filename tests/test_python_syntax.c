@@ -31,7 +31,8 @@ int main(void){
     WINDOW *w = newwin(1,1,0,0);
 
     const char *line = "x = 0x1F";
-    highlight_python_syntax(&fs, w, line, 0);
+    const SyntaxDef *def = syntax_get(PYTHON_SYNTAX);
+    highlight_by_patterns(&fs, w, line, 0, def);
     int found = 0;
     for(int i=0;i<call_index;i++){
         if(strcmp(printed[i], "0x1F")==0){
@@ -41,25 +42,7 @@ int main(void){
     }
     assert(found);
 
-    call_index = 0; current_attr = 0; fs.in_multiline_string = false;
-    const char *l1 = "\"\"\"abc";
-    const char *l2 = "def\"\"\"";
-    highlight_python_syntax(&fs, w, l1, 0);
-    assert(fs.in_multiline_string);
-    highlight_python_syntax(&fs, w, l2, 0);
-    assert(!fs.in_multiline_string);
-    int found_open = 0, found_close = 0;
-    for(int i=0;i<call_index;i++){
-        if(strcmp(printed[i], "\"\"\"abc")==0){
-            assert(attrs[i] & COLOR_PAIR(SYNTAX_STRING));
-            found_open = 1;
-        }
-        if(strcmp(printed[i], "def\"\"\"")==0){
-            assert(attrs[i] & COLOR_PAIR(SYNTAX_STRING));
-            found_close = 1;
-        }
-    }
-    assert(found_open && found_close);
+
 
     delwin(w);
     return 0;

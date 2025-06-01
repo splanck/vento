@@ -31,7 +31,8 @@ int main(void){
     WINDOW *w = newwin(1,1,0,0);
 
     const char *line = "margin: 10px;";
-    highlight_css_syntax(&fs, w, line, 0);
+    const SyntaxDef *def = syntax_get(CSS_SYNTAX);
+    highlight_by_patterns(&fs, w, line, 0, def);
     int kw = 0, num = 0;
     for(int i=0;i<call_index;i++){
         if(strcmp(printed[i], "margin") == 0){
