@@ -5,6 +5,7 @@
 
 #include "files.h"
 #include "editor.h"
+#include <wchar.h>
 #include "editor_state.h"
 void handle_ctrl_backtick(EditorContext *ctx);
 void handle_key_up(EditorContext *ctx, struct FileState *fs);
@@ -25,7 +26,7 @@ void handle_ctrl_key_pgdn(EditorContext *ctx, struct FileState *fs);
 void handle_ctrl_key_up(EditorContext *ctx, struct FileState *fs);
 void handle_ctrl_key_down(EditorContext *ctx, struct FileState *fs);
 void handle_tab_key(EditorContext *ctx, struct FileState *fs);
-void handle_default_key(EditorContext *ctx, struct FileState *fs, int ch);
+void handle_default_key(EditorContext *ctx, struct FileState *fs, wint_t ch);
 void move_forward_to_next_word(EditorContext *ctx, struct FileState *fs);
 void move_backward_to_previous_word(EditorContext *ctx, struct FileState *fs);
 void handle_mouse_event(EditorContext *ctx, struct FileState *fs, MEVENT *ev);

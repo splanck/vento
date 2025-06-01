@@ -1,5 +1,7 @@
 #include "editor.h"
-#include <ncurses.h>
+#include <ncursesw/curses.h>
+#include <wchar.h>
+#include <wctype.h>
 #include "undo.h"
 #include <string.h>
 #include <stdlib.h>
@@ -328,7 +330,7 @@ void handle_tab_key(EditorContext *ctx, FileState *fs) {
     }
 }
 
-void handle_default_key(EditorContext *ctx, FileState *fs, int ch) {
+void handle_default_key(EditorContext *ctx, FileState *fs, wint_t ch) {
 #ifdef KEY_TAB
     if (ch == KEY_TAB || ch == '\t') {
 #else
@@ -337,40 +339,42 @@ void handle_default_key(EditorContext *ctx, FileState *fs, int ch) {
         handle_tab_key(ctx, fs);
         return;
     }
-    if (ch >= KEY_MIN || !isprint(ch))
+    if (ch >= KEY_MIN || !iswprint(ch))
         return; /* ignore non-printable or unmapped special keys */
-    if (fs->cursor_x < fs->line_capacity - 1) {
-        int len = strlen(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]);
-        if (len > fs->line_capacity - 1)
-            len = fs->line_capacity - 1;
-        char *old_text = strdup(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]);
-        if (!old_text) {
-            allocation_failed("strdup failed");
-            return;
-        }
-
-        if (fs->cursor_x <= len) {
-            memmove(&fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
-                    &fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
-                    len - fs->cursor_x + 1);
-        }
-
-        fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1] = ch;
-        if (len + 1 < fs->line_capacity)
-            fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][len + 1] = '\0';
-        fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->line_capacity - 1] = '\0';
-        fs->cursor_x++;
-
-        char *new_text = strdup(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]);
-        if (!new_text) {
-            free(old_text);
-            allocation_failed("strdup failed");
-            return;
-        }
-        Change change = { fs->cursor_y - 1 + fs->start_line, old_text, new_text };
-        push(&fs->undo_stack, change);
-        mark_comment_state_dirty(fs);
+    char mb[MB_CUR_MAX];
+    int mblen = wcrtomb(mb, ch, NULL);
+    if (mblen <= 0)
+        return;
+    int len = strlen(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]);
+    if (len > fs->line_capacity - 1)
+        len = fs->line_capacity - 1;
+    if (len + mblen >= fs->line_capacity)
+        return;
+    char *old_text = strdup(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]);
+    if (!old_text) {
+        allocation_failed("strdup failed");
+        return;
     }
+
+    if (fs->cursor_x - 1 <= len) {
+        memmove(&fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1 + mblen],
+                &fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
+                len - (fs->cursor_x - 1) + 1);
+    }
+
+    memcpy(&fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1], mb, mblen);
+    fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->line_capacity - 1] = '\0';
+    fs->cursor_x += mblen;
+
+    char *new_text = strdup(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]);
+    if (!new_text) {
+        free(old_text);
+        allocation_failed("strdup failed");
+        return;
+    }
+    Change change = { fs->cursor_y - 1 + fs->start_line, old_text, new_text };
+    push(&fs->undo_stack, change);
+    mark_comment_state_dirty(fs);
 
     werase(text_win);
     box(text_win, 0, 0);

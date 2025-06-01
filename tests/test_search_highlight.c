@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <ncurses.h>
+#include <wchar.h>
 #undef mvwprintw
 #undef mvwchgat
 #undef mvprintw
@@ -83,7 +84,7 @@ void handle_ctrl_key_up(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void handle_ctrl_key_down(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void handle_key_home(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void handle_key_end(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
-void handle_default_key(EditorContext*ctx,FileState*fs,int ch){(void)ctx;(void)fs;(void)ch;}
+void handle_default_key(EditorContext*ctx,FileState*fs,wint_t ch){(void)ctx;(void)fs;(void)ch;}
 void handle_mouse_event(EditorContext*ctx,FileState*fs,MEVENT*ev){(void)ctx;(void)fs;(void)ev;}
 void start_selection_mode(FileState*fs,int x,int y){(void)fs;(void)x;(void)y;}
 void update_selection_mouse(EditorContext*ctx,FileState*fs,int x,int y){(void)ctx;(void)fs;(void)x;(void)y;}

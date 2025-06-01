@@ -14,6 +14,7 @@
 #undef box
 #undef mvwprintw
 #undef wgetch
+#undef wget_wch
 #undef wclear
 #undef delwin
 #undef curs_set
@@ -42,7 +43,7 @@ int wbkgd(WINDOW*w, chtype ch){(void)w;(void)ch;return 0;}
 int wrefresh(WINDOW*w){(void)w;return 0;}
 int box(WINDOW*w,chtype a,chtype b){(void)w;(void)a;(void)b;return 0;}
 int mvwprintw(WINDOW*w,int y,int x,const char*fmt,...){(void)w;(void)y;(void)x;(void)fmt;return 0;}
-int wgetch(WINDOW*w){(void)w;return 0;}
+int wget_wch(WINDOW*w, wint_t*ch){(void)w;(void)ch;return 0;}
 int wclear(WINDOW*w){(void)w;return 0;}
 int delwin(WINDOW*w){(void)w;return 0;}
 int curs_set(int c){(void)c;return 0;}
