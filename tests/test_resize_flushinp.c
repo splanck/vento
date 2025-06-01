@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ncurses.h>
+#include <wchar.h>
 #undef refresh
 #undef clear
 #undef box
@@ -44,16 +45,20 @@ int flushinp(void){flushed = 1; return 0;}
 
 /* simulate KEY_RESIZE followed by junk */
 static int get_calls = 0;
-int wgetch(WINDOW*w){
+int wget_wch(WINDOW*w, wint_t*ch){
     (void)w;
     get_calls++;
-    if(get_calls==1) return KEY_RESIZE;
+    if(get_calls==1){
+        if(ch) *ch = KEY_RESIZE;
+        return KEY_CODE_YES;
+    }
     if(get_calls==2){
         if(flushed){
             exiting = 1;
             return ERR;
         }
-        return 'Z';
+        if(ch) *ch = 'Z';
+        return OK;
     }
     exiting = 1;
     return ERR;
@@ -79,7 +84,7 @@ void handle_ctrl_key_up(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void handle_ctrl_key_down(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void handle_key_home(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void handle_key_end(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
-void handle_default_key(EditorContext*ctx,FileState*fs,int ch){(void)ctx; fs->buffer.lines[0][0]=ch;}
+void handle_default_key(EditorContext*ctx,FileState*fs,wint_t ch){(void)ctx; fs->buffer.lines[0][0]=ch;}
 void handle_mouse_event(EditorContext*ctx,FileState*fs, MEVENT *ev){(void)ctx;(void)fs;(void)ev;}
 void start_selection_mode(FileState*fs,int x,int y){(void)fs;(void)x;(void)y;}
 void update_selection_mouse(EditorContext*ctx,FileState*fs,int x,int y){(void)ctx;(void)fs;(void)x;(void)y;}

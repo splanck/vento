@@ -1,4 +1,5 @@
-#include <ncurses.h>
+#include <ncursesw/curses.h>
+#include <wchar.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -421,7 +422,7 @@ void run_editor(EditorContext *ctx) {
     else
         return;
 
-    int ch;
+    wint_t ch;
     int currentMenu = 0;
     int currentItem = 0;
     MEVENT event; // Mouse event structure
@@ -434,7 +435,7 @@ void run_editor(EditorContext *ctx) {
     doupdate();
 
     while (exiting == 0) {
-        ch = wgetch(ctx->text_win);
+        int rc = wget_wch(ctx->text_win, &ch);
         if (resize_pending || ch == KEY_RESIZE) {
             perform_resize();
             resize_pending = 0;
@@ -442,7 +443,7 @@ void run_editor(EditorContext *ctx) {
                 continue;              /* skip further processing */
         }
 
-        if (ch == ERR) {
+        if (rc == ERR) {
             continue; // Handle any errors or no input case
         }
 
@@ -634,7 +635,7 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
  * @param cursor_y The current y-coordinate of the cursor.
  * @return None
  */
-void handle_regular_mode(EditorContext *ctx, FileState *fs, int ch) {
+void handle_regular_mode(EditorContext *ctx, FileState *fs, wint_t ch) {
     fs->match_start_x = fs->match_end_x = -1;
     fs->match_start_y = fs->match_end_y = -1;
     for (int i = 0; i < key_mapping_count; ++i) {

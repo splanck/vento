@@ -22,6 +22,7 @@
 #undef wattr_off
 #undef wmove
 #undef wgetch
+#undef wget_wch
 #undef wclear
 #undef werase
 #undef wborder
@@ -74,7 +75,7 @@ int wattr_off(WINDOW*w, attr_t a, void*opts){
 }
 int mvwprintw(WINDOW*w,int y,int x,const char*fmt,...){ (void)w;(void)y;(void)x;(void)fmt; return 0; }
 int wmove(WINDOW*w,int y,int x){ (void)w;(void)y;(void)x; return 0; }
-int wgetch(WINDOW*w){ (void)w; return '\n'; }
+int wget_wch(WINDOW*w, wint_t*ch){ (void)w; if(ch) *ch='\n'; return OK; }
 int wclear(WINDOW*w){ (void)w; return 0; }
 int werase(WINDOW*w){ (void)w; return 0; }
 int wborder(WINDOW*w,chtype ls,chtype rs,chtype ts,chtype bs,chtype tl,chtype tr,chtype bl,chtype br){(void)w;(void)ls;(void)rs;(void)ts;(void)bs;(void)tl;(void)tr;(void)bl;(void)br; return 0; }

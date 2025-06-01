@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ncurses.h>
+#include <wchar.h>
 #undef refresh
 #undef clear
 #undef box
@@ -40,7 +41,7 @@ int wnoutrefresh(WINDOW*w){(void)w;return 0;}
 int doupdate(void){return 0;}
 
 static int gcalls=0;
-int wgetch(WINDOW*w){(void)w;gcalls++; if(gcalls==2) exiting=1; return ERR;}
+int wget_wch(WINDOW*w, wint_t*ch){(void)w;(void)ch;gcalls++; if(gcalls==2) exiting=1; return ERR;}
 
 void update_status_bar(EditorContext *ctx, FileState*fs){(void)fs;}
 void drawBar(void){}
@@ -61,7 +62,7 @@ void handle_ctrl_key_up(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void handle_ctrl_key_down(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void handle_key_home(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void handle_key_end(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
-void handle_default_key(EditorContext*ctx,FileState*fs,int ch){(void)ctx;(void)fs;(void)ch;}
+void handle_default_key(EditorContext*ctx,FileState*fs,wint_t ch){(void)ctx;(void)fs;(void)ch;}
 void start_selection_mode(FileState*fs,int x,int y){(void)fs;(void)x;(void)y;}
 void update_selection_mouse(EditorContext*ctx,FileState*fs,int x,int y){(void)ctx;(void)fs;(void)x;(void)y;}
 void end_selection_mode(FileState*fs){(void)fs;}
