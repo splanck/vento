@@ -3,9 +3,16 @@ set -e
 
 if [ "$(uname)" = "Darwin" ]; then
     CURSES_LIB=-lncurses
+    EXTRA_CFLAGS="-D_XOPEN_SOURCE_EXTENDED"
 else
     CURSES_LIB=-lncursesw
+    EXTRA_CFLAGS=""
 fi
+
+# Ensure all gcc invocations include any extra flags (e.g. for macOS)
+gcc() {
+    command gcc $EXTRA_CFLAGS "$@"
+}
 # Ensure a clean build directory
 rm -rf obj_test
 mkdir obj_test
