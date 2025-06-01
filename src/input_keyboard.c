@@ -337,6 +337,8 @@ void handle_default_key(EditorContext *ctx, FileState *fs, int ch) {
         handle_tab_key(ctx, fs);
         return;
     }
+    if (ch >= KEY_MIN || !isprint(ch))
+        return; /* ignore non-printable or unmapped special keys */
     if (fs->cursor_x < fs->line_capacity - 1) {
         int len = strlen(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]);
         if (len > fs->line_capacity - 1)
