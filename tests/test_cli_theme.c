@@ -31,6 +31,8 @@ void run_editor(EditorContext *ctx){(void)ctx;}
 void cleanup_on_exit(FileManager *fm){(void)fm;}
 int endwin(void){return 0;}
 void apply_colors(void){}
+void drawBar(void){}
+void update_status_bar(EditorContext *ctx, FileState *fs){(void)ctx;(void)fs;}
 
 #define main vento_main
 #include "../src/vento.c"

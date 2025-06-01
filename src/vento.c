@@ -114,6 +114,11 @@ int main(int argc, char *argv[]) {
     editor.enable_mouse = enable_mouse;
     editor.enable_color = enable_color;
 
+    drawBar();
+    update_status_bar(&editor, editor.active_file);
+    wnoutrefresh(stdscr);
+    doupdate();
+
     // Show the warning dialog before entering the main editor loop
     if (app_config.show_startup_warning)
         show_warning_dialog(&editor);

@@ -35,6 +35,8 @@ void show_warning_dialog(EditorContext*ctx){(void)ctx;}
 void run_editor(EditorContext *ctx){(void)ctx;}
 int endwin(void){return 0;}
 void cleanup_on_exit(FileManager *fm){(void)fm;}
+void drawBar(void){}
+void update_status_bar(EditorContext *ctx, FileState *fs){(void)ctx;(void)fs;}
 
 /* simplified file loader used by main */
 void load_file(EditorContext *ctx,FileState *fs_unused,const char *filename){
