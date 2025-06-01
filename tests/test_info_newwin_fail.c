@@ -5,6 +5,7 @@
 #include "editor.h"
 #include "files.h"
 #include "config.h"
+#include "editor_state.h"
 
 #undef newwin
 #undef keypad
@@ -25,8 +26,6 @@ typedef struct { int dummy; } SIMPLE_WIN;
 static SIMPLE_WIN dummy_win;
 
 WINDOW *stdscr = (WINDOW*)&dummy_win;
-WINDOW *text_win = (WINDOW*)&dummy_win;
-FileState *active_file = NULL;
 int COLS = 80;
 int LINES = 24;
 int enable_color = 0;
