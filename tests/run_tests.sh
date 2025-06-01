@@ -3,7 +3,7 @@ set -e
 
 if [ "$(uname)" = "Darwin" ]; then
     CURSES_LIB=-lncurses
-    CFLAGS="-D_XOPEN_SOURCE_EXTENDED"
+    CFLAGS="-D_XOPEN_SOURCE_EXTENDED -D_DARWIN_C_SOURCE"
 else
     CURSES_LIB=-lncursesw
     CFLAGS=""

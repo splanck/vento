@@ -3,7 +3,7 @@ CFLAGS = -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L
 
 ifeq ($(shell uname),Darwin)
     CURSES_LIB = -lncurses
-    CFLAGS += -D_XOPEN_SOURCE_EXTENDED
+    CFLAGS += -D_XOPEN_SOURCE_EXTENDED -D_DARWIN_C_SOURCE
 else
     CURSES_LIB = -lncursesw
 endif
