@@ -150,6 +150,10 @@ sudo apt update
 sudo apt install build-essential libncurses5-dev libncursesw5-dev
 ```
 
+Vento prefers the wide-character version of ncurses for full Unicode input
+support. On systems where only the non-wide libraries are available, the
+editor will fall back to reading input in byte mode.
+
 ## Supported Platforms
 
 Vento has been tested on modern Linux distributions and macOS. Building the
