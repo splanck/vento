@@ -314,6 +314,12 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     src/globals.c obj_test/files.o obj_test/line_buffer.o $CURSES_LIB -o test_many_large_files
 ./test_many_large_files
 
+# build and run main descriptor limit regression test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -DNCURSES_NOMACROS -Isrc \
+    tests/test_main_many_files.c src/file_ops.c src/file_manager.c \
+    src/globals.c obj_test/files.o obj_test/line_buffer.o $CURSES_LIB -o test_main_many_files
+./test_main_many_files
+
 # build and run file manager shrink test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_fm_shrink.c src/file_manager.c src/files.c src/line_buffer.c $CURSES_LIB -o test_fm_shrink
