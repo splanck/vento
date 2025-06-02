@@ -96,9 +96,15 @@ int main(int argc, char *argv[]) {
         }
 
         load_file(&editor, NULL, argv[i]);
-        if (first_index == -1)
+        if (first_index == -1) {
             first_index = file_manager.active_index;
-        else {
+        } else {
+            FileState *loaded = fm_current(&file_manager);
+            if (loaded && loaded->fp && !loaded->file_complete) {
+                loaded->file_pos = ftell(loaded->fp);
+                fclose(loaded->fp);
+                loaded->fp = NULL;
+            }
             fm_switch(&file_manager, first_index);
             sync_editor_context(&editor);
         }
