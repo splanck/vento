@@ -240,11 +240,8 @@ void new_file(EditorContext *ctx, FileState *fs_unused) {
     wrefresh(text_win);
 
     update_status_bar(ctx, active_file);
-    if (ctx) {
-        ctx->file_manager = file_manager;
-        ctx->active_file = active_file;
-        ctx->text_win = text_win;
-    }
+    if (ctx)
+        sync_editor_context(ctx);
 }
 
 void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
@@ -281,11 +278,8 @@ void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *
         *cx = active_file->cursor_x;
         *cy = active_file->cursor_y;
     }
-    if (ctx) {
-        ctx->file_manager = file_manager;
-        ctx->active_file = active_file;
-        ctx->text_win = text_win;
-    }
+    if (ctx)
+        sync_editor_context(ctx);
     redraw();
     update_status_bar(ctx, active_file);
 }

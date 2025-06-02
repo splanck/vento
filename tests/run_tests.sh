@@ -233,6 +233,11 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_main_multifile.c src/globals.c $CURSES_LIB -o test_main_multifile
 ./test_main_multifile
 
+# verify status bar counts when multiple files passed
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_status_bar_count.c src/globals.c $CURSES_LIB -o test_status_bar_count
+./test_status_bar_count
+
 # build and run select_int valid input test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_select_int_valid.c src/ui_settings.c \

@@ -115,9 +115,7 @@ void next_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
         *cx = active_file->cursor_x;
         *cy = active_file->cursor_y;
     }
-    ctx->file_manager = file_manager;
-    ctx->active_file = active_file;
-    ctx->text_win = text_win;
+    sync_editor_context(ctx);
     redraw();
     update_status_bar(ctx, active_file);
 }
@@ -153,9 +151,7 @@ void prev_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
         *cx = active_file->cursor_x;
         *cy = active_file->cursor_y;
     }
-    ctx->file_manager = file_manager;
-    ctx->active_file = active_file;
-    ctx->text_win = text_win;
+    sync_editor_context(ctx);
     redraw();
     update_status_bar(ctx, active_file);
 }
