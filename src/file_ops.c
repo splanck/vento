@@ -87,6 +87,23 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         filename = file_to_load;
     }
 
+    /* If the file is already open, just switch to it */
+    for (int i = 0; i < file_manager.count; i++) {
+        FileState *open_fs = file_manager.files[i];
+        if (open_fs && strcmp(open_fs->filename, filename) == 0) {
+            fm_switch(&file_manager, i);
+            active_file = open_fs;
+            text_win = open_fs->text_win;
+            if (ctx) {
+                ctx->file_manager = file_manager;
+                ctx->active_file = active_file;
+                ctx->text_win = text_win;
+            }
+            update_status_bar(ctx, active_file);
+            return;
+        }
+    }
+
     /* Allocate a new file state */
     FileState *fs = initialize_file_state(filename, DEFAULT_BUFFER_LINES, COLS - 3);
     if (!fs) {
