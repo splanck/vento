@@ -48,7 +48,7 @@ void lb_init(LineBuffer *lb, int initial_capacity) {
 void lb_free(LineBuffer *lb) {
     if (!lb)
         return;
-    for (int i = 0; i < lb->count; ++i)
+    for (int i = 0; i < lb->capacity; ++i)
         free(lb->lines[i]);
     free(lb->lines);
     lb->lines = NULL;
