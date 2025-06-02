@@ -8,6 +8,7 @@ void fm_init(FileManager *fm) {
     fm->files = NULL;
     fm->count = 0;
     fm->active_index = -1;
+    fm->capacity = 0;
 }
 
 FileState *fm_current(FileManager *fm) {
@@ -24,6 +25,7 @@ int fm_add(FileManager *fm, FileState *fs) {
     fm->files = tmp;
     fm->files[fm->count] = fs;
     fm->active_index = fm->count;
+    fm->capacity = fm->count + 1;
     fm->count++;
     return fm->active_index;
 }
@@ -45,7 +47,12 @@ void fm_close(FileManager *fm, int index) {
         free(fm->files);
         fm->files = NULL;
         fm->active_index = -1;
+        fm->capacity = 0;
     } else {
+        FileState **tmp = realloc(fm->files, sizeof(FileState*) * fm->count);
+        if (tmp)
+            fm->files = tmp;
+        fm->capacity = fm->count;
         fm->active_index = (index <= fm->active_index && fm->active_index > 0) ? fm->active_index - 1 : fm->active_index;
         if (fm->active_index >= fm->count) fm->active_index = fm->count - 1;
     }
