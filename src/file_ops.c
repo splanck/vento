@@ -158,6 +158,10 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     fm_switch(&file_manager, idx);
     active_file = fm_current(&file_manager);
 
+    ctx->file_manager = file_manager;
+    ctx->active_file = active_file;
+    ctx->text_win = text_win;
+
     update_status_bar(ctx, active_file);
     extern int start_line;
     if (start_line > 0 && go_to_line)
