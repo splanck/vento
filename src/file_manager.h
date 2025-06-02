@@ -8,6 +8,7 @@ typedef struct FileManager {
     FileState **files;
     int count;
     int active_index;
+    int capacity;
 } FileManager;
 
 extern FileManager file_manager;
