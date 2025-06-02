@@ -103,7 +103,24 @@ CursorPos next_file(EditorContext *ctx) {
     }
     int idx = file_manager.active_index + 1;
     if (idx >= file_manager.count) idx = 0;
-    fm_switch(&file_manager, idx);
+    int res = fm_switch(&file_manager, idx);
+    if (res < 0) {
+        if (cur && !cur->fp && !cur->file_complete) {
+            cur->fp = fopen(cur->filename, "r");
+            if (cur->fp)
+                fseek(cur->fp, cur->file_pos, SEEK_SET);
+        }
+        active_file = cur;
+        text_win = cur ? cur->text_win : NULL;
+        if (active_file) {
+            pos.x = active_file->cursor_x;
+            pos.y = active_file->cursor_y;
+        }
+        sync_editor_context(ctx);
+        redraw();
+        update_status_bar(ctx, active_file);
+        return pos;
+    }
     active_file = fm_current(&file_manager);
     if (active_file) {
         active_file->cursor_x = active_file->saved_cursor_x;
@@ -140,7 +157,24 @@ CursorPos prev_file(EditorContext *ctx) {
     }
     int idx = file_manager.active_index - 1;
     if (idx < 0) idx = file_manager.count - 1;
-    fm_switch(&file_manager, idx);
+    int res = fm_switch(&file_manager, idx);
+    if (res < 0) {
+        if (cur && !cur->fp && !cur->file_complete) {
+            cur->fp = fopen(cur->filename, "r");
+            if (cur->fp)
+                fseek(cur->fp, cur->file_pos, SEEK_SET);
+        }
+        active_file = cur;
+        text_win = cur ? cur->text_win : NULL;
+        if (active_file) {
+            pos.x = active_file->cursor_x;
+            pos.y = active_file->cursor_y;
+        }
+        sync_editor_context(ctx);
+        redraw();
+        update_status_bar(ctx, active_file);
+        return pos;
+    }
     active_file = fm_current(&file_manager);
     if (active_file) {
         active_file->cursor_x = active_file->saved_cursor_x;
