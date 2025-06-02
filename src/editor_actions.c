@@ -227,6 +227,7 @@ CursorPos prev_file(EditorContext *ctx) {
 }
 
 void update_status_bar(EditorContext *ctx, FileState *fs) {
+    sync_editor_context(ctx);
     move(0, 0);
     int idx = ctx->file_manager.active_index + 1;
     int total = ctx->file_manager.count > 0 ? ctx->file_manager.count : 1;

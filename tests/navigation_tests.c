@@ -11,6 +11,7 @@ int tests_run = 0;
 
 extern int fm_switch_fail;
 extern int fm_add_fail;
+extern int last_status_count;
 
 static char *test_next_file_switch_failure() {
     fprintf(stderr, "test start\n");
@@ -174,6 +175,27 @@ static char *test_untitled_ignored_in_cycle() {
     return 0;
 }
 
+static char *test_status_bar_sync_on_load() {
+    initscr();
+    fm_init(&file_manager);
+    EditorContext ctx = {0};
+    sync_editor_context(&ctx);
+
+    int res = load_file(&ctx, NULL, "../README.md");
+    mu_assert("first load", res == 0);
+    mu_assert("status count after first", last_status_count == 1);
+
+    res = load_file(&ctx, NULL, "../LICENSE");
+    mu_assert("second load", res == 0);
+    mu_assert("status count after second", last_status_count == 2);
+
+    for (int i = file_manager.count - 1; i >= 0; i--) {
+        fm_close(&file_manager, i);
+    }
+    endwin();
+    return 0;
+}
+
 static char * all_tests() {
     mu_run_test(test_next_file_switch_failure);
     mu_run_test(test_prev_file_switch_failure);
@@ -182,6 +204,7 @@ static char * all_tests() {
     mu_run_test(test_new_file_add_failure);
     mu_run_test(test_new_file_switch_failure);
     mu_run_test(test_untitled_ignored_in_cycle);
+    mu_run_test(test_status_bar_sync_on_load);
     return 0;
 }
 
