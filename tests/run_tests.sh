@@ -207,6 +207,12 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     obj_test/line_buffer.o $CURSES_LIB -o test_confirm_switch_input
 ./test_confirm_switch_input
 
+# build and run single file switch no prompt test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_single_file_no_prompt.c src/editor_actions.c src/file_manager.c src/globals.c \
+    obj_test/line_buffer.o $CURSES_LIB -o test_single_file_no_prompt
+./test_single_file_no_prompt
+
 # build and run menu overlay clear regression test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_menu_no_clear.c $CURSES_LIB -o test_menu_no_clear

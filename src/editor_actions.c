@@ -86,7 +86,7 @@ void handle_undo_wrapper(FileState *fs, int *cx, int *cy) {
 
 void next_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     (void)fs_unused;
-    if (file_manager.count == 0) {
+    if (file_manager.count <= 1) {
         return;
     }
     if (!confirm_switch())
@@ -124,7 +124,7 @@ void next_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
 
 void prev_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     (void)fs_unused;
-    if (file_manager.count == 0) {
+    if (file_manager.count <= 1) {
         return;
     }
     if (!confirm_switch())
