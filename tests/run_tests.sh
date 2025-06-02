@@ -280,3 +280,8 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -DNCURSES_NOMACROS -Isrc
     tests/test_close_file_update.c src/file_ops.c src/editor_actions.c src/file_manager.c \
     obj_test/line_buffer.o $CURSES_LIB -o test_close_file_update
 ./test_close_file_update
+
+# build and run file close leak test
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -fsanitize=leak -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_free_file_leak.c src/files.c src/line_buffer.c src/file_manager.c $CURSES_LIB -o test_free_file_leak
+ASAN_OPTIONS=detect_leaks=1 ./test_free_file_leak
