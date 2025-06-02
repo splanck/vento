@@ -6,8 +6,8 @@ struct EditorContext;
 #include <stdbool.h>
 void save_file(struct EditorContext *ctx, struct FileState *fs);
 void save_file_as(struct EditorContext *ctx, struct FileState *fs);
-void load_file(struct EditorContext *ctx, struct FileState *fs,
-               const char *filename);
+int load_file(struct EditorContext *ctx, struct FileState *fs,
+              const char *filename);
 void new_file(struct EditorContext *ctx, struct FileState *fs);
 void close_current_file(struct EditorContext *ctx, struct FileState *fs,
                         int *cx, int *cy);

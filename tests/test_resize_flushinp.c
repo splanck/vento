@@ -108,7 +108,7 @@ void handle_selection_mode(FileState*fs,int ch,int*cx,int*cy){(void)fs;(void)ch;
 void replace(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void save_file(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void save_file_as(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
-void load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;(void)fn;}
+int load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;(void)fn;return 0;}
 void close_current_file(EditorContext*ctx,FileState*fs,int*cx,int*cy){(void)ctx;(void)fs;(void)cx;(void)cy;}
 int menu_click_open(int x,int y){(void)x;(void)y; return 0;}
 void menuNewFile(EditorContext*ctx){(void)ctx;}

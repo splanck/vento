@@ -39,7 +39,7 @@ void drawBar(void){}
 void update_status_bar(EditorContext *ctx, FileState *fs){(void)ctx;(void)fs;}
 
 /* simplified file loader used by main */
-void load_file(EditorContext *ctx,FileState *fs_unused,const char *filename){
+int load_file(EditorContext *ctx,FileState *fs_unused,const char *filename){
     (void)ctx;
     (void)fs_unused;
     FileState *fs = calloc(1, sizeof(FileState));
@@ -48,6 +48,7 @@ void load_file(EditorContext *ctx,FileState *fs_unused,const char *filename){
     int idx = fm_add(&file_manager, fs);
     fm_switch(&file_manager, idx);
     active_file = fm_current(&file_manager);
+    return 0;
 }
 
 void new_file(EditorContext *ctx, FileState *fs_unused){

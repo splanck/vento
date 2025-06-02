@@ -37,7 +37,7 @@ void drawBar(void){}
 static int s_idx=0, s_total=0;
 void update_status_bar(EditorContext *ctx, FileState *fs){(void)fs; s_idx = ctx->file_manager.active_index + 1; s_total = ctx->file_manager.count;}
 
-void load_file(EditorContext *ctx,FileState *fs_unused,const char *filename){(void)ctx;(void)fs_unused;FileState *fs=calloc(1,sizeof(FileState));assert(fs);strncpy(fs->filename,filename,sizeof(fs->filename)-1);int idx=fm_add(&file_manager,fs);fm_switch(&file_manager,idx);active_file=fm_current(&file_manager);} 
+int load_file(EditorContext *ctx,FileState *fs_unused,const char *filename){(void)ctx;(void)fs_unused;FileState *fs=calloc(1,sizeof(FileState));assert(fs);strncpy(fs->filename,filename,sizeof(fs->filename)-1);int idx=fm_add(&file_manager,fs);fm_switch(&file_manager,idx);active_file=fm_current(&file_manager);return 0;}
 void new_file(EditorContext *ctx, FileState *fs_unused){(void)ctx;(void)fs_unused;FileState *fs=calloc(1,sizeof(FileState));assert(fs);int idx=fm_add(&file_manager,fs);fm_switch(&file_manager,idx);active_file=fm_current(&file_manager);} 
 
 #define main vento_main

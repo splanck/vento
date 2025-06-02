@@ -87,7 +87,7 @@ void find(EditorContext*ctx,FileState*fs,int n){(void)ctx;(void)fs;(void)n;}
 void replace(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void save_file(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void save_file_as(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
-void load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;(void)fn;}
+int load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;(void)fn;return 0;}
 void close_current_file(EditorContext*ctx,FileState*fs,int*cx,int*cy){(void)ctx;(void)fs;(void)cx;(void)cy;}
 void menuNewFile(EditorContext*ctx){(void)ctx;}
 void menuLoadFile(EditorContext*ctx){(void)ctx;}

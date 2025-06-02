@@ -238,6 +238,12 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_status_bar_count.c src/globals.c $CURSES_LIB -o test_status_bar_count
 ./test_status_bar_count
 
+# build and run nonexistent file argument test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_main_nonexistent.c src/file_ops.c src/file_manager.c \
+    src/globals.c obj_test/files.o obj_test/line_buffer.o $CURSES_LIB -o test_main_nonexistent
+./test_main_nonexistent
+
 # build and run select_int valid input test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_select_int_valid.c src/ui_settings.c \

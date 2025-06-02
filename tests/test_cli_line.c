@@ -35,7 +35,7 @@ void drawBar(void){}
 
 static FileState dummy = {0};
 void go_to_line(EditorContext *ctx, FileState *fs, int line){(void)ctx;fs->cursor_y=line;}
-void load_file(EditorContext *ctx, FileState *unused, const char *filename){
+int load_file(EditorContext *ctx, FileState *unused, const char *filename){
     (void)ctx;(void)unused;
     strncpy(dummy.filename, filename, sizeof(dummy.filename)-1);
     dummy.buffer.count = 10;
@@ -43,6 +43,7 @@ void load_file(EditorContext *ctx, FileState *unused, const char *filename){
     dummy.cursor_y = 1;
     active_file = &dummy;
     if(start_line>0) go_to_line(ctx, active_file, start_line);
+    return 0;
 }
 
 #define main vento_main
