@@ -108,6 +108,7 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         refresh();
         free_file_state(fs);
         active_file = previous_active;
+        text_win = previous_active ? previous_active->text_win : NULL;
         return;
     }
     fs->file_complete = false;
@@ -120,6 +121,7 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         refresh();
         free_file_state(fs);
         active_file = previous_active;
+        text_win = previous_active ? previous_active->text_win : NULL;
         return;
     }
     mvprintw(LINES - 2, 2, "File loaded: %s", filename);
