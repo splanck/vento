@@ -285,3 +285,8 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -DNCURSES_NOMACROS -Isrc
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -fsanitize=leak -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_free_file_leak.c src/files.c src/line_buffer.c src/file_manager.c $CURSES_LIB -o test_free_file_leak
 ASAN_OPTIONS=detect_leaks=1 ./test_free_file_leak
+
+# build and run immediate close leak regression test
+gcc -Wall -Wextra -std=c99 -g -fsanitize=address -fsanitize=leak -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_close_immediate_leak.c src/files.c src/line_buffer.c src/file_manager.c $CURSES_LIB -o test_close_immediate_leak
+ASAN_OPTIONS=detect_leaks=1 ./test_close_immediate_leak
