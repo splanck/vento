@@ -240,6 +240,7 @@ void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *
         text_win = active_file->text_win;
     } else {
         new_file(ctx, NULL);
+        /* new_file already updated ctx fields, but we'll refresh them below */
     }
 
     active_file = fm_current(&file_manager);
@@ -250,6 +251,11 @@ void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *
     if (cx && cy && active_file) {
         *cx = active_file->cursor_x;
         *cy = active_file->cursor_y;
+    }
+    if (ctx) {
+        ctx->file_manager = file_manager;
+        ctx->active_file = active_file;
+        ctx->text_win = text_win;
     }
     redraw();
     update_status_bar(ctx, active_file);
