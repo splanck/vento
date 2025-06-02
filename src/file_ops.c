@@ -248,6 +248,8 @@ void new_file(EditorContext *ctx, FileState *fs_unused) {
         file_manager.active_index = previous_index;
         active_file = previous_active;
         text_win = previous_active ? previous_active->text_win : NULL;
+        if (ctx)
+            sync_editor_context(ctx);
         return;
     }
 
@@ -261,6 +263,8 @@ void new_file(EditorContext *ctx, FileState *fs_unused) {
         file_manager.active_index = previous_index;
         active_file = previous_active;
         text_win = previous_active ? previous_active->text_win : NULL;
+        if (ctx)
+            sync_editor_context(ctx);
         return;
     }
 

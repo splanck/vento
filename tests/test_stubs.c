@@ -2,10 +2,15 @@
 #include "file_manager.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 FileManager file_manager;
 FileState *active_file = NULL;
 WINDOW *text_win = NULL;
+
+int fm_switch_fail = 0;
+int fm_add_fail = 0;
+
 
 bool __wrap_confirm_switch(void) { return true; }
 void clamp_scroll_x(FileState *fs) { (void)fs; }
@@ -14,3 +19,28 @@ bool confirm_quit(void) { return true; }
 void allocation_failed(const char *msg) { fprintf(stderr, "alloc fail: %s\n", msg ? msg : ""); }
 void draw_text_buffer(FileState *fs, WINDOW *win) { (void)fs; (void)win; }
 void __wrap_update_status_bar(EditorContext *ctx, FileState *fs) { fprintf(stderr, "update_status_bar called\n"); (void)ctx; (void)fs; }
+
+int __wrap_fm_switch(FileManager *fm, int index) {
+    if (fm_switch_fail)
+        return -1;
+    if (!fm || index < 0 || index >= fm->count)
+        return -1;
+    fm->active_index = index;
+    return fm->active_index;
+}
+
+int __wrap_fm_add(FileManager *fm, FileState *fs) {
+    if (fm_add_fail)
+        return -1;
+    if (!fm || !fs)
+        return -1;
+    FileState **tmp = realloc(fm->files, sizeof(FileState*) * (fm->count + 1));
+    if (!tmp)
+        return -1;
+    fm->files = tmp;
+    fm->files[fm->count] = fs;
+    fm->active_index = fm->count;
+    fm->capacity = fm->count + 1;
+    fm->count++;
+    return fm->active_index;
+}
