@@ -169,7 +169,7 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     start_line = 0;    /* only apply once */
 }
 
-void new_file(FileState *fs_unused) {
+void new_file(EditorContext *ctx, FileState *fs_unused) {
     (void)fs_unused;
     FileState *previous_active = active_file;
     int previous_index = file_manager.active_index;
@@ -210,11 +210,12 @@ void new_file(FileState *fs_unused) {
           fs->cursor_x + get_line_number_offset(fs));
     wrefresh(text_win);
 
-    EditorContext tmp_ctx = {0};
-    tmp_ctx.file_manager = file_manager;
-    tmp_ctx.active_file = active_file;
-    tmp_ctx.text_win = text_win;
-    update_status_bar(&tmp_ctx, active_file);
+    update_status_bar(ctx, active_file);
+    if (ctx) {
+        ctx->file_manager = file_manager;
+        ctx->active_file = active_file;
+        ctx->text_win = text_win;
+    }
 }
 
 void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
@@ -238,7 +239,7 @@ void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *
         active_file = fm_current(&file_manager);
         text_win = active_file->text_win;
     } else {
-        new_file(NULL);
+        new_file(ctx, NULL);
     }
 
     active_file = fm_current(&file_manager);

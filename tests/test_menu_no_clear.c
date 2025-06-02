@@ -64,7 +64,7 @@ int curs_set(int c){(void)c;return 0;}
 int touchwin(WINDOW*w){(void)w;return 0;}
 
 /* stubs for external editor functions referenced in menu.c */
-void new_file(FileState*fs){(void)fs;}
+void new_file(EditorContext *ctx, FileState*fs){(void)ctx;(void)fs;}
 void load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;(void)fn;}
 void save_file(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void save_file_as(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
