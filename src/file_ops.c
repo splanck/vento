@@ -184,6 +184,17 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     wrefresh(text_win);
 
     int idx = fm_add(&file_manager, fs);
+    if (idx < 0) {
+        mvprintw(LINES - 2, 2, "Error loading file!");
+        refresh();
+        getch();
+        mvprintw(LINES - 2, 2, "                            ");
+        refresh();
+        free_file_state(fs);
+        active_file = previous_active;
+        text_win = previous_active ? previous_active->text_win : NULL;
+        return;
+    }
     fm_switch(&file_manager, idx);
     active_file = fm_current(&file_manager);
 
@@ -214,7 +225,16 @@ void new_file(EditorContext *ctx, FileState *fs_unused) {
 
     int idx = fm_add(&file_manager, fs);
     if (idx < 0) {
-        allocation_failed("fm_add failed");
+        mvprintw(LINES - 2, 2, "Error creating file!");
+        refresh();
+        getch();
+        mvprintw(LINES - 2, 2, "                            ");
+        refresh();
+        free_file_state(fs);
+        file_manager.active_index = previous_index;
+        active_file = previous_active;
+        text_win = previous_active ? previous_active->text_win : NULL;
+        return;
     }
 
     if (fm_switch(&file_manager, idx) < 0) {
