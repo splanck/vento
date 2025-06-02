@@ -102,8 +102,22 @@ CursorPos next_file(EditorContext *ctx) {
         }
     }
     int prev_index = file_manager.active_index;
-    int idx = file_manager.active_index + 1;
-    if (idx >= file_manager.count) idx = 0;
+    int idx = prev_index;
+    for (int i = 1; i < file_manager.count; i++) {
+        int cand = (prev_index + i) % file_manager.count;
+        FileState *fs = file_manager.files[cand];
+        if (fs && fs->filename[0] != '\0') {
+            idx = cand;
+            break;
+        }
+    }
+    if (idx == prev_index) {
+        if (cur) {
+            pos.x = cur->cursor_x;
+            pos.y = cur->cursor_y;
+        }
+        return pos;
+    }
     int res = fm_switch(&file_manager, idx);
     if (res < 0) {
         file_manager.active_index = prev_index;
@@ -158,8 +172,24 @@ CursorPos prev_file(EditorContext *ctx) {
         }
     }
     int prev_index = file_manager.active_index;
-    int idx = file_manager.active_index - 1;
-    if (idx < 0) idx = file_manager.count - 1;
+    int idx = prev_index;
+    for (int i = 1; i < file_manager.count; i++) {
+        int cand = prev_index - i;
+        if (cand < 0)
+            cand += file_manager.count;
+        FileState *fs = file_manager.files[cand];
+        if (fs && fs->filename[0] != '\0') {
+            idx = cand;
+            break;
+        }
+    }
+    if (idx == prev_index) {
+        if (cur) {
+            pos.x = cur->cursor_x;
+            pos.y = cur->cursor_y;
+        }
+        return pos;
+    }
     int res = fm_switch(&file_manager, idx);
     if (res < 0) {
         file_manager.active_index = prev_index;
