@@ -34,6 +34,27 @@ static char *test_next_file_switch_failure() {
     return 0;
 }
 
+static char *test_prev_file_switch_failure() {
+    fm_init(&file_manager);
+    FileState a = {0};
+    FileState b = {0};
+    b.cursor_x = 3; b.cursor_y = 4;
+    fm_add(&file_manager, &a);
+    fm_add(&file_manager, &b);
+    file_manager.active_index = 1;
+    active_file = &b;
+
+    fm_switch_fail = 1;
+    CursorPos pos = prev_file(NULL);
+    fm_switch_fail = 0;
+
+    mu_assert("index unchanged", file_manager.active_index == 1);
+    mu_assert("pointer unchanged", active_file == &b);
+    mu_assert("pos.x unchanged", pos.x == b.cursor_x);
+    mu_assert("pos.y unchanged", pos.y == b.cursor_y);
+    return 0;
+}
+
 static char *test_two_file_cycle() {
     fm_init(&file_manager);
     FileState a = {0};
@@ -116,6 +137,7 @@ static char *test_new_file_switch_failure() {
 
 static char * all_tests() {
     mu_run_test(test_next_file_switch_failure);
+    mu_run_test(test_prev_file_switch_failure);
     mu_run_test(test_two_file_cycle);
     mu_run_test(test_duplicate_open_same_file);
     mu_run_test(test_new_file_add_failure);
