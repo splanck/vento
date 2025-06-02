@@ -7,7 +7,7 @@ FileManager file_manager;
 FileState *active_file = NULL;
 WINDOW *text_win = NULL;
 
-bool confirm_switch(void) { return true; }
+bool __wrap_confirm_switch(void) { return true; }
 void clamp_scroll_x(FileState *fs) { (void)fs; }
 void redraw(void) {}
 bool confirm_quit(void) { return true; }
