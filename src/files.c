@@ -11,7 +11,20 @@
 #ifndef PATH_MAX
 #define PATH_MAX 4096
 #endif
+#include <stddef.h>
 char *realpath(const char *path, char *resolved_path);
+
+void canonicalize_path(const char *path, char *out, size_t out_size) {
+    char resolved[PATH_MAX];
+    if (path && path[0] != '\0' && realpath(path, resolved)) {
+        strncpy(out, resolved, out_size - 1);
+    } else {
+        if (!path)
+            path = "";
+        strncpy(out, path, out_size - 1);
+    }
+    out[out_size - 1] = '\0';
+}
 
 // Function to initialize a new FileState for a given filename
 FileState *initialize_file_state(const char *filename, int max_lines, int max_cols) {
@@ -20,12 +33,8 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
         return NULL;
     }
 
-    const char *final_name = filename;
-    char resolved[PATH_MAX];
-    if (filename && filename[0] != '\0' && realpath(filename, resolved))
-        final_name = resolved;
-    strncpy(file_state->filename, final_name, sizeof(file_state->filename) - 1);
-    file_state->filename[sizeof(file_state->filename) - 1] = '\0';
+    canonicalize_path(filename ? filename : "", file_state->filename,
+                     sizeof(file_state->filename));
 
     // Initialize text buffer
     lb_init(&file_state->buffer, max_lines);

@@ -1,6 +1,8 @@
 #include "minunit.h"
 #include "editor.h"
 #include "file_manager.h"
+#include "file_ops.h"
+#include <ncurses.h>
 #include <stdio.h>
 
 int tests_run = 0;
@@ -43,9 +45,25 @@ static char *test_two_file_cycle() {
     return 0;
 }
 
+static char *test_duplicate_open_same_file() {
+    initscr();
+    fm_init(&file_manager);
+    int res = load_file(NULL, NULL, "../README.md");
+    mu_assert("first load", res == 0);
+    mu_assert("one file after first", file_manager.count == 1);
+    FileState *first = file_manager.files[0];
+    res = load_file(NULL, NULL, ".././README.md");
+    mu_assert("still one file", file_manager.count == 1);
+    mu_assert("same pointer", file_manager.files[0] == first);
+    fm_close(&file_manager, 0);
+    endwin();
+    return 0;
+}
+
 static char * all_tests() {
     mu_run_test(test_next_file_switch_failure);
     mu_run_test(test_two_file_cycle);
+    mu_run_test(test_duplicate_open_same_file);
     return 0;
 }
 

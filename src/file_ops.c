@@ -53,8 +53,7 @@ void save_file_as(EditorContext *ctx, FileState *fs) {
     char newpath[256];
     if (!show_save_file_dialog(ctx, newpath, sizeof(newpath)))
         return;    // user cancelled
-    strncpy(fs->filename, newpath, sizeof(fs->filename) - 1);
-    fs->filename[sizeof(fs->filename) - 1] = '\0';
+    canonicalize_path(newpath, fs->filename, sizeof(fs->filename));
 
     load_all_remaining_lines(fs);
 
@@ -96,8 +95,10 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     }
 
     const char *filename_canon = filename;
-    if (filename && realpath(filename, canonical))
+    if (filename) {
+        canonicalize_path(filename, canonical, sizeof(canonical));
         filename_canon = canonical;
+    }
 
     /* If the file is already open, just switch to it */
     for (int i = 0; i < file_manager.count; i++) {
@@ -125,8 +126,7 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     active_file = fs;
 
     fs->syntax_mode = set_syntax_mode(filename_canon);
-    strncpy(fs->filename, filename_canon, sizeof(fs->filename) - 1);
-    fs->filename[sizeof(fs->filename) - 1] = '\0';
+    canonicalize_path(filename_canon, fs->filename, sizeof(fs->filename));
 
 
     fs->fp = fopen(filename_canon, "r");
@@ -164,8 +164,7 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     fs->last_comment_state = false;
     fs->modified = false;
 
-    strncpy(fs->filename, filename_canon, sizeof(fs->filename) - 1);
-    fs->filename[sizeof(fs->filename) - 1] = '\0';
+    canonicalize_path(filename_canon, fs->filename, sizeof(fs->filename));
 
     refresh();
 

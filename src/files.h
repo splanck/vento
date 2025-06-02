@@ -4,6 +4,7 @@
 #include <ncurses.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stddef.h>
 #include "editor.h"
 #include "line_buffer.h"
 
@@ -47,5 +48,6 @@ int ensure_col_capacity(FileState *fs, int cols);
 int load_next_lines(FileState *fs, int count);
 void ensure_line_loaded(FileState *fs, int idx);
 void load_all_remaining_lines(FileState *fs);
+void canonicalize_path(const char *path, char *out, size_t out_size);
 
 #endif
