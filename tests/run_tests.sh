@@ -201,6 +201,12 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     obj_test/line_buffer.o $CURSES_LIB -o test_confirm_switch
 ./test_confirm_switch
 
+# build and run confirm switch input test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_confirm_switch_input.c src/file_ops.c \
+    obj_test/line_buffer.o $CURSES_LIB -o test_confirm_switch_input
+./test_confirm_switch_input
+
 # build and run menu overlay clear regression test
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_menu_no_clear.c $CURSES_LIB -o test_menu_no_clear

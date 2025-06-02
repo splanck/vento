@@ -266,9 +266,11 @@ bool confirm_switch(void) {
         return true;
 
     int ch = show_message("Unsaved changes. Switch files?");
+    if (ch == 'y' || ch == 'Y')
+        return true;
     if (ch == 'n' || ch == 'N')
         return false;
-    return true;
+    return false;
 }
 
 int set_syntax_mode(const char *filename) {
