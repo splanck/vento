@@ -101,10 +101,12 @@ CursorPos next_file(EditorContext *ctx) {
             cur->fp = NULL;
         }
     }
+    int prev_index = file_manager.active_index;
     int idx = file_manager.active_index + 1;
     if (idx >= file_manager.count) idx = 0;
     int res = fm_switch(&file_manager, idx);
     if (res < 0) {
+        file_manager.active_index = prev_index;
         if (cur && !cur->fp && !cur->file_complete) {
             cur->fp = fopen(cur->filename, "r");
             if (cur->fp)
@@ -155,10 +157,12 @@ CursorPos prev_file(EditorContext *ctx) {
             cur->fp = NULL;
         }
     }
+    int prev_index = file_manager.active_index;
     int idx = file_manager.active_index - 1;
     if (idx < 0) idx = file_manager.count - 1;
     int res = fm_switch(&file_manager, idx);
     if (res < 0) {
+        file_manager.active_index = prev_index;
         if (cur && !cur->fp && !cur->file_complete) {
             cur->fp = fopen(cur->filename, "r");
             if (cur->fp)
