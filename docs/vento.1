@@ -6,6 +6,9 @@ vento \- a simple text editor
 .SH DESCRIPTION
 .B Vento
 is a lightweight terminal based text editor focused on simplicity.  It supports editing multiple files at once, customizable color themes, optional line numbers and full mouse interaction.  A status bar shows the current line and column, and a scroll bar indicates your position in the document.  Basic syntax highlighting is provided for C, HTML and Python.  Files can be loaded from the command line or through a file dialog and a menu system exposes common actions.
+When switching away from a file that is only partially loaded, Vento closes its
+file descriptor to conserve resources.  If additional lines are requested later
+the file is reopened automatically.
 .SH SYSTEM REQUIREMENTS
 A POSIX compatible system with a C compiler, binutils and the ncurses development libraries is required to build Vento.  On Debian based distributions install \fBbuild-essential\fP and \fBlibncursesw5-dev\fP.
 Vento has been tested on Linux and macOS and should also build on BSD derivatives and other POSIX-compliant platforms.

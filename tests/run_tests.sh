@@ -290,3 +290,9 @@ ASAN_OPTIONS=detect_leaks=1 ./test_free_file_leak
 gcc -Wall -Wextra -std=c99 -g -fsanitize=address -fsanitize=leak -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_close_immediate_leak.c src/files.c src/line_buffer.c src/file_manager.c $CURSES_LIB -o test_close_immediate_leak
 ASAN_OPTIONS=detect_leaks=1 ./test_close_immediate_leak
+
+# build and run descriptor limit regression test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_many_large_files.c src/file_ops.c src/editor_actions.c src/file_manager.c \
+    src/globals.c obj_test/files.o obj_test/line_buffer.o $CURSES_LIB -o test_many_large_files
+./test_many_large_files

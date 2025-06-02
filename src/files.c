@@ -71,6 +71,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     wbkgd(file_state->text_win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
 
     file_state->fp = NULL;
+    file_state->file_pos = 0;
     file_state->file_complete = true;
     file_state->modified = false;
 
@@ -195,6 +196,8 @@ int load_next_lines(FileState *fs, int count) {
         }
         loaded++;
     }
+    if (fs->fp)
+        fs->file_pos = ftell(fs->fp);
     free(line);
     if (feof(fs->fp)) {
         fclose(fs->fp);
@@ -212,6 +215,11 @@ void ensure_line_loaded(FileState *fs, int idx) {
     int to_load = idx - fs->buffer.count + 1;
     if (to_load < 0)
         to_load = 0;
+    if (!fs->fp && !fs->file_complete) {
+        fs->fp = fopen(fs->filename, "r");
+        if (fs->fp)
+            fseek(fs->fp, fs->file_pos, SEEK_SET);
+    }
     load_next_lines(fs, to_load);
 }
 
@@ -226,6 +234,7 @@ int load_file_into_buffer(FileState *file_state) {
     file_state->fp = fopen(file_state->filename, "r");
     if (!file_state->fp)
         return -1;
+    file_state->file_pos = 0;
     file_state->file_complete = false;
     file_state->buffer.count = 0;
     int res = load_next_lines(file_state, INT_MAX);
