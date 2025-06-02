@@ -68,8 +68,14 @@ void clamp_scroll_x(struct FileState *fs);
 void cleanup_on_exit(struct FileManager *fm);
 void disable_ctrl_c_z(void);
 void apply_colors(void);
-void next_file(EditorContext *ctx, struct FileState *fs, int *cx, int *cy);
-void prev_file(EditorContext *ctx, struct FileState *fs, int *cx, int *cy);
+
+typedef struct {
+    int x;
+    int y;
+} CursorPos;
+
+CursorPos next_file(EditorContext *ctx);
+CursorPos prev_file(EditorContext *ctx);
 void handle_redo_wrapper(struct FileState *fs, int *cx, int *cy);
 void handle_undo_wrapper(struct FileState *fs, int *cx, int *cy);
 void allocation_failed(const char *msg);

@@ -43,9 +43,8 @@ int main(void){
     ctx.active_file = active_file;
     ctx.text_win = text_win;
 
-    int cx = 0, cy = 0;
-    next_file(&ctx, active_file, &cx, &cy);
-    prev_file(&ctx, active_file, &cx, &cy);
+    (void)next_file(&ctx);
+    (void)prev_file(&ctx);
     active_file = ctx.active_file;
 
     assert(confirm_calls == 0);

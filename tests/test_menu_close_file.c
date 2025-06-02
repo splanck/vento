@@ -116,7 +116,7 @@ int main(void){
     assert(ctx.text_win == fs2->text_win);
 
     int cx = 0, cy = 0;
-    next_file(&ctx, active_file, &cx, &cy);
+    (void)next_file(&ctx);
     assert(ctx.active_file == fs2);
     assert(ctx.text_win == fs2->text_win);
 
@@ -126,7 +126,7 @@ int main(void){
     assert(active_file == file_manager.files[file_manager.active_index]);
     assert(ctx.text_win == active_file->text_win);
 
-    next_file(&ctx, active_file, &cx, &cy);
+    (void)next_file(&ctx);
     assert(ctx.active_file == active_file);
     assert(ctx.text_win == active_file->text_win);
 

@@ -341,11 +341,17 @@ static void handle_cut_selection_wrapper(struct FileState *fs, int *cx, int *cy)
 }
 
 static void handle_next_file_wrapper(struct FileState *fs, int *cx, int *cy) {
-    next_file(input_ctx, fs, cx, cy);
+    (void)fs;
+    (void)cx;
+    (void)cy;
+    next_file(input_ctx);
 }
 
 static void handle_prev_file_wrapper(struct FileState *fs, int *cx, int *cy) {
-    prev_file(input_ctx, fs, cx, cy);
+    (void)fs;
+    (void)cx;
+    (void)cy;
+    prev_file(input_ctx);
 }
 
 static void handle_clear_buffer_wrapper(struct FileState *fs, int *cx, int *cy) {

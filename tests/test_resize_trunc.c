@@ -73,8 +73,8 @@ void end_selection_mode(FileState*fs){(void)fs;}
 void paste_clipboard(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void delete_current_line(EditorContext *ctx, FileState*fs){(void)fs;}
 void insert_new_line(EditorContext *ctx, FileState*fs){(void)fs;}
-void next_file(EditorContext *ctx, FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
-void prev_file(EditorContext *ctx, FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
+CursorPos next_file(EditorContext *ctx){(void)ctx;return (CursorPos){0,0};}
+CursorPos prev_file(EditorContext *ctx){(void)ctx;return (CursorPos){0,0};}
 void handle_redo_wrapper(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void handle_undo_wrapper(FileState*fs,int*x,int*y){(void)fs;(void)x;(void)y;}
 void move_forward_to_next_word(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}

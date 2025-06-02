@@ -69,7 +69,6 @@ int main(void){
     ctx.text_win = NULL;
 
     char name[64];
-    int cx=0, cy=0;
     for(int i=0;i<20;i++){
         snprintf(name,sizeof(name),"big_%d.txt",i);
         FILE *fp=fopen(name,"w");
@@ -77,7 +76,7 @@ int main(void){
         fclose(fp);
         load_file(&ctx, active_file, name);
         if(i>0){
-            next_file(&ctx, active_file, &cx, &cy);
+            (void)next_file(&ctx);
         }
         assert(count_fds() < 32);
     }

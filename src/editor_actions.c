@@ -84,13 +84,13 @@ void handle_undo_wrapper(FileState *fs, int *cx, int *cy) {
     undo(fs);
 }
 
-void next_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
-    (void)fs_unused;
+CursorPos next_file(EditorContext *ctx) {
+    CursorPos pos = {0, 0};
     if (file_manager.count <= 1) {
-        return;
+        return pos;
     }
     if (!confirm_switch())
-        return;
+        return pos;
     FileState *cur = fm_current(&file_manager);
     if (cur) {
         cur->saved_cursor_x = cur->cursor_x;
@@ -111,22 +111,23 @@ void next_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     }
     text_win = active_file ? active_file->text_win : NULL;
     clamp_scroll_x(active_file);
-    if (cx && cy && active_file) {
-        *cx = active_file->cursor_x;
-        *cy = active_file->cursor_y;
+    if (active_file) {
+        pos.x = active_file->cursor_x;
+        pos.y = active_file->cursor_y;
     }
     sync_editor_context(ctx);
     redraw();
     update_status_bar(ctx, active_file);
+    return pos;
 }
 
-void prev_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
-    (void)fs_unused;
+CursorPos prev_file(EditorContext *ctx) {
+    CursorPos pos = {0, 0};
     if (file_manager.count <= 1) {
-        return;
+        return pos;
     }
     if (!confirm_switch())
-        return;
+        return pos;
     FileState *cur = fm_current(&file_manager);
     if (cur) {
         cur->saved_cursor_x = cur->cursor_x;
@@ -147,13 +148,14 @@ void prev_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     }
     text_win = active_file ? active_file->text_win : NULL;
     clamp_scroll_x(active_file);
-    if (cx && cy && active_file) {
-        *cx = active_file->cursor_x;
-        *cy = active_file->cursor_y;
+    if (active_file) {
+        pos.x = active_file->cursor_x;
+        pos.y = active_file->cursor_y;
     }
     sync_editor_context(ctx);
     redraw();
     update_status_bar(ctx, active_file);
+    return pos;
 }
 
 void update_status_bar(EditorContext *ctx, FileState *fs) {
