@@ -2,13 +2,14 @@
 #include "editor.h"
 #include "file_manager.h"
 #include "file_ops.h"
+#include "editor_state.h"
 #include <ncurses.h>
 #include <stdio.h>
 
 int tests_run = 0;
 
-int __wrap_fm_switch(FileManager *fm, int index) {
-    (void)fm; (void)index; fprintf(stderr, "fm_switch called\n"); return -1; }
+extern int fm_switch_fail;
+extern int fm_add_fail;
 
 static char *test_next_file_switch_failure() {
     fprintf(stderr, "test start\n");
@@ -21,7 +22,10 @@ static char *test_next_file_switch_failure() {
     file_manager.active_index = 0;
     active_file = &a;
 
+    fm_switch_fail = 1;
+
     CursorPos pos = next_file(NULL);
+    fm_switch_fail = 0;
     fprintf(stderr, "after next_file\n");
     mu_assert("index unchanged", file_manager.active_index == 0);
     mu_assert("pointer unchanged", active_file == &a);
@@ -60,10 +64,62 @@ static char *test_duplicate_open_same_file() {
     return 0;
 }
 
+static char *test_new_file_add_failure() {
+    initscr();
+    fm_init(&file_manager);
+    FileState prev = {0};
+    prev.text_win = newwin(1,1,0,0);
+    fm_add(&file_manager, &prev);
+    file_manager.active_index = 0;
+    active_file = &prev;
+    text_win = prev.text_win;
+    EditorContext ctx = {0};
+    sync_editor_context(&ctx);
+
+    fm_add_fail = 1;
+    new_file(&ctx, NULL);
+    fm_add_fail = 0;
+
+    mu_assert("add failure keeps active index", file_manager.active_index == 0);
+    mu_assert("add failure keeps pointer", active_file == &prev);
+    mu_assert("ctx updated", ctx.active_file == active_file);
+    mu_assert("ctx index", ctx.file_manager.active_index == file_manager.active_index);
+    delwin(prev.text_win);
+    endwin();
+    return 0;
+}
+
+static char *test_new_file_switch_failure() {
+    initscr();
+    fm_init(&file_manager);
+    FileState prev = {0};
+    prev.text_win = newwin(1,1,0,0);
+    fm_add(&file_manager, &prev);
+    file_manager.active_index = 0;
+    active_file = &prev;
+    text_win = prev.text_win;
+    EditorContext ctx = {0};
+    sync_editor_context(&ctx);
+
+    fm_switch_fail = 1;
+    new_file(&ctx, NULL);
+    fm_switch_fail = 0;
+
+    mu_assert("switch failure keeps index", file_manager.active_index == 0);
+    mu_assert("switch failure keeps pointer", active_file == &prev);
+    mu_assert("ctx updated after switch fail", ctx.active_file == active_file);
+    mu_assert("ctx index after switch fail", ctx.file_manager.active_index == file_manager.active_index);
+    delwin(prev.text_win);
+    endwin();
+    return 0;
+}
+
 static char * all_tests() {
     mu_run_test(test_next_file_switch_failure);
     mu_run_test(test_two_file_cycle);
     mu_run_test(test_duplicate_open_same_file);
+    mu_run_test(test_new_file_add_failure);
+    mu_run_test(test_new_file_switch_failure);
     return 0;
 }
 
