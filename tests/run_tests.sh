@@ -324,3 +324,8 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -DNCURSES_NOMACROS -Isrc
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_fm_shrink.c src/file_manager.c src/files.c src/line_buffer.c $CURSES_LIB -o test_fm_shrink
 ./test_fm_shrink
+
+# build and run fm_add failure handling test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_fm_add_fail.c src/file_ops.c src/file_manager.c $CURSES_LIB -o test_fm_add_fail
+./test_fm_add_fail
