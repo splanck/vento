@@ -34,6 +34,7 @@ typedef struct FileState {
     int nested_mode; /* 0=none,1=JS,2=CSS */
     WINDOW *text_win;
     FILE *fp;          /* Open file handle for lazy loading */
+    long file_pos;     /* Offset of fp when partially loaded */
     bool file_complete;/* True when the entire file is loaded */
     bool modified;     /* True if the buffer has unsaved changes */
 } FileState;

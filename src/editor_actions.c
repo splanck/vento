@@ -95,6 +95,11 @@ void next_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     if (cur) {
         cur->saved_cursor_x = cur->cursor_x;
         cur->saved_cursor_y = cur->cursor_y;
+        if (cur->fp && !cur->file_complete) {
+            cur->file_pos = ftell(cur->fp);
+            fclose(cur->fp);
+            cur->fp = NULL;
+        }
     }
     int idx = file_manager.active_index + 1;
     if (idx >= file_manager.count) idx = 0;
@@ -128,6 +133,11 @@ void prev_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     if (cur) {
         cur->saved_cursor_x = cur->cursor_x;
         cur->saved_cursor_y = cur->cursor_y;
+        if (cur->fp && !cur->file_complete) {
+            cur->file_pos = ftell(cur->fp);
+            fclose(cur->fp);
+            cur->fp = NULL;
+        }
     }
     int idx = file_manager.active_index - 1;
     if (idx < 0) idx = file_manager.count - 1;

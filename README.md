@@ -96,6 +96,11 @@ Vento allows multiple files to be opened at once. Press `CTRL-L` to open a
 dialog for browsing directories or typing a filename, and switch between loaded
 files with `F6` for the next file or `F7` for the previous one.
 
+When you leave a file that hasn't been fully loaded, Vento now closes its
+underlying file descriptor. If you later scroll beyond the loaded portion, the
+file is reopened automatically and more lines are read on demand. This prevents
+running out of descriptors when editing many large files.
+
 ## Planned Features
 
 The following features are planned for future releases:

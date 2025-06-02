@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "file_manager.h"
 #include "editor_state.h"
 
@@ -29,7 +30,13 @@ int fm_add(FileManager *fm, FileState *fs) {
 
 void fm_close(FileManager *fm, int index) {
     if (!fm || index < 0 || index >= fm->count) return;
-    free_file_state(fm->files[index]);
+    FileState *fs = fm->files[index];
+    if (fs && fs->fp && !fs->file_complete) {
+        fs->file_pos = ftell(fs->fp);
+        fclose(fs->fp);
+        fs->fp = NULL;
+    }
+    free_file_state(fs);
     for (int i = index; i < fm->count - 1; i++) {
         fm->files[i] = fm->files[i + 1];
     }

@@ -100,6 +100,7 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
 
 
     fs->fp = fopen(filename, "r");
+    fs->file_pos = 0;
     if (!fs->fp) {
         mvprintw(LINES - 2, 2, "Error loading file!");
         refresh();
