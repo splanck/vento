@@ -304,6 +304,7 @@ void menuSettings(EditorContext *ctx) {
     if (show_settings_dialog(ctx, &ctx->config)) {
         config_save(&ctx->config);
         config_load(&ctx->config);
+        app_config = ctx->config;
         ctx->enable_mouse = enable_mouse;
         ctx->enable_color = enable_color;
         if (ctx->enable_mouse)
