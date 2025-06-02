@@ -45,20 +45,21 @@ int main(void){
     ctx.active_file = active_file;
     ctx.text_win = text_win;
 
-    int cx = 0, cy = 0;
-    next_file(&ctx, active_file, &cx, &cy);
+    CursorPos pos = next_file(&ctx);
     assert(fs1.saved_cursor_x == 5 && fs1.saved_cursor_y == 6);
     active_file = ctx.active_file;
     assert(active_file == &fs2);
-    assert(cx == 2 && cy == 3);
+    assert(pos.x == 2 && pos.y == 3);
+    assert(fs1.cursor_x == 5 && fs1.cursor_y == 6);
 
     fs2.cursor_x = 10; fs2.cursor_y = 11;
-    prev_file(&ctx, active_file, &cx, &cy);
+    pos = prev_file(&ctx);
     active_file = ctx.active_file;
     assert(fs2.saved_cursor_x == 10 && fs2.saved_cursor_y == 11);
     assert(active_file == &fs1);
-    assert(cx == 5 && cy == 6);
+    assert(pos.x == 5 && pos.y == 6);
     assert(fs1.cursor_x == 5 && fs1.cursor_y == 6);
+    assert(fs2.cursor_x == 10 && fs2.cursor_y == 11);
 
     free(file_manager.files);
     return 0;
