@@ -5,6 +5,7 @@
 #include "editor_state.h"
 #include <ncurses.h>
 #include <stdio.h>
+#include <string.h>
 
 int tests_run = 0;
 
@@ -135,6 +136,44 @@ static char *test_new_file_switch_failure() {
     return 0;
 }
 
+static char *test_untitled_ignored_in_cycle() {
+    fm_init(&file_manager);
+    FileState untitled = {0};
+    FileState first = {0};
+    FileState second = {0};
+    strcpy(first.filename, "file1");
+    strcpy(second.filename, "file2");
+    fm_add(&file_manager, &untitled);
+    fm_add(&file_manager, &first);
+    fm_add(&file_manager, &second);
+    file_manager.active_index = 1;
+    active_file = &first;
+
+    next_file(NULL);
+    mu_assert("next skips untitled", file_manager.active_index == 2 && active_file == &second);
+    next_file(NULL);
+    mu_assert("cycle only real files", file_manager.active_index == 1 && active_file == &first);
+
+    file_manager.active_index = 0;
+    active_file = &untitled;
+    next_file(NULL);
+    mu_assert("next from untitled", file_manager.active_index == 1 && active_file == &first);
+
+    file_manager.active_index = 1;
+    active_file = &first;
+    prev_file(NULL);
+    mu_assert("prev skips untitled", file_manager.active_index == 2 && active_file == &second);
+    prev_file(NULL);
+    mu_assert("cycle back", file_manager.active_index == 1 && active_file == &first);
+
+    file_manager.active_index = 0;
+    active_file = &untitled;
+    prev_file(NULL);
+    mu_assert("prev from untitled", file_manager.active_index == 2 && active_file == &second);
+
+    return 0;
+}
+
 static char * all_tests() {
     mu_run_test(test_next_file_switch_failure);
     mu_run_test(test_prev_file_switch_failure);
@@ -142,6 +181,7 @@ static char * all_tests() {
     mu_run_test(test_duplicate_open_same_file);
     mu_run_test(test_new_file_add_failure);
     mu_run_test(test_new_file_switch_failure);
+    mu_run_test(test_untitled_ignored_in_cycle);
     return 0;
 }
 
