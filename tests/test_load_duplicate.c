@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <string.h>
 #include <unistd.h>
 #include <ncurses.h>
@@ -63,7 +64,11 @@ FileState* initialize_file_state(const char *filename,int max_lines,int max_cols
     FileState *fs = calloc(1,sizeof(FileState));
     assert(fs);
     fs->text_win = (WINDOW*)calloc(1,sizeof(int));
-    strncpy(fs->filename, filename, sizeof(fs->filename)-1);
+    const char *fn = filename;
+    char resolved[PATH_MAX];
+    if (filename && realpath(filename, resolved))
+        fn = resolved;
+    strncpy(fs->filename, fn, sizeof(fs->filename)-1);
     fs->cursor_x = fs->cursor_y = 1;
     return fs;
 }
@@ -75,6 +80,7 @@ void free_file_state(FileState *fs){
 
 int main(void){
     const char *f1 = "tmp_dup.txt";
+    const char *alt = "./tmp_dup.txt";
     FILE *fp = fopen(f1,"w"); fclose(fp);
 
     fm_init(&file_manager);
@@ -88,8 +94,8 @@ int main(void){
     ctx.active_file = active_file;
     ctx.text_win = text_win;
 
-    /* attempt to load the same file again */
-    load_file(&ctx, active_file, f1);
+    /* attempt to load the same file again using a different path */
+    load_file(&ctx, active_file, alt);
 
     /* should not create a new FileState */
     assert(ctx.file_manager.count == 1);

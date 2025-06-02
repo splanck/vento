@@ -8,6 +8,10 @@
 #include "line_buffer.h"
 #include "undo.h"
 #include <limits.h>
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+char *realpath(const char *path, char *resolved_path);
 
 // Function to initialize a new FileState for a given filename
 FileState *initialize_file_state(const char *filename, int max_lines, int max_cols) {
@@ -16,7 +20,11 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
         return NULL;
     }
 
-    strncpy(file_state->filename, filename, sizeof(file_state->filename) - 1);
+    const char *final_name = filename;
+    char resolved[PATH_MAX];
+    if (filename && filename[0] != '\0' && realpath(filename, resolved))
+        final_name = resolved;
+    strncpy(file_state->filename, final_name, sizeof(file_state->filename) - 1);
     file_state->filename[sizeof(file_state->filename) - 1] = '\0';
 
     // Initialize text buffer

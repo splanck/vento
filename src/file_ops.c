@@ -10,6 +10,12 @@
 #include "file_manager.h"
 #include "ui_common.h"
 #include "editor_state.h"
+#include <limits.h>
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+#include <stdlib.h>
+char *realpath(const char *path, char *resolved_path);
 
 #define INITIAL_LOAD_LINES 1024
 
@@ -78,6 +84,7 @@ void save_file_as(EditorContext *ctx, FileState *fs) {
 void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     (void)fs_unused;
     char file_to_load[256];
+    char canonical[PATH_MAX];
     FileState *previous_active = active_file;
 
     if (filename == NULL) {
@@ -87,10 +94,14 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         filename = file_to_load;
     }
 
+    const char *filename_canon = filename;
+    if (filename && realpath(filename, canonical))
+        filename_canon = canonical;
+
     /* If the file is already open, just switch to it */
     for (int i = 0; i < file_manager.count; i++) {
         FileState *open_fs = file_manager.files[i];
-        if (open_fs && strcmp(open_fs->filename, filename) == 0) {
+        if (open_fs && strcmp(open_fs->filename, filename_canon) == 0) {
             fm_switch(&file_manager, i);
             active_file = open_fs;
             text_win = open_fs->text_win;
@@ -105,18 +116,18 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     }
 
     /* Allocate a new file state */
-    FileState *fs = initialize_file_state(filename, DEFAULT_BUFFER_LINES, COLS - 3);
+    FileState *fs = initialize_file_state(filename_canon, DEFAULT_BUFFER_LINES, COLS - 3);
     if (!fs) {
         allocation_failed("initialize_file_state failed");
     }
     active_file = fs;
 
-    fs->syntax_mode = set_syntax_mode(filename);
-    strncpy(fs->filename, filename, sizeof(fs->filename) - 1);
+    fs->syntax_mode = set_syntax_mode(filename_canon);
+    strncpy(fs->filename, filename_canon, sizeof(fs->filename) - 1);
     fs->filename[sizeof(fs->filename) - 1] = '\0';
 
 
-    fs->fp = fopen(filename, "r");
+    fs->fp = fopen(filename_canon, "r");
     fs->file_pos = 0;
     if (!fs->fp) {
         mvprintw(LINES - 2, 2, "Error loading file!");
@@ -142,14 +153,14 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         text_win = previous_active ? previous_active->text_win : NULL;
         return;
     }
-    mvprintw(LINES - 2, 2, "File loaded: %s", filename);
+    mvprintw(LINES - 2, 2, "File loaded: %s", filename_canon);
 
     fs->in_multiline_comment = false;
     fs->last_scanned_line = 0;
     fs->last_comment_state = false;
     fs->modified = false;
 
-    strncpy(fs->filename, filename, sizeof(fs->filename) - 1);
+    strncpy(fs->filename, filename_canon, sizeof(fs->filename) - 1);
     fs->filename[sizeof(fs->filename) - 1] = '\0';
 
     refresh();
