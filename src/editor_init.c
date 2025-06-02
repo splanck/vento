@@ -32,6 +32,7 @@ void initialize(EditorContext *ctx) {
     setlocale(LC_ALL, "");
     initscr();
     config_load(&app_config);
+    ctx->config = app_config;
     ctx->enable_color = enable_color;
     ctx->enable_mouse = enable_mouse;
     apply_colors();
