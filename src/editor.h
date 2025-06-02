@@ -75,4 +75,5 @@ void handle_undo_wrapper(struct FileState *fs, int *cx, int *cy);
 void allocation_failed(const char *msg);
 
 
+
 #endif // EDITOR_H
