@@ -86,70 +86,68 @@ void handle_undo_wrapper(FileState *fs, int *cx, int *cy) {
 
 void next_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     (void)fs_unused;
-    if (ctx->file_manager.count == 0) {
+    if (file_manager.count == 0) {
         return;
     }
     if (!confirm_switch())
         return;
-    FileState *cur = fm_current(&ctx->file_manager);
+    FileState *cur = fm_current(&file_manager);
     if (cur) {
         cur->saved_cursor_x = cur->cursor_x;
         cur->saved_cursor_y = cur->cursor_y;
     }
-    int idx = ctx->file_manager.active_index + 1;
-    if (idx >= ctx->file_manager.count) idx = 0;
-    fm_switch(&ctx->file_manager, idx);
-    ctx->active_file = fm_current(&ctx->file_manager);
-    if (ctx->active_file) {
-        ctx->active_file->cursor_x = ctx->active_file->saved_cursor_x;
-        ctx->active_file->cursor_y = ctx->active_file->saved_cursor_y;
+    int idx = file_manager.active_index + 1;
+    if (idx >= file_manager.count) idx = 0;
+    fm_switch(&file_manager, idx);
+    active_file = fm_current(&file_manager);
+    if (active_file) {
+        active_file->cursor_x = active_file->saved_cursor_x;
+        active_file->cursor_y = active_file->saved_cursor_y;
     }
-    ctx->text_win = ctx->active_file ? ctx->active_file->text_win : NULL;
-    clamp_scroll_x(ctx->active_file);
-    if (cx && cy && ctx->active_file) {
-        *cx = ctx->active_file->cursor_x;
-        *cy = ctx->active_file->cursor_y;
+    text_win = active_file ? active_file->text_win : NULL;
+    clamp_scroll_x(active_file);
+    if (cx && cy && active_file) {
+        *cx = active_file->cursor_x;
+        *cy = active_file->cursor_y;
     }
+    ctx->file_manager = file_manager;
+    ctx->active_file = active_file;
+    ctx->text_win = text_win;
     redraw();
-    update_status_bar(ctx, ctx->active_file);
-
-    active_file = ctx->active_file;
-    text_win = ctx->text_win;
-    file_manager = ctx->file_manager;
+    update_status_bar(ctx, active_file);
 }
 
 void prev_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     (void)fs_unused;
-    if (ctx->file_manager.count == 0) {
+    if (file_manager.count == 0) {
         return;
     }
     if (!confirm_switch())
         return;
-    FileState *cur = fm_current(&ctx->file_manager);
+    FileState *cur = fm_current(&file_manager);
     if (cur) {
         cur->saved_cursor_x = cur->cursor_x;
         cur->saved_cursor_y = cur->cursor_y;
     }
-    int idx = ctx->file_manager.active_index - 1;
-    if (idx < 0) idx = ctx->file_manager.count - 1;
-    fm_switch(&ctx->file_manager, idx);
-    ctx->active_file = fm_current(&ctx->file_manager);
-    if (ctx->active_file) {
-        ctx->active_file->cursor_x = ctx->active_file->saved_cursor_x;
-        ctx->active_file->cursor_y = ctx->active_file->saved_cursor_y;
+    int idx = file_manager.active_index - 1;
+    if (idx < 0) idx = file_manager.count - 1;
+    fm_switch(&file_manager, idx);
+    active_file = fm_current(&file_manager);
+    if (active_file) {
+        active_file->cursor_x = active_file->saved_cursor_x;
+        active_file->cursor_y = active_file->saved_cursor_y;
     }
-    ctx->text_win = ctx->active_file ? ctx->active_file->text_win : NULL;
-    clamp_scroll_x(ctx->active_file);
-    if (cx && cy && ctx->active_file) {
-        *cx = ctx->active_file->cursor_x;
-        *cy = ctx->active_file->cursor_y;
+    text_win = active_file ? active_file->text_win : NULL;
+    clamp_scroll_x(active_file);
+    if (cx && cy && active_file) {
+        *cx = active_file->cursor_x;
+        *cy = active_file->cursor_y;
     }
+    ctx->file_manager = file_manager;
+    ctx->active_file = active_file;
+    ctx->text_win = text_win;
     redraw();
-    update_status_bar(ctx, ctx->active_file);
-
-    active_file = ctx->active_file;
-    text_win = ctx->text_win;
-    file_manager = ctx->file_manager;
+    update_status_bar(ctx, active_file);
 }
 
 void update_status_bar(EditorContext *ctx, FileState *fs) {
