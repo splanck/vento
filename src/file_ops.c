@@ -265,9 +265,9 @@ void new_file(EditorContext *ctx, FileState *fs_unused) {
           fs->cursor_x + get_line_number_offset(fs));
     wrefresh(text_win);
 
-    update_status_bar(ctx, active_file);
     if (ctx)
         sync_editor_context(ctx);
+    update_status_bar(ctx, active_file);
 }
 
 void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
