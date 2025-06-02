@@ -267,7 +267,16 @@ void new_file(EditorContext *ctx, FileState *fs_unused) {
 void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     (void)fs_unused;
     FileState *current = fm_current(&file_manager);
+    int *orig_cx = cx;
+    int *orig_cy = cy;
+    bool cx_in_current = false;
+    bool cy_in_current = false;
+
     if (current) {
+        if (cx)
+            cx_in_current = (cx == &current->cursor_x);
+        if (cy)
+            cy_in_current = (cy == &current->cursor_y);
         current->saved_cursor_x = current->cursor_x;
         current->saved_cursor_y = current->cursor_y;
     }
@@ -293,10 +302,10 @@ void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *
     if (active_file) {
         active_file->cursor_x = active_file->saved_cursor_x;
         active_file->cursor_y = active_file->saved_cursor_y;
-    }
-    if (cx && cy && active_file) {
-        *cx = active_file->cursor_x;
-        *cy = active_file->cursor_y;
+        if (orig_cx && !cx_in_current)
+            *orig_cx = active_file->cursor_x;
+        if (orig_cy && !cy_in_current)
+            *orig_cy = active_file->cursor_y;
     }
     if (ctx)
         sync_editor_context(ctx);

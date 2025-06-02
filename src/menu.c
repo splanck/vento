@@ -286,8 +286,13 @@ void menuSaveAs(EditorContext *ctx) {
 }
 
 void menuCloseFile(EditorContext *ctx) {
-    close_current_file(ctx, ctx->active_file, &ctx->active_file->cursor_x,
-                      &ctx->active_file->cursor_y);
+    int cx = ctx->active_file ? ctx->active_file->cursor_x : 0;
+    int cy = ctx->active_file ? ctx->active_file->cursor_y : 0;
+    close_current_file(ctx, ctx->active_file, &cx, &cy);
+    if (active_file) {
+        active_file->cursor_x = cx;
+        active_file->cursor_y = cy;
+    }
     ctx->active_file = active_file;
     ctx->text_win = text_win;
 }
