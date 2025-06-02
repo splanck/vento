@@ -204,6 +204,7 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         FileState *first = file_manager.files[0];
         if (first && first->filename[0] == '\0' && !first->modified) {
             fm_close(&file_manager, 0);
+            sync_editor_context(ctx);
             idx = file_manager.active_index;
         }
     }
@@ -307,6 +308,7 @@ void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *
         }
     }
     fm_close(&file_manager, file_manager.active_index);
+    sync_editor_context(ctx);
 
     if (file_manager.count > 0) {
         active_file = fm_current(&file_manager);
