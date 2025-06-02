@@ -28,8 +28,24 @@ static char *test_next_file_switch_failure() {
     return 0;
 }
 
+static char *test_two_file_cycle() {
+    fm_init(&file_manager);
+    FileState a = {0};
+    FileState b = {0};
+    fm_add(&file_manager, &a);
+    fm_add(&file_manager, &b);
+    file_manager.active_index = 0;
+    mu_assert("two files loaded", file_manager.count == 2);
+    fm_switch(&file_manager, (file_manager.active_index + 1) % file_manager.count);
+    mu_assert("switch to second", file_manager.active_index == 1);
+    fm_switch(&file_manager, (file_manager.active_index + 1) % file_manager.count);
+    mu_assert("cycle back to first", file_manager.active_index == 0);
+    return 0;
+}
+
 static char * all_tests() {
     mu_run_test(test_next_file_switch_failure);
+    mu_run_test(test_two_file_cycle);
     return 0;
 }
 
