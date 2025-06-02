@@ -263,3 +263,8 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
 gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_linebuffer_insert_delete.c src/line_buffer.c $CURSES_LIB -o test_linebuffer_insert_delete
 ./test_linebuffer_insert_delete
+# build and run load file context switch test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
+    tests/test_load_switch.c src/file_ops.c src/editor_actions.c src/file_manager.c \
+    obj_test/line_buffer.o $CURSES_LIB -o test_load_switch
+./test_load_switch
