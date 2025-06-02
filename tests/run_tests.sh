@@ -341,3 +341,9 @@ gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -Isrc \
     tests/test_menu_close_file.c src/file_ops.c src/editor_actions.c src/file_manager.c \
     obj_test/line_buffer.o $CURSES_LIB -o test_menu_close_file
 ./test_menu_close_file
+
+# build and run missing file status bar test
+gcc -Wall -Wextra -std=c99 -g -D_POSIX_C_SOURCE=200809L -DNCURSES_NOMACROS -Isrc \
+    tests/test_load_missing_status.c src/file_ops.c src/file_manager.c \
+    obj_test/line_buffer.o $CURSES_LIB -o test_load_missing_status
+./test_load_missing_status
