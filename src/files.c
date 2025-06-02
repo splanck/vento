@@ -6,6 +6,7 @@
 #include "config.h"
 #include "editor_state.h"
 #include "line_buffer.h"
+#include "undo.h"
 #include <limits.h>
 
 // Function to initialize a new FileState for a given filename
@@ -82,6 +83,14 @@ void free_file_state(FileState *file_state) {
     if (file_state->fp) {
         fclose(file_state->fp);
         file_state->fp = NULL;
+    }
+    if (file_state->undo_stack) {
+        free_stack(file_state->undo_stack);
+        file_state->undo_stack = NULL;
+    }
+    if (file_state->redo_stack) {
+        free_stack(file_state->redo_stack);
+        file_state->redo_stack = NULL;
     }
     file_state->last_scanned_line = 0;
     file_state->last_comment_state = false;
