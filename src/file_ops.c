@@ -89,6 +89,7 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
 
     if (filename == NULL) {
         if (show_open_file_dialog(ctx, file_to_load, sizeof(file_to_load)) == 0) {
+            sync_editor_context(ctx);
             return -1; // user cancelled
         }
         filename = file_to_load;
@@ -111,6 +112,7 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
                 ctx->text_win = text_win;
             }
             update_status_bar(ctx, active_file);
+            sync_editor_context(ctx);
             return 0;
         }
     }
@@ -138,6 +140,7 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         free_file_state(fs);
         active_file = previous_active;
         text_win = previous_active ? previous_active->text_win : NULL;
+        sync_editor_context(ctx);
         return -1;
     }
     fs->file_complete = false;
@@ -151,6 +154,7 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         free_file_state(fs);
         active_file = previous_active;
         text_win = previous_active ? previous_active->text_win : NULL;
+        sync_editor_context(ctx);
         return -1;
     }
     mvprintw(LINES - 2, 2, "File loaded: %s", filename_canon);
@@ -193,6 +197,7 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         free_file_state(fs);
         active_file = previous_active;
         text_win = previous_active ? previous_active->text_win : NULL;
+        sync_editor_context(ctx);
         return -1;
     }
     fm_switch(&file_manager, idx);
