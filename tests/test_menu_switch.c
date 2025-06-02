@@ -65,7 +65,7 @@ int touchwin(WINDOW*w){if(w==text_win)touch_calls++;return 0;}
 
 /* stubs for external editor functions referenced in menu.c */
 void new_file(EditorContext *ctx, FileState*fs){(void)ctx;(void)fs;}
-void load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;(void)fn;}
+int load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;(void)fn;return 0;}
 void save_file(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void save_file_as(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void close_current_file(EditorContext*ctx,FileState*fs,int*cx,int*cy){(void)ctx;(void)fs;(void)cx;(void)cy;}

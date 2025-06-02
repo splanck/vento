@@ -47,7 +47,7 @@ void update_status_bar(EditorContext *ctx, FileState*fs){(void)fs;}
 bool drawMenu(Menu*menu,int ci,int sx,int sy){(void)menu;(void)ci;(void)sx;(void)sy;return true;}
 void drawMenuBar(Menu*m,int mc){(void)m;(void)mc;}
 void new_file(EditorContext *ctx, FileState*fs){(void)ctx;(void)fs;}
-void load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;(void)fn;}
+int load_file(EditorContext*ctx,FileState*fs,const char*fn){(void)ctx;(void)fs;(void)fn;return 0;}
 void save_file(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void save_file_as(EditorContext*ctx,FileState*fs){(void)ctx;(void)fs;}
 void close_current_file(EditorContext*ctx,FileState*fs,int*cx,int*cy){(void)ctx;(void)fs;(void)cx;(void)cy;}

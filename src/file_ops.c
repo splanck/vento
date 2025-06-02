@@ -81,7 +81,7 @@ void save_file_as(EditorContext *ctx, FileState *fs) {
     return;
 }
 
-void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
+int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     (void)fs_unused;
     char file_to_load[256];
     char canonical[PATH_MAX];
@@ -89,7 +89,7 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
 
     if (filename == NULL) {
         if (show_open_file_dialog(ctx, file_to_load, sizeof(file_to_load)) == 0) {
-            return; // user cancelled
+            return -1; // user cancelled
         }
         filename = file_to_load;
     }
@@ -111,7 +111,7 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
                 ctx->text_win = text_win;
             }
             update_status_bar(ctx, active_file);
-            return;
+            return 0;
         }
     }
 
@@ -138,7 +138,7 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         free_file_state(fs);
         active_file = previous_active;
         text_win = previous_active ? previous_active->text_win : NULL;
-        return;
+        return -1;
     }
     fs->file_complete = false;
     fs->buffer.count = 0;
@@ -151,7 +151,7 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         free_file_state(fs);
         active_file = previous_active;
         text_win = previous_active ? previous_active->text_win : NULL;
-        return;
+        return -1;
     }
     mvprintw(LINES - 2, 2, "File loaded: %s", filename_canon);
 
@@ -193,7 +193,7 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         free_file_state(fs);
         active_file = previous_active;
         text_win = previous_active ? previous_active->text_win : NULL;
-        return;
+        return -1;
     }
     fm_switch(&file_manager, idx);
     active_file = fm_current(&file_manager);
@@ -207,6 +207,7 @@ void load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     if (start_line > 0 && go_to_line)
         go_to_line(ctx, active_file, start_line);
     start_line = 0;    /* only apply once */
+    return 0;
 }
 
 void new_file(EditorContext *ctx, FileState *fs_unused) {
