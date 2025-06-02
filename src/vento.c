@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (file_count == 0) {
-        new_file(NULL);
+        new_file(&editor, NULL);
     }
 
     active_file = fm_current(&file_manager);

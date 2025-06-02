@@ -50,7 +50,8 @@ void load_file(EditorContext *ctx,FileState *fs_unused,const char *filename){
     active_file = fm_current(&file_manager);
 }
 
-void new_file(FileState *fs_unused){
+void new_file(EditorContext *ctx, FileState *fs_unused){
+    (void)ctx;
     (void)fs_unused;
     FileState *fs = calloc(1,sizeof(FileState));
     assert(fs);

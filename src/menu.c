@@ -266,7 +266,7 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
 
 
 void menuNewFile(EditorContext *ctx) {
-    new_file(ctx->active_file);
+    new_file(ctx, ctx->active_file);
     ctx->active_file = active_file;
     ctx->text_win = text_win;
 }
