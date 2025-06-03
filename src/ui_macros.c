@@ -133,12 +133,8 @@ void show_manage_macros(EditorContext *ctx) {
                     buf[sizeof(buf) - 1] = '\0';
                     create_dialog(ctx, "Rename Macro:", buf, sizeof(buf));
                     if (buf[0]) {
-                        char *newname = strdup(buf);
-                        if (newname) {
-                            free(m->name);
-                            m->name = newname;
-                            macros_save(&app_config);
-                        }
+                        macro_rename(m, buf);
+                        macros_save(&app_config);
                     }
                 }
             }
