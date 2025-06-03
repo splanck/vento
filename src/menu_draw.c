@@ -14,6 +14,21 @@
 #include "syntax.h"
 #include "editor_state.h"
 
+int calcMenuWidth(Menu *menu) {
+    int longest = 0;
+    for (int i = 0; i < menu->itemCount; ++i) {
+        MenuItem *item = &menu->items[i];
+        if (item->separator)
+            continue;
+        int len = (int)strlen(item->label);
+        if (item->shortcut)
+            len += (int)strlen(item->shortcut);
+        if (len > longest)
+            longest = len;
+    }
+    return longest + 3; // account for padding and borders
+}
+
 /*
  * Draw the top menu bar.
  *
@@ -65,13 +80,17 @@ void drawBar(void) {
  * from the global `menuPositions` array populated by drawMenuBar().
  */
 bool drawMenu(Menu *menu, int currentItem, int startX, int startY) {
-    int boxWidth = 20;
+    int boxWidth = calcMenuWidth(menu);
     int boxHeight = menu->itemCount + 2;
 
-    if (startX < 0 || startY < 0 || startX + boxWidth > COLS ||
-        startY + boxHeight > LINES) {
-        return false;
-    }
+    if (startX + boxWidth > COLS)
+        startX = COLS - boxWidth;
+    if (startX < 0)
+        startX = 0;
+    if (startY + boxHeight > LINES)
+        startY = LINES - boxHeight;
+    if (startY < 0)
+        startY = 0;
 
     WINDOW *menuWin = newwin(boxHeight, boxWidth, startY, startX);
     if (menuWin == NULL) {
