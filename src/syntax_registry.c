@@ -1,3 +1,10 @@
+/*
+ * syntax_registry.c
+ * -----------------
+ * Stores available syntax definitions and provides helper functions for
+ * registering and retrieving them.  Built-in regex based definitions are
+ * registered at startup via init_registry().
+ */
 #include <ncurses.h>
 #include "syntax.h"
 #include "files.h"
@@ -5,20 +12,43 @@
 
 #define SYNTAX_MODE_COUNT 8
 
+/*
+ * Table of available syntax definitions indexed by syntax mode.  Entries are
+ * populated via syntax_register() during initialization and looked up with
+ * syntax_get().
+ */
 static SyntaxDef registry[SYNTAX_MODE_COUNT];
 
+/*
+ * Register a syntax definition.
+ *
+ * The definition is stored in the `registry` array at the index
+ * corresponding to `mode`.  Later lookups through syntax_get() will
+ * return a pointer to this stored entry.
+ */
 void syntax_register(int mode, const SyntaxDef *def) {
     if (mode >= 0 && mode < SYNTAX_MODE_COUNT && def)
         registry[mode] = *def;
 }
 
+/*
+ * Retrieve a previously registered syntax definition.
+ *
+ * Returns NULL if `mode` is out of range or if no definition has been
+ * registered for that slot.
+ */
 const SyntaxDef *syntax_get(int mode) {
     if (mode >= 0 && mode < SYNTAX_MODE_COUNT && registry[mode].patterns)
         return &registry[mode];
     return NULL;
 }
 
-/* Generic regex based highlighter */
+/*
+ * Generic regex based highlighter used by several built-in definitions.
+ * The patterns from `def` are compiled on first use and then applied to
+ * `line`.  When no patterns are present the line is printed without
+ * highlighting.
+ */
 void highlight_by_patterns(FileState *fs, WINDOW *win, const char *line, int y,
                            const SyntaxDef *def) {
     (void)fs;
@@ -36,7 +66,13 @@ void highlight_by_patterns(FileState *fs, WINDOW *win, const char *line, int y,
     }
 }
 
-/* Built-in syntax definitions */
+/*
+ * Built-in syntax definitions
+ * ---------------------------
+ * Each *_PATTERNS array describes the regex highlighting rules for one
+ * language.  The init_registry() constructor registers these definitions so
+ * they are available through syntax_get().
+ */
 
 #define C_KEYWORDS_PATTERN \
     "^(auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|" \
