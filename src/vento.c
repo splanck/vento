@@ -1,3 +1,9 @@
+/*
+ * Entry point for the Vento editor. Command line options are parsed
+ * to determine files to load, starting line and optional color theme.
+ * The editor and file manager are initialized, files are opened,
+ * and finally run_editor is invoked to begin the main loop.
+ */
 #include <ncurses.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -21,6 +27,11 @@ extern void apply_colors(void) __attribute__((weak));
 EditorContext editor;
 extern int start_line;
 
+/*
+ * Prompt the user before exiting when unsaved changes exist.
+ * Returns true to proceed with quit when no files are modified or
+ * the user answers yes. Returns false otherwise.
+ */
 bool confirm_quit(void) {
     if (!any_file_modified(&file_manager))
         return true;
@@ -35,8 +46,13 @@ bool confirm_quit(void) {
 
 
 /**
- * The main function of the program.
- * 
+ * Program entry point. Processes command line options for help,
+ * version, theme selection and starting line. After initializing
+ * the editor and file manager an optional theme is loaded and
+ * each specified file opened. If no files are given a new buffer
+ * is created. The editor then calls run_editor and performs
+ * cleanup when it returns.
+ *
  * @param argc The number of command-line arguments.
  * @param argv An array of strings containing the command-line arguments.
  * @return 0 on successful execution.
