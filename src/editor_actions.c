@@ -10,6 +10,9 @@
 #include "undo.h"
 #include "file_ops.h"
 
+// Delete the line under the cursor when the user issues the delete-line
+// command. The removed text is pushed onto the undo stack and the text window
+// is redrawn to reflect the change.
 void delete_current_line(EditorContext *ctx, FileState *fs) {
     if (fs->buffer.count == 0) {
         return;
@@ -39,6 +42,9 @@ void delete_current_line(EditorContext *ctx, FileState *fs) {
     mark_comment_state_dirty(fs);
 }
 
+// Insert a blank line at the current cursor position. The newly inserted line
+// is added to the undo stack, the file is marked as modified and the screen is
+// redrawn so the cursor appears on the new line.
 void insert_new_line(EditorContext *ctx, FileState *fs) {
     (void)ctx;
     int idx = fs->cursor_y + fs->start_line - 1;
@@ -84,6 +90,9 @@ void handle_undo_wrapper(FileState *fs, int *cx, int *cy) {
     undo(fs);
 }
 
+// Switch the editor to the next loaded file. The current cursor position is
+// saved and restored when returning, and the screen and status bar are
+// refreshed after the switch.
 CursorPos next_file(EditorContext *ctx) {
     CursorPos pos = {0, 0};
     if (file_manager.count <= 1) {
@@ -154,6 +163,9 @@ CursorPos next_file(EditorContext *ctx) {
     return pos;
 }
 
+// Switch the editor to the previous loaded file. Like next_file, it preserves
+// cursor state, performs the file manager switch, refreshes the screen and
+// updates the status bar after completion.
 CursorPos prev_file(EditorContext *ctx) {
     CursorPos pos = {0, 0};
     if (file_manager.count <= 1) {
@@ -226,6 +238,9 @@ CursorPos prev_file(EditorContext *ctx) {
     return pos;
 }
 
+// Refresh the status bar showing file information and cursor location.
+// This is called after most actions that modify the editor state and performs
+// a screen refresh of the status area.
 void update_status_bar(EditorContext *ctx, FileState *fs) {
     sync_editor_context(ctx);
     move(0, 0);
@@ -251,6 +266,9 @@ void update_status_bar(EditorContext *ctx, FileState *fs) {
     wnoutrefresh(stdscr);
 }
 
+// Jump the cursor to a specific line number. Invoked from the "go to line"
+// dialog, it scrolls the buffer so the target line is visible and refreshes
+// the text window.
 void go_to_line(EditorContext *ctx, FileState *fs, int line) {
     if (fs->buffer.count == 0)
         return;
