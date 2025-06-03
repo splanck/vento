@@ -6,6 +6,10 @@
 #include <pwd.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <limits.h>
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 #include "editor.h"
 #include "config.h"
 #include "editor_state.h"
@@ -53,7 +57,7 @@ void load_theme(const char *name, AppConfig *cfg) {
     if (!name || !*name || !cfg)
         return;
 
-    char path[256] = "";
+    char path[PATH_MAX] = "";
 
     const char *dirs[3];
     size_t dir_count = 0;
@@ -80,7 +84,9 @@ void load_theme(const char *name, AppConfig *cfg) {
                 continue;
             size_t len = dot - ent->d_name;
             if (len == strlen(name) && strncasecmp(ent->d_name, name, len) == 0) {
-                snprintf(path, sizeof(path), "%s/%s", dirs[i], ent->d_name);
+                int n = snprintf(path, sizeof(path), "%s/%s", dirs[i], ent->d_name);
+                if (n < 0 || (size_t)n >= sizeof(path))
+                    path[0] = '\0';
                 break;
             }
         }
@@ -89,8 +95,11 @@ void load_theme(const char *name, AppConfig *cfg) {
             break;
     }
 
-    if (path[0] == '\0')
-        snprintf(path, sizeof(path), "%s/%s.theme", dirs[0], name);
+    if (path[0] == '\0') {
+        int n = snprintf(path, sizeof(path), "%s/%s.theme", dirs[0], name);
+        if (n < 0 || (size_t)n >= sizeof(path))
+            path[0] = '\0';
+    }
 
     FILE *f = fopen(path, "r");
     if (!f)
@@ -159,7 +168,7 @@ void config_save(const AppConfig *cfg) {
         "tab_width"
     };
 
-    char path[256];
+    char path[PATH_MAX];
     get_config_path(path, sizeof(path));
     FILE *f = fopen(path, "w");
     if (!f) return;
@@ -183,7 +192,7 @@ void config_save(const AppConfig *cfg) {
 }
 
 void config_load(AppConfig *cfg) {
-    char path[256];
+    char path[PATH_MAX];
     get_config_path(path, sizeof(path));
     FILE *file = fopen(path, "r");
     if (!file) {
