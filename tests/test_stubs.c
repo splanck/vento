@@ -61,3 +61,8 @@ char *__wrap_strdup(const char *s) {
         return NULL;
     return __real_strdup(s);
 }
+
+int __wrap_wgetch(WINDOW *win) {
+    (void)win;
+    return 27; /* ESC to exit immediately */
+}

@@ -528,11 +528,14 @@ const char *select_theme(const char *current, WINDOW *parent) {
     size_t count = 0;
     struct dirent *ent;
     char **names = NULL;
+    DIR *open_dirs[3];
+    size_t open_count = 0;
 
     for (size_t d = 0; d < dir_count; ++d) {
         DIR *dir = opendir(dirs[d]);
         if (!dir)
             continue;
+        open_dirs[open_count++] = dir;
         while ((ent = readdir(dir)) != NULL) {
             if (ent->d_name[0] == '.')
                 continue;
@@ -555,34 +558,41 @@ const char *select_theme(const char *current, WINDOW *parent) {
             if (!exists) {
                 char **tmp = realloc(names, sizeof(char *) * (count + 1));
                 if (!tmp) {
-                    closedir(dir);
-                    for (size_t i = 0; i < count; ++i)
-                        free(names[i]);
-                    free(names);
-                    curs_set(1);
-                    return NULL;
+                    goto dir_fail;
                 }
                 names = tmp;
                 names[count] = strdup(name);
                 if (!names[count]) {
-                    closedir(dir);
-                    for (size_t i = 0; i < count; ++i)
-                        free(names[i]);
-                    free(names);
-                    curs_set(1);
-                    return NULL;
+                    goto dir_fail;
                 }
                 ++count;
             }
-        closedir(dir);
+        }
     }
-}
+
+    for (size_t i = 0; i < open_count; ++i)
+        closedir(open_dirs[i]);
+    open_count = 0;
 
     if (count == 0) {
         free(names);
         curs_set(1);
         return NULL;
     }
+
+    goto after_dir_scan;
+
+dir_fail:
+    for (size_t i = 0; i < open_count; ++i)
+        closedir(open_dirs[i]);
+    open_count = 0;
+    for (size_t i = 0; i < count; ++i)
+        free(names[i]);
+    free(names);
+    curs_set(1);
+    return NULL;
+
+after_dir_scan:
 
     qsort(names, count, sizeof(char *), str_casecmp);
 
