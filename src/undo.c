@@ -161,6 +161,7 @@ void redo(FileState *fs) {
     werase(text_win);
     box(text_win, 0, 0);
     draw_text_buffer(active_file, text_win);
+    wrefresh(text_win);
     fs->modified = true;
 }
 
