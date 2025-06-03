@@ -277,18 +277,25 @@ int load_next_lines(FileState *fs, int count) {
         (void)nread;
         if (read_line_into(fs, line) < 0) {
             free(line);
+            if (fs->fp) {
+                fclose(fs->fp);
+                fs->fp = NULL;
+            }
+            fs->file_complete = false;
             return -1;
         }
         loaded++;
+        if (fs->fp)
+            fs->file_pos = ftell(fs->fp);
     }
     if (fs->fp)
         fs->file_pos = ftell(fs->fp);
     free(line);
-    if (feof(fs->fp)) {
+    if (fs->fp && feof(fs->fp)) {
         fclose(fs->fp);
         fs->fp = NULL;
         fs->file_complete = true;
-    } else {
+    } else if (fs->fp) {
         fs->file_complete = false;
     }
     return loaded;
