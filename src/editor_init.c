@@ -37,10 +37,12 @@ void initialize(EditorContext *ctx) {
     ctx->enable_color = enable_color;
     ctx->enable_mouse = enable_mouse;
     apply_colors();
-    current_macro = macro_create("default");
-    if (current_macro) {
-        current_macro->length = 0;
-        current_macro->recording = false;
+    if (macro_count() == 0) {
+        current_macro = macro_create("default");
+        if (current_macro) {
+            current_macro->length = 0;
+            current_macro->recording = false;
+        }
     }
     cbreak();
     noecho();
@@ -79,6 +81,7 @@ void cleanup_on_exit(FileManager *fm) {
         freeMenus();
         return;
     }
+    macros_save(&app_config);
     syntax_cleanup();
     for (int i = 0; i < fm->count; ++i) {
         FileState *fs = fm->files[i];

@@ -3,6 +3,11 @@
 
 #define VERSION "0.1.3"
 
+#include <limits.h>
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
 /* Directory containing installed color themes. Can be overridden at compile
  * time by defining THEME_DIR. Defaults to "themes" which resolves to the
  * local directory at runtime. */
@@ -30,6 +35,7 @@ typedef struct {
     int show_startup_warning;
     int search_ignore_case;
     int tab_width;
+    char macros_file[PATH_MAX];
 } AppConfig;
 
 extern AppConfig app_config;
@@ -39,5 +45,7 @@ void load_theme(const char *name, AppConfig *cfg);
 void config_load(AppConfig *cfg);
 void config_save(const AppConfig *cfg);
 void read_config_file(AppConfig *cfg);
+void macros_load(AppConfig *cfg);
+void macros_save(const AppConfig *cfg);
 
 #endif // CONFIG_H

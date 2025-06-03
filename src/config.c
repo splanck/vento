@@ -14,6 +14,8 @@
 #include "config.h"
 #include "editor_state.h"
 #include "syntax.h"
+#include "macro.h"
+#include <wchar.h>
 
 // Helper to map color name to ncurses constant
 short get_color_code(const char *color_name) {
@@ -41,6 +43,21 @@ static void get_config_path(char *buf, size_t size) {
     if (!homedir || homedir[0] == '\0')
         homedir = ".";
     snprintf(buf, size, "%s/.ventorc", homedir);
+}
+
+static void get_macros_path(char *buf, size_t size) {
+    const char *mp = getenv("VENTO_MACROS");
+    if (mp && *mp) {
+        strncpy(buf, mp, size - 1);
+        buf[size - 1] = '\0';
+        return;
+    }
+
+    struct passwd *pw = getpwuid(getuid());
+    const char *homedir = pw ? pw->pw_dir : getenv("HOME");
+    if (!homedir || homedir[0] == '\0')
+        homedir = ".";
+    snprintf(buf, size, "%s/.ventomacros", homedir);
 }
 
 static void trim(char *str) {
@@ -165,7 +182,8 @@ void config_save(const AppConfig *cfg) {
         "show_line_numbers",
         "show_startup_warning",
         "search_ignore_case",
-        "tab_width"
+        "tab_width",
+        "macros_file"
     };
 
     char path[PATH_MAX];
@@ -188,6 +206,7 @@ void config_save(const AppConfig *cfg) {
     fprintf(f, "%s=%s\n", keys[12], cfg->show_startup_warning ? "true" : "false");
     fprintf(f, "%s=%s\n", keys[13], cfg->search_ignore_case ? "true" : "false");
     fprintf(f, "%s=%d\n", keys[14], cfg->tab_width);
+    fprintf(f, "%s=%s\n", keys[15], cfg->macros_file);
     fclose(f);
 }
 
@@ -202,6 +221,8 @@ void config_load(AppConfig *cfg) {
     }
 
     AppConfig tmp = *cfg;
+    if (tmp.macros_file[0] == '\0')
+        get_macros_path(tmp.macros_file, sizeof(tmp.macros_file));
     char theme_name[sizeof(tmp.theme)] = "";
     char line[256];
     while (fgets(line, sizeof(line), file)) {
@@ -292,6 +313,9 @@ void config_load(AppConfig *cfg) {
             tmp.tab_width = atoi(value);
             if (tmp.tab_width <= 0)
                 tmp.tab_width = 4;
+        } else if (strcmp(key, "macros_file") == 0) {
+            strncpy(tmp.macros_file, value, sizeof(tmp.macros_file) - 1);
+            tmp.macros_file[sizeof(tmp.macros_file) - 1] = '\0';
         } else {
             // Unknown key, ignore
             continue;
@@ -336,10 +360,74 @@ void config_load(AppConfig *cfg) {
             if (code != -1) init_pair(SYNTAX_SEARCH, code, bg);
         }
     }
+
+    macros_load(cfg);
 }
 
 // Compatibility wrapper
 void read_config_file(AppConfig *cfg) {
     if (cfg)
         config_load(cfg);
+}
+
+void macros_load(AppConfig *cfg) {
+    if (!cfg)
+        return;
+    if (cfg->macros_file[0] == '\0')
+        get_macros_path(cfg->macros_file, sizeof(cfg->macros_file));
+    FILE *f = fopen(cfg->macros_file, "r");
+    if (!f)
+        return;
+    char line[4096];
+    while (fgets(line, sizeof(line), f)) {
+        char *p = line;
+        while (isspace((unsigned char)*p)) p++;
+        if (*p == '#' || *p == '\0' || *p == '\n')
+            continue;
+        line[strcspn(line, "\n")] = '\0';
+        char *name = strtok(p, " \t");
+        char *len_s = strtok(NULL, " \t");
+        if (!name || !len_s)
+            continue;
+        int len = atoi(len_s);
+        Macro *m = macro_get(name);
+        if (!m)
+            m = macro_create(name);
+        if (!m)
+            continue;
+        m->length = 0;
+        for (int i = 0; i < len; ++i) {
+            char *tok = strtok(NULL, " \t");
+            if (!tok)
+                break;
+            m->keys[m->length++] = (wint_t)strtoul(tok, NULL, 10);
+        }
+        m->recording = false;
+    }
+    fclose(f);
+}
+
+void macros_save(const AppConfig *cfg) {
+    if (!cfg)
+        return;
+    char path[PATH_MAX];
+    if (cfg->macros_file[0] == '\0')
+        get_macros_path(path, sizeof(path));
+    else
+        strncpy(path, cfg->macros_file, sizeof(path) - 1), path[sizeof(path)-1]='\0';
+
+    FILE *f = fopen(path, "w");
+    if (!f)
+        return;
+    int count = macro_count();
+    for (int i = 0; i < count; ++i) {
+        Macro *m = macro_at(i);
+        if (!m)
+            continue;
+        fprintf(f, "%s %d", m->name, m->length);
+        for (int j = 0; j < m->length; ++j)
+            fprintf(f, " %u", (unsigned int)m->keys[j]);
+        fputc('\n', f);
+    }
+    fclose(f);
 }

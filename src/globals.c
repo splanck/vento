@@ -22,7 +22,8 @@ __attribute__((weak)) AppConfig app_config = {
     .show_line_numbers = 0,
     .show_startup_warning = 1,
     .search_ignore_case = 0,
-    .tab_width = 4
+    .tab_width = 4,
+    .macros_file = ""
 };
 
 __attribute__((weak)) FileManager file_manager;
