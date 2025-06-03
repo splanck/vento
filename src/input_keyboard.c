@@ -1,3 +1,10 @@
+/*
+ * Keyboard input handling
+ * -----------------------
+ * This module maps raw key codes to editing actions. The handlers
+ * update cursor positions, modify the buffer, push undo entries and
+ * trigger redraws as needed.
+ */
 #include "editor.h"
 #include <ncurses.h>
 #include <wchar.h>
@@ -20,6 +27,16 @@ __attribute__((weak)) AppConfig app_config = {
     .macro_play_key = KEY_F(4)
 };
 
+/*
+ * Ensure the cursor column remains visible by adjusting the horizontal
+ * scroll offset.
+ *
+ * ctx - editor context used for redrawing when the view changes
+ * fs  - file whose scroll_x field is updated
+ *
+ * When scroll_x is modified the text window is redrawn. No undo entry
+ * is created by this helper.
+ */
 static void update_scroll_x(EditorContext *ctx, FileState *fs) {
     int offset = get_line_number_offset(fs);
     int visible_width = COLS - 2 - offset;
@@ -36,11 +53,30 @@ static void update_scroll_x(EditorContext *ctx, FileState *fs) {
     }
 }
 
+/*
+ * Ignore CTRL+` key presses.
+ *
+ * ctx - editor context (unused)
+ *
+ * This handler intentionally performs no action so terminals that send
+ * this control sequence do not cause a crash. The buffer and undo stack
+ * are untouched and nothing is redrawn.
+ */
 void handle_ctrl_backtick(EditorContext *ctx) {
     (void)ctx;
-    // Do nothing on CTRL+Backtick to avoid segmentation fault
 }
 
+/*
+ * Move the cursor one line up or scroll the buffer when already at the
+ * top of the visible area.
+ *
+ * ctx - active editor context for redraw when scrolling occurs
+ * fs  - file being edited
+ *
+ * Only cursor_y or start_line is modified and the buffer is untouched.
+ * draw_text_buffer() is called when start_line changes. No undo entry
+ * is created.
+ */
 void handle_key_up(EditorContext *ctx, FileState *fs) {
     if (fs->cursor_y > 1) {
         fs->cursor_y--;
@@ -50,6 +86,17 @@ void handle_key_up(EditorContext *ctx, FileState *fs) {
     }
 }
 
+/*
+ * Move the cursor one line down or scroll the buffer when reaching the
+ * bottom of the visible area.
+ *
+ * ctx - active editor context for redraw when scrolling occurs
+ * fs  - file being edited
+ *
+ * Adjusts cursor_y or start_line without modifying the text. The line
+ * under the new cursor is loaded on demand. Redraw happens when the
+ * viewport is moved and no undo entry is recorded.
+ */
 void handle_key_down(EditorContext *ctx, FileState *fs) {
     ensure_line_loaded(fs, fs->start_line + fs->cursor_y);
     if (fs->cursor_y < LINES - BOTTOM_MARGIN && fs->cursor_y < fs->buffer.count) {
@@ -60,6 +107,15 @@ void handle_key_down(EditorContext *ctx, FileState *fs) {
     }
 }
 
+/*
+ * Move the cursor one character to the left.
+ *
+ * ctx - active editor context used for horizontal scrolling
+ * fs  - file being edited
+ *
+ * Updates cursor_x and calls update_scroll_x. The buffer is not modified
+ * and no undo entry is created. Redraw occurs only if scrolling changes.
+ */
 void handle_key_left(EditorContext *ctx, FileState *fs) {
     if (fs->cursor_x > 1) {
         fs->cursor_x--;
@@ -67,6 +123,16 @@ void handle_key_left(EditorContext *ctx, FileState *fs) {
     update_scroll_x(ctx, fs);
 }
 
+/*
+ * Move the cursor one character to the right within the current line.
+ *
+ * ctx - active editor context used for horizontal scrolling
+ * fs  - file being edited
+ *
+ * Updates cursor_x if not past the end of the line and calls
+ * update_scroll_x. This does not modify the buffer or create an undo
+ * entry. Redraw only happens if scrolling occurs.
+ */
 void handle_key_right(EditorContext *ctx, FileState *fs) {
     const char *line = lb_get(&fs->buffer, fs->cursor_y - 1 + fs->start_line);
     if (line && fs->cursor_x < (int)strlen(line) + 1) {
@@ -75,6 +141,17 @@ void handle_key_right(EditorContext *ctx, FileState *fs) {
     update_scroll_x(ctx, fs);
 }
 
+/*
+ * Delete the character before the cursor or join the line with the
+ * previous one when at column 1.
+ *
+ * ctx - active editor context used for redrawing
+ * fs  - file being edited
+ *
+ * The buffer is modified but no undo entry is pushed. The cursor moves
+ * left or up accordingly and the text window is redrawn. Comment state
+ * is marked dirty for syntax highlighting.
+ */
 void handle_key_backspace(EditorContext *ctx, FileState *fs) {
     if (fs->cursor_x > 1) {
         fs->cursor_x--;
@@ -104,6 +181,17 @@ void handle_key_backspace(EditorContext *ctx, FileState *fs) {
     mark_comment_state_dirty(fs);
 }
 
+/*
+ * Delete the character under the cursor or merge with the next line if
+ * at the end of the current one.
+ *
+ * ctx - active editor context for redraw
+ * fs  - file being edited
+ *
+ * The buffer content changes but no undo entry is pushed. After the
+ * deletion the text window is redrawn and the syntax comment state is
+ * marked dirty.
+ */
 void handle_key_delete(EditorContext *ctx, FileState *fs) {
     const char *line_curr = lb_get(&fs->buffer, fs->cursor_y - 1 + fs->start_line);
     if (line_curr && fs->cursor_x < (int)strlen(line_curr)) {
@@ -121,6 +209,18 @@ void handle_key_delete(EditorContext *ctx, FileState *fs) {
     mark_comment_state_dirty(fs);
 }
 
+/*
+ * Insert a newline at the cursor, splitting the current line and
+ * preserving indentation.
+ *
+ * ctx - active editor context for redraw
+ * fs  - file being edited
+ *
+ * The text before the cursor becomes the old line while the remainder is
+ * inserted as a new line. Two undo entries record the modification and
+ * the insertion. The cursor is moved to the start of the new line and
+ * the window is redrawn with comment state marked dirty.
+ */
 void handle_key_enter(EditorContext *ctx, FileState *fs) {
     int line_idx = fs->cursor_y - 1 + fs->start_line;
     char *line = fs->buffer.lines[line_idx];
@@ -197,6 +297,16 @@ void handle_key_enter(EditorContext *ctx, FileState *fs) {
     free(indent);
 }
 
+/*
+ * Scroll one page up and move the cursor to the first visible line.
+ *
+ * ctx - active editor context for redraw
+ * fs  - file being edited
+ *
+ * Only start_line and cursor_y are changed. The screen is redrawn when
+ * the starting line moves. The buffer contents remain unchanged and no
+ * undo information is stored.
+ */
 void handle_key_page_up(EditorContext *ctx, FileState *fs) {
     int page_size = LINES - 4;
     if (fs->start_line > 0) {
@@ -209,6 +319,16 @@ void handle_key_page_up(EditorContext *ctx, FileState *fs) {
     fs->cursor_y = 1;
 }
 
+/*
+ * Scroll one page down and move the cursor to the last visible line.
+ *
+ * ctx - active editor context (unused here)
+ * fs  - file being edited
+ *
+ * Updates start_line and cursor_y after ensuring the necessary lines are
+ * loaded. No buffer modifications, undo entries or immediate redraws
+ * occur in this handler.
+ */
 void handle_key_page_down(EditorContext *ctx, FileState *fs) {
     (void)ctx;
     ensure_line_loaded(fs, fs->start_line + (LINES - 4));
@@ -272,11 +392,29 @@ void handle_ctrl_key_right(EditorContext *ctx, FileState *fs) {
     update_scroll_x(ctx, fs);
 }
 
+/*
+ * Move the cursor to the beginning of the current line.
+ *
+ * ctx - active editor context for horizontal scrolling
+ * fs  - file being edited
+ *
+ * Only cursor_x is updated via update_scroll_x. No undo information is
+ * recorded and the buffer is unchanged.
+ */
 void handle_key_home(EditorContext *ctx, FileState *fs) {
     fs->cursor_x = 1;
     update_scroll_x(ctx, fs);
 }
 
+/*
+ * Move the cursor to the end of the current line.
+ *
+ * ctx - active editor context for horizontal scrolling
+ * fs  - file being edited
+ *
+ * cursor_x is set to just past the last character. update_scroll_x is
+ * called to adjust the viewport. No undo entry is created.
+ */
 void handle_key_end(EditorContext *ctx, FileState *fs) {
     const char *line = lb_get(&fs->buffer, fs->cursor_y - 1 + fs->start_line);
     fs->cursor_x = line ? strlen(line) + 1 : 1;
@@ -385,6 +523,16 @@ void handle_default_key(EditorContext *ctx, FileState *fs, wint_t ch) {
     draw_text_buffer(ctx->active_file, text_win);
 }
 
+/*
+ * Advance the cursor to the start of the next word, potentially moving
+ * to the following line.
+ *
+ * ctx - editor context (unused)
+ * fs  - file being edited
+ *
+ * This routine only moves the cursor; it does not modify the buffer or
+ * create undo information and it performs no redraws.
+ */
 void move_forward_to_next_word(EditorContext *ctx, FileState *fs) {
     (void)ctx;
     while (fs->cursor_y - 1 + fs->start_line < fs->buffer.count) {
@@ -406,6 +554,15 @@ void move_forward_to_next_word(EditorContext *ctx, FileState *fs) {
     }
 }
 
+/*
+ * Move the cursor backward to the beginning of the previous word.
+ *
+ * ctx - editor context (unused)
+ * fs  - file being edited
+ *
+ * The cursor may cross line boundaries but the buffer is untouched and
+ * no undo entry or redraw is produced.
+ */
 void move_backward_to_previous_word(EditorContext *ctx, FileState *fs) {
     (void)ctx;
     while (fs->cursor_y - 1 + fs->start_line >= 0) {
