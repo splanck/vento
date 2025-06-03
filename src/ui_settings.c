@@ -13,18 +13,30 @@
 #include <stddef.h>
 #include <dirent.h>
 
+/*
+ * Settings dialog
+ * ---------------
+ * This file implements the configuration dialog presented to the user.
+ * All options are rendered in a scrolling list. Keyboard arrows or the
+ * mouse change the highlighted field and pressing Enter invokes editing.
+ * Changes are written to the provided AppConfig structure and helper
+ * callbacks update runtime state (such as enabling mouse support).
+ */
+
 const char *select_color(const char *current, WINDOW *parent);
 const char *select_theme(const char *current, WINDOW *parent);
 int select_bool(const char *prompt, int current, WINDOW *parent);
 int select_int(EditorContext *ctx, const char *prompt, int current,
                WINDOW *parent);
 
+/* Compare two strings case-insensitively for qsort. */
 static int str_casecmp(const void *a, const void *b) {
     const char *as = *(const char * const *)a;
     const char *bs = *(const char * const *)b;
     return strcasecmp(as, bs);
 }
 
+/* Enable or disable mouse reporting based on the config option. */
 static void apply_mouse(AppConfig *cfg) {
     enable_mouse = cfg->enable_mouse;
     if (enable_mouse)
@@ -67,6 +79,7 @@ static const Option options[] = {
 
 #define FIELD_COUNT ((int)(sizeof(options) / sizeof(options[0])))
 
+/* Calculate a width wide enough to display all option labels and values. */
 static int compute_dialog_width(const AppConfig *cfg) {
     int longest = 0;
     for (int i = 0; i < FIELD_COUNT; ++i) {
@@ -93,6 +106,7 @@ static int compute_dialog_width(const AppConfig *cfg) {
     return width;
 }
 
+/* Resize and reposition the settings window when option widths change. */
 static void update_settings_window(WINDOW *win, int *win_height, int *win_width,
                                    const AppConfig *cfg) {
     int desired_width = compute_dialog_width(cfg);
@@ -107,6 +121,7 @@ static void update_settings_window(WINDOW *win, int *win_height, int *win_width,
     }
 }
 
+/* Draw a small preview of theme colors on the last row of a window. */
 static void render_theme_sample(const AppConfig *cfg, WINDOW *win, int row) {
     if (!cfg || !win)
         return;
@@ -162,6 +177,7 @@ static void render_theme_sample(const AppConfig *cfg, WINDOW *win, int row) {
     mvwprintw(win, row, col, "search");
 }
 
+/* Undo any color pairs created by render_theme_sample. */
 static void clear_theme_sample_pairs(void) {
     short base = COLOR_PAIRS - 7;
     if (base < 1)
@@ -172,6 +188,7 @@ static void clear_theme_sample_pairs(void) {
         init_pair(base + i, -1, -1);
 }
 
+/* Invoke the appropriate editor for a single settings entry. */
 static void edit_option(EditorContext *ctx, AppConfig *cfg, WINDOW *win,
                         const Option *opt) {
     if (opt->type == OPT_BOOL) {
@@ -200,6 +217,14 @@ static void edit_option(EditorContext *ctx, AppConfig *cfg, WINDOW *win,
         opt->after_change(cfg);
 }
 
+/**
+ * Display the interactive settings dialog.
+ *
+ * ctx - editor context used for nested dialogs.
+ * cfg - configuration structure to modify.
+ *
+ * Returns 1 if any option was changed, 0 otherwise.
+ */
 int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
     curs_set(0);
     AppConfig original = *cfg;
@@ -309,6 +334,14 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
     return memcmp(&original, cfg, sizeof(AppConfig)) != 0;
 }
 
+/**
+ * Present a list of color names for selection.
+ *
+ * current - currently selected color name or NULL.
+ * parent  - optional parent window for the popup.
+ *
+ * Returns the chosen static string, or NULL if cancelled.
+ */
 const char *select_color(const char *current, WINDOW *parent) {
     curs_set(0);
     static const char *colors[] = {
@@ -465,6 +498,15 @@ const char *select_color(const char *current, WINDOW *parent) {
     return NULL;
 }
 
+/**
+ * Show available theme files and let the user choose one.
+ *
+ * current - name of the currently loaded theme or NULL.
+ * parent  - optional parent window for the popup list.
+ *
+ * Returns a newly allocated string with the selected theme name or
+ * NULL if the selection was cancelled.  The caller must free it.
+ */
 const char *select_theme(const char *current, WINDOW *parent) {
     curs_set(0);
     const char *dirs[3];
@@ -691,6 +733,15 @@ const char *select_theme(const char *current, WINDOW *parent) {
     }
 }
 
+/**
+ * Prompt the user to choose between Enabled or Disabled.
+ *
+ * prompt  - optional text displayed above the options.
+ * current - currently selected boolean value.
+ * parent  - optional parent window for the popup.
+ *
+ * Returns the chosen value or the original value if cancelled.
+ */
 int select_bool(const char *prompt, int current, WINDOW *parent) {
     curs_set(0);
     static const char *options[] = {"Disabled", "Enabled"};
@@ -815,6 +866,16 @@ int select_bool(const char *prompt, int current, WINDOW *parent) {
     return current;
 }
 
+/**
+ * Prompt the user for an integer value.
+ *
+ * ctx     - editor context used for the input dialog.
+ * prompt  - text describing the value being edited.
+ * current - current integer value.
+ * parent  - optional parent window for the popup.
+ *
+ * Returns the parsed integer or the original value if cancelled or invalid.
+ */
 int select_int(EditorContext *ctx, const char *prompt, int current,
                WINDOW *parent) {
     char buf[32];
