@@ -97,12 +97,35 @@ void macro_delete(const char *name) {
             for (int j = i; j < macro_list.count - 1; ++j)
                 macro_list.items[j] = macro_list.items[j + 1];
             macro_list.count--;
+
+            /* Update current macro if the deleted one was active */
             if (current_macro == m) {
                 Macro *newm = macro_list.count ? macro_list.items[0] : NULL;
                 if (newm)
                     macro_set_current(newm);
                 else
                     current_macro = NULL;
+            }
+
+            /*
+             * Shrink the storage array when the list becomes much smaller
+             * than its capacity. Free all storage when no macros remain.
+             */
+            if (macro_list.count == 0) {
+                free(macro_list.items);
+                macro_list.items = NULL;
+                macro_list.capacity = 0;
+            } else if (macro_list.capacity > 4 &&
+                       macro_list.count < macro_list.capacity / 2) {
+                int newcap = macro_list.capacity / 2;
+                if (newcap < 4)
+                    newcap = 4;
+                Macro **tmp = realloc(macro_list.items,
+                                      sizeof(Macro*) * newcap);
+                if (tmp) {
+                    macro_list.items = tmp;
+                    macro_list.capacity = newcap;
+                }
             }
             return;
         }
@@ -169,6 +192,11 @@ void macro_play(Macro *macro, EditorContext *ctx, FileState *fs) {
 /* Return the number of macros currently stored. */
 int macro_count(void) {
     return macro_list.count;
+}
+
+/* Internal capacity exposed for testing purposes */
+int macro_capacity(void) {
+    return macro_list.capacity;
 }
 
 /* Retrieve a macro by list index for enumeration. */
