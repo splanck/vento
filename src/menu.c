@@ -349,8 +349,10 @@ static void menuMacroStart(EditorContext *ctx) {
 
 static void menuMacroStop(EditorContext *ctx) {
     (void)ctx;
-    if (current_macro)
+    if (current_macro) {
         macro_stop(current_macro);
+        macros_save(&app_config);
+    }
 }
 
 static void menuMacroPlay(EditorContext *ctx) {

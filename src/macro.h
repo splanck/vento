@@ -23,5 +23,7 @@ void macro_start(Macro *macro);
 void macro_stop(Macro *macro);
 void macro_record_key(Macro *macro, wint_t ch);
 void macro_play(Macro *macro, EditorContext *ctx, FileState *fs);
+int macro_count(void);
+Macro *macro_at(int index);
 
 #endif /* MACRO_H */

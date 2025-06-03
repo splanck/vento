@@ -98,3 +98,13 @@ void macro_play(Macro *macro, EditorContext *ctx, FileState *fs) {
         handle_regular_mode(ctx, fs, macro->keys[i]);
     }
 }
+
+int macro_count(void) {
+    return macro_list.count;
+}
+
+Macro *macro_at(int index) {
+    if (index < 0 || index >= macro_list.count)
+        return NULL;
+    return macro_list.items[index];
+}
