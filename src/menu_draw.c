@@ -90,6 +90,11 @@ bool drawMenu(Menu *menu, int currentItem, int startX, int startY) {
             wattron(menuWin, A_REVERSE);
         }
         mvwprintw(menuWin, 1 + i, 1, "%s", item->label);
+        if (item->shortcut) {
+            int col = boxWidth - (int)strlen(item->shortcut) - 2;
+            if (col > 1)
+                mvwprintw(menuWin, 1 + i, col, "%s", item->shortcut);
+        }
         if (i == currentItem) {
             wattroff(menuWin, A_REVERSE);
         }

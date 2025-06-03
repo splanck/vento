@@ -5,6 +5,7 @@
 #include "editor_state.h"
 typedef struct MenuItem {
     const char *label;
+    const char *shortcut;
     void (*action)(void);
     bool separator;
 } MenuItem;
