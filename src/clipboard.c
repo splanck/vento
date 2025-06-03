@@ -139,10 +139,11 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
             }
         }
 
-        memmove(&dest[*cursor_x - 1 + len],
-                &dest[*cursor_x - 1],
-                dest_len - (*cursor_x - 1) + 1);
-        memcpy(&dest[*cursor_x - 1], line, len);
+        if (*cursor_x > (int)dest_len + 1)
+            *cursor_x = dest_len + 1;
+        size_t idx = (size_t)(*cursor_x - 1);
+        memmove(&dest[idx + len], &dest[idx], dest_len - idx + 1);
+        memcpy(&dest[idx], line, len);
         *cursor_x += len;
 
         char *new_text = strdup(dest);
