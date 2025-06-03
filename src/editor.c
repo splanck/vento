@@ -1,6 +1,13 @@
 #ifndef _XOPEN_SOURCE_EXTENDED
 #define _XOPEN_SOURCE_EXTENDED
 #endif
+/*
+ * vento's editor implementation.
+ *
+ * This file drives the main editing interface: it contains the core event
+ * loop, keyboard mapping setup and routines for drawing text buffers.  It
+ * coordinates input handling and screen updates using ncurses.
+ */
 #include <ncurses.h>
 #include <wchar.h>
 #include <string.h>
@@ -386,6 +393,10 @@ static void handle_macro_play_wrapper(struct FileState *fs, int *cx, int *cy) {
 static KeyMapping key_mappings[MAX_KEY_MAPPINGS];
 static int key_mapping_count = 0;
 
+/*
+ * Populate the table of keyboard shortcuts with their handler functions.
+ * This is called at startup so the event loop can dispatch keys quickly.
+ */
 void initialize_key_mappings(void) {
     key_mapping_count = 0;
 
@@ -446,15 +457,10 @@ void initialize_key_mappings(void) {
 
 
 
-/**
- * Runs the editor and handles user input.
- * 
- * This function is responsible for running the editor and handling user input.
- * It continuously listens for key presses and performs the corresponding actions.
- * The function also updates the status bar and refreshes the screen after each action.
- * 
- * @param None
- * @return None
+/*
+ * Main event loop driving the editor UI.
+ * Dispatches keyboard and mouse events, updates the display and
+ * keeps running until the user exits.
  */
 void run_editor(EditorContext *ctx) {
     input_ctx = ctx;
@@ -547,16 +553,10 @@ void run_editor(EditorContext *ctx) {
 
 
 
-/**
- * Initializes the text buffer by allocating memory for each line and setting initial values.
- * 
- * This function is responsible for initializing the text buffer by allocating memory for each line
- * and setting initial values such as line count and start line. It is called during the editor's
- * initialization process to ensure that the text buffer is properly set up before any editing
- * operations are performed.
- * 
- * @param None
- * @return None
+/*
+ * Allocate and reset the active file's line buffer.
+ * Called when a file is opened or the buffer is cleared so that editing
+ * starts with a clean slate.
  */
 void initialize_buffer() {
     // Allocate memory for each line in the text buffer
@@ -580,16 +580,9 @@ void initialize_buffer() {
 
 }
 
-/**
- * Draws the text buffer on the specified window.
- * 
- * This function is responsible for drawing the contents of the text buffer on the specified window.
- * It applies syntax highlighting to each line of text and also draws a scrollbar to indicate the
- * current position in the document. The function takes into account the start line and the maximum
- * number of lines that can be displayed on the window to determine which lines to draw.
- * 
- * @param win The window on which to draw the text buffer.
- * @return None
+/*
+ * Render the visible portion of a FileState to the given ncurses window.
+ * Handles line numbers, syntax highlighting and scrollbar drawing.
  */
 void draw_text_buffer(FileState *fs, WINDOW *win) {
     if (fs->start_line < 0)
