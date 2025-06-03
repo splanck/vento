@@ -497,7 +497,7 @@ void run_editor(EditorContext *ctx) {
         }
 
         if (macro_state.recording &&
-            ch != KEY_CTRL_BACKTICK && ch != KEY_CTRL_Q) {
+            ch != (wint_t)KEY_CTRL_BACKTICK && ch != (wint_t)KEY_CTRL_Q) {
             macro_record_key(&macro_state, ch);
         }
 
@@ -512,7 +512,7 @@ void run_editor(EditorContext *ctx) {
         
         if (ctx->active_file->selection_mode) {
             handle_selection_mode(ctx->active_file, ch, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
-        } else if (ch == KEY_CTRL_T || ch == key_menu_open) { // CTRL-T or F10
+        } else if (ch == (wint_t)KEY_CTRL_T || ch == (wint_t)key_menu_open) { // CTRL-T or F10
             doupdate();
             handleMenuNavigation(menus, menuCount, &currentMenu, &currentItem);
             // Redraw the editor screen after closing the menu
@@ -526,9 +526,9 @@ void run_editor(EditorContext *ctx) {
                     handle_mouse_event(ctx, ctx->active_file, &event);
                 }
             }
-        } else if (ch == key_macro_record) {
+        } else if (ch == (wint_t)key_macro_record) {
             handle_macro_record_wrapper(ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
-        } else if (ch == key_macro_play) {
+        } else if (ch == (wint_t)key_macro_play) {
             handle_macro_play_wrapper(ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
         } else {
             handle_regular_mode(ctx, ctx->active_file, ch);
@@ -700,7 +700,7 @@ void handle_regular_mode(EditorContext *ctx, FileState *fs, wint_t ch) {
         if (key_mappings[i].key == 0 && key_mappings[i].handler == NULL) {
             break;
         }
-        if (key_mappings[i].key == ch) {
+        if (key_mappings[i].key == (int)ch) {
             if (key_mappings[i].handler) {
                 key_mappings[i].handler(fs, &fs->cursor_x, &fs->cursor_y);
             }
