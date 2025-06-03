@@ -11,9 +11,27 @@
 #include "file_ops.h"
 #include "macro.h"
 
-// Delete the line under the cursor when the user issues the delete-line
-// command. The removed text is pushed onto the undo stack and the text window
-// is redrawn to reflect the change.
+/*
+ * editor_actions.c
+ * ----------------
+ * Helper routines that implement the editing commands invoked from the
+ * various menus and key bindings.  Each function manipulates the current
+ * FileState, updates global editor state when necessary and usually redraws
+ * parts of the screen so the user immediately sees the effect of the
+ * operation.
+ */
+
+/*
+ * Delete the line under the cursor.
+ *
+ * ctx - Editor context used for drawing.
+ * fs  - FileState whose buffer is modified.
+ *
+ * The removed text is pushed on the undo stack so the action can be
+ * reverted.  `fs->modified` is set and the cursor/start_line fields may be
+ * adjusted to keep the view in range.  The text window is cleared and
+ * redrawn and comment highlighting is marked dirty.
+ */
 void delete_current_line(EditorContext *ctx, FileState *fs) {
     if (fs->buffer.count == 0) {
         return;
@@ -43,9 +61,17 @@ void delete_current_line(EditorContext *ctx, FileState *fs) {
     mark_comment_state_dirty(fs);
 }
 
-// Insert a blank line at the current cursor position. The newly inserted line
-// is added to the undo stack, the file is marked as modified and the screen is
-// redrawn so the cursor appears on the new line.
+/*
+ * Insert a blank line at the current cursor position.
+ *
+ * ctx - Editor context (currently unused).
+ * fs  - FileState describing the buffer to edit.
+ *
+ * A new empty line is inserted into `fs->buffer` and recorded on the undo
+ * stack.  `fs->modified` is set and comment state is invalidated.  The
+ * cursor is moved to the new line and `redraw()` is called so the change is
+ * visible immediately.
+ */
 void insert_new_line(EditorContext *ctx, FileState *fs) {
     (void)ctx;
     int idx = fs->cursor_y + fs->start_line - 1;
@@ -91,9 +117,17 @@ void handle_undo_wrapper(FileState *fs, int *cx, int *cy) {
     undo(fs);
 }
 
-// Switch the editor to the next loaded file. The current cursor position is
-// saved and restored when returning, and the screen and status bar are
-// refreshed after the switch.
+/*
+ * Switch the editor to the next loaded file.
+ *
+ * ctx - Editor context used for updating screen state.
+ *
+ * The cursor position of the current FileState is saved and its file handle
+ * closed if it was lazily loaded.  `file_manager.active_index`, `active_file`
+ * and `text_win` are updated to reference the newly selected file.  The
+ * function redraws the screen and updates the status bar before returning the
+ * new cursor position.
+ */
 CursorPos next_file(EditorContext *ctx) {
     CursorPos pos = {0, 0};
     if (file_manager.count <= 1) {
@@ -164,9 +198,16 @@ CursorPos next_file(EditorContext *ctx) {
     return pos;
 }
 
-// Switch the editor to the previous loaded file. Like next_file, it preserves
-// cursor state, performs the file manager switch, refreshes the screen and
-// updates the status bar after completion.
+/*
+ * Switch the editor to the previous loaded file.
+ *
+ * ctx - Editor context used for updating screen state.
+ *
+ * The current file's cursor position is saved and any lazily loaded file
+ * handle closed.  `file_manager.active_index`, `active_file` and `text_win`
+ * are updated to the newly selected file.  The display is redrawn and the
+ * status bar refreshed before the new cursor position is returned.
+ */
 CursorPos prev_file(EditorContext *ctx) {
     CursorPos pos = {0, 0};
     if (file_manager.count <= 1) {
@@ -239,9 +280,17 @@ CursorPos prev_file(EditorContext *ctx) {
     return pos;
 }
 
-// Refresh the status bar showing file information and cursor location.
-// This is called after most actions that modify the editor state and performs
-// a screen refresh of the status area.
+/*
+ * Refresh the status bar showing file information and cursor location.
+ *
+ * ctx - Editor context used to access the file manager.
+ * fs  - Currently active FileState.
+ *
+ * The function prints the file name, modification flag and cursor position at
+ * the top and bottom of the screen.  Macro recording/playing state is also
+ * indicated.  It calls `wnoutrefresh` on `stdscr` so the status area is
+ * redrawn during the next `doupdate` call.
+ */
 void update_status_bar(EditorContext *ctx, FileState *fs) {
     sync_editor_context(ctx);
     move(0, 0);
@@ -271,9 +320,18 @@ void update_status_bar(EditorContext *ctx, FileState *fs) {
     wnoutrefresh(stdscr);
 }
 
-// Jump the cursor to a specific line number. Invoked from the "go to line"
-// dialog, it scrolls the buffer so the target line is visible and refreshes
-// the text window.
+/*
+ * Jump the cursor to a specific line number.
+ *
+ * ctx  - Editor context providing the text window.
+ * fs   - FileState being navigated.
+ * line - 1-based line number to jump to.
+ *
+ * The function clamps the requested line to the valid range, adjusts
+ * `fs->start_line` so the target line is centered when possible and updates
+ * the cursor location.  The text window is cleared, redrawn and positioned on
+ * the new line.
+ */
 void go_to_line(EditorContext *ctx, FileState *fs, int line) {
     if (fs->buffer.count == 0)
         return;
