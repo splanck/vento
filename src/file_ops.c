@@ -17,8 +17,31 @@
 #include <stdlib.h>
 char *realpath(const char *path, char *resolved_path);
 
+/*
+ * file_ops.c
+ * ----------
+ * This file contains high level operations for creating, opening, saving and
+ * closing files within the editor.  These helpers coordinate the active
+ * FileState with the FileManager structure and manage lazy loading of file
+ * contents.  The functions here are called from the UI layer and therefore
+ * update global editor state such as `active_file`, `text_win` and the status
+ * bar.
+ */
+
 #define INITIAL_LOAD_LINES 1024
 
+/*
+ * Save the current buffer to the file referenced by `fs`.
+ *
+ * ctx - Editor context (currently unused but allows consistent signature).
+ * fs  - FileState describing the file to write.
+ *
+ * The editor performs lazy loading for large files.  Before writing we call
+ * load_all_remaining_lines to ensure any lines that haven't been loaded yet
+ * are read from disk so the saved file contains the full original contents
+ * plus any modifications.  `fs->modified` is cleared on success and a status
+ * message is displayed to the user.
+ */
 void save_file(EditorContext *ctx, FileState *fs) {
     (void)ctx;
     if (strlen(fs->filename) == 0) {
@@ -48,6 +71,16 @@ void save_file(EditorContext *ctx, FileState *fs) {
     }
 }
 
+/*
+ * Prompt the user for a new filename and save the buffer there.
+ *
+ * ctx - Editor context used for displaying the dialog.
+ * fs  - FileState whose buffer should be written.
+ *
+ * The function canonicalizes the chosen path and stores it in `fs->filename`.
+ * Like save_file(), it calls load_all_remaining_lines so partially loaded
+ * files are saved completely.
+ */
 void save_file_as(EditorContext *ctx, FileState *fs) {
     (void)ctx;
     char newpath[256];
@@ -80,6 +113,21 @@ void save_file_as(EditorContext *ctx, FileState *fs) {
     return;
 }
 
+/*
+ * Load the file specified by `filename` into a new FileState and make it the
+ * active file.  If `filename` is NULL an open-file dialog is displayed.
+ *
+ * ctx        - Editor context for updating global state and UI.
+ * fs_unused  - Unused parameter to match command handler signature.
+ * filename   - Path to the file to open or NULL to prompt the user.
+ *
+ * Only the first INITIAL_LOAD_LINES lines are loaded initially to avoid long
+ * blocking operations on very large files.  When switching away from the
+ * previous active file its file handle is closed if it wasn't fully loaded so
+ * that resources are released.
+ *
+ * Returns 0 on success or -1 on failure or user cancellation.
+ */
 int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     (void)fs_unused;
     char file_to_load[256];
@@ -108,6 +156,11 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
             active_file = open_fs;
             if (previous_active && previous_active != active_file &&
                 previous_active->fp && !previous_active->file_complete) {
+                /*
+                 * The previous file was only partially loaded. Store the current
+                 * position and close the handle so it can be re-opened lazily
+                 * later without keeping the descriptor open.
+                 */
                 previous_active->file_pos = ftell(previous_active->fp);
                 fclose(previous_active->fp);
                 previous_active->fp = NULL;
@@ -220,6 +273,10 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     active_file = fm_current(&file_manager);
     if (previous_active && previous_active != active_file &&
         previous_active->fp && !previous_active->file_complete) {
+        /*
+         * Record the offset of the partially loaded file and close its stream
+         * so that it may be reopened on demand without consuming resources.
+         */
         previous_active->file_pos = ftell(previous_active->fp);
         fclose(previous_active->fp);
         previous_active->fp = NULL;
@@ -239,6 +296,16 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     return 0;
 }
 
+/*
+ * Create a new empty buffer and make it the active file.
+ *
+ * ctx       - Editor context to update after switching files.
+ * fs_unused - Present to conform to command handler prototypes.
+ *
+ * The new FileState is inserted into the FileManager and becomes the current
+ * entry.  Cursor and window positions are initialized and the status bar is
+ * refreshed.
+ */
 void new_file(EditorContext *ctx, FileState *fs_unused) {
     (void)fs_unused;
     FileState *previous_active = active_file;
@@ -298,6 +365,18 @@ void new_file(EditorContext *ctx, FileState *fs_unused) {
     update_status_bar(ctx, active_file);
 }
 
+/*
+ * Close the file currently selected in the FileManager.
+ *
+ * ctx       - Editor context used for UI updates.
+ * fs_unused - Present for command handler compatibility.
+ * cx, cy    - Optional pointers to cursor coordinates which will be updated
+ *             to the position in the file that becomes active after closing.
+ *
+ * The user is prompted to save if the file is modified.  After closing, the
+ * next available file becomes active (or a new empty file is created if none
+ * remain) and the editor state is synchronised.
+ */
 void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     (void)fs_unused;
     FileState *current = fm_current(&file_manager);
@@ -348,6 +427,10 @@ void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *
     update_status_bar(ctx, active_file);
 }
 
+/*
+ * Ask the user whether it is okay to switch files when unsaved modifications
+ * exist in any open buffer.
+ */
 bool confirm_switch(void) {
     if (!any_file_modified(&file_manager))
         return true;
@@ -360,6 +443,11 @@ bool confirm_switch(void) {
     return false;
 }
 
+/*
+ * Determine the syntax highlighting mode based on the filename or file
+ * contents.  The extension is checked first; if it is missing the function
+ * attempts to detect a shebang line for scripting languages.
+ */
 int set_syntax_mode(const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (ext && ext[1] != '\0') {
