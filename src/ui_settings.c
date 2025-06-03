@@ -65,6 +65,46 @@ static const Option options[] = {
 
 #define FIELD_COUNT ((int)(sizeof(options) / sizeof(options[0])))
 
+static int compute_dialog_width(const AppConfig *cfg) {
+    int longest = 0;
+    for (int i = 0; i < FIELD_COUNT; ++i) {
+        const Option *opt = &options[i];
+        const char *val;
+        if (opt->type == OPT_BOOL) {
+            int v = *(int *)((char *)cfg + opt->offset);
+            val = v ? "Enabled" : "Disabled";
+        } else {
+            val = (const char *)cfg + opt->offset;
+        }
+        int len = strlen(opt->label) + 2 + (int)strlen(val);
+        if (len > longest)
+            longest = len;
+    }
+
+    int width = longest + 4;
+    if (width < 50)
+        width = 50;
+    if (width > COLS - 2)
+        width = COLS - 2;
+    if (width < 2)
+        width = 2;
+    return width;
+}
+
+static void update_settings_window(WINDOW *win, int *win_height, int *win_width,
+                                   const AppConfig *cfg) {
+    int desired_width = compute_dialog_width(cfg);
+    if (desired_width != *win_width) {
+        *win_width = desired_width;
+        wresize(win, *win_height, *win_width);
+        int win_y = (LINES - *win_height) / 2;
+        int win_x = (COLS - *win_width) / 2;
+        if (win_x < 0)
+            win_x = 0;
+        mvwin(win, win_y, win_x);
+    }
+}
+
 static void render_theme_sample(const AppConfig *cfg, WINDOW *win, int row) {
     if (!cfg || !win)
         return;
@@ -169,27 +209,7 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
     int done = 0;
 
     int win_height = FIELD_COUNT + 4;
-    int longest = 0;
-    for (int i = 0; i < FIELD_COUNT; ++i) {
-        const Option *opt = &options[i];
-        const char *val;
-        if (opt->type == OPT_BOOL) {
-            int v = *(int *)((char *)cfg + opt->offset);
-            val = v ? "Enabled" : "Disabled";
-        } else {
-            val = (char *)cfg + opt->offset;
-        }
-        int len = strlen(opt->label) + 2 + strlen(val);
-        if (len > longest)
-            longest = len;
-    }
-    int win_width = longest + 4;
-    if (win_width < 50)
-        win_width = 50;
-    if (win_width > COLS - 2)
-        win_width = COLS - 2;
-    if (win_width < 2)
-        win_width = 2;
+    int win_width = compute_dialog_width(cfg);
 
     WINDOW *win = create_popup_window(win_height, win_width, NULL);
     if (!win) {
@@ -238,6 +258,7 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
                 ++highlight;
         } else if (ch == '\n') {
             edit_option(ctx, cfg, win, &options[highlight]);
+            update_settings_window(win, &win_height, &win_width, cfg);
         } else if (ch == KEY_MOUSE) {
             MEVENT ev;
             if (getmouse(&ev) == OK &&
@@ -252,6 +273,7 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
                     highlight = row;
                     if (ev.bstate & (BUTTON1_RELEASED | BUTTON1_CLICKED)) {
                         edit_option(ctx, cfg, win, &options[highlight]);
+                        update_settings_window(win, &win_height, &win_width, cfg);
                     }
                 }
             }
