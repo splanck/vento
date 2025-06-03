@@ -118,7 +118,9 @@ The following features are planned for future releases:
 
 ## Known Issues
 
-No known issues at this time.
+There are too many issues to list at the moment. When Vento isn't stuffed full of
+bugs I will start a serious known issues list, but for now just know that Vento
+will currently disappoint you if you try to use it as your primary text editor. 
 
 ## Roadmap
 
