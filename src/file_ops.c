@@ -20,12 +20,11 @@ char *realpath(const char *path, char *resolved_path);
 /*
  * file_ops.c
  * ----------
- * This file contains high level operations for creating, opening, saving and
- * closing files within the editor.  These helpers coordinate the active
- * FileState with the FileManager structure and manage lazy loading of file
- * contents.  The functions here are called from the UI layer and therefore
- * update global editor state such as `active_file`, `text_win` and the status
- * bar.
+ * High level helpers for creating new buffers, loading and saving files and
+ * switching which buffer is active.  These routines interact with the global
+ * FileManager to keep the list of open files in sync and perform lazy loading
+ * of file contents.  Because they are triggered from the UI layer they also
+ * refresh editor windows and the status bar when needed.
  */
 
 #define INITIAL_LOAD_LINES 1024
@@ -33,14 +32,15 @@ char *realpath(const char *path, char *resolved_path);
 /*
  * Save the current buffer to the file referenced by `fs`.
  *
- * ctx - Editor context (currently unused but allows consistent signature).
- * fs  - FileState describing the file to write.
+ *  ctx - Optional EditorContext.  Currently unused but passed for API symmetry.
+ *  fs  - FileState describing the buffer to write.
  *
- * The editor performs lazy loading for large files.  Before writing we call
- * load_all_remaining_lines to ensure any lines that haven't been loaded yet
- * are read from disk so the saved file contains the full original contents
- * plus any modifications.  `fs->modified` is cleared on success and a status
- * message is displayed to the user.
+ * Before writing the buffer the function calls load_all_remaining_lines so that
+ * a lazily loaded file is fully realized on disk.  On success the file is
+ * truncated and rewritten line by line, `fs->modified` is cleared and a brief
+ * status message is shown.  Errors simply display a message; the undo history
+ * is unaffected and the caller must handle further recovery.  No redraw occurs
+ * aside from the status bar updates.
  */
 void save_file(EditorContext *ctx, FileState *fs) {
     (void)ctx;
@@ -74,12 +74,14 @@ void save_file(EditorContext *ctx, FileState *fs) {
 /*
  * Prompt the user for a new filename and save the buffer there.
  *
- * ctx - Editor context used for displaying the dialog.
- * fs  - FileState whose buffer should be written.
+ *  ctx - Editor context used for presenting the save-as dialog.
+ *  fs  - FileState whose buffer should be written.
  *
- * The function canonicalizes the chosen path and stores it in `fs->filename`.
- * Like save_file(), it calls load_all_remaining_lines so partially loaded
- * files are saved completely.
+ * The chosen path is canonicalized and stored back into `fs->filename` before
+ * writing.  Like save_file() this ensures any lazily loaded portions are read
+ * first.  On success the modified flag is cleared and a short message is
+ * displayed.  Failure simply reports an error.  No undo information changes and
+ * only the status bar is redrawn.
  */
 void save_file_as(EditorContext *ctx, FileState *fs) {
     (void)ctx;
@@ -117,16 +119,18 @@ void save_file_as(EditorContext *ctx, FileState *fs) {
  * Load the file specified by `filename` into a new FileState and make it the
  * active file.  If `filename` is NULL an open-file dialog is displayed.
  *
- * ctx        - Editor context for updating global state and UI.
- * fs_unused  - Unused parameter to match command handler signature.
- * filename   - Path to the file to open or NULL to prompt the user.
+ *  ctx        - Editor context for updating global state and UI.
+ *  fs_unused  - Unused parameter required by the command handler prototype.
+ *  filename   - Path to the file to open or NULL to prompt the user.
  *
- * Only the first INITIAL_LOAD_LINES lines are loaded initially to avoid long
- * blocking operations on very large files.  When switching away from the
- * previous active file its file handle is closed if it wasn't fully loaded so
- * that resources are released.
+ * Only the first INITIAL_LOAD_LINES lines are read immediately to keep large
+ * files responsive.  The new FileState is inserted into the FileManager and the
+ * previous active file is detached, closing its stream if it was only partially
+ * loaded.  The associated ncurses window is drawn and refreshed.  On error a
+ * message is displayed and the previous file remains active.
  *
- * Returns 0 on success or -1 on failure or user cancellation.
+ * Returns 0 on success or -1 on failure or user cancellation.  Undo history for
+ * the new file starts empty.
  */
 int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     (void)fs_unused;
@@ -299,12 +303,13 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
 /*
  * Create a new empty buffer and make it the active file.
  *
- * ctx       - Editor context to update after switching files.
- * fs_unused - Present to conform to command handler prototypes.
+ *  ctx       - Editor context to update after switching files.
+ *  fs_unused - Present to conform to command handler prototypes.
  *
- * The new FileState is inserted into the FileManager and becomes the current
- * entry.  Cursor and window positions are initialized and the status bar is
- * refreshed.
+ * A fresh FileState with an empty undo/redo history is allocated and inserted
+ * into the FileManager.  If activation succeeds the new buffer becomes current
+ * and its ncurses window is boxed and refreshed.  On failure the previous file
+ * remains active.  The status bar is updated but no full redraw is triggered.
  */
 void new_file(EditorContext *ctx, FileState *fs_unused) {
     (void)fs_unused;
@@ -368,14 +373,15 @@ void new_file(EditorContext *ctx, FileState *fs_unused) {
 /*
  * Close the file currently selected in the FileManager.
  *
- * ctx       - Editor context used for UI updates.
- * fs_unused - Present for command handler compatibility.
- * cx, cy    - Optional pointers to cursor coordinates which will be updated
- *             to the position in the file that becomes active after closing.
+ *  ctx       - Editor context used for UI updates.
+ *  fs_unused - Present for command handler compatibility.
+ *  cx, cy    - Optional pointers that receive the cursor position of the file
+ *              that becomes active after the close.
  *
- * The user is prompted to save if the file is modified.  After closing, the
- * next available file becomes active (or a new empty file is created if none
- * remain) and the editor state is synchronised.
+ * If the buffer is modified the user is prompted to save.  The FileManager
+ * entry is removed and another file is activated or a fresh one created when no
+ * files remain.  The caller's cursor pointers are updated accordingly and the
+ * entire screen is redrawn.  Undo stacks are left intact for remaining files.
  */
 void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *cy) {
     (void)fs_unused;
@@ -430,6 +436,10 @@ void close_current_file(EditorContext *ctx, FileState *fs_unused, int *cx, int *
 /*
  * Ask the user whether it is okay to switch files when unsaved modifications
  * exist in any open buffer.
+ *
+ * The check scans the FileManager for modified buffers and prompts the user if
+ * any are found.  No state changes are made here; a simple yes/no response is
+ * returned for the caller to act upon.
  */
 bool confirm_switch(void) {
     if (!any_file_modified(&file_manager))
