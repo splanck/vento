@@ -99,6 +99,8 @@ int key_f1_help = KEY_F(1);  // F1 also opens help
 int key_about = 1;  // Key code for the about command
 int key_delete_line = 4;  // Key code for the delete line command
 int key_insert_line = KEY_F(5);  // Key code for the insert line command
+int key_macro_record = KEY_F(2);  // Key code for starting/stopping macro recording
+int key_macro_play   = KEY_F(4);  // Key code for playing back a recorded macro
 int key_move_forward = 23;  // Key code for the move forward command (CTRL-w)
 int key_move_backward = 2;  // Key code for the move backward command
 int key_load_file = 12;  // Key code for the load file command
@@ -363,6 +365,22 @@ static void handle_clear_buffer_wrapper(struct FileState *fs, int *cx, int *cy) 
     *cy = 1;
 }
 
+static void handle_macro_record_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)fs;
+    (void)cx;
+    (void)cy;
+    if (macro_state.recording)
+        macro_stop(&macro_state);
+    else
+        macro_start(&macro_state);
+}
+
+static void handle_macro_play_wrapper(struct FileState *fs, int *cx, int *cy) {
+    (void)cx;
+    (void)cy;
+    macro_play(&macro_state, input_ctx, fs);
+}
+
 
 
 #define MAX_KEY_MAPPINGS 64
@@ -414,6 +432,8 @@ void initialize_key_mappings(void) {
     key_mappings[key_mapping_count++] = (KeyMapping){key_undo, handle_undo_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_next_file, handle_next_file_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){key_prev_file, handle_prev_file_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_macro_record, handle_macro_record_wrapper};
+    key_mappings[key_mapping_count++] = (KeyMapping){key_macro_play, handle_macro_play_wrapper};
     key_mappings[key_mapping_count++] = (KeyMapping){KEY_CTRL_T, NULL}; /* placeholder for menu key, handled elsewhere */
     key_mappings[key_mapping_count++] = (KeyMapping){key_menu_open, NULL}; /* placeholder for F10 menu key */
 
@@ -506,6 +526,10 @@ void run_editor(EditorContext *ctx) {
                     handle_mouse_event(ctx, ctx->active_file, &event);
                 }
             }
+        } else if (ch == key_macro_record) {
+            handle_macro_record_wrapper(ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
+        } else if (ch == key_macro_play) {
+            handle_macro_play_wrapper(ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
         } else {
             handle_regular_mode(ctx, ctx->active_file, ch);
         }
