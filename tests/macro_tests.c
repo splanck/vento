@@ -60,9 +60,37 @@ static char *test_create_delete_api() {
     return 0;
 }
 
+static char *test_shrink_on_delete() {
+    macros_free_all();
+
+    char name[16];
+    for (int i = 0; i < 8; ++i) {
+        snprintf(name, sizeof(name), "m%d", i);
+        mu_assert("create", macro_create(name) != NULL);
+    }
+
+    int cap_before = macro_capacity();
+    mu_assert("initial capacity >=8", cap_before >= 8);
+
+    for (int i = 0; i < 7; ++i) {
+        snprintf(name, sizeof(name), "m%d", i);
+        macro_delete(name);
+    }
+
+    mu_assert("count 1", macro_count() == 1);
+    int cap_after = macro_capacity();
+    mu_assert("capacity shrunk", cap_after < cap_before);
+
+    macro_delete("m7");
+    mu_assert("empty", macro_count() == 0);
+    mu_assert("capacity reset", macro_capacity() == 0);
+    return 0;
+}
+
 static char *all_tests() {
     mu_run_test(test_simple_record_play);
     mu_run_test(test_create_delete_api);
+    mu_run_test(test_shrink_on_delete);
     return 0;
 }
 
