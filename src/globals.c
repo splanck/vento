@@ -1,3 +1,4 @@
+#include <ncurses.h>
 #include "config.h"
 #include "file_manager.h"
 
@@ -23,7 +24,9 @@ __attribute__((weak)) AppConfig app_config = {
     .show_startup_warning = 1,
     .search_ignore_case = 0,
     .tab_width = 4,
-    .macros_file = ""
+    .macros_file = "",
+    .macro_record_key = KEY_F(2),
+    .macro_play_key = KEY_F(4)
 };
 
 __attribute__((weak)) FileManager file_manager;

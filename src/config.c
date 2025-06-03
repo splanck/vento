@@ -183,7 +183,9 @@ void config_save(const AppConfig *cfg) {
         "show_startup_warning",
         "search_ignore_case",
         "tab_width",
-        "macros_file"
+        "macros_file",
+        "macro_record_key",
+        "macro_play_key"
     };
 
     char path[PATH_MAX];
@@ -207,6 +209,8 @@ void config_save(const AppConfig *cfg) {
     fprintf(f, "%s=%s\n", keys[13], cfg->search_ignore_case ? "true" : "false");
     fprintf(f, "%s=%d\n", keys[14], cfg->tab_width);
     fprintf(f, "%s=%s\n", keys[15], cfg->macros_file);
+    fprintf(f, "%s=%d\n", keys[16], cfg->macro_record_key);
+    fprintf(f, "%s=%d\n", keys[17], cfg->macro_play_key);
     fclose(f);
 }
 
@@ -316,6 +320,10 @@ void config_load(AppConfig *cfg) {
         } else if (strcmp(key, "macros_file") == 0) {
             strncpy(tmp.macros_file, value, sizeof(tmp.macros_file) - 1);
             tmp.macros_file[sizeof(tmp.macros_file) - 1] = '\0';
+        } else if (strcmp(key, "macro_record_key") == 0) {
+            tmp.macro_record_key = atoi(value);
+        } else if (strcmp(key, "macro_play_key") == 0) {
+            tmp.macro_play_key = atoi(value);
         } else {
             // Unknown key, ignore
             continue;
@@ -327,6 +335,8 @@ void config_load(AppConfig *cfg) {
     enable_color = cfg->enable_color;
     enable_mouse = cfg->enable_mouse;
     show_line_numbers = cfg->show_line_numbers;
+    key_macro_record = cfg->macro_record_key;
+    key_macro_play = cfg->macro_play_key;
 
     if (enable_color) {
         if (!has_colors()) {

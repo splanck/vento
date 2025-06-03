@@ -14,7 +14,11 @@
 #include "syntax.h"
 #include "files.h"
 
-__attribute__((weak)) AppConfig app_config = { .tab_width = 4 };
+__attribute__((weak)) AppConfig app_config = {
+    .tab_width = 4,
+    .macro_record_key = KEY_F(2),
+    .macro_play_key = KEY_F(4)
+};
 
 static void update_scroll_x(EditorContext *ctx, FileState *fs) {
     int offset = get_line_number_offset(fs);
