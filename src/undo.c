@@ -7,6 +7,13 @@
 #include "editor_state.h"
 #include "line_buffer.h"
 
+/**
+ * Insert a new change at the top of a stack.
+ *
+ * The stack parameter points to either a FileState undo or redo list. This
+ * function allocates a new Node, stores the Change and makes it the new head.
+ * Ownership of any text in the Change is transferred to the created node.
+ */
 void push(Node **stack, Change change) {
     Node *new_node = (Node *)malloc(sizeof(Node));
     if (new_node == NULL) {
@@ -18,6 +25,12 @@ void push(Node **stack, Change change) {
     *stack = new_node;
 }
 
+/**
+ * Remove and return the most recent change from a stack.
+ *
+ * If the stack is empty an empty Change with NULL pointers is returned. The
+ * caller becomes responsible for freeing the returned Change's text fields.
+ */
 Change pop(Node **stack) {
     if (*stack == NULL) {
         Change empty_change = {0, NULL, NULL};
@@ -30,10 +43,18 @@ Change pop(Node **stack) {
     return change;
 }
 
+/** Check whether a stack has no elements. */
 int is_empty(Node *stack) {
     return stack == NULL;
 }
 
+/**
+ * Undo the most recent action on `fs`.
+ *
+ * The change popped from `fs->undo_stack` is reversed in the file buffer and a
+ * corresponding entry is pushed onto `fs->redo_stack`. If the undo stack is
+ * empty the function returns immediately.
+ */
 void undo(FileState *fs) {
     if (fs->undo_stack == NULL)
         return;
@@ -76,6 +97,13 @@ void undo(FileState *fs) {
     fs->modified = true;
 }
 
+/**
+ * Redo the last undone action on `fs`.
+ *
+ * The change popped from `fs->redo_stack` is applied to the file buffer and a
+ * corresponding entry is pushed back onto `fs->undo_stack`. If the redo stack
+ * is empty the function simply returns.
+ */
 void redo(FileState *fs) {
     if (fs->redo_stack == NULL)
         return;
@@ -114,6 +142,11 @@ void redo(FileState *fs) {
     fs->modified = true;
 }
 
+/**
+ * Free an entire change stack.
+ *
+ * All nodes are removed and any text stored within them is released.
+ */
 void free_stack(Node *stack) {
     while (stack) {
         Node *next = stack->next;
