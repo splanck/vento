@@ -163,3 +163,18 @@ Macro *macro_at(int index) {
         return NULL;
     return macro_list.items[index];
 }
+
+/*
+ * Rename the given macro to the provided new name. Memory for the
+ * name string is managed here, freeing the old name and duplicating
+ * the new one.
+ */
+void macro_rename(Macro *m, const char *new_name) {
+    if (!m || !new_name || new_name[0] == '\0')
+        return;
+    char *dup = strdup(new_name);
+    if (!dup)
+        return;
+    free(m->name);
+    m->name = dup;
+}
