@@ -19,5 +19,6 @@ int show_goto_dialog(EditorContext *ctx, int *line_number);
 int show_open_file_dialog(EditorContext *ctx, char *path, int max_len);
 int show_save_file_dialog(EditorContext *ctx, char *path, int max_len);
 int show_settings_dialog(EditorContext *ctx, AppConfig *cfg);
+void show_manage_macros(EditorContext *ctx);
 
 #endif // UI_H
