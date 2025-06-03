@@ -36,6 +36,8 @@ typedef struct {
     int search_ignore_case;
     int tab_width;
     char macros_file[PATH_MAX];
+    int macro_record_key;
+    int macro_play_key;
 } AppConfig;
 
 extern AppConfig app_config;
