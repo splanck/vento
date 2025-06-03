@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include "config.h"
 #include "editor.h"
+#include "syntax.h"
 #include "editor_state.h"
 
 /**
@@ -166,7 +167,11 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
             }
             if (idx == highlight)
                 wattron(win, A_REVERSE);
+            if (is_dir && ctx->enable_color)
+                wattron(win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
             mvwprintw(win, i + 2, 2, "%s", disp);
+            if (is_dir && ctx->enable_color)
+                wattroff(win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
             wattroff(win, A_REVERSE);
         }
 
@@ -175,7 +180,7 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
         }
 
         mvwprintw(win, win_height - 3, 2,
-                  "Arrows: move  Enter: select  ESC: cancel");
+                  "Arrows: move  Enter: open/select  ESC: cancel");
         mvwprintw(win, win_height - 2, 2, "Path: %s", input);
         wmove(win, win_height - 2, 8 + input_len);
         wrefresh(win);
