@@ -148,7 +148,8 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
 
         char *new_text = strdup(dest);
         if (!new_text) {
-            free(old_text);
+            if (old_text)
+                free(old_text);
             allocation_failed("strdup failed");
         }
 
@@ -156,7 +157,8 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
             push(&fs->undo_stack, (Change){ line_idx, old_text, new_text });
         } else {
             push(&fs->undo_stack, (Change){ line_idx, NULL, new_text });
-            free(old_text); /* NULL or unused */
+            if (old_text)
+                free(old_text); /* only free if allocated */
         }
 
         line = strtok(NULL, "\n");
