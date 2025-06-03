@@ -1,3 +1,11 @@
+/*
+ * menu_draw.c
+ * -----------
+ * Rendering helpers for the menu system.  The routines here draw the
+ * persistent menu bar across the top of the screen as well as the
+ * temporary drop‑down menus used during navigation.
+ */
+
 #include <ncurses.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,7 +14,16 @@
 #include "syntax.h"
 #include "editor_state.h"
 
-/* Draws the top menu bar using the global menu list */
+/*
+ * Draw the top menu bar.
+ *
+ * menus     - array of Menu structures to display
+ * menuCount - number of elements in the array
+ *
+ * The starting column of each label is stored into the global
+ * `menuPositions` array so other modules know where to position
+ * drop-downs and how to perform mouse hit testing.
+ */
 void drawMenuBar(Menu *menus, int menuCount) {
     move(0, 0);
     clrtoeol();
@@ -29,12 +46,24 @@ void drawMenuBar(Menu *menus, int menuCount) {
     wnoutrefresh(stdscr);
 }
 
-/* Convenience wrapper used by various modules */
+/*
+ * Convenience wrapper used by various modules to redraw the menu bar
+ * using the globally initialized menu list.
+ */
 void drawBar(void) {
     drawMenuBar(menus, menuCount);
 }
 
-/* Draws the drop-down menu window */
+/*
+ * Display a drop-down menu window.
+ *
+ * menu        - Menu to display
+ * currentItem - index of the item to highlight
+ * startX,Y    - screen coordinates for the pop-up window
+ *
+ * Returns true on success.  The coordinates are typically derived
+ * from the global `menuPositions` array populated by drawMenuBar().
+ */
 bool drawMenu(Menu *menu, int currentItem, int startX, int startY) {
     int boxWidth = 20;
     int boxHeight = menu->itemCount + 2;
