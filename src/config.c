@@ -474,11 +474,13 @@ void macros_load(AppConfig *cfg) {
             m->keys[m->length++] = (wint_t)strtoul(tok, NULL, 10);
         }
         char *active_s = strtok(NULL, " \t");
+        char *play_s = strtok(NULL, " \t");
         m->recording = false;
         m->active = false;
         if (active_s && atoi(active_s)) {
             loaded_active = m;
         }
+        m->play_key = play_s ? atoi(play_s) : 0;
     }
     fclose(f);
     if (loaded_active)
@@ -513,7 +515,7 @@ void macros_save(const AppConfig *cfg) {
         fprintf(f, "%s %d", m->name, m->length);
         for (int j = 0; j < m->length; ++j)
             fprintf(f, " %u", (unsigned int)m->keys[j]);
-        fprintf(f, " %d\n", m->active ? 1 : 0);
+        fprintf(f, " %d %d\n", m->active ? 1 : 0, m->play_key);
     }
     fclose(f);
 }

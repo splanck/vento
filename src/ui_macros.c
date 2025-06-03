@@ -7,6 +7,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+int select_int(EditorContext *ctx, const char *prompt, int current, WINDOW *parent);
+
 /*
  * Manage macros dialog
  * --------------------
@@ -64,7 +66,8 @@ void show_manage_macros(EditorContext *ctx) {
                 continue;
             if (idx == highlight)
                 wattron(win, A_REVERSE);
-            mvwprintw(win, i + 2, 2, "%s%s", m->name,
+            const char *kname = m->play_key ? keyname(m->play_key) : "-";
+            mvwprintw(win, i + 2, 2, "%s (%s)%s", m->name, kname,
                       m->active ? " *" : "");
             if (idx == highlight)
                 wattroff(win, A_REVERSE);
@@ -74,7 +77,7 @@ void show_manage_macros(EditorContext *ctx) {
             mvwprintw(win, i + 2, 2, "%*s", win_width - 4, "");
 
         mvwprintw(win, win_height - 2, 2,
-                  "Arrows:move  Enter:select  N:new  R:rename  D:delete  ESC:close");
+                  "Arrows:move  Enter:select  N:new  R:rename  K:key  D:delete  ESC:close");
         wrefresh(win);
 
         ch = wgetch(win);
@@ -122,6 +125,15 @@ void show_manage_macros(EditorContext *ctx) {
                             highlight = macro_count() - 1;
                         macros_save(&app_config);
                     }
+                }
+            }
+        } else if (ch == 'k' || ch == 'K') {
+            if (highlight >= 0 && highlight < count) {
+                Macro *m = macro_at(highlight);
+                if (m) {
+                    int val = select_int(ctx, "Playback Key", m->play_key, win);
+                    m->play_key = val;
+                    macros_save(&app_config);
                 }
             }
         } else if (ch == 'r' || ch == 'R') {

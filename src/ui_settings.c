@@ -74,7 +74,6 @@ static const Option options[] = {
     {"Symbol color", OPT_COLOR, offsetof(AppConfig, symbol_color), NULL},
     {"Search color", OPT_COLOR, offsetof(AppConfig, search_color), NULL},
     {"Macro record key", OPT_INT, offsetof(AppConfig, macro_record_key), NULL},
-    {"Macro play key", OPT_INT, offsetof(AppConfig, macro_play_key), NULL},
 };
 
 #define FIELD_COUNT ((int)(sizeof(options) / sizeof(options[0])))
