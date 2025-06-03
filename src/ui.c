@@ -90,6 +90,13 @@ int show_goto_dialog(EditorContext *ctx, int *line_number) {
         return 0;
     }
 
-    *line_number = atoi(buf);
+    char *endptr;
+    long val = strtol(buf, &endptr, 10);
+
+    if (*endptr != '\0' || val < 1) {
+        return 0;
+    }
+
+    *line_number = (int)val;
     return 1;
 }
