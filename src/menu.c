@@ -8,6 +8,8 @@
 #include "ui.h"
 #include "undo.h"
 #include "config.h"
+#include "macro.h"
+#include "ui_common.h"
 
 #include "editor_state.h"
 
@@ -17,6 +19,12 @@
 bool confirm_quit(void);
 
 static EditorContext *menu_ctx = NULL;
+
+/* forward declarations for macro menu actions */
+static void menuMacroStart(EditorContext *ctx);
+static void menuMacroStop(EditorContext *ctx);
+static void menuMacroPlay(EditorContext *ctx);
+static void menuManageMacros(EditorContext *ctx);
 
 
 static void menuNewFile_cb(void)    { menuNewFile(menu_ctx); }
@@ -34,6 +42,10 @@ static void menuFind_cb(void)       { menuFind(menu_ctx); }
 static void menuReplace_cb(void)    { menuReplace(menu_ctx); }
 static void menuAbout_cb(void)      { menuAbout(menu_ctx); }
 static void menuHelp_cb(void)       { menuHelp(menu_ctx); }
+static void menuMacroStart_cb(void) { menuMacroStart(menu_ctx); }
+static void menuMacroStop_cb(void)  { menuMacroStop(menu_ctx); }
+static void menuMacroPlay_cb(void)  { menuMacroPlay(menu_ctx); }
+static void menuManage_cb(void)     { menuManageMacros(menu_ctx); }
 
 static MenuItem file_items[] = {
     {"New File", menuNewFile_cb, false},
@@ -62,6 +74,15 @@ static MenuItem opt_items[] = {
     {"Settings", menuSettings_cb, false},
 };
 
+static MenuItem macros_items[] = {
+    {"Start Recording", menuMacroStart_cb, false},
+    {"Stop Recording", menuMacroStop_cb, false},
+    {"", NULL, true},
+    {"Play Last Macro", menuMacroPlay_cb, false},
+    {"", NULL, true},
+    {"Manage Macros...", menuManage_cb, false},
+};
+
 static MenuItem help_items[] = {
     {"Help Screen", menuHelp_cb, false},
     {"About Vento", menuAbout_cb, false},
@@ -72,6 +93,7 @@ static Menu menus_static[] = {
     {"Edit", edit_items, ARRAY_LEN(edit_items)},
     {"Navigate", nav_items, ARRAY_LEN(nav_items)},
     {"Options", opt_items, ARRAY_LEN(opt_items)},
+    {"Macros", macros_items, ARRAY_LEN(macros_items)},
     {"Help", help_items, ARRAY_LEN(help_items)},
 };
 
@@ -317,6 +339,25 @@ void menuNextFile(EditorContext *ctx) {
 
 void menuPrevFile(EditorContext *ctx) {
     (void)prev_file(ctx);
+}
+
+static void menuMacroStart(EditorContext *ctx) {
+    (void)ctx;
+    macro_start(&macro_state);
+}
+
+static void menuMacroStop(EditorContext *ctx) {
+    (void)ctx;
+    macro_stop(&macro_state);
+}
+
+static void menuMacroPlay(EditorContext *ctx) {
+    macro_play(&macro_state, ctx, ctx->active_file);
+}
+
+static void menuManageMacros(EditorContext *ctx) {
+    (void)ctx;
+    show_message("Macro management not implemented");
 }
 
 void menuSettings(EditorContext *ctx) {
