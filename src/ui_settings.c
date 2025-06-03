@@ -574,8 +574,8 @@ const char *select_theme(const char *current, WINDOW *parent) {
                 }
                 ++count;
             }
+        closedir(dir);
     }
-    closedir(dir);
 }
 
     if (count == 0) {
