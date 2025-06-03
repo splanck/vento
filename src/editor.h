@@ -6,15 +6,30 @@
 #include <string.h>
 #include <wchar.h>
 typedef struct EditorContext EditorContext;
+
+/*
+ * Undo/Redo Stack
+ * ---------------
+ * Each file maintains an undo and redo history implemented as a singly linked
+ * list.  A `Node` represents one entry in these stacks and contains a `Change`
+ * describing the modification to a single line.
+ *
+ * A `Change` stores the line index along with the previous and new contents of
+ * that line.  When `old_text` is NULL the change represents an insertion and
+ * when `new_text` is NULL it represents a deletion.  Both strings are
+ * dynamically allocated and ownership is transferred to the stack when the
+ * change is pushed.  They are freed when the entry is popped or when the entire
+ * stack is destroyed.
+ */
 typedef struct Change {
-    int line;
-    char *old_text;
-    char *new_text;
+    int line;        /* Affected line index */
+    char *old_text;  /* Text before the change or NULL */
+    char *new_text;  /* Text after the change or NULL */
 } Change;
 
 typedef struct Node {
-    Change change;
-    struct Node *next;
+    Change change;   /* Stored modification */
+    struct Node *next; /* Next node in the stack */
 } Node;
 
 
