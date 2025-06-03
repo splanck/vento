@@ -28,6 +28,7 @@
 #include "search.h"
 #include "file_ops.h"
 #include "ui.h"
+#include "clipboard.h"
 #include "undo.h"
 #include "config.h"
 #include "macro.h"
@@ -60,6 +61,9 @@ static void menuSettings_cb(void)   { menuSettings(menu_ctx); }
 static void menuQuitEditor_cb(void) { menuQuitEditor(menu_ctx); }
 static void menuUndo_cb(void)       { menuUndo(menu_ctx); }
 static void menuRedo_cb(void)       { menuRedo(menu_ctx); }
+static void menuCut_cb(void)        { menuCut(menu_ctx); }
+static void menuCopy_cb(void)       { menuCopy(menu_ctx); }
+static void menuPaste_cb(void)      { menuPaste(menu_ctx); }
 static void menuFind_cb(void)       { menuFind(menu_ctx); }
 static void menuReplace_cb(void)    { menuReplace(menu_ctx); }
 static void menuAbout_cb(void)      { menuAbout(menu_ctx); }
@@ -86,6 +90,9 @@ static MenuItem edit_items[] = {
     {"Undo", "Ctrl-Z", menuUndo_cb, false},
     {"Redo", "Ctrl-Y", menuRedo_cb, false},
     {"", NULL, NULL, true},
+    {"Cut", "Ctrl-X", menuCut_cb, false},
+    {"Copy", "Ctrl-C", menuCopy_cb, false},
+    {"Paste", "Ctrl-V", menuPaste_cb, false},
     {"Find", "Ctrl-F", menuFind_cb, false},
     {"Replace", "Ctrl-R", menuReplace_cb, false},
 };
@@ -564,6 +571,37 @@ void menuUndo(EditorContext *ctx) {
  */
 void menuRedo(EditorContext *ctx) {
     redo(ctx->active_file);
+}
+
+/**
+ * Callback for Edit -> "Cut".
+ *
+ * Removes the selected text and copies it to the clipboard.
+ */
+void menuCut(EditorContext *ctx) {
+    cut_selection(ctx->active_file);
+    redraw();
+}
+
+/**
+ * Callback for Edit -> "Copy".
+ *
+ * Copies the selected text to the clipboard.
+ */
+void menuCopy(EditorContext *ctx) {
+    copy_selection_keyboard(ctx->active_file);
+}
+
+/**
+ * Callback for Edit -> "Paste".
+ *
+ * Inserts clipboard contents at the cursor position.
+ */
+void menuPaste(EditorContext *ctx) {
+    paste_clipboard(ctx->active_file,
+                    &ctx->active_file->cursor_x,
+                    &ctx->active_file->cursor_y);
+    redraw();
 }
 
 /**
