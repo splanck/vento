@@ -72,49 +72,49 @@ static void menuManage_cb(void)     { menuManageMacros(menu_ctx); }
 /* Items for the File menu.  Selecting one of these invokes the
  * corresponding menu* callback above. */
 static MenuItem file_items[] = {
-    {"New File", menuNewFile_cb, false},
-    {"Load File", menuLoadFile_cb, false},
-    {"Save File", menuSaveFile_cb, false},
-    {"Save As", menuSaveAs_cb, false},
-    {"", NULL, true},
-    {"Close File", menuCloseFile_cb, false},
-    {"Quit", menuQuitEditor_cb, false},
+    {"New File", "Ctrl-N", menuNewFile_cb, false},
+    {"Load File", "Ctrl-L", menuLoadFile_cb, false},
+    {"Save File", "Ctrl-S", menuSaveFile_cb, false},
+    {"Save As", "Ctrl-O", menuSaveAs_cb, false},
+    {"", NULL, NULL, true},
+    {"Close File", "Ctrl-Q", menuCloseFile_cb, false},
+    {"Quit", NULL, menuQuitEditor_cb, false},
 };
 
 /* Items for the Edit menu triggering undo/redo and search actions. */
 static MenuItem edit_items[] = {
-    {"Undo", menuUndo_cb, false},
-    {"Redo", menuRedo_cb, false},
-    {"", NULL, true},
-    {"Find", menuFind_cb, false},
-    {"Replace", menuReplace_cb, false},
+    {"Undo", "Ctrl-Z", menuUndo_cb, false},
+    {"Redo", "Ctrl-Y", menuRedo_cb, false},
+    {"", NULL, NULL, true},
+    {"Find", "Ctrl-F", menuFind_cb, false},
+    {"Replace", "Ctrl-R", menuReplace_cb, false},
 };
 
 /* Items for the Navigate menu for switching buffers. */
 static MenuItem nav_items[] = {
-    {"Next File", menuNextFile_cb, false},
-    {"Previous File", menuPrevFile_cb, false},
+    {"Next File", "F6", menuNextFile_cb, false},
+    {"Previous File", "F7", menuPrevFile_cb, false},
 };
 
 /* Options menu currently only exposes the settings dialog. */
 static MenuItem opt_items[] = {
-    {"Settings", menuSettings_cb, false},
+    {"Settings", NULL, menuSettings_cb, false},
 };
 
 /* Macros menu controls recording and playback of macros. */
 static MenuItem macros_items[] = {
-    {"Start Recording", menuMacroStart_cb, false},
-    {"Stop Recording", menuMacroStop_cb, false},
-    {"", NULL, true},
-    {"Play Last Macro", menuMacroPlay_cb, false},
-    {"", NULL, true},
-    {"Manage Macros...", menuManage_cb, false},
+    {"Start Recording", "F2", menuMacroStart_cb, false},
+    {"Stop Recording", "F2", menuMacroStop_cb, false},
+    {"", NULL, NULL, true},
+    {"Play Last Macro", "F4", menuMacroPlay_cb, false},
+    {"", NULL, NULL, true},
+    {"Manage Macros...", NULL, menuManage_cb, false},
 };
 
 /* Help menu containing documentation and about screen. */
 static MenuItem help_items[] = {
-    {"Help Screen", menuHelp_cb, false},
-    {"About Vento", menuAbout_cb, false},
+    {"Help Screen", "Ctrl-H", menuHelp_cb, false},
+    {"About Vento", "Ctrl-A", menuAbout_cb, false},
 };
 
 static Menu menus_static[] = {
