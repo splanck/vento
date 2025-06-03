@@ -1,3 +1,11 @@
+/*
+ * Implements the open and save file dialogs.
+ *
+ * The dialog displays the current directory contents in a scrollable list
+ * and an input field for manually entering a path. Navigation works with
+ * the arrow keys or the mouse when enabled. Enter selects the highlighted
+ * item or the typed path, while Escape cancels the dialog.
+ */
 #include "ui_common.h"
 #include <dirent.h>
 #include <unistd.h>
@@ -11,6 +19,16 @@
 #include "editor.h"
 #include "editor_state.h"
 
+/**
+ * Read all entries from `dir_path` into an allocated array.
+ *
+ * dir_path  - directory to scan
+ * choices   - receives a pointer to the allocated array of filenames
+ * n_choices - receives the number of returned entries
+ *
+ * Memory for the array and each string is allocated. Call
+ * free_dir_contents() to release it.
+ */
 void get_dir_contents(const char *dir_path, char ***choices, int *n_choices) {
     DIR *dir;
     struct dirent *entry;
@@ -56,6 +74,12 @@ void get_dir_contents(const char *dir_path, char ***choices, int *n_choices) {
     *n_choices = count;
 }
 
+/**
+ * Free memory allocated by get_dir_contents().
+ *
+ * choices   - array returned by get_dir_contents
+ * n_choices - number of entries in the array
+ */
 void free_dir_contents(char **choices, int n_choices) {
     for (int i = 0; i < n_choices; ++i) {
         free(choices[i]);
@@ -63,6 +87,19 @@ void free_dir_contents(char **choices, int n_choices) {
     free(choices);
 }
 
+/**
+ * Core loop implementing the file selection dialog.
+ *
+ * ctx             - editor context
+ * path            - buffer receiving the chosen path
+ * max_len         - size of the path buffer
+ * cursor_on_enter - show cursor when selecting with Enter
+ * cursor_on_mouse - show cursor when selecting with the mouse
+ *
+ * Returns 1 when a file path is chosen, or 0 if the dialog is cancelled.
+ * Directory listings are allocated via get_dir_contents() and freed before
+ * each iteration ends.
+ */
 static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
                             int cursor_on_enter, int cursor_on_mouse) {
     curs_set(0);
@@ -268,10 +305,28 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
     return 0;
 }
 
+/**
+ * Present a dialog for choosing a file to open.
+ *
+ * ctx     - editor context
+ * path    - buffer receiving the selected path
+ * max_len - size of the path buffer
+ *
+ * Returns 1 if a path is chosen, 0 if the dialog is cancelled.
+ */
 int show_open_file_dialog(EditorContext *ctx, char *path, int max_len) {
     return file_dialog_loop(ctx, path, max_len, 1, 0);
 }
 
+/**
+ * Present a dialog for choosing where to save a file.
+ *
+ * ctx     - editor context
+ * path    - buffer receiving the selected path
+ * max_len - size of the path buffer
+ *
+ * Returns 1 if a path is chosen, 0 if the dialog is cancelled.
+ */
 int show_save_file_dialog(EditorContext *ctx, char *path, int max_len) {
     return file_dialog_loop(ctx, path, max_len, 0, 1);
 }
