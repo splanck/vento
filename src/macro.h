@@ -19,4 +19,6 @@ void macro_stop(Macro *macro);
 void macro_record_key(Macro *macro, wint_t ch);
 void macro_play(Macro *macro, EditorContext *ctx, FileState *fs);
 
+extern Macro macro_state;
+
 #endif /* MACRO_H */

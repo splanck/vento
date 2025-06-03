@@ -11,6 +11,7 @@
 #include "files.h"
 #include "syntax.h"
 #include "editor_state.h"
+#include "macro.h"
 
 void disable_ctrl_c_z() {
     signal(SIGINT, SIG_IGN);
@@ -36,6 +37,8 @@ void initialize(EditorContext *ctx) {
     ctx->enable_color = enable_color;
     ctx->enable_mouse = enable_mouse;
     apply_colors();
+    macro_state.length = 0;
+    macro_state.recording = false;
     cbreak();
     noecho();
     keypad(stdscr, TRUE);
