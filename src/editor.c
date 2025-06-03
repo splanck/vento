@@ -378,6 +378,8 @@ static void handle_macro_record_wrapper(struct FileState *fs, int *cx, int *cy) 
         macro_stop(current_macro);
     else
         macro_start(current_macro);
+    if (input_ctx)
+        update_status_bar(input_ctx, input_ctx->active_file);
 }
 
 static void handle_macro_play_wrapper(struct FileState *fs, int *cx, int *cy) {
@@ -385,6 +387,8 @@ static void handle_macro_play_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cy;
     if (current_macro)
         macro_play(current_macro, input_ctx, fs);
+    if (input_ctx)
+        update_status_bar(input_ctx, input_ctx->active_file);
 }
 
 

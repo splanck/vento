@@ -9,6 +9,7 @@
 #include "editor_state.h"
 #include "undo.h"
 #include "file_ops.h"
+#include "macro.h"
 
 // Delete the line under the cursor when the user issues the delete-line
 // command. The removed text is pushed onto the undo stack and the text window
@@ -255,6 +256,10 @@ void update_status_bar(EditorContext *ctx, FileState *fs) {
         snprintf(display, sizeof(display), "%s* [%d/%d]", name, idx, total);
     else
         snprintf(display, sizeof(display), "%s [%d/%d]", name, idx, total);
+    if (macro_state.recording)
+        strncat(display, " [REC]", sizeof(display) - strlen(display) - 1);
+    else if (macro_state.playing)
+        strncat(display, " [PLAY]", sizeof(display) - strlen(display) - 1);
     int center_position = (COLS - (int)strlen(display)) / 2;
     if (center_position < 0) center_position = 0;
     mvprintw(1, center_position, "%s", display);
