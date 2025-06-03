@@ -1,3 +1,8 @@
+/*
+ * Simple pop-up dialog helpers for the editor. These routines
+ * create centered ncurses windows and gather short text input
+ * from the user.
+ */
 #include "dialog.h"
 #include "ui_common.h"
 #include "syntax.h"
@@ -6,6 +11,15 @@
 #include <string.h>
 #include <ctype.h>
 
+/*
+ * Create and display a centered popup dialog window.
+ *
+ *  height, width - desired size of the dialog window
+ *  title        - optional title string printed in bold
+ *
+ * The window is not automatically repositioned on terminal resize.
+ * Returns the WINDOW pointer or NULL on failure.
+ */
 WINDOW *dialog_open(int height, int width, const char *title) {
     curs_set(0);
     WINDOW *win = create_popup_window(height, width, NULL);
@@ -28,6 +42,14 @@ WINDOW *dialog_open(int height, int width, const char *title) {
     return win;
 }
 
+/*
+ * Close and destroy a dialog window created with dialog_open.
+ *
+ * win - the WINDOW to destroy; ignored if NULL.
+ *
+ * This routine does not handle resize events and simply cleans up
+ * the window, restoring the cursor.
+ */
 void dialog_close(WINDOW *win) {
     if (!win)
         return;
@@ -38,6 +60,21 @@ void dialog_close(WINDOW *win) {
     curs_set(1);
 }
 
+/*
+ * Prompt the user for a single line of text inside the dialog window.
+ *
+ *  win  - dialog window returned by dialog_open
+ *  y,x  - coordinates inside the window where input begins
+ *  buf  - buffer receiving the entered text (may contain initial value)
+ *  len  - size of buf
+ *
+ * If the terminal is resized while active, the window is re-centered and
+ * redrawn so the prompt remains visible.  Backspace edits the buffer and
+ * Escape cancels the prompt.
+ *
+ * Returns 1 when the user confirms with Enter and 0 if cancelled or on
+ * invalid arguments.
+ */
 int dialog_prompt(WINDOW *win, int y, int x, char *buf, size_t len) {
     if (!win || !buf || len == 0)
         return 0;
