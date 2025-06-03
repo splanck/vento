@@ -30,6 +30,7 @@
 #include "search.h"
 #include "file_manager.h"
 #include "editor_state.h"
+#include "macro.h"
 
 __attribute__((weak)) void copy_selection_keyboard(FileState *fs) {
     (void)fs;
@@ -62,6 +63,7 @@ char search_text[256] = "";
 
 volatile sig_atomic_t resize_pending = 0;
 static EditorContext *input_ctx = NULL;
+Macro macro_state;
 
 void clamp_scroll_x(FileState *fs) {
     int offset = get_line_number_offset(fs);
@@ -472,6 +474,11 @@ void run_editor(EditorContext *ctx) {
 
         if (rc == ERR) {
             continue; // Handle any errors or no input case
+        }
+
+        if (macro_state.recording &&
+            ch != KEY_CTRL_BACKTICK && ch != KEY_CTRL_Q) {
+            macro_record_key(&macro_state, ch);
         }
 
         if (exiting == 1) {
