@@ -1,3 +1,14 @@
+/*
+ * files.c
+ * -------
+ * FileState management and file loading helpers.
+ *
+ * FileState represents a single open document. It owns all strings in
+ * its LineBuffer and releases them in free_file_state(). Large files are
+ * read lazily: a FILE handle is opened on demand, additional lines are
+ * loaded with load_next_lines(), and the handle is closed once the end is
+ * reached.
+ */
 #include <stdlib.h>
 #include <string.h>
 #include "files.h"
@@ -13,6 +24,19 @@
 #endif
 #include <stddef.h>
 char *realpath(const char *path, char *resolved_path);
+/**
+ * canonicalize_path - resolve PATH to an absolute form.
+ * @path: input file path, may be NULL or empty.
+ * @out: buffer receiving the canonical path.
+ * @out_size: size of OUT in bytes.
+ *
+ * If realpath succeeds the resolved path is copied to OUT, otherwise the
+ * original path or an empty string is used. The output is always null
+ * terminated.
+ *
+ * Returns: none.
+ * Side effects: writes to OUT only.
+ */
 
 void canonicalize_path(const char *path, char *out, size_t out_size) {
     char resolved[PATH_MAX];
@@ -25,8 +49,20 @@ void canonicalize_path(const char *path, char *out, size_t out_size) {
     }
     out[out_size - 1] = '\0';
 }
+/**
+ * initialize_file_state - allocate and setup a new FileState.
+ * @filename: path to load, may be NULL for an empty buffer.
+ * @max_lines: initial line capacity.
+ * @max_cols: initial column capacity for each line.
+ *
+ * Allocates all memory for the text buffer and creates an ncurses window.
+ * The FileState takes ownership of the allocated lines which are freed
+ * by free_file_state(). The file is not opened here; fp is set to NULL.
+ *
+ * Returns: a pointer to the new FileState or NULL on allocation failure.
+ * Side effects: allocates memory and creates an ncurses window.
+ */
 
-// Function to initialize a new FileState for a given filename
 FileState *initialize_file_state(const char *filename, int max_lines, int max_cols) {
     FileState *file_state = malloc(sizeof(FileState));
     if (!file_state) {
@@ -94,8 +130,18 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
 
     return file_state;
 }
+/**
+ * free_file_state - release all resources owned by a FileState.
+ * @file_state: FileState to destroy.
+ *
+ * All line strings in the buffer are freed and the ncurses window is
+ * destroyed. Any open FILE handle is closed and undo/redo stacks are
+ * disposed of.
+ *
+ * Returns: none.
+ * Side effects: deallocates memory and closes the associated FILE.
+ */
 
-// Function to free allocated resources in FileState
 void free_file_state(FileState *file_state) {
     lb_free(&file_state->buffer);
     if (file_state->fp) {
@@ -115,6 +161,17 @@ void free_file_state(FileState *file_state) {
     delwin(file_state->text_win);
     free(file_state);
 }
+/**
+ * ensure_line_capacity - expand the buffer to hold at least MIN_NEEDED lines.
+ * @fs: file whose buffer will grow.
+ * @min_needed: minimum number of lines required.
+ *
+ * Allocates additional line slots and associated memory when necessary.
+ * Newly created lines are zero-initialised and owned by @fs.
+ *
+ * Returns: 0 on success or -1 on allocation failure.
+ * Side effects: reallocates fs->buffer.lines and may allocate new line strings.
+ */
 
 int ensure_line_capacity(FileState *fs, int min_needed) {
     if (min_needed < fs->buffer.capacity)
@@ -142,6 +199,17 @@ int ensure_line_capacity(FileState *fs, int min_needed) {
     fs->buffer.capacity = new_max;
     return 0;
 }
+/**
+ * ensure_col_capacity - grow lines to hold at least COLS characters.
+ * @fs: file whose lines may be reallocated.
+ * @cols: desired minimum column capacity.
+ *
+ * Each line buffer is resized using realloc. On failure previously
+ * resized lines are restored.
+ *
+ * Returns: 0 on success or -1 on allocation failure.
+ * Side effects: reallocates memory for each line in the buffer.
+ */
 
 int ensure_col_capacity(FileState *fs, int cols) {
     if (cols <= fs->line_capacity)
@@ -225,6 +293,17 @@ int load_next_lines(FileState *fs, int count) {
     }
     return loaded;
 }
+/**
+ * ensure_line_loaded - guarantee that line IDX is available in memory.
+ * @fs: FileState to load from.
+ * @idx: 0-based index of the requested line.
+ *
+ * Opens the file on demand and reads additional lines as needed using
+ * load_next_lines().
+ *
+ * Returns: none.
+ * Side effects: may open fs->fp, read from disk and update file_pos.
+ */
 
 void ensure_line_loaded(FileState *fs, int idx) {
     if (idx < fs->buffer.count)
@@ -239,6 +318,16 @@ void ensure_line_loaded(FileState *fs, int idx) {
     }
     load_next_lines(fs, to_load);
 }
+/**
+ * load_all_remaining_lines - read the rest of the file into memory.
+ * @fs: FileState whose file should be fully loaded.
+ *
+ * Repeatedly calls load_next_lines() until the end of the file is reached.
+ * The file handle is closed when reading completes.
+ *
+ * Returns: none.
+ * Side effects: reads from disk and may close fs->fp.
+ */
 
 void load_all_remaining_lines(FileState *fs) {
     while (!fs->file_complete && fs->fp) {
@@ -246,7 +335,16 @@ void load_all_remaining_lines(FileState *fs) {
     }
 }
 
-// Function to load entire file content (used in tests)
+/**
+ * load_file_into_buffer - read an entire file into the buffer.
+ * @file_state: FileState whose filename is used.
+ *
+ * Opens the file, loads all lines and resets syntax state. The file
+ * handle is closed when finished and file_complete is set accordingly.
+ *
+ * Returns: 0 on success or -1 on failure to open or read the file.
+ * Side effects: replaces existing buffer contents and modifies fp.
+ */
 int load_file_into_buffer(FileState *file_state) {
     file_state->fp = fopen(file_state->filename, "r");
     if (!file_state->fp)
