@@ -360,11 +360,19 @@ int load_file_into_buffer(FileState *file_state) {
     file_state->file_complete = false;
     file_state->buffer.count = 0;
     int res = load_next_lines(file_state, INT_MAX);
+    if (res < 0) {
+        if (file_state->fp) {
+            fclose(file_state->fp);
+            file_state->fp = NULL;
+        }
+        file_state->file_complete = false;
+        return -1;
+    }
     file_state->last_scanned_line = 0;
     file_state->last_comment_state = false;
     file_state->in_multiline_comment = false;
     file_state->in_multiline_string = false;
     file_state->string_delim = '\0';
     file_state->nested_mode = 0;
-    return (res >= 0) ? 0 : -1;
+    return 0;
 }
