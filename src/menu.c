@@ -172,6 +172,18 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                        menus[*currentMenu].items[*currentItem].separator)
                     (*currentItem)++; // Skip separators
                 break;
+            case KEY_RESIZE:
+                resizeterm(0, 0);
+                drawMenuBar(menus, menuCount);
+                wnoutrefresh(stdscr);
+                doupdate();
+                if (!drawMenu(&menus[*currentMenu], *currentItem,
+                               menuPositions[*currentMenu], 1)) {
+                    inMenu = false;
+                }
+                wnoutrefresh(stdscr);
+                doupdate();
+                break;
             case KEY_MOUSE: {
                 if (!enable_mouse)
                     break;
