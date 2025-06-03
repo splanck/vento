@@ -7,12 +7,25 @@
 #include "editor_state.h"
 #include "line_buffer.h"
 
+/*
+ * Undo/Redo Data Structures
+ * -------------------------
+ * The editor maintains two singly linked stacks per file: one for undo and one
+ * for redo.  Each stack node stores a `Change` describing how a single line was
+ * modified.  A `Change` contains dynamically allocated strings for the text
+ * before and after the modification.  When a node is pushed onto a stack it
+ * assumes ownership of those strings and releases them when popped or when the
+ * stack is destroyed.  The head pointers of these stacks may be NULL when no
+ * history exists.
+ */
+
 /**
  * Insert a new change at the top of a stack.
  *
- * The stack parameter points to either a FileState undo or redo list. This
+ * The stack parameter points to either a FileState undo or redo list.  The
  * function allocates a new Node, stores the Change and makes it the new head.
- * Ownership of any text in the Change is transferred to the created node.
+ * Only the pointers inside the Change are stored; the Node becomes responsible
+ * for freeing that text when removed.
  */
 void push(Node **stack, Change change) {
     Node *new_node = (Node *)malloc(sizeof(Node));
@@ -28,8 +41,9 @@ void push(Node **stack, Change change) {
 /**
  * Remove and return the most recent change from a stack.
  *
- * If the stack is empty an empty Change with NULL pointers is returned. The
- * caller becomes responsible for freeing the returned Change's text fields.
+ * If the stack is empty an empty Change with NULL pointers is returned.  The
+ * caller becomes the owner of any text in the returned Change and must free it
+ * after applying the change.
  */
 Change pop(Node **stack) {
     if (*stack == NULL) {
@@ -43,7 +57,12 @@ Change pop(Node **stack) {
     return change;
 }
 
-/** Check whether a stack has no elements. */
+/**
+ * Check whether a stack has no elements.
+ *
+ * It is safe for the head pointer of either stack to be NULL, which this
+ * function interprets as empty history.
+ */
 int is_empty(Node *stack) {
     return stack == NULL;
 }
@@ -51,9 +70,11 @@ int is_empty(Node *stack) {
 /**
  * Undo the most recent action on `fs`.
  *
- * The change popped from `fs->undo_stack` is reversed in the file buffer and a
- * corresponding entry is pushed onto `fs->redo_stack`. If the undo stack is
- * empty the function returns immediately.
+ * A change is popped from `fs->undo_stack` and applied in reverse to
+ * `fs->buffer`.  The inverse of that change is pushed onto `fs->redo_stack` so
+ * it can be redone later.  If there is no undo history the function simply
+ * returns.  A screen redraw is triggered and `fs->modified` is set whenever a
+ * change is undone.
  */
 void undo(FileState *fs) {
     if (fs->undo_stack == NULL)
@@ -100,9 +121,10 @@ void undo(FileState *fs) {
 /**
  * Redo the last undone action on `fs`.
  *
- * The change popped from `fs->redo_stack` is applied to the file buffer and a
- * corresponding entry is pushed back onto `fs->undo_stack`. If the redo stack
- * is empty the function simply returns.
+ * A change is popped from `fs->redo_stack` and re-applied to `fs->buffer`.  The
+ * inverse operation is then pushed back onto `fs->undo_stack`.  If there is no
+ * redo history the function returns immediately.  As with undo, the text window
+ * is redrawn and the file marked modified whenever a redo occurs.
  */
 void redo(FileState *fs) {
     if (fs->redo_stack == NULL)
@@ -146,6 +168,8 @@ void redo(FileState *fs) {
  * Free an entire change stack.
  *
  * All nodes are removed and any text stored within them is released.
+ * This should be called when a FileState is destroyed to avoid leaking
+ * memory associated with undo and redo history.
  */
 void free_stack(Node *stack) {
     while (stack) {
