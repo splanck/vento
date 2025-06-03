@@ -1,3 +1,13 @@
+/*
+ * Clipboard operations and selection mode management
+ * --------------------------------------------------
+ * When a user begins selecting text, start_selection_mode records the starting
+ * coordinates in the active FileState. Cursor movements while in selection mode
+ * update the end coordinates but do not modify any buffers. Once the selection
+ * ends, the selected text can be copied or cut into the shared
+ * `global_clipboard` array. This buffer is used across files and paste actions
+ * simply insert its contents at the current cursor location.
+ */
 #include <string.h>
 #include <ncurses.h>
 #include <stdlib.h>
@@ -11,6 +21,15 @@ char global_clipboard[CLIPBOARD_SIZE];
 
 /* Selection state is stored in FileState */
 
+/*
+ * Begin text selection.
+ *
+ * fs       - file state to update
+ * cursor_x - starting column (1-based)
+ * cursor_y - starting row (1-based)
+ *
+ * Enables selection_mode and records start/end coordinates.
+ */
 void start_selection_mode(FileState *fs, int cursor_x, int cursor_y) {
     fs->selection_mode = true;
     fs->sel_start_x = cursor_x;
@@ -19,11 +38,25 @@ void start_selection_mode(FileState *fs, int cursor_x, int cursor_y) {
     fs->sel_end_y = cursor_y;
 }
 
+/*
+ * Finish selection mode and copy the marked text.
+ *
+ * fs - file state containing selection coordinates
+ *
+ * Disables selection_mode and stores the selection in global_clipboard.
+ */
 void end_selection_mode(FileState *fs) {
     fs->selection_mode = false;
     copy_selection(fs);
 }
 
+/*
+ * Copy the currently highlighted region into global_clipboard.
+ *
+ * fs - file state providing selection coordinates and buffer data
+ *
+ * Overwrites global_clipboard with the selected text.
+ */
 void copy_selection(FileState *fs) {
     int start_x = fs->sel_start_x;
     int end_x = fs->sel_end_x;
@@ -67,6 +100,15 @@ void copy_selection(FileState *fs) {
     }
 }
 
+/*
+ * Insert the contents of global_clipboard at the cursor position.
+ *
+ * fs        - file receiving the text
+ * cursor_x  - column position, updated after paste
+ * cursor_y  - row position, updated after paste
+ *
+ * Modifies the file buffer, moves the cursor and marks the file modified.
+ */
 void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
     char tmp[CLIPBOARD_SIZE];
     strncpy(tmp, global_clipboard, sizeof(tmp) - 1);
@@ -112,6 +154,16 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
     fs->modified = true;
 }
 
+/*
+ * Update the selection based on navigation keys while selection_mode is active.
+ *
+ * fs        - active file
+ * ch        - key pressed
+ * cursor_x  - current column, modified by the function
+ * cursor_y  - current row, modified by the function
+ *
+ * Arrow keys extend the selection and Enter finalizes it.
+ */
 void handle_selection_mode(FileState *fs, int ch, int *cursor_x, int *cursor_y) {
     if (ch == KEY_UP) {
         if (*cursor_y > 1) (*cursor_y)--;
@@ -135,12 +187,27 @@ void handle_selection_mode(FileState *fs, int ch, int *cursor_x, int *cursor_y) 
     }
 }
 
+/*
+ * Copy the active selection via keyboard shortcut.
+ *
+ * fs - file from which to copy
+ *
+ * Simply calls copy_selection when selection_mode is enabled.
+ */
 void copy_selection_keyboard(FileState *fs) {
     if (!fs->selection_mode)
         return;
     copy_selection(fs);
 }
 
+/*
+ * Cut the selected text from the buffer and copy it to global_clipboard.
+ *
+ * fs - file containing the selection
+ *
+ * Deletes the selection from the buffer, positions the cursor at the start
+ * of the removed region and disables selection_mode.
+ */
 void cut_selection(FileState *fs) {
     if (!fs->selection_mode)
         return;
