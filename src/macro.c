@@ -47,6 +47,7 @@ Macro *macro_create(const char *name) {
         free(m);
         return NULL;
     }
+    m->play_key = 0;
     m->active = false;
     macro_list.items[macro_list.count++] = m;
     if (!current_macro) {

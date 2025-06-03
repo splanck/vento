@@ -13,6 +13,7 @@ typedef struct Macro {
     char *name;
     wint_t keys[MACRO_MAX_KEYS];
     int length;
+    int play_key;
     bool recording;
     bool active;
 } Macro;

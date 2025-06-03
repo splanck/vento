@@ -543,10 +543,22 @@ void run_editor(EditorContext *ctx) {
             }
         } else if (ch == (wint_t)key_macro_record) {
             handle_macro_record_wrapper(ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
-        } else if (ch == (wint_t)key_macro_play) {
-            handle_macro_play_wrapper(ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
         } else {
-            handle_regular_mode(ctx, ctx->active_file, ch);
+            Macro *play = NULL;
+            for (int i = 0; i < macro_count(); ++i) {
+                Macro *m = macro_at(i);
+                if (m && m->play_key && m->play_key == (int)ch) {
+                    play = m;
+                    break;
+                }
+            }
+            if (play) {
+                macro_play(play, ctx, ctx->active_file);
+            } else if (ch == (wint_t)key_macro_play) {
+                handle_macro_play_wrapper(ctx->active_file, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
+            } else {
+                handle_regular_mode(ctx, ctx->active_file, ch);
+            }
         }
 
         if (exiting == 1)
