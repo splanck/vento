@@ -462,11 +462,14 @@ void macros_load(AppConfig *cfg) {
         if (!name || !len_s)
             continue;
         long parsed = strtol(len_s, NULL, 10);
-        int len = (int)parsed;
-        if (len < 0)
+        int len;
+        if (parsed < 0) {
             len = 0;
-        if (len > MACRO_MAX_KEYS)
-            len = MACRO_MAX_KEYS;
+        } else {
+            len = (int)parsed;
+            if (len > MACRO_MAX_KEYS)
+                len = MACRO_MAX_KEYS;
+        }
         Macro *m = macro_get(name);
         if (!m)
             m = macro_create(name);
