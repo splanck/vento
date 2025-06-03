@@ -1,3 +1,12 @@
+/*
+ * HTML syntax highlighting routines.
+ *
+ * Lines are scanned character by character to colorize tags, attributes and
+ * comments. When <script> or <style> tags are encountered, the highlighter
+ * enters a nested mode by setting FileState->nested_mode so that subsequent
+ * lines are delegated to the JavaScript or CSS highlighter until the
+ * matching closing tag is processed.
+ */
 #include <ncurses.h>
 #include <string.h>
 #include <ctype.h>
@@ -7,12 +16,28 @@
 
 enum { NESTED_NONE = 0, NESTED_JS = 1, NESTED_CSS = 2 };
 
+/*
+ * Print a single character with the given attributes at position (*x, y).
+ * The column index pointed to by x is incremented after printing.
+ * This helper does not modify FileState->nested_mode.
+ */
 void print_char_with_attr(WINDOW *win, int y, int *x, char c, int attr) {
     wattron(win, attr);
     mvwprintw(win, y, (*x)++, "%c", c);
     wattroff(win, attr);
 }
 
+/*
+ * Highlight an HTML comment starting at index *i.
+ *
+ * win  - window used for output.
+ * line - current line of text.
+ * i    - pointer to the position in line, updated past the closing -->.
+ * y    - screen row.
+ * x    - pointer to column index updated as characters are printed.
+ *
+ * Does not modify FileState->nested_mode.
+ */
 void handle_html_comment(WINDOW *win, const char *line, int *i, int y, int *x) {
     int len = strlen(line);
     print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(SYNTAX_TYPE) | A_BOLD);
@@ -25,6 +50,19 @@ void handle_html_comment(WINDOW *win, const char *line, int *i, int y, int *x) {
         (*i) += 2;
     }
 }
+
+/*
+ * Highlight an HTML tag and its attributes.
+ *
+ * win  - window used for output.
+ * line - current line being processed.
+ * i    - pointer to the index of the <, updated past the matching >.
+ * y    - screen row.
+ * x    - pointer to column index updated as characters are printed.
+ *
+ * This function does not alter FileState->nested_mode; the caller
+ * decides whether entering or leaving a tag changes nesting.
+ */
 
 void handle_html_tag(WINDOW *win, const char *line, int *i, int y, int *x) {
     int len = strlen(line);
@@ -54,6 +92,18 @@ void handle_html_tag(WINDOW *win, const char *line, int *i, int y, int *x) {
         print_char_with_attr(win, y, x, line[(*i)++], COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
     }
 }
+
+/*
+ * Apply HTML highlighting to a single line.
+ *
+ * fs   - FileState containing nested_mode used for nested <script> and <style> blocks.
+ * win  - window to render into.
+ * line - text of the line.
+ * y    - screen row for output.
+ *
+ * Sets fs->nested_mode to NESTED_JS or NESTED_CSS when opening tags are
+ * encountered and resets it back to NESTED_NONE on their closing tags.
+ */
 
 void highlight_html_syntax(FileState *fs, WINDOW *win, const char *line, int y) {
     if (!win || !line) return;
