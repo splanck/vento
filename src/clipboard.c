@@ -11,10 +11,12 @@
 #include <string.h>
 #include <ncurses.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "editor.h"
 #include "clipboard.h"
 #include "files.h"
 #include "syntax.h"
+#include "undo.h"
 
 /* Global clipboard buffer shared by all files */
 char global_clipboard[CLIPBOARD_SIZE];
@@ -115,10 +117,19 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
     tmp[sizeof(tmp) - 1] = '\0';
 
     char *line = strtok(tmp, "\n");
+    bool first = true;
     while (line) {
         size_t len = strlen(line);
         char *dest = fs->buffer.lines[*cursor_y - 1 + fs->start_line];
         size_t dest_len = strlen(dest);
+        char *old_text = NULL;
+        int line_idx = *cursor_y - 1 + fs->start_line;
+
+        if (first) {
+            old_text = strdup(dest);
+            if (!old_text)
+                allocation_failed("strdup failed");
+        }
 
         if (dest_len + len >= (size_t)fs->line_capacity) {
             if (dest_len >= (size_t)(fs->line_capacity - 1)) {
@@ -134,6 +145,19 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
         memcpy(&dest[*cursor_x - 1], line, len);
         *cursor_x += len;
 
+        char *new_text = strdup(dest);
+        if (!new_text) {
+            free(old_text);
+            allocation_failed("strdup failed");
+        }
+
+        if (first) {
+            push(&fs->undo_stack, (Change){ line_idx, old_text, new_text });
+        } else {
+            push(&fs->undo_stack, (Change){ line_idx, NULL, new_text });
+            free(old_text); /* NULL or unused */
+        }
+
         line = strtok(NULL, "\n");
         if (line) {
             /* Move to the next line and create it in the buffer */
@@ -147,6 +171,7 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
                 allocation_failed("realloc failed");
             fs->buffer.lines[*cursor_y - 1 + fs->start_line] = p;
         }
+        first = false;
     }
 
     fs->cursor_x = *cursor_x;
