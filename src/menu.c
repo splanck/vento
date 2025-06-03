@@ -343,16 +343,19 @@ void menuPrevFile(EditorContext *ctx) {
 
 static void menuMacroStart(EditorContext *ctx) {
     (void)ctx;
-    macro_start(&macro_state);
+    if (current_macro)
+        macro_start(current_macro);
 }
 
 static void menuMacroStop(EditorContext *ctx) {
     (void)ctx;
-    macro_stop(&macro_state);
+    if (current_macro)
+        macro_stop(current_macro);
 }
 
 static void menuMacroPlay(EditorContext *ctx) {
-    macro_play(&macro_state, ctx, ctx->active_file);
+    if (current_macro)
+        macro_play(current_macro, ctx, ctx->active_file);
 }
 
 static void menuManageMacros(EditorContext *ctx) {

@@ -21,16 +21,29 @@ static char *test_simple_record_play() {
     EditorContext ctx = {0};
     sync_editor_context(&ctx);
 
-    Macro m = {0};
-    macro_start(&m);
-    macro_record_key(&m, L'a');
-    macro_record_key(&m, L'b');
-    macro_record_key(&m, L'c');
-    macro_stop(&m);
+    Macro *m1 = macro_create("one");
+    mu_assert("m1", m1 != NULL);
+    macro_start(m1);
+    macro_record_key(m1, L'a');
+    macro_record_key(m1, L'b');
+    macro_record_key(m1, L'c');
+    macro_stop(m1);
 
-    macro_play(&m, &ctx, fs);
+    Macro *m2 = macro_create("two");
+    mu_assert("m2", m2 != NULL);
+    macro_start(m2);
+    macro_record_key(m2, L'1');
+    macro_record_key(m2, L'2');
+    macro_record_key(m2, L'3');
+    macro_stop(m2);
 
-    mu_assert("buffer contains abc", strcmp(lb_get(&fs->buffer, 0), "abc") == 0);
+    macro_play(m1, &ctx, fs);
+    macro_play(m2, &ctx, fs);
+
+    mu_assert("buffer contains abc123", strcmp(lb_get(&fs->buffer, 0), "abc123") == 0);
+
+    macro_delete("one");
+    macro_delete("two");
 
     free_file_state(fs);
     endwin();
