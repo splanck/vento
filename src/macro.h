@@ -14,9 +14,11 @@ typedef struct Macro {
     wint_t keys[MACRO_MAX_KEYS];
     int length;
     bool recording;
+    bool active;
 } Macro;
 
 Macro *macro_create(const char *name);
+void macro_set_current(Macro *m);
 Macro *macro_get(const char *name);
 void macro_delete(const char *name);
 void macro_start(Macro *macro);

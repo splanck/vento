@@ -449,6 +449,7 @@ void macros_load(AppConfig *cfg) {
     if (!f)
         return;
     char line[4096];
+    Macro *loaded_active = NULL;
     while (fgets(line, sizeof(line), f)) {
         char *p = line;
         while (isspace((unsigned char)*p)) p++;
@@ -472,9 +473,16 @@ void macros_load(AppConfig *cfg) {
                 break;
             m->keys[m->length++] = (wint_t)strtoul(tok, NULL, 10);
         }
+        char *active_s = strtok(NULL, " \t");
         m->recording = false;
+        m->active = false;
+        if (active_s && atoi(active_s)) {
+            loaded_active = m;
+        }
     }
     fclose(f);
+    if (loaded_active)
+        macro_set_current(loaded_active);
 }
 
 /*
@@ -505,7 +513,7 @@ void macros_save(const AppConfig *cfg) {
         fprintf(f, "%s %d", m->name, m->length);
         for (int j = 0; j < m->length; ++j)
             fprintf(f, " %u", (unsigned int)m->keys[j]);
-        fputc('\n', f);
+        fprintf(f, " %d\n", m->active ? 1 : 0);
     }
     fclose(f);
 }

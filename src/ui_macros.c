@@ -65,7 +65,7 @@ void show_manage_macros(EditorContext *ctx) {
             if (idx == highlight)
                 wattron(win, A_REVERSE);
             mvwprintw(win, i + 2, 2, "%s%s", m->name,
-                      (m == current_macro) ? " *" : "");
+                      m->active ? " *" : "");
             if (idx == highlight)
                 wattroff(win, A_REVERSE);
         }
@@ -98,7 +98,7 @@ void show_manage_macros(EditorContext *ctx) {
                 ++highlight;
         } else if (ch == '\n') {
             if (highlight >= 0 && highlight < count)
-                current_macro = macro_at(highlight);
+                macro_set_current(macro_at(highlight));
             macros_save(&app_config);
             break;
         } else if (ch == 'n' || ch == 'N') {

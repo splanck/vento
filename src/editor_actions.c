@@ -309,6 +309,11 @@ void update_status_bar(EditorContext *ctx, FileState *fs) {
         strncat(display, " [REC]", sizeof(display) - strlen(display) - 1);
     else if (macro_state.playing)
         strncat(display, " [PLAY]", sizeof(display) - strlen(display) - 1);
+    if (current_macro && current_macro->name) {
+        strncat(display, " {", sizeof(display) - strlen(display) - 1);
+        strncat(display, current_macro->name, sizeof(display) - strlen(display) - 1);
+        strncat(display, "}", sizeof(display) - strlen(display) - 1);
+    }
     int center_position = (COLS - (int)strlen(display)) / 2;
     if (center_position < 0) center_position = 0;
     mvprintw(1, center_position, "%s", display);

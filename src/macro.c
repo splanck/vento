@@ -47,9 +47,12 @@ Macro *macro_create(const char *name) {
         free(m);
         return NULL;
     }
+    m->active = false;
     macro_list.items[macro_list.count++] = m;
-    if (!current_macro)
+    if (!current_macro) {
         current_macro = m;
+        m->active = true;
+    }
     return m;
 }
 
@@ -67,6 +70,18 @@ Macro *macro_get(const char *name) {
 }
 
 /*
+ * Set the provided macro as the current active macro.
+ * Clears the active flag on all other macros.
+ */
+void macro_set_current(Macro *m) {
+    if (!m)
+        return;
+    current_macro = m;
+    for (int i = 0; i < macro_list.count; ++i)
+        macro_list.items[i]->active = (macro_list.items[i] == m);
+}
+
+/*
  * Remove the macro with the specified name from the list and free it.
  * Updates current_macro if the deleted macro was active.
  */
@@ -81,8 +96,13 @@ void macro_delete(const char *name) {
             for (int j = i; j < macro_list.count - 1; ++j)
                 macro_list.items[j] = macro_list.items[j + 1];
             macro_list.count--;
-            if (current_macro == m)
-                current_macro = macro_list.count ? macro_list.items[0] : NULL;
+            if (current_macro == m) {
+                Macro *newm = macro_list.count ? macro_list.items[0] : NULL;
+                if (newm)
+                    macro_set_current(newm);
+                else
+                    current_macro = NULL;
+            }
             return;
         }
     }
