@@ -1,3 +1,9 @@
+/*
+ * Informational dialogs
+ * ---------------------
+ * Implements the help screen, about dialog and startup warning
+ * shown by the editor at various times.
+ */
 #include "editor.h"
 #include "config.h"
 #include "editor_state.h"
@@ -8,6 +14,13 @@
 #include <ncurses.h>
 #include <string.h>
 
+/*
+ * Display a scrolling list of key bindings.
+ *
+ * Called when the user presses Ctrl-H or F1.
+ * The help text is shown in a temporary scrollable window
+ * and control returns once the user exits the window.
+ */
 void show_help(EditorContext *ctx) {
     curs_set(0);
     wbkgd(stdscr, ctx->enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
@@ -69,6 +82,12 @@ void show_help(EditorContext *ctx) {
     curs_set(1);
 }
 
+/*
+ * Display an about dialog containing version and licensing
+ * information.
+ *
+ * Invoked via Ctrl-A or from the application menu.
+ */
 void show_about(EditorContext *ctx) {
     char version_line[64];
     snprintf(version_line, sizeof(version_line), "Version: %s", VERSION);
@@ -120,6 +139,13 @@ void show_about(EditorContext *ctx) {
     dialog_close(about_win);
 }
 
+/*
+ * Show a warning about the experimental state of the editor
+ * when the program starts.
+ *
+ * This dialog pauses until the user presses a key and then
+ * redraws the main text window.
+ */
 void show_warning_dialog(EditorContext *ctx) {
     int win_height = 7;
     int win_width = COLS - 20;
