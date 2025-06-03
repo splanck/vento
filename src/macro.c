@@ -1,3 +1,9 @@
+/*
+ * Macros are stored in a dynamically growing list (macro_list).
+ * The editor tracks the active macro through the global current_macro pointer.
+ * Each macro records key codes which can later be replayed.
+ * These routines manage creation, recording and playback of those macros.
+ */
 #include "macro.h"
 #include <stdlib.h>
 #include <string.h>
@@ -24,6 +30,10 @@ static int ensure_capacity(void) {
     return 0;
 }
 
+/*
+ * Create a new macro with the given name and add it to the global list.
+ * If this is the first macro created it becomes the current_macro.
+ */
 Macro *macro_create(const char *name) {
     if (!name)
         return NULL;
@@ -43,6 +53,9 @@ Macro *macro_create(const char *name) {
     return m;
 }
 
+/*
+ * Find a macro by name.  Passing NULL returns the current_macro.
+ */
 Macro *macro_get(const char *name) {
     if (!name)
         return current_macro;
@@ -53,6 +66,10 @@ Macro *macro_get(const char *name) {
     return NULL;
 }
 
+/*
+ * Remove the macro with the specified name from the list and free it.
+ * Updates current_macro if the deleted macro was active.
+ */
 void macro_delete(const char *name) {
     if (!name)
         return;
@@ -71,6 +88,7 @@ void macro_delete(const char *name) {
     }
 }
 
+/* Begin recording into the given macro, resetting its contents. */
 void macro_start(Macro *macro) {
     if (!macro)
         return;
@@ -79,6 +97,7 @@ void macro_start(Macro *macro) {
     macro_state.recording = true;
 }
 
+/* Stop recording the given macro. */
 void macro_stop(Macro *macro) {
     if (!macro)
         return;
@@ -86,6 +105,7 @@ void macro_stop(Macro *macro) {
     macro_state.recording = false;
 }
 
+/* Store a key press in a macro while recording. */
 void macro_record_key(Macro *macro, wint_t ch) {
     if (!macro || !macro->recording)
         return;
@@ -94,6 +114,10 @@ void macro_record_key(Macro *macro, wint_t ch) {
     macro->keys[macro->length++] = ch;
 }
 
+/*
+ * Replay all recorded keys in the macro.  The editor context and
+ * file state are used so playback mimics user input.
+ */
 void macro_play(Macro *macro, EditorContext *ctx, FileState *fs) {
     if (!macro || macro->recording)
         return;
@@ -108,10 +132,12 @@ void macro_play(Macro *macro, EditorContext *ctx, FileState *fs) {
         update_status_bar(ctx, fs);
 }
 
+/* Return the number of macros currently stored. */
 int macro_count(void) {
     return macro_list.count;
 }
 
+/* Retrieve a macro by list index for enumeration. */
 Macro *macro_at(int index) {
     if (index < 0 || index >= macro_list.count)
         return NULL;
