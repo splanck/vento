@@ -2,6 +2,7 @@
 #include "file_manager.h"
 #include "files.h"
 #include "macro.h"
+#include "config.h"
 #include "editor_state.h"
 #include <ncurses.h>
 #include <string.h>
@@ -87,10 +88,38 @@ static char *test_shrink_on_delete() {
     return 0;
 }
 
+static char *test_load_overlong_macro() {
+    macros_free_all();
+    const char *path = "test_macros.txt";
+    FILE *f = fopen(path, "w");
+    mu_assert("file open", f != NULL);
+    fprintf(f, "big %d", MACRO_MAX_KEYS * 2);
+    for (int i = 0; i < MACRO_MAX_KEYS * 2; ++i)
+        fprintf(f, " %d", i);
+    fprintf(f, " 0 0\n");
+    fclose(f);
+
+    AppConfig cfg = {0};
+    strncpy(cfg.macros_file, path, sizeof(cfg.macros_file) - 1);
+    cfg.macros_file[sizeof(cfg.macros_file) - 1] = '\0';
+    macros_load(&cfg);
+
+    Macro *m = macro_get("big");
+    mu_assert("macro loaded", m != NULL);
+    mu_assert("length capped", m->length == MACRO_MAX_KEYS);
+    mu_assert("first key", m->keys[0] == 0);
+    mu_assert("last key", m->keys[MACRO_MAX_KEYS - 1] == MACRO_MAX_KEYS - 1);
+
+    remove(path);
+    macros_free_all();
+    return 0;
+}
+
 static char *all_tests() {
     mu_run_test(test_simple_record_play);
     mu_run_test(test_create_delete_api);
     mu_run_test(test_shrink_on_delete);
+    mu_run_test(test_load_overlong_macro);
     return 0;
 }
 

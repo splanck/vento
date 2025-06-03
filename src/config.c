@@ -461,14 +461,19 @@ void macros_load(AppConfig *cfg) {
         char *len_s = strtok(NULL, " \t");
         if (!name || !len_s)
             continue;
-        int len = atoi(len_s);
+        long parsed = strtol(len_s, NULL, 10);
+        int len = (int)parsed;
+        if (len < 0)
+            len = 0;
+        if (len > MACRO_MAX_KEYS)
+            len = MACRO_MAX_KEYS;
         Macro *m = macro_get(name);
         if (!m)
             m = macro_create(name);
         if (!m)
             continue;
         m->length = 0;
-        for (int i = 0; i < len; ++i) {
+        for (int i = 0; i < len && m->length < MACRO_MAX_KEYS; ++i) {
             char *tok = strtok(NULL, " \t");
             if (!tok)
                 break;
