@@ -58,6 +58,7 @@ void delete_current_line(EditorContext *ctx, FileState *fs) {
     werase(ctx->text_win);
     box(ctx->text_win, 0, 0);
     draw_text_buffer(fs, ctx->text_win);
+    wrefresh(ctx->text_win);
     mark_comment_state_dirty(fs);
 }
 
