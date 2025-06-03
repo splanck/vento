@@ -205,6 +205,7 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
     mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
 
     int highlight = 0;
+    int start = 0;
     int ch;
     int done = 0;
 
@@ -227,9 +228,16 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
         int max_display = win_height - 3;
         if (max_display > FIELD_COUNT)
             max_display = FIELD_COUNT;
-        for (int i = 0; i < max_display; ++i) {
-            const Option *opt = &options[i];
-            if (i == highlight)
+
+        if (highlight < start)
+            start = highlight;
+        if (highlight >= start + max_display)
+            start = highlight - max_display + 1;
+
+        for (int i = 0; i < max_display && i + start < FIELD_COUNT; ++i) {
+            int idx = i + start;
+            const Option *opt = &options[idx];
+            if (idx == highlight)
                 wattron(win, A_REVERSE);
 
             const char *val;
@@ -241,9 +249,12 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
             }
             mvwprintw(win, i + 1, 2, "%s: %s", opt->label, val);
 
-            if (i == highlight)
+            if (idx == highlight)
                 wattroff(win, A_REVERSE);
         }
+
+        for (int i = FIELD_COUNT - start; i < max_display; ++i)
+            mvwprintw(win, i + 1, 2, "%*s", win_width - 4, "");
 
         mvwprintw(win, win_height - 2, 2,
                   "Arrows: move  Enter: change  ESC: done");
@@ -268,9 +279,12 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
                 getbegyx(win, wy, wx);
                 int row = ev.y - wy - 1;
                 int col = ev.x - wx - 2;
-                if (row >= 0 && row < FIELD_COUNT && row < win_height - 3 &&
+                int max_display = win_height - 3;
+                if (row >= 0 && row < max_display &&
                     col >= 0 && col < win_width - 4) {
-                    highlight = row;
+                    int idx = start + row;
+                    if (idx >= 0 && idx < FIELD_COUNT)
+                        highlight = idx;
                     if (ev.bstate & (BUTTON1_RELEASED | BUTTON1_CLICKED)) {
                         edit_option(ctx, cfg, win, &options[highlight]);
                         update_settings_window(win, &win_height, &win_width, cfg);
