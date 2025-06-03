@@ -68,18 +68,50 @@ void show_help(EditorContext *ctx) {
 }
 
 void show_about(EditorContext *ctx) {
-    (void)ctx;
-    int win_height = 10;
-    int win_width = COLS - 20;
+    char version_line[64];
+    snprintf(version_line, sizeof(version_line), "Version: %s", VERSION);
+
+    const char *lines[] = {
+        "Vento Text Editor",
+        version_line,
+        "License: GPL v3",
+        "Vento is open-source software licensed under the GPL v3."
+    };
+    const int count = (int)(sizeof(lines) / sizeof(lines[0]));
+    const char *footer = "(Press any key to close)";
+
+    int max_len = 0;
+    for (int i = 0; i < count; ++i) {
+        int len = (int)strlen(lines[i]);
+        if (len > max_len)
+            max_len = len;
+    }
+    if ((int)strlen(footer) > max_len)
+        max_len = (int)strlen(footer);
+
+    int win_width = max_len + 4;
+    if (win_width > COLS - 2)
+        win_width = COLS - 2;
+    int win_height = count + 4;
+    if (win_height > LINES - 2)
+        win_height = LINES - 2;
+
     WINDOW *about_win = dialog_open(win_height, win_width, "About");
     if (!about_win)
         return;
 
-    mvwprintw(about_win, 1, 2, "Vento Text Editor");
-    mvwprintw(about_win, 2, 2, "Version: %s", VERSION);
-    mvwprintw(about_win, 3, 2, "License: GPL v3");
-    mvwprintw(about_win, 4, 2, "Vento is open-source software licensed under the GPL v3.");
-    mvwprintw(about_win, win_height - 2, 2, "(Press any key to close)");
+    if (ctx->enable_color)
+        wattron(about_win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
+    mvwprintw(about_win, 1, (win_width - (int)strlen(lines[0])) / 2, "%s", lines[0]);
+    if (ctx->enable_color)
+        wattroff(about_win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
+
+    for (int i = 1; i < count; ++i)
+        mvwprintw(about_win, i + 1, (win_width - (int)strlen(lines[i])) / 2, "%s", lines[i]);
+
+    mvwprintw(about_win, win_height - 2,
+              (win_width - (int)strlen(footer)) / 2, "%s", footer);
+
     wrefresh(about_win);
     wgetch(about_win);
 
