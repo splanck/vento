@@ -123,7 +123,25 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
         wrefresh(win);
 
         ch = wgetch(win);
-        if (ch == KEY_UP) {
+        if (ch == KEY_RESIZE) {
+            resizeterm(0, 0);
+            win_height = LINES - 4;
+            win_width = COLS - 4;
+            if (win_width > COLS - 2)
+                win_width = COLS - 2;
+            if (win_width < 2)
+                win_width = 2;
+            wresize(win, win_height, win_width);
+            int win_y = (LINES - win_height) / 2;
+            int win_x = (COLS - win_width) / 2;
+            if (win_x < 0)
+                win_x = 0;
+            mvwin(win, win_y, win_x);
+            werase(win);
+            touchwin(win);
+            wrefresh(stdscr);
+            continue;
+        } else if (ch == KEY_UP) {
             if (highlight > 0)
                 --highlight;
         } else if (ch == KEY_DOWN) {
