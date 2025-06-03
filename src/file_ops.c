@@ -106,6 +106,12 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
         if (open_fs && strcmp(open_fs->filename, filename_canon) == 0) {
             fm_switch(&file_manager, i);
             active_file = open_fs;
+            if (previous_active && previous_active != active_file &&
+                previous_active->fp && !previous_active->file_complete) {
+                previous_active->file_pos = ftell(previous_active->fp);
+                fclose(previous_active->fp);
+                previous_active->fp = NULL;
+            }
             text_win = open_fs->text_win;
             if (ctx) {
                 ctx->file_manager = file_manager;
@@ -211,6 +217,12 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
 
     fm_switch(&file_manager, idx);
     active_file = fm_current(&file_manager);
+    if (previous_active && previous_active != active_file &&
+        previous_active->fp && !previous_active->file_complete) {
+        previous_active->file_pos = ftell(previous_active->fp);
+        fclose(previous_active->fp);
+        previous_active->fp = NULL;
+    }
 
     ctx->file_manager = file_manager;
     ctx->active_file = active_file;
