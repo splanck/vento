@@ -1,3 +1,4 @@
+/* Weak symbols holding default configuration and runtime state. */
 /*
  * Default global configuration and runtime flags
  * ----------------------------------------------
@@ -10,20 +11,16 @@
 #include "config.h"
 #include "file_manager.h"
 
-/* Whether color output is enabled. Set by config_load based on the user's
- * preferences and terminal capabilities. */
+/* Controls colored output; updated after reading configuration. */
 __attribute__((weak)) int enable_color = 1;
 
-/* Whether mouse support is enabled. Updated after reading the configuration
- * file. */
+/* Controls mouse input handling; changed by configuration. */
 __attribute__((weak)) int enable_mouse = 1;
 
-/* Display line numbers in the editor. Modified when configuration or UI
- * options change. */
+/* Toggle for displaying line numbers; modified via settings. */
 __attribute__((weak)) int show_line_numbers = 0;
 
-/* Initial line to jump to when a file is opened. Reset after the jump is
- * performed. */
+/* Line number to jump to on file open; cleared after use. */
 __attribute__((weak)) int start_line = 0;
 
 /*
@@ -31,6 +28,7 @@ __attribute__((weak)) int start_line = 0;
  * populated during config_load and may be saved back to disk. Fields provide
  * default colors, input settings and other editor options.
  */
+/* Holds current configuration; modified when config files are loaded. */
 __attribute__((weak)) AppConfig app_config = {
     .background_color = "BLACK",
     .text_color = "WHITE",
@@ -56,4 +54,5 @@ __attribute__((weak)) AppConfig app_config = {
  * Global file manager tracking all open buffers. Initialized in main() via
  * fm_init and updated as files are opened or closed.
  */
+/* Tracks open files; updated whenever files open or close. */
 __attribute__((weak)) FileManager file_manager;
