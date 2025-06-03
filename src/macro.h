@@ -30,6 +30,7 @@ void macro_play(Macro *macro, EditorContext *ctx, FileState *fs);
 int macro_count(void);
 Macro *macro_at(int index);
 void macro_rename(Macro *m, const char *new_name);
+void macros_free_all(void);
 
 typedef struct {
     bool recording;

@@ -192,3 +192,21 @@ void macro_rename(Macro *m, const char *new_name) {
     free(m->name);
     m->name = dup;
 }
+
+/*
+ * Free all macros and reset the macro list.
+ */
+void macros_free_all(void) {
+    for (int i = 0; i < macro_list.count; ++i) {
+        Macro *m = macro_list.items[i];
+        if (!m)
+            continue;
+        free(m->name);
+        free(m);
+    }
+    free(macro_list.items);
+    macro_list.items = NULL;
+    macro_list.count = 0;
+    macro_list.capacity = 0;
+    current_macro = NULL;
+}
