@@ -222,11 +222,12 @@ static void edit_option(EditorContext *ctx, AppConfig *cfg, WINDOW *win,
  * ctx - editor context used for nested dialogs.
  * cfg - configuration structure to modify.
  *
- * Returns 1 if any option was changed, 0 otherwise.
+ * Returns 1 if any option was changed and kept, 0 otherwise.
  */
 int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
     curs_set(0);
     AppConfig original = *cfg;
+    int cancelled = 0;
 
     mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
 
@@ -283,7 +284,7 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
             mvwprintw(win, i + 1, 2, "%*s", win_width - 4, "");
 
         mvwprintw(win, win_height - 2, 2,
-                  "Arrows: move  Enter: change  ESC: done");
+                  "Arrows: move  Enter: change  ESC: cancel");
         wrefresh(win);
 
         ch = wgetch(win);
@@ -318,9 +319,13 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
                 }
             }
         } else if (ch == 27) {
+            cancelled = 1;
             done = 1;
         }
     }
+
+    if (cancelled)
+        *cfg = original;
 
     apply_mouse(cfg);
 
@@ -330,7 +335,7 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
     wrefresh(stdscr);
     curs_set(1);
 
-    return memcmp(&original, cfg, sizeof(AppConfig)) != 0;
+    return !cancelled && memcmp(&original, cfg, sizeof(AppConfig)) != 0;
 }
 
 /**
