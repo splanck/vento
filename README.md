@@ -10,6 +10,8 @@ Welcome to Vento, the lightweight text editor that's all about keeping things si
 
 ![Vento Screenshot](images/ventoscreenshot4.jpg)
 
+![Vento Screenshot](images/ventoscreenshot5.jpg)
+
 ## Current Version
 
 **Version 0.1.3**  
