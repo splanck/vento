@@ -135,7 +135,14 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
     }
     keypad(win, TRUE);
 
-    getcwd(cwd, sizeof(cwd));
+    if (!getcwd(cwd, sizeof(cwd))) {
+        wclear(win);
+        wrefresh(win);
+        delwin(win);
+        curs_set(1);
+        show_message("Unable to get current directory");
+        return 0;
+    }
 
     while (1) {
         werase(win);
