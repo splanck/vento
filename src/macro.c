@@ -237,4 +237,6 @@ void macros_free_all(void) {
     macro_list.count = 0;
     macro_list.capacity = 0;
     current_macro = NULL;
+    macro_state.recording = false;
+    macro_state.playing = false;
 }
