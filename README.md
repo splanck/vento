@@ -44,6 +44,7 @@ Vento currently supports the following features:
 - **Scroll Bar**: Indicates your position within the document.
 - **Optional Line Numbers**: Toggle line numbers in the settings dialog.
 - **Adjustable Tab Width**: Choose how many spaces the Tab key inserts.
+- **Keyboard Macros**: Press `F2` to record a macro and `F4` to play it back.
 - **Help Screen**: Press `CTRL-H` for a guide to Vento's features.
 - **About Box**: Press `CTRL-A` to view product information, version, and GPL message.
  - **Menu System**: Intuitive menu navigation for editor features. Press `CTRL-T` or `F10` to open the menu.
@@ -111,7 +112,6 @@ The following features are planned for future releases:
 - **Theme Support**: Multiple built in themes for easy visual customization.
 - **Spell Checker Support**: Automatically detect and correct typos.
 - **Git Integration**: Integrate with Git for version control.
-- **Macro Support**: Configurable keyboard macros for repetitive tasks.
 - **Extensions API**: Plugin support to extend editor capabilities.
 
 ## Known Issues

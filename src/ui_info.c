@@ -14,6 +14,7 @@ void show_help(EditorContext *ctx) {
 
     const char *help_lines[] = {
         "CTRL-H or F1: Show this help",
+        "F2: Start/Stop macro recording",
         "CTRL-A: About",
         "CTRL-N: New file",
         "CTRL-L: Load a new file (browse files)",
@@ -29,6 +30,7 @@ void show_help(EditorContext *ctx) {
         "CTRL-Y: Redo",
         "CTRL-F: Search for text string",
         "F3: Find next occurrence",
+        "F4: Play last macro",
         "CTRL-R: Replace",
         "CTRL-G: Go to line",
         "CTRL-W: Move forward to next word",
