@@ -498,8 +498,8 @@ static void menuMacroPlay(EditorContext *ctx) {
  * @param ctx Editor context (unused).
  */
 static void menuManageMacros(EditorContext *ctx) {
-    (void)ctx;
-    show_message("Macro management not implemented");
+    show_manage_macros(ctx);
+    update_status_bar(menu_ctx, menu_ctx->active_file);
 }
 
 /**

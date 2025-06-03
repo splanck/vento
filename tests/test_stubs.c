@@ -5,20 +5,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-FileManager file_manager;
-FileState *active_file = NULL;
-WINDOW *text_win = NULL;
+__attribute__((weak)) FileManager file_manager;
 
 int fm_switch_fail = 0;
 int fm_add_fail = 0;
 
 
 bool __wrap_confirm_switch(void) { return true; }
-void clamp_scroll_x(FileState *fs) { (void)fs; }
-void redraw(void) {}
+void __wrap_clamp_scroll_x(FileState *fs) { (void)fs; }
+void __wrap_redraw(void) {}
 bool confirm_quit(void) { return true; }
-void allocation_failed(const char *msg) { fprintf(stderr, "alloc fail: %s\n", msg ? msg : ""); }
-void draw_text_buffer(FileState *fs, WINDOW *win) { (void)fs; (void)win; }
+void __wrap_allocation_failed(const char *msg) { fprintf(stderr, "alloc fail: %s\n", msg ? msg : ""); }
+void __wrap_draw_text_buffer(FileState *fs, WINDOW *win) { (void)fs; (void)win; }
 int last_status_count = -1;
 void __wrap_update_status_bar(EditorContext *ctx, FileState *fs) {
     last_status_count = ctx ? ctx->file_manager.count : -1;

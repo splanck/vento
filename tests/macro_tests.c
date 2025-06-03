@@ -50,8 +50,19 @@ static char *test_simple_record_play() {
     return 0;
 }
 
+static char *test_create_delete_api() {
+    int before = macro_count();
+    Macro *m = macro_create("temp");
+    mu_assert("macro created", m != NULL);
+    mu_assert("count increased", macro_count() == before + 1);
+    macro_delete("temp");
+    mu_assert("count restored", macro_count() == before);
+    return 0;
+}
+
 static char *all_tests() {
     mu_run_test(test_simple_record_play);
+    mu_run_test(test_create_delete_api);
     return 0;
 }
 
