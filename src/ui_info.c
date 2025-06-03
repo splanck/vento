@@ -56,7 +56,7 @@ void show_help(EditorContext *ctx) {
         "CTRL-PgDn: Move to end of doc",
         "F6: Next file",
         "F7: Previous file",
-        "CTRL-T: Open menus",
+        "CTRL-T/F10: Open menus",
         "Left/Right: Switch menus",
         "Up/Down: Choose item",
         "Enter/Esc: Select/close menu",
