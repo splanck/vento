@@ -3,10 +3,19 @@
 
 #include <stddef.h>
 
+/*
+ * LineBuffer
+ * ----------
+ * A lightweight dynamic array of strings used by the editor to store
+ * the contents of files. Each entry corresponds to a single line and
+ * the structure tracks how many lines are in use as well as the
+ * currently allocated capacity.
+ */
+
 typedef struct LineBuffer {
-    char **lines;
-    int count;
-    int capacity;
+    char **lines;   /* array of allocated strings */
+    int count;      /* number of valid lines stored */
+    int capacity;   /* total slots allocated in lines */
 } LineBuffer;
 
 LineBuffer *lb_create(int initial_capacity);
