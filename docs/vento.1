@@ -1,4 +1,4 @@
-.TH VENTO 1 "August 2024" "0.1.3" "Vento Manual"
+.TH VENTO 1 "June 3rd, 2025" "0.1.3" "Vento Manual"
 .SH NAME
 vento \- a simple text editor
 .SH SYNOPSIS
@@ -66,14 +66,38 @@ Open a file dialog
 .B CTRL-F
 Search for text
 .TP
+.B F3
+Jump to the next search result
+.TP
 .B CTRL-R
 Replace text
+.TP
+.B CTRL-D
+Delete the current line
+.TP
+.B CTRL-W , CTRL-B
+Move to the next or previous word
+.TP
+.B CTRL-Q
+Close the current file
 .TP
 .B CTRL-Z
 Undo the last action
 .TP
 .B CTRL-Y
 Redo the last undone action
+.TP
+.B CTRL-T , F10
+Open the menu system
+.TP
+.B CTRL-A
+Show the About dialog
+.TP
+.B F2
+Start or stop recording a macro
+.TP
+.B F4
+Play the last recorded macro
 .TP
 .B F6 , F7
 Switch between open files
@@ -97,8 +121,6 @@ Use the default theme by setting \fBtheme=default\fP in \fI~/.ventorc\fP then ru
 Spell checker support
 .IP \[bu] 2
 Git integration
-.IP \[bu] 2
-Macro support
 .IP \[bu] 2
 Extensions API
 .SH AUTHOR
