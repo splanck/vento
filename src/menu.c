@@ -1,3 +1,17 @@
+/*
+ * Menu system overview
+ * --------------------
+ * Menus are declared statically as arrays of MenuItem structures.  Each
+ * top level menu lives in the menus_static array along with the number of
+ * items it contains.  initializeMenus assigns these arrays to the global
+ * pointers used by drawing and navigation routines.
+ *
+ * drawMenuBar (see menu_draw.c) prints the menu labels at row zero and
+ * records their starting column positions in menuPositions.  drawMenu
+ * shows a drop‑down window for a specific menu.  handleMenuNavigation
+ * drives user input and executes the callback associated with the
+ * selected MenuItem.
+ */
 #include <ncurses.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -114,8 +128,16 @@ void initializeMenus(EditorContext *ctx) {
 }
 
 /**
- * Handles the navigation and interaction with menus.
- * 
+ * Handles user input while a drop-down menu is open.
+ *
+ * The function relies on menuPositions, which is populated by
+ * drawMenuBar(), to determine where each menu label begins on
+ * the top bar.  Those positions are used both for drop-down
+ * placement and for hit testing when mouse events occur.
+ * Keyboard navigation updates the currentMenu and currentItem
+ * indices, and KEY_MOUSE events compare the click coordinates
+ * against menuPositions to select or activate items.
+ *
  * @param menus The array of menus.
  * @param menuCount The number of menus in the array.
  * @param currentMenu A pointer to the index of the current menu.
@@ -299,12 +321,16 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
 }
 
 
+/* "New File" from the File menu.
+ * Creates an empty buffer and switches the context to it. */
 void menuNewFile(EditorContext *ctx) {
     new_file(ctx, ctx->active_file);
     ctx->active_file = active_file;
     ctx->text_win = text_win;
 }
 
+/* "Load File" from the File menu.
+ * Opens a file from disk and makes it the active buffer. */
 void menuLoadFile(EditorContext *ctx) {
     load_file(ctx, ctx->active_file, NULL);
     ctx->active_file = active_file;
@@ -313,14 +339,17 @@ void menuLoadFile(EditorContext *ctx) {
     update_status_bar(ctx, ctx->active_file);
 }
 
+/* "Save File" in the File menu writes the active buffer to disk. */
 void menuSaveFile(EditorContext *ctx) {
     save_file(ctx, ctx->active_file);
 }
 
+/* Invoked by the File->"Save As" item.  Prompts for a path and saves. */
 void menuSaveAs(EditorContext *ctx) {
     save_file_as(ctx, ctx->active_file);
 }
 
+/* "Close File" removes the current buffer from the editor. */
 void menuCloseFile(EditorContext *ctx) {
     int cx = ctx->active_file ? ctx->active_file->cursor_x : 0;
     int cy = ctx->active_file ? ctx->active_file->cursor_y : 0;
@@ -333,36 +362,44 @@ void menuCloseFile(EditorContext *ctx) {
     ctx->text_win = text_win;
 }
 
+/* Navigate to the next open file (Navigate->"Next File"). */
 void menuNextFile(EditorContext *ctx) {
     (void)next_file(ctx);
 }
 
+/* Navigate to the previous open file (Navigate->"Previous File"). */
 void menuPrevFile(EditorContext *ctx) {
     (void)prev_file(ctx);
 }
 
+/* Start recording a macro (Macros->"Start Recording"). */
 static void menuMacroStart(EditorContext *ctx) {
     (void)ctx;
     if (current_macro)
         macro_start(current_macro);
 }
 
+/* Stop recording the current macro (Macros->"Stop Recording"). */
 static void menuMacroStop(EditorContext *ctx) {
     (void)ctx;
     if (current_macro)
         macro_stop(current_macro);
 }
 
+/* Play back the last recorded macro (Macros->"Play Last Macro"). */
 static void menuMacroPlay(EditorContext *ctx) {
     if (current_macro)
         macro_play(current_macro, ctx, ctx->active_file);
 }
 
+/* Opens the macro management dialog (Macros->"Manage Macros..."). */
 static void menuManageMacros(EditorContext *ctx) {
     (void)ctx;
     show_message("Macro management not implemented");
 }
 
+/* Triggered by Options->"Settings".  Applies configuration changes and
+ * redraws UI elements. */
 void menuSettings(EditorContext *ctx) {
     if (show_settings_dialog(ctx, &ctx->config)) {
         config_save(&ctx->config);
@@ -380,32 +417,39 @@ void menuSettings(EditorContext *ctx) {
     }
 }
 
+/* "Quit" from the File menu asks for confirmation and exits. */
 void menuQuitEditor(EditorContext *ctx) {
     (void)ctx;
     if (confirm_quit())
         close_editor();
 }
 
+/* Edit->"Undo" reverts the last change in the active buffer. */
 void menuUndo(EditorContext *ctx) {
     undo(ctx->active_file);
 }
 
+/* Edit->"Redo" reapplies the last undone change. */
 void menuRedo(EditorContext *ctx) {
     redo(ctx->active_file);
 }
 
+/* Edit->"Find" prompts for a search string starting at the cursor. */
 void menuFind(EditorContext *ctx) {
     find(ctx, ctx->active_file, 1);
 }
 
+/* Edit->"Replace" opens the search/replace dialog. */
 void menuReplace(EditorContext *ctx) {
     replace(ctx, ctx->active_file);
 }
 
+/* Help->"About Vento" displays version and license information. */
 void menuAbout(EditorContext *ctx) {
     show_about(ctx);
 }
 
+/* Help->"Help Screen" shows the built-in help text. */
 void menuHelp(EditorContext *ctx) {
     show_help(ctx);
 }
