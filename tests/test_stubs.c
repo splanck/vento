@@ -4,11 +4,17 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+char *__real_strdup(const char *);
 
 __attribute__((weak)) FileManager file_manager;
 
 int fm_switch_fail = 0;
 int fm_add_fail = 0;
+
+int strdup_fail_on = 0;
+int strdup_call_count = 0;
 
 
 bool __wrap_confirm_switch(void) { return true; }
@@ -47,4 +53,11 @@ int __wrap_fm_add(FileManager *fm, FileState *fs) {
     fm->capacity = fm->count + 1;
     fm->count++;
     return fm->active_index;
+}
+
+char *__wrap_strdup(const char *s) {
+    strdup_call_count++;
+    if (strdup_fail_on > 0 && strdup_call_count == strdup_fail_on)
+        return NULL;
+    return __real_strdup(s);
 }
