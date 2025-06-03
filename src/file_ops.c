@@ -445,7 +445,7 @@ bool confirm_switch(void) {
     if (!any_file_modified(&file_manager))
         return true;
 
-    int ch = show_message("Unsaved changes. Switch files?");
+    int ch = show_message("Unsaved changes. Switch files? (y/n)");
     if (ch == 'y' || ch == 'Y')
         return true;
     if (ch == 'n' || ch == 'N')
