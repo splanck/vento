@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
 #include <ncurses.h>
 #include <stdio.h>
@@ -29,48 +30,57 @@
  * Memory for the array and each string is allocated. Call
  * free_dir_contents() to release it.
  */
-void get_dir_contents(const char *dir_path, char ***choices, int *n_choices) {
-    DIR *dir;
-    struct dirent *entry;
-    int count = 0;
+static int str_casecmp(const void *a, const void *b) {
+    const char *as = *(const char * const *)a;
+    const char *bs = *(const char * const *)b;
+    return strcasecmp(as, bs);
+}
 
-    dir = opendir(dir_path);
+void get_dir_contents(const char *dir_path, char ***choices, int *n_choices) {
+    DIR *dir = opendir(dir_path);
     if (!dir) {
         *choices = NULL;
         *n_choices = 0;
         return;
     }
 
-    while ((entry = readdir(dir)) != NULL) {
-        count++;
-    }
-    rewinddir(dir);
+    char **list = NULL;
+    int count = 0;
+    struct dirent *entry;
 
-    *choices = (char **)malloc(count * sizeof(char *));
-    if (!*choices) {
-        closedir(dir);
-        *choices = NULL;
-        *n_choices = 0;
-        return;
-    }
-
-    int i = 0;
     while ((entry = readdir(dir)) != NULL) {
-        (*choices)[i] = strdup(entry->d_name);
-        if (!(*choices)[i]) {
-            for (int j = 0; j < i; ++j) {
-                free((*choices)[j]);
-            }
-            free(*choices);
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+            continue;
+
+        char **tmp = realloc(list, sizeof(char *) * (count + 1));
+        if (!tmp) {
+            for (int i = 0; i < count; ++i)
+                free(list[i]);
+            free(list);
             closedir(dir);
             *choices = NULL;
             *n_choices = 0;
             return;
         }
-        i++;
+        list = tmp;
+        list[count] = strdup(entry->d_name);
+        if (!list[count]) {
+            for (int i = 0; i < count; ++i)
+                free(list[i]);
+            free(list);
+            closedir(dir);
+            *choices = NULL;
+            *n_choices = 0;
+            return;
+        }
+        count++;
     }
     closedir(dir);
 
+    if (count > 0)
+        qsort(list, count, sizeof(char *), str_casecmp);
+
+    *choices = list;
     *n_choices = count;
 }
 
@@ -143,9 +153,20 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
 
         for (int i = 0; i < max_display && i + start < n_choices; ++i) {
             int idx = i + start;
+            char path_buf[2048];
+            struct stat sb;
+            snprintf(path_buf, sizeof(path_buf), "%s/%s", cwd, choices[idx]);
+            int is_dir = stat(path_buf, &sb) == 0 && S_ISDIR(sb.st_mode);
+            char disp[1024];
+            if (is_dir)
+                snprintf(disp, sizeof(disp), "%s/", choices[idx]);
+            else {
+                strncpy(disp, choices[idx], sizeof(disp));
+                disp[sizeof(disp) - 1] = '\0';
+            }
             if (idx == highlight)
                 wattron(win, A_REVERSE);
-            mvwprintw(win, i + 2, 2, "%s", choices[idx]);
+            mvwprintw(win, i + 2, 2, "%s", disp);
             wattroff(win, A_REVERSE);
         }
 
