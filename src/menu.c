@@ -1,16 +1,24 @@
 /*
  * Menu system overview
  * --------------------
- * Menus are declared statically as arrays of MenuItem structures.  Each
- * top level menu lives in the menus_static array along with the number of
- * items it contains.  initializeMenus assigns these arrays to the global
- * pointers used by drawing and navigation routines.
+ * The editor's menu bar is built entirely from statically defined
+ * Menu and MenuItem structures.  Each Menu contains an array of
+ * MenuItems with an associated callback.  The arrays of items for the
+ * "File", "Edit" and other top level menus are declared below and then
+ * grouped into the menus_static array.
  *
- * drawMenuBar (see menu_draw.c) prints the menu labels at row zero and
- * records their starting column positions in menuPositions.  drawMenu
- * shows a drop‑down window for a specific menu.  handleMenuNavigation
- * drives user input and executes the callback associated with the
- * selected MenuItem.
+ * initializeMenus() assigns menus_static and the accompanying
+ * menuPositions_static array to the global pointers used throughout the
+ * UI.  drawMenuBar() (implemented in menu_draw.c) walks the menus array,
+ * draws the menu labels on the top screen row and records the starting
+ * x‑coordinate of each label in menuPositions.  Those stored positions
+ * are later consulted by handleMenuNavigation() and drawMenu() to place
+ * drop‑down windows and to detect mouse clicks on the menu bar.
+ *
+ * Navigation through the menu bar ultimately leads to the invocation of
+ * the callback associated with the highlighted MenuItem.  The callbacks
+ * themselves live in this file and update the EditorContext and other
+ * global state as appropriate.
  */
 #include <ncurses.h>
 #include <stdlib.h>
@@ -61,6 +69,8 @@ static void menuMacroStop_cb(void)  { menuMacroStop(menu_ctx); }
 static void menuMacroPlay_cb(void)  { menuMacroPlay(menu_ctx); }
 static void menuManage_cb(void)     { menuManageMacros(menu_ctx); }
 
+/* Items for the File menu.  Selecting one of these invokes the
+ * corresponding menu* callback above. */
 static MenuItem file_items[] = {
     {"New File", menuNewFile_cb, false},
     {"Load File", menuLoadFile_cb, false},
@@ -71,6 +81,7 @@ static MenuItem file_items[] = {
     {"Quit", menuQuitEditor_cb, false},
 };
 
+/* Items for the Edit menu triggering undo/redo and search actions. */
 static MenuItem edit_items[] = {
     {"Undo", menuUndo_cb, false},
     {"Redo", menuRedo_cb, false},
@@ -79,15 +90,18 @@ static MenuItem edit_items[] = {
     {"Replace", menuReplace_cb, false},
 };
 
+/* Items for the Navigate menu for switching buffers. */
 static MenuItem nav_items[] = {
     {"Next File", menuNextFile_cb, false},
     {"Previous File", menuPrevFile_cb, false},
 };
 
+/* Options menu currently only exposes the settings dialog. */
 static MenuItem opt_items[] = {
     {"Settings", menuSettings_cb, false},
 };
 
+/* Macros menu controls recording and playback of macros. */
 static MenuItem macros_items[] = {
     {"Start Recording", menuMacroStart_cb, false},
     {"Stop Recording", menuMacroStop_cb, false},
@@ -97,6 +111,7 @@ static MenuItem macros_items[] = {
     {"Manage Macros...", menuManage_cb, false},
 };
 
+/* Help menu containing documentation and about screen. */
 static MenuItem help_items[] = {
     {"Help Screen", menuHelp_cb, false},
     {"About Vento", menuAbout_cb, false},
@@ -118,7 +133,14 @@ int menuCount = ARRAY_LEN(menus_static);
 int *menuPositions = menuPositions_static;
 
 /**
- * Initializes the menus.
+ * Initializes global menu pointers for the UI.
+ *
+ * @param ctx Editor context whose window and configuration are used by
+ *            menu callbacks.
+ *
+ * This function sets the global arrays used by drawMenuBar() and
+ * handleMenuNavigation() to the statically defined menus.  It should be
+ * called once during startup before any menu drawing occurs.
  */
 void initializeMenus(EditorContext *ctx) {
     menu_ctx = ctx;
@@ -142,6 +164,10 @@ void initializeMenus(EditorContext *ctx) {
  * @param menuCount The number of menus in the array.
  * @param currentMenu A pointer to the index of the current menu.
  * @param currentItem A pointer to the index of the current item in the menu.
+ *
+ * currentMenu and currentItem are updated in place to reflect the user's
+ * navigation.  When an item is activated the associated callback may modify
+ * the global EditorContext and other shared state.
  */
 void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *currentItem) {
     int ch;
@@ -321,16 +347,29 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
 }
 
 
-/* "New File" from the File menu.
- * Creates an empty buffer and switches the context to it. */
+/**
+ * Callback for File -> "New File".
+ *
+ * Creates an empty buffer and updates the editor context to point at the
+ * newly created file and text window.
+ *
+ * @param ctx Editor context to update after the buffer is created.
+ */
 void menuNewFile(EditorContext *ctx) {
     new_file(ctx, ctx->active_file);
     ctx->active_file = active_file;
     ctx->text_win = text_win;
 }
 
-/* "Load File" from the File menu.
- * Opens a file from disk and makes it the active buffer. */
+/**
+ * Callback for File -> "Load File".
+ *
+ * Opens a file from disk and switches the active buffer to the loaded
+ * file.  The editor context's active_file and text_win members are
+ * updated to match the globals created by load_file().
+ *
+ * @param ctx Editor context to synchronize with the loaded file.
+ */
 void menuLoadFile(EditorContext *ctx) {
     load_file(ctx, ctx->active_file, NULL);
     ctx->active_file = active_file;
@@ -339,17 +378,36 @@ void menuLoadFile(EditorContext *ctx) {
     update_status_bar(ctx, ctx->active_file);
 }
 
-/* "Save File" in the File menu writes the active buffer to disk. */
+/**
+ * Callback for File -> "Save File".
+ *
+ * Writes the active buffer to disk.
+ *
+ * @param ctx Editor context providing the active file.
+ */
 void menuSaveFile(EditorContext *ctx) {
     save_file(ctx, ctx->active_file);
 }
 
-/* Invoked by the File->"Save As" item.  Prompts for a path and saves. */
+/**
+ * Callback for File -> "Save As".
+ *
+ * Prompts the user for a new path and saves the active buffer there.
+ *
+ * @param ctx Editor context providing the active file.
+ */
 void menuSaveAs(EditorContext *ctx) {
     save_file_as(ctx, ctx->active_file);
 }
 
-/* "Close File" removes the current buffer from the editor. */
+/**
+ * Callback for File -> "Close File".
+ *
+ * Removes the current buffer from the editor and updates ctx to point to
+ * the new active file (if any).
+ *
+ * @param ctx Editor context to update after closing the file.
+ */
 void menuCloseFile(EditorContext *ctx) {
     int cx = ctx->active_file ? ctx->active_file->cursor_x : 0;
     int cy = ctx->active_file ? ctx->active_file->cursor_y : 0;
@@ -362,17 +420,38 @@ void menuCloseFile(EditorContext *ctx) {
     ctx->text_win = text_win;
 }
 
-/* Navigate to the next open file (Navigate->"Next File"). */
+/**
+ * Callback for Navigate -> "Next File".
+ *
+ * Switches the active buffer to the next file managed by the file
+ * manager and updates the editor context accordingly.
+ *
+ * @param ctx Editor context that tracks the active file.
+ */
 void menuNextFile(EditorContext *ctx) {
     (void)next_file(ctx);
 }
 
-/* Navigate to the previous open file (Navigate->"Previous File"). */
+/**
+ * Callback for Navigate -> "Previous File".
+ *
+ * Switches the active buffer to the previous file.
+ *
+ * @param ctx Editor context that tracks the active file.
+ */
 void menuPrevFile(EditorContext *ctx) {
     (void)prev_file(ctx);
 }
 
-/* Start recording a macro (Macros->"Start Recording"). */
+/**
+ * Callback for Macros -> "Start Recording".
+ *
+ * Begins recording keystrokes into the current macro.  The macro state
+ * is stored globally and the status bar is refreshed to reflect that
+ * recording is active.
+ *
+ * @param ctx Editor context (unused).
+ */
 static void menuMacroStart(EditorContext *ctx) {
     (void)ctx;
     if (current_macro)
@@ -380,7 +459,13 @@ static void menuMacroStart(EditorContext *ctx) {
     update_status_bar(menu_ctx, menu_ctx->active_file);
 }
 
-/* Stop recording the current macro (Macros->"Stop Recording"). */
+/**
+ * Callback for Macros -> "Stop Recording".
+ *
+ * Stops recording the current macro and persists it to disk.
+ *
+ * @param ctx Editor context (unused).
+ */
 static void menuMacroStop(EditorContext *ctx) {
     (void)ctx;
     if (current_macro) {
@@ -390,21 +475,41 @@ static void menuMacroStop(EditorContext *ctx) {
     update_status_bar(menu_ctx, menu_ctx->active_file);
 }
 
-/* Play back the last recorded macro (Macros->"Play Last Macro"). */
+/**
+ * Callback for Macros -> "Play Last Macro".
+ *
+ * Executes the keystrokes recorded in the most recently captured macro
+ * in the context of the active file.
+ *
+ * @param ctx Editor context providing the active file.
+ */
 static void menuMacroPlay(EditorContext *ctx) {
     if (current_macro)
         macro_play(current_macro, ctx, ctx->active_file);
     update_status_bar(menu_ctx, menu_ctx->active_file);
 }
 
-/* Opens the macro management dialog (Macros->"Manage Macros..."). */
+/**
+ * Callback for Macros -> "Manage Macros...".
+ *
+ * Displays a placeholder message.  Management functionality is not
+ * implemented.
+ *
+ * @param ctx Editor context (unused).
+ */
 static void menuManageMacros(EditorContext *ctx) {
     (void)ctx;
     show_message("Macro management not implemented");
 }
 
-/* Triggered by Options->"Settings".  Applies configuration changes and
- * redraws UI elements. */
+/**
+ * Callback for Options -> "Settings".
+ *
+ * Presents the settings dialog and applies any configuration changes
+ * chosen by the user.  Updates mouse and color state and redraws the UI.
+ *
+ * @param ctx Editor context whose configuration is modified.
+ */
 void menuSettings(EditorContext *ctx) {
     if (show_settings_dialog(ctx, &ctx->config)) {
         config_save(&ctx->config);
@@ -422,39 +527,81 @@ void menuSettings(EditorContext *ctx) {
     }
 }
 
-/* "Quit" from the File menu asks for confirmation and exits. */
+/**
+ * Callback for File -> "Quit".
+ *
+ * Prompts the user for confirmation and exits the editor if confirmed.
+ *
+ * @param ctx Editor context (unused).
+ */
 void menuQuitEditor(EditorContext *ctx) {
     (void)ctx;
     if (confirm_quit())
         close_editor();
 }
 
-/* Edit->"Undo" reverts the last change in the active buffer. */
+/**
+ * Callback for Edit -> "Undo".
+ *
+ * Reverts the last change in the active buffer.
+ *
+ * @param ctx Editor context providing the active file.
+ */
 void menuUndo(EditorContext *ctx) {
     undo(ctx->active_file);
 }
 
-/* Edit->"Redo" reapplies the last undone change. */
+/**
+ * Callback for Edit -> "Redo".
+ *
+ * Reapplies the last undone change in the active buffer.
+ *
+ * @param ctx Editor context providing the active file.
+ */
 void menuRedo(EditorContext *ctx) {
     redo(ctx->active_file);
 }
 
-/* Edit->"Find" prompts for a search string starting at the cursor. */
+/**
+ * Callback for Edit -> "Find".
+ *
+ * Prompts for a search string and searches from the cursor position.
+ *
+ * @param ctx Editor context providing the active file.
+ */
 void menuFind(EditorContext *ctx) {
     find(ctx, ctx->active_file, 1);
 }
 
-/* Edit->"Replace" opens the search/replace dialog. */
+/**
+ * Callback for Edit -> "Replace".
+ *
+ * Opens the search/replace dialog operating on the active file.
+ *
+ * @param ctx Editor context providing the active file.
+ */
 void menuReplace(EditorContext *ctx) {
     replace(ctx, ctx->active_file);
 }
 
-/* Help->"About Vento" displays version and license information. */
+/**
+ * Callback for Help -> "About Vento".
+ *
+ * Displays version and license information.
+ *
+ * @param ctx Editor context for the display window.
+ */
 void menuAbout(EditorContext *ctx) {
     show_about(ctx);
 }
 
-/* Help->"Help Screen" shows the built-in help text. */
+/**
+ * Callback for Help -> "Help Screen".
+ *
+ * Shows the built-in help text.
+ *
+ * @param ctx Editor context for the display window.
+ */
 void menuHelp(EditorContext *ctx) {
     show_help(ctx);
 }
