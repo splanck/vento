@@ -6,7 +6,24 @@
 #include "editor.h"
 #include "files.h"
 
-/* Helper token scanning functions shared across language highlighters */
+/*
+ * Common syntax scanning and highlighting helpers.
+ *
+ * This module provides generic routines for scanning identifiers,
+ * numbers and string literals.  It also tracks multi-line comment
+ * state across edits using FileState so language modules can resume
+ * highlighting correctly.  The generic keyword highlighter defined
+ * here relies on these scanners and the comment state helpers.
+ */
+
+/*
+ * Scan a C-style identifier starting at index 'start'.
+ *
+ * line  - text containing the token
+ * start - index of the first character
+ *
+ * Returns the length of the identifier or 0 if none was found.
+ */
 int scan_identifier(const char *line, int start) {
     int i = start;
     if (!isalpha((unsigned char)line[i]) && line[i] != '_')
@@ -17,6 +34,15 @@ int scan_identifier(const char *line, int start) {
     return i - start;
 }
 
+/*
+ * Scan a numeric literal beginning at 'start'.  Handles decimal and
+ * prefixed forms like 0x or 0b.
+ *
+ * line  - text containing the token
+ * start - index of the first digit
+ *
+ * Returns the length of the number token.
+ */
 int scan_number(const char *line, int start) {
     int i = start;
     if (line[i] == '0' && line[i + 1] && strchr("xXbBoO", line[i + 1])) {
@@ -30,6 +56,16 @@ int scan_number(const char *line, int start) {
     return i - start;
 }
 
+/*
+ * Scan a quoted string beginning at 'start'.
+ *
+ * line   - text containing the token
+ * start  - index of the opening quote
+ * quote  - quote character used to delimit the string
+ * closed - set to true if a matching closing quote is found
+ *
+ * Returns the length of the scanned string literal.
+ */
 int scan_string(const char *line, int start, char quote, bool *closed) {
     int i = start + 1;
     *closed = false;
@@ -48,6 +84,16 @@ int scan_string(const char *line, int start, char quote, bool *closed) {
     return i - start;
 }
 
+/*
+ * Scan a triple quoted string beginning at 'start'.
+ *
+ * line   - text containing the token
+ * start  - index of the opening quotes
+ * quote  - quote character used for the triple quotes
+ * closed - set to true when the terminating quotes are found
+ *
+ * Returns the length of the scanned string literal.
+ */
 int scan_multiline_string(const char *line, int start, char quote, bool *closed) {
     int i = start + 3; /* skip opening quotes */
     *closed = false;
@@ -66,7 +112,11 @@ int scan_multiline_string(const char *line, int start, char quote, bool *closed)
     return i - start;
 }
 
-// Synchronize the in_multiline_comment flag up to the specified line
+/*
+ * Update fs->in_multiline_comment by scanning lines up to 'line'.
+ * This allows language modules to know whether a block comment is
+ * currently open when highlighting subsequent lines.
+ */
 void sync_multiline_comment(FileState *fs, int line) {
     bool in_comment;
     bool in_string = false;
@@ -120,18 +170,38 @@ void sync_multiline_comment(FileState *fs, int line) {
     fs->last_comment_state = in_comment;
 }
 
+/*
+ * Reset cached comment information so the next call to
+ * sync_multiline_comment starts from the beginning of the file.
+ */
 void mark_comment_state_dirty(FileState *fs) {
     fs->last_scanned_line = 0;
     fs->last_comment_state = false;
 }
 
+/*
+ * Render a line without applying any syntax highlighting.
+ *
+ * win  - window used for output
+ * line - text of the line
+ * y    - screen row for printing
+ */
 void highlight_no_syntax(WINDOW *win, const char *line, int y) {
     // Ensure background color is applied to unhighlighted text
     wattrset(win, COLOR_PAIR(SYNTAX_BG));
     mvwprintw(win, y, 1, "%s", line);
 }
 
-// Generic keyword based highlighter used by multiple languages
+/*
+ * Generic keyword-based highlighter used by multiple languages.
+ *
+ * fs            - file state containing comment flags
+ * win           - window to render into
+ * line          - text of the line
+ * y             - screen row
+ * keywords      - array of keywords
+ * keyword_count - number of entries in keywords
+ */
 void highlight_with_keywords(FileState *fs, WINDOW *win, const char *line, int y,
                              const char **keywords, int keyword_count) {
     wattrset(win, COLOR_PAIR(SYNTAX_BG));
