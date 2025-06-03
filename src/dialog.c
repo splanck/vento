@@ -47,7 +47,23 @@ int dialog_prompt(WINDOW *win, int y, int x, char *buf, size_t len) {
     int ch;
     int cancelled = 0;
     while ((ch = wgetch(win)) != '\n') {
-        if (ch == KEY_BACKSPACE || ch == 127) {
+        if (ch == KEY_RESIZE) {
+            resizeterm(0, 0);
+
+            int h, w;
+            getmaxyx(win, h, w);
+            int win_y = (LINES - h) / 2;
+            int win_x = (COLS - w) / 2;
+            if (win_x < 0)
+                win_x = 0;
+            mvwin(win, win_y, win_x);
+            box(win, 0, 0);
+            mvwprintw(win, y, x, "%s", buf);
+            wmove(win, y, x + (int)pos);
+            wrefresh(stdscr);
+            wrefresh(win);
+            continue;
+        } else if (ch == KEY_BACKSPACE || ch == 127) {
             if (pos > 0) {
                 pos--;
                 mvwaddch(win, y, x + (int)pos, ' ');
