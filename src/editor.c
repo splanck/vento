@@ -4,9 +4,10 @@
 /*
  * vento's editor implementation.
  *
- * This file drives the main editing interface: it contains the core event
- * loop, keyboard mapping setup and routines for drawing text buffers.  It
- * coordinates input handling and screen updates using ncurses.
+ * This file drives the main editing interface.  It sets up the table of
+ * keyboard shortcuts used by the editor and contains the core event loop
+ * responsible for processing input.  The routines here draw text buffers,
+ * coordinate input handling and screen updates using ncurses.
  */
 #include <ncurses.h>
 #include <wchar.h>
@@ -398,8 +399,10 @@ static KeyMapping key_mappings[MAX_KEY_MAPPINGS];
 static int key_mapping_count = 0;
 
 /*
- * Populate the table of keyboard shortcuts with their handler functions.
- * This is called at startup so the event loop can dispatch keys quickly.
+ * Populate the array of KeyMapping structures with key codes and the
+ * functions that handle them.  Each entry pairs a keyboard shortcut with
+ * its wrapper so the main loop can dispatch events quickly.  The editor
+ * initialization code calls this once at startup.
  */
 void initialize_key_mappings(void) {
     key_mapping_count = 0;
@@ -462,9 +465,10 @@ void initialize_key_mappings(void) {
 
 
 /*
- * Main event loop driving the editor UI.
- * Dispatches keyboard and mouse events, updates the display and
- * keeps running until the user exits.
+ * Main event loop driving the editor UI.  It continually polls for keyboard
+ * and mouse events, dispatching them to the appropriate handlers.  Key presses
+ * may be recorded into a macro when recording is active.  After each action,
+ * the status bar and text window are refreshed until the user exits.
  */
 void run_editor(EditorContext *ctx) {
     input_ctx = ctx;
@@ -488,9 +492,9 @@ void run_editor(EditorContext *ctx) {
     while (exiting == 0) {
         int rc;
 #if USE_WIDE_INPUT
-        rc = wget_wch(ctx->text_win, &ch);
+        rc = wget_wch(ctx->text_win, &ch);  // poll for keyboard input
 #else
-        int ch_tmp = wgetch(ctx->text_win);
+        int ch_tmp = wgetch(ctx->text_win); // poll for keyboard input
         rc = (ch_tmp == ERR) ? ERR : OK;
         ch = ch_tmp;
 #endif
@@ -502,9 +506,10 @@ void run_editor(EditorContext *ctx) {
         }
 
         if (rc == ERR) {
-            continue; // Handle any errors or no input case
+            continue; // No input available
         }
 
+        /* Record the key if a macro is currently being recorded */
         if (current_macro && current_macro->recording &&
             ch != (wint_t)KEY_CTRL_BACKTICK && ch != (wint_t)KEY_CTRL_Q) {
             macro_record_key(current_macro, ch);
@@ -514,11 +519,12 @@ void run_editor(EditorContext *ctx) {
             break;
         }
 
-        //mvprintw(LINES - 1, 0, "Pressed key: %d", ch); // Add this line for debugging
+        // Update menus and status bar before handling the key
         drawBar();
         update_status_bar(ctx, ctx->active_file);
         doupdate();
         
+        /* Dispatch the input to the appropriate handler */
         if (ctx->active_file->selection_mode) {
             handle_selection_mode(ctx->active_file, ch, &ctx->active_file->cursor_x, &ctx->active_file->cursor_y);
         } else if (ch == (wint_t)KEY_CTRL_T || ch == (wint_t)key_menu_open) { // CTRL-T or F10
@@ -546,6 +552,7 @@ void run_editor(EditorContext *ctx) {
         if (exiting == 1)
             break;
 
+        /* Refresh status bar and screen after processing the event */
         update_status_bar(ctx, ctx->active_file);
         wmove(ctx->text_win, ctx->active_file->cursor_y,
               ctx->active_file->cursor_x + get_line_number_offset(ctx->active_file));  // Restore cursor position
