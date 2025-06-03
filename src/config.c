@@ -17,7 +17,23 @@
 #include "macro.h"
 #include <wchar.h>
 
-// Helper to map color name to ncurses constant
+/*
+ * config.c
+ * --------
+ * Routines for loading, saving and applying the user's configuration and
+ * macro definitions.  Settings are persisted in ~/.ventorc and macros in
+ * ~/.ventomacros (or paths specified via environment variables).  Functions
+ * here update the AppConfig structure and propagate options to global editor
+ * state such as color pairs and key bindings.
+ */
+
+/*
+ * Translate a color name into its ncurses COLOR_* constant.
+ *
+ * color_name - String such as "RED" or "blue".
+ *
+ * Returns the matching color code or -1 if the name is unknown.
+ */
 short get_color_code(const char *color_name) {
     if (strcasecmp(color_name, "BLACK") == 0) return COLOR_BLACK;
     if (strcasecmp(color_name, "RED") == 0) return COLOR_RED;
@@ -30,6 +46,8 @@ short get_color_code(const char *color_name) {
     return -1;
 }
 
+// Build the path to the configuration file in BUF.  Uses $VENTO_CONFIG if set
+// otherwise defaults to ~/.ventorc.
 static void get_config_path(char *buf, size_t size) {
     const char *cfg = getenv("VENTO_CONFIG");
     if (cfg && *cfg) {
@@ -45,6 +63,8 @@ static void get_config_path(char *buf, size_t size) {
     snprintf(buf, size, "%s/.ventorc", homedir);
 }
 
+// Similar to get_config_path but for the macros file.  $VENTO_MACROS is
+// honoured when present and falls back to ~/.ventomacros.
 static void get_macros_path(char *buf, size_t size) {
     const char *mp = getenv("VENTO_MACROS");
     if (mp && *mp) {
@@ -60,6 +80,7 @@ static void get_macros_path(char *buf, size_t size) {
     snprintf(buf, size, "%s/.ventomacros", homedir);
 }
 
+// Trim leading and trailing whitespace from STR in place.
 static void trim(char *str) {
     char *start = str;
     while (isspace((unsigned char)*start)) start++;
@@ -70,6 +91,15 @@ static void trim(char *str) {
     str[len] = '\0';
 }
 
+/*
+ * Load the color values from a theme file into the configuration.
+ *
+ * name - Theme name without the .theme extension.
+ * cfg  - AppConfig structure to modify.
+ *
+ * Only the color fields inside `cfg` are updated.  The function searches
+ * $VENTO_THEME_DIR, THEME_DIR and a local "themes" directory for the file.
+ */
 void load_theme(const char *name, AppConfig *cfg) {
     if (!name || !*name || !cfg)
         return;
@@ -166,6 +196,14 @@ void load_theme(const char *name, AppConfig *cfg) {
     fclose(f);
 }
 
+/*
+ * Write the given configuration to disk.
+ *
+ * cfg - Configuration values to persist.
+ *
+ * The file location is determined by get_config_path().  The routine
+ * overwrites the file and does not modify global state.
+ */
 void config_save(const AppConfig *cfg) {
     static const char *keys[] = {
         "background_color",
@@ -214,6 +252,17 @@ void config_save(const AppConfig *cfg) {
     fclose(f);
 }
 
+/*
+ * Read the user's configuration file and apply it to `cfg`.
+ *
+ * cfg - Configuration structure to update.
+ *
+ * Side effects:
+ *   - Updates global flags `enable_color`, `enable_mouse`,
+ *     `show_line_numbers`, `key_macro_record` and `key_macro_play`.
+ *   - Initializes color pairs when colors are enabled.
+ *   - Loads macros using macros_load().
+ */
 void config_load(AppConfig *cfg) {
     char path[PATH_MAX];
     get_config_path(path, sizeof(path));
@@ -374,12 +423,23 @@ void config_load(AppConfig *cfg) {
     macros_load(cfg);
 }
 
-// Compatibility wrapper
+/*
+ * Compatibility wrapper for old code paths that still call read_config_file().
+ * Simply forwards to config_load().
+ */
 void read_config_file(AppConfig *cfg) {
     if (cfg)
         config_load(cfg);
 }
 
+/*
+ * Load macro definitions from the file specified in `cfg->macros_file`.
+ *
+ * cfg - AppConfig providing the path and receiving defaults if the path is
+ *       empty.
+ *
+ * Existing macros are updated or created.  Macro recording state is reset.
+ */
 void macros_load(AppConfig *cfg) {
     if (!cfg)
         return;
@@ -417,6 +477,14 @@ void macros_load(AppConfig *cfg) {
     fclose(f);
 }
 
+/*
+ * Persist all currently defined macros to disk.
+ *
+ * cfg - AppConfig containing the destination path.
+ *
+ * The macro list is written in a simple textual format that macros_load()
+ * can read back.  No global state other than the macro data is modified.
+ */
 void macros_save(const AppConfig *cfg) {
     if (!cfg)
         return;
