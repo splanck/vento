@@ -162,7 +162,6 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
     curs_set(0);
     AppConfig original = *cfg;
 
-    mmask_t oldmask = mousemask(0, NULL);
     mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
 
     int highlight = 0;
@@ -257,7 +256,7 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
         }
     }
 
-    mousemask(oldmask, NULL);
+    apply_mouse(cfg);
 
     wclear(win);
     wrefresh(win);
