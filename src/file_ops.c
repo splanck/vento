@@ -117,6 +117,7 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
                 ctx->file_manager = file_manager;
                 ctx->active_file = active_file;
                 ctx->text_win = text_win;
+                sync_editor_context(ctx);
             }
             update_status_bar(ctx, active_file);
             sync_editor_context(ctx);
@@ -227,12 +228,14 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     ctx->file_manager = file_manager;
     ctx->active_file = active_file;
     ctx->text_win = text_win;
+    sync_editor_context(ctx);
 
     update_status_bar(ctx, active_file);
     extern int start_line;
     if (start_line > 0 && go_to_line)
         go_to_line(ctx, active_file, start_line);
     start_line = 0;    /* only apply once */
+    sync_editor_context(ctx);
     return 0;
 }
 
