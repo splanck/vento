@@ -275,6 +275,8 @@ void menuLoadFile(EditorContext *ctx) {
     load_file(ctx, ctx->active_file, NULL);
     ctx->active_file = active_file;
     ctx->text_win = text_win;
+    sync_editor_context(ctx);
+    update_status_bar(ctx, ctx->active_file);
 }
 
 void menuSaveFile(EditorContext *ctx) {
