@@ -11,3 +11,7 @@ gcc navigation_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncurses
     -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar -Wl,--wrap=confirm_switch \
     -o navigation_tests
 ./navigation_tests
+gcc menu_load_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncursesw \
+    -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar -Wl,--wrap=confirm_switch \
+    -o menu_load_tests
+./menu_load_tests
