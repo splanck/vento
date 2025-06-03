@@ -1,3 +1,13 @@
+/*
+ * Mouse input handling
+ * --------------------
+ * This module updates text selections when dragging with the mouse and
+ * supports scrolling through wheel button presses.  BUTTON1_DRAGGED events
+ * extend the active selection, while BUTTON4_PRESSED and BUTTON5_PRESSED
+ * trigger vertical scrolling just like the arrow keys.  Not all systems
+ * define those wheel button constants, so their usage is wrapped in
+ * conditional compilation checks.
+ */
 #include "editor.h"
 #include <ncurses.h>
 #include "input.h"
@@ -8,6 +18,16 @@
 #define BUTTON1_DRAGGED (BUTTON1_PRESSED | REPORT_MOUSE_POSITION)
 #endif
 
+/*
+ * Extend the current selection to the given coordinates.
+ *
+ * ctx - editor context (unused)
+ * fs  - file state to modify
+ * x,y - new end position for the selection (1-based)
+ *
+ * Writes to fs->sel_end_x and fs->sel_end_y and redraws the text window
+ * so the highlighted region stays up to date.
+ */
 void update_selection_mouse(EditorContext *ctx, FileState *fs, int x, int y) {
     (void)ctx;
     fs->sel_end_x = x;
@@ -21,6 +41,18 @@ void update_selection_mouse(EditorContext *ctx, FileState *fs, int x, int y) {
     wrefresh(text_win);
 }
 
+/*
+ * Process a single ncurses mouse event.
+ *
+ * ctx - active editor context
+ * fs  - file state updated by the event
+ * ev  - mouse event information from getmouse()
+ *
+ * Updates the cursor position and selection markers.  Wheel events scroll
+ * through the buffer using handle_key_up/down.  BUTTON4_PRESSED and
+ * BUTTON5_PRESSED checks are wrapped in #ifdefs for portability on systems
+ * that may lack these constants.
+ */
 void handle_mouse_event(EditorContext *ctx, FileState *fs, MEVENT *ev) {
     fs->match_start_x = fs->match_end_x = -1;
     fs->match_start_y = fs->match_end_y = -1;
