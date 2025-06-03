@@ -32,6 +32,7 @@ typedef struct Node {
 #define KEY_CTRL_T          20
 
 struct FileState;
+struct Macro;
 typedef void (*KeyHandler)(struct FileState *, int *cx, int *cy);
 
 typedef struct {
@@ -44,6 +45,7 @@ void initialize_key_mappings(void);
 extern WINDOW *text_win;
 extern struct FileState *active_file;
 extern struct FileManager file_manager;
+extern struct Macro *current_macro;
 extern char search_text[256];
 extern volatile sig_atomic_t resize_pending;
 extern int exiting;

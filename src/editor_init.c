@@ -37,8 +37,11 @@ void initialize(EditorContext *ctx) {
     ctx->enable_color = enable_color;
     ctx->enable_mouse = enable_mouse;
     apply_colors();
-    macro_state.length = 0;
-    macro_state.recording = false;
+    current_macro = macro_create("default");
+    if (current_macro) {
+        current_macro->length = 0;
+        current_macro->recording = false;
+    }
     cbreak();
     noecho();
     keypad(stdscr, TRUE);

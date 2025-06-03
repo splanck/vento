@@ -61,7 +61,7 @@ char search_text[256] = "";
 
 volatile sig_atomic_t resize_pending = 0;
 static EditorContext *input_ctx = NULL;
-Macro macro_state;
+Macro *current_macro = NULL;
 
 void clamp_scroll_x(FileState *fs) {
     int offset = get_line_number_offset(fs);
@@ -367,16 +367,17 @@ static void handle_macro_record_wrapper(struct FileState *fs, int *cx, int *cy) 
     (void)fs;
     (void)cx;
     (void)cy;
-    if (macro_state.recording)
-        macro_stop(&macro_state);
+    if (current_macro && current_macro->recording)
+        macro_stop(current_macro);
     else
-        macro_start(&macro_state);
+        macro_start(current_macro);
 }
 
 static void handle_macro_play_wrapper(struct FileState *fs, int *cx, int *cy) {
     (void)cx;
     (void)cy;
-    macro_play(&macro_state, input_ctx, fs);
+    if (current_macro)
+        macro_play(current_macro, input_ctx, fs);
 }
 
 
@@ -494,9 +495,9 @@ void run_editor(EditorContext *ctx) {
             continue; // Handle any errors or no input case
         }
 
-        if (macro_state.recording &&
+        if (current_macro && current_macro->recording &&
             ch != (wint_t)KEY_CTRL_BACKTICK && ch != (wint_t)KEY_CTRL_Q) {
-            macro_record_key(&macro_state, ch);
+            macro_record_key(current_macro, ch);
         }
 
         if (exiting == 1) {
