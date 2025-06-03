@@ -26,4 +26,11 @@ void macro_play(Macro *macro, EditorContext *ctx, FileState *fs);
 int macro_count(void);
 Macro *macro_at(int index);
 
+typedef struct {
+    bool recording;
+    bool playing;
+} MacroState;
+
+extern MacroState macro_state;
+
 #endif /* MACRO_H */

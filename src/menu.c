@@ -377,6 +377,7 @@ static void menuMacroStart(EditorContext *ctx) {
     (void)ctx;
     if (current_macro)
         macro_start(current_macro);
+    update_status_bar(menu_ctx, menu_ctx->active_file);
 }
 
 /* Stop recording the current macro (Macros->"Stop Recording"). */
@@ -386,12 +387,14 @@ static void menuMacroStop(EditorContext *ctx) {
         macro_stop(current_macro);
         macros_save(&app_config);
     }
+    update_status_bar(menu_ctx, menu_ctx->active_file);
 }
 
 /* Play back the last recorded macro (Macros->"Play Last Macro"). */
 static void menuMacroPlay(EditorContext *ctx) {
     if (current_macro)
         macro_play(current_macro, ctx, ctx->active_file);
+    update_status_bar(menu_ctx, menu_ctx->active_file);
 }
 
 /* Opens the macro management dialog (Macros->"Manage Macros..."). */

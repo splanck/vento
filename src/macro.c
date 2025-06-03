@@ -10,6 +10,7 @@ typedef struct {
 
 static MacroList macro_list = {0};
 extern Macro *current_macro;
+MacroState macro_state = {false, false};
 
 static int ensure_capacity(void) {
     if (macro_list.count >= macro_list.capacity) {
@@ -75,12 +76,14 @@ void macro_start(Macro *macro) {
         return;
     macro->length = 0;
     macro->recording = true;
+    macro_state.recording = true;
 }
 
 void macro_stop(Macro *macro) {
     if (!macro)
         return;
     macro->recording = false;
+    macro_state.recording = false;
 }
 
 void macro_record_key(Macro *macro, wint_t ch) {
@@ -94,9 +97,15 @@ void macro_record_key(Macro *macro, wint_t ch) {
 void macro_play(Macro *macro, EditorContext *ctx, FileState *fs) {
     if (!macro || macro->recording)
         return;
+    macro_state.playing = true;
+    if (ctx)
+        update_status_bar(ctx, fs);
     for (int i = 0; i < macro->length; ++i) {
         handle_regular_mode(ctx, fs, macro->keys[i]);
     }
+    macro_state.playing = false;
+    if (ctx)
+        update_status_bar(ctx, fs);
 }
 
 int macro_count(void) {
