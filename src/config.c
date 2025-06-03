@@ -445,6 +445,7 @@ void macros_load(AppConfig *cfg) {
         return;
     if (cfg->macros_file[0] == '\0')
         get_macros_path(cfg->macros_file, sizeof(cfg->macros_file));
+    macros_free_all();
     FILE *f = fopen(cfg->macros_file, "r");
     if (!f)
         return;
