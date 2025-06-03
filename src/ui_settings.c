@@ -511,6 +511,7 @@ const char *select_theme(const char *current, WINDOW *parent) {
                     for (size_t i = 0; i < count; ++i)
                         free(names[i]);
                     free(names);
+                    curs_set(1);
                     return NULL;
                 }
                 names = tmp;
@@ -520,6 +521,7 @@ const char *select_theme(const char *current, WINDOW *parent) {
                     for (size_t i = 0; i < count; ++i)
                         free(names[i]);
                     free(names);
+                    curs_set(1);
                     return NULL;
                 }
                 ++count;
@@ -530,6 +532,7 @@ const char *select_theme(const char *current, WINDOW *parent) {
 
     if (count == 0) {
         free(names);
+        curs_set(1);
         return NULL;
     }
 
