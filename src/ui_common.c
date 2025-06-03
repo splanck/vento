@@ -1,3 +1,8 @@
+/*
+ * Common window and dialog helper routines used throughout the editor.
+ * These functions wrap ncurses to create centered windows, popup dialogs
+ * and simple message or list boxes.
+ */
 #include "ui_common.h"
 #include "config.h"
 #include "editor_state.h"
