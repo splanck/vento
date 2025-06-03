@@ -37,8 +37,8 @@ static char *test_simple_record_play() {
     macro_record_key(m2, L'3');
     macro_stop(m2);
 
-    macro_play(m1, &ctx, fs);
-    macro_play(m2, &ctx, fs);
+    macro_play_times(m1, &ctx, fs, 1);
+    macro_play_times(m2, &ctx, fs, 1);
 
     mu_assert("buffer contains abc123", strcmp(lb_get(&fs->buffer, 0), "abc123") == 0);
 

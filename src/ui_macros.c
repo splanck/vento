@@ -77,7 +77,7 @@ void show_manage_macros(EditorContext *ctx) {
             mvwprintw(win, i + 2, 2, "%*s", win_width - 4, "");
 
         mvwprintw(win, win_height - 2, 2,
-                  "Arrows:move  Enter:select  N:new  R:rename  K:key  D:delete  ESC:close");
+                  "Arrows:move  Enter:select  N:new  R:rename  K:key  P:play  D:delete  ESC:close");
         wrefresh(win);
 
         ch = wgetch(win);
@@ -134,6 +134,16 @@ void show_manage_macros(EditorContext *ctx) {
                     int val = select_int(ctx, "Playback Key", m->play_key, win);
                     m->play_key = val;
                     macros_save(&app_config);
+                }
+            }
+        } else if (ch == 'p' || ch == 'P') {
+            if (highlight >= 0 && highlight < count) {
+                Macro *m = macro_at(highlight);
+                if (m) {
+                    int repeat = select_int(ctx, "Repeat Count", 1, win);
+                    macro_play_times(m, ctx, ctx->active_file, repeat);
+                    touchwin(win);
+                    wrefresh(win);
                 }
             }
         } else if (ch == 'r' || ch == 'R') {

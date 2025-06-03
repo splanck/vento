@@ -136,21 +136,34 @@ void macro_record_key(Macro *macro, wint_t ch) {
 }
 
 /*
+ * Replay the macro 'count' times. This simply feeds each recorded key
+ * back through the regular input handler so playback behaves the same as
+ * if the user typed the keys manually.
+ */
+void macro_play_times(Macro *macro, EditorContext *ctx, FileState *fs, int count) {
+    if (!macro || macro->recording || count <= 0)
+        return;
+
+    macro_state.playing = true;
+    if (ctx)
+        update_status_bar(ctx, fs);
+
+    for (int n = 0; n < count; ++n) {
+        for (int i = 0; i < macro->length; ++i)
+            handle_regular_mode(ctx, fs, macro->keys[i]);
+    }
+
+    macro_state.playing = false;
+    if (ctx)
+        update_status_bar(ctx, fs);
+}
+
+/*
  * Replay all recorded keys in the macro.  The editor context and
  * file state are used so playback mimics user input.
  */
 void macro_play(Macro *macro, EditorContext *ctx, FileState *fs) {
-    if (!macro || macro->recording)
-        return;
-    macro_state.playing = true;
-    if (ctx)
-        update_status_bar(ctx, fs);
-    for (int i = 0; i < macro->length; ++i) {
-        handle_regular_mode(ctx, fs, macro->keys[i]);
-    }
-    macro_state.playing = false;
-    if (ctx)
-        update_status_bar(ctx, fs);
+    macro_play_times(macro, ctx, fs, 1);
 }
 
 /* Return the number of macros currently stored. */
