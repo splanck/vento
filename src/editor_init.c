@@ -1,3 +1,11 @@
+/*
+ * Editor initialization helpers
+ * -----------------------------
+ * This file provides routines that bring up and tear down the ncurses
+ * environment used by vento.  It loads configuration settings, prepares the
+ * menu system and any defined macros, and ensures resources are cleaned up on
+ * exit.
+ */
 #include <ncurses.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -13,11 +21,25 @@
 #include "editor_state.h"
 #include "macro.h"
 
+/*
+ * Ignore SIGINT and SIGTSTP so Ctrl-C and Ctrl-Z do not suspend ncurses.
+ *
+ * Side effects:
+ *   - Replaces the handlers for SIGINT and SIGTSTP with SIG_IGN.
+ */
 void disable_ctrl_c_z() {
     signal(SIGINT, SIG_IGN);
     signal(SIGTSTP, SIG_IGN);
 }
 
+/*
+ * Apply the configured color theme to the main window and all open file
+ * buffers.
+ *
+ * Side effects:
+ *   - Updates the background attribute of stdscr and every FileState window
+ *     based on the global enable_color flag.
+ */
 void apply_colors() {
     bkgd(enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
     for (int i = 0; i < file_manager.count; ++i) {
@@ -29,6 +51,17 @@ void apply_colors() {
     }
 }
 
+/*
+ * Initialize the editor runtime and screen.
+ *
+ * ctx - EditorContext that receives configuration and state information.
+ *
+ * Side effects:
+ *   - Initializes ncurses, loads the configuration file and updates global
+ *     options such as enable_color and enable_mouse.
+ *   - Creates a default macro if none exist.
+ *   - Registers signal handlers and key definitions, and prepares menus.
+ */
 void initialize(EditorContext *ctx) {
     setlocale(LC_ALL, "");
     initscr();
@@ -76,6 +109,16 @@ void initialize(EditorContext *ctx) {
     update_status_bar(ctx, ctx->active_file);
 }
 
+/*
+ * Release resources before shutting down.
+ *
+ * fm - FileManager containing all open files.
+ *
+ * Side effects:
+ *   - Saves macros and clears syntax highlighting data.
+ *   - Frees every FileState along with the menu structures.
+ *   - Resets the FileManager fields to an empty state.
+ */
 void cleanup_on_exit(FileManager *fm) {
     if (!fm || !fm->files) {
         freeMenus();
@@ -95,6 +138,12 @@ void cleanup_on_exit(FileManager *fm) {
     fm->active_index = -1;
 }
 
+/*
+ * Signal the main loop to terminate.
+ *
+ * Side effects:
+ *   - Sets the global `exiting` flag which causes run_editor() to stop.
+ */
 void close_editor() {
     exiting = 1;
 }
