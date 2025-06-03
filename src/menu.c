@@ -201,12 +201,14 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
 
         int startX = menuPositions[*currentMenu];
         int startY = 1;
-        int boxWidth = 20;
+        int boxWidth = calcMenuWidth(&menus[*currentMenu]);
         int boxHeight = menus[*currentMenu].itemCount + 2;
-        if (startX + boxWidth > COLS || startY + boxHeight > LINES) {
-            inMenu = false;
-            continue;
-        }
+        if (startX + boxWidth > COLS)
+            startX = COLS - boxWidth;
+        if (startX < 0)
+            startX = 0;
+        if (startY + boxHeight > LINES)
+            startY = LINES - boxHeight;
         if (!drawMenu(&menus[*currentMenu], *currentItem, startX, startY)) {
             inMenu = false;
             continue;
@@ -295,12 +297,14 @@ void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *cur
                     }
                     int startX = menuPositions[*currentMenu];
                     int startY = 1;
-                    int boxWidth = 20;
+                    int boxWidth = calcMenuWidth(&menus[*currentMenu]);
                     int boxHeight = menus[*currentMenu].itemCount + 2;
-                    if (startX + boxWidth > COLS || startY + boxHeight > LINES) {
-                        inMenu = false;
-                        break;
-                    }
+                    if (startX + boxWidth > COLS)
+                        startX = COLS - boxWidth;
+                    if (startX < 0)
+                        startX = 0;
+                    if (startY + boxHeight > LINES)
+                        startY = LINES - boxHeight;
 
                     if (ev.x >= startX && ev.x < startX + boxWidth &&
                         ev.y >= startY && ev.y < startY + boxHeight) {

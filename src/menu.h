@@ -20,6 +20,7 @@ void initializeMenus(EditorContext *ctx);
 void handleMenuNavigation(Menu *menus, int menuCount, int *currentMenu, int *currentItem);
 bool drawMenu(Menu *menu, int currentItem, int startX, int startY);
 void drawMenuBar(Menu *menus, int menuCount);
+int calcMenuWidth(Menu *menu);
 void menuNewFile(EditorContext *ctx);
 void menuLoadFile(EditorContext *ctx);
 void menuSaveFile(EditorContext *ctx);
