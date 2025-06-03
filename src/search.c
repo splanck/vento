@@ -13,6 +13,22 @@
 #include "config.h"
 #include "editor_state.h"
 
+/*
+ * Search and replace implementation.
+ *
+ * Case sensitivity is controlled by the global option
+ * `app_config.search_ignore_case`. When enabled the helper
+ * `strcasestr_simple` is used to compare text in a case-insensitive way.
+ *
+ * All search operations use `scan_next` which scans forward from the current
+ * cursor position and wraps to the start of the buffer when the end is
+ * reached.  The coordinates of the most recent match are stored in the
+ * FileState fields `match_start_x`, `match_end_x`, `match_start_y` and
+ * `match_end_y`.  The editor highlights these coordinates after a successful
+ * search or replace.  A value of `-1` in these fields indicates that no match
+ * is currently highlighted.
+ */
+
 extern char search_text[256];
 
 static char *strcasestr_simple(const char *h, const char *n) {
@@ -30,12 +46,15 @@ static char *strcasestr_simple(const char *h, const char *n) {
     return NULL;
 }
 
-/*
- * Scan the text buffer starting from the given line and column for the next
- * occurrence of the specified word. The search wraps around to the beginning of
- * the document if necessary. On success, the found line index is stored in
- * `found_line` and a pointer to the position within the line is returned.
- * Returns NULL if the word is not found.
+/**
+ * Scan the buffer for the next occurrence of `word`.
+ *
+ * The scan begins at `start_search`/`cursor_x` and proceeds to the end of the
+ * document, wrapping to the beginning if necessary. Case sensitivity follows
+ * `app_config.search_ignore_case`.  When a match is found `*found_line` is set
+ * to the matching line index and a pointer to the match inside that line is
+ * returned.  The function performs no cursor movement or state updates and
+ * returns NULL when no match exists.
  */
 static char *scan_next(FileState *fs, const char *word, int start_search,
                        int cursor_x, int *found_line) {
@@ -67,6 +86,15 @@ static char *scan_next(FileState *fs, const char *word, int start_search,
     return NULL;
 }
 
+/**
+ * Move the cursor to the next occurrence of `word`.
+ *
+ * This uses `scan_next` starting from the current cursor position.  When a
+ * match is found the cursor and viewport are updated so that the match is
+ * visible, and the match coordinates in `fs` are set for highlighting.  If no
+ * match exists a status message is printed and the highlight coordinates are
+ * cleared.
+ */
 void find_next_occurrence(FileState *fs, const char *word) {
     int *cursor_x = &fs->cursor_x;
     int *cursor_y = &fs->cursor_y;
@@ -117,6 +145,15 @@ void find_next_occurrence(FileState *fs, const char *word) {
     wrefresh(text_win);
 }
 
+/**
+ * Entry point for interactive searches.
+ *
+ * When `new_search` is non-zero a dialog prompts the user for a search string
+ * and repeated presses of Enter continue searching forward.  When zero, the
+ * previously entered `search_text` is reused.  Cursor movement and match
+ * highlighting are handled by `find_next_occurrence`.  This function does not
+ * modify the undo stack.
+ */
 void find(EditorContext *ctx, FileState *fs, int new_search)
 {
     char output[256];
@@ -190,6 +227,15 @@ static void replace_in_line(FileState *fs, int line, char *pos,
     mark_comment_state_dirty(fs);
 }
 
+/**
+ * Replace the next occurrence of `search` with `replacement`.
+ *
+ * Starting from the current cursor position this searches forward using
+ * `scan_next`.  When a match is found the text of that line is replaced and the
+ * modification is pushed onto the undo stack.  The cursor is moved to the end
+ * of the inserted text and the viewport is adjusted to keep the line visible.
+ * Search highlight fields are cleared when the operation completes.
+ */
 void replace_next_occurrence(FileState *fs, const char *search,
                              const char *replacement) {
     int *cursor_x = &fs->cursor_x;
@@ -242,6 +288,15 @@ void replace_next_occurrence(FileState *fs, const char *search,
     fs->match_start_y = fs->match_end_y = -1;
 }
 
+/**
+ * Replace every occurrence of `search` in the buffer.
+ *
+ * Each line is scanned for matches (respecting case sensitivity) and whenever
+ * a match is found the text is rewritten.  Every change is pushed onto the undo
+ * stack.  When finished the current match highlight is cleared, `fs->modified`
+ * is set if replacements occurred and the window is redrawn to reflect the
+ * changes.
+ */
 void replace_all_occurrences(FileState *fs, const char *search,
                              const char *replacement) {
     bool replaced = false;
@@ -334,6 +389,15 @@ void replace_all_occurrences(FileState *fs, const char *search,
     wrefresh(text_win);
 }
 
+/**
+ * Interactive entry point for text replacement.
+ *
+ * Displays a dialog prompting for the search and replacement strings and then
+ * asks the user whether to replace only the next occurrence or all of them.
+ * The actual modifications and cursor movements are performed by
+ * `replace_next_occurrence` or `replace_all_occurrences` depending on the
+ * chosen option.
+ */
 void replace(EditorContext *ctx, FileState *fs) {
     char search[256];
     char replacement[256];
