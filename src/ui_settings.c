@@ -197,13 +197,17 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
         show_message("Unable to create window");
         return 0;
     }
+    getmaxyx(win, win_height, win_width);
     keypad(win, TRUE);
 
     while (!done) {
         werase(win);
         box(win, 0, 0);
 
-        for (int i = 0; i < FIELD_COUNT; ++i) {
+        int max_display = win_height - 3;
+        if (max_display > FIELD_COUNT)
+            max_display = FIELD_COUNT;
+        for (int i = 0; i < max_display; ++i) {
             const Option *opt = &options[i];
             if (i == highlight)
                 wattron(win, A_REVERSE);
@@ -243,7 +247,7 @@ int show_settings_dialog(EditorContext *ctx, AppConfig *cfg) {
                 getbegyx(win, wy, wx);
                 int row = ev.y - wy - 1;
                 int col = ev.x - wx - 2;
-                if (row >= 0 && row < FIELD_COUNT &&
+                if (row >= 0 && row < FIELD_COUNT && row < win_height - 3 &&
                     col >= 0 && col < win_width - 4) {
                     highlight = row;
                     if (ev.bstate & (BUTTON1_RELEASED | BUTTON1_CLICKED)) {
