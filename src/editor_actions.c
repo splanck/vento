@@ -101,11 +101,6 @@ void insert_new_line(EditorContext *ctx, FileState *fs) {
         fs->cursor_y++;
     }
     redraw();
-    if (fs->cursor_y > 1) {
-        fs->cursor_y--;
-    } else if (fs->start_line > 0) {
-        fs->start_line--;
-    }
 }
 
 void handle_redo_wrapper(FileState *fs, int *cx, int *cy) {
