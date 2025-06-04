@@ -62,14 +62,18 @@ void end_selection_mode(FileState *fs) {
 void copy_selection(FileState *fs) {
     int start_x = fs->sel_start_x;
     int end_x = fs->sel_end_x;
-    int start_y, end_y;
+    int start_y = fs->sel_start_y;
+    int end_y = fs->sel_end_y;
 
-    if (fs->sel_start_y < fs->sel_end_y) {
-        start_y = fs->sel_start_y;
-        end_y = fs->sel_end_y;
-    } else {
+    if (start_y > end_y) {
         start_y = fs->sel_end_y;
         end_y = fs->sel_start_y;
+        start_x = fs->sel_end_x;
+        end_x = fs->sel_start_x;
+    } else if (start_y == end_y && start_x > end_x) {
+        int tmp = start_x;
+        start_x = end_x;
+        end_x = tmp;
     }
 
     global_clipboard[0] = '\0';  // Clear clipboard
