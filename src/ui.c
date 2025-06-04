@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 #include "config.h"
 #include "editor.h"
 #include "ui.h"
@@ -146,7 +147,7 @@ int show_goto_dialog(EditorContext *ctx, int *line_number) {
     char *endptr;
     long val = strtol(buf, &endptr, 10);
 
-    if (*endptr != '\0' || val < 1) {
+    if (*endptr != '\0' || val < 1 || val > INT_MAX) {
         return 0;
     }
 
