@@ -84,3 +84,12 @@ int __wrap_wgetch(WINDOW *win) {
     (void)win;
     return 27; /* ESC to exit immediately */
 }
+
+int last_mvprintw_y = -1;
+int last_mvprintw_x = -1;
+int __wrap_mvprintw(int y, int x, const char *fmt, ...) {
+    last_mvprintw_y = y;
+    last_mvprintw_x = x;
+    (void)fmt;
+    return 0; /* suppress real output */
+}
