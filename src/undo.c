@@ -91,12 +91,22 @@ void undo(FileState *fs) {
         fs->buffer.lines[change.line] = p;
         fs->buffer.lines[change.line][fs->line_capacity - 1] = '\0';
 
-        push(&fs->redo_stack, (Change){ change.line, strdup(change.old_text), NULL });
+        char *dup = strdup(change.old_text);
+        if (!dup) {
+            allocation_failed("strdup failed");
+        } else {
+            push(&fs->redo_stack, (Change){ change.line, dup, NULL });
+        }
         free(change.old_text);
     } else if (!change.old_text && change.new_text) { /* Insertion */
         lb_delete(&fs->buffer, change.line);
 
-        push(&fs->redo_stack, (Change){ change.line, NULL, strdup(change.new_text) });
+        char *dup = strdup(change.new_text);
+        if (!dup) {
+            allocation_failed("strdup failed");
+        } else {
+            push(&fs->redo_stack, (Change){ change.line, NULL, dup });
+        }
         free(change.new_text);
     } else if (change.old_text && change.new_text) { /* Edit */
         char *line = (char *)lb_get(&fs->buffer, change.line);
@@ -105,8 +115,18 @@ void undo(FileState *fs) {
             line[fs->line_capacity - 1] = '\0';
         }
 
-        push(&fs->redo_stack,
-             (Change){ change.line, strdup(change.old_text), strdup(change.new_text) });
+        char *dup_old = strdup(change.old_text);
+        char *dup_new = strdup(change.new_text);
+        if (!dup_old || !dup_new) {
+            if (dup_old)
+                free(dup_old);
+            if (dup_new)
+                free(dup_new);
+            allocation_failed("strdup failed");
+        } else {
+            push(&fs->redo_stack,
+                 (Change){ change.line, dup_old, dup_new });
+        }
         free(change.old_text);
         free(change.new_text);
     }
@@ -133,7 +153,12 @@ void redo(FileState *fs) {
     Change change = pop(&fs->redo_stack);
 
     if (change.old_text && !change.new_text) { /* Deletion */
-        push(&fs->undo_stack, (Change){ change.line, strdup(change.old_text), NULL });
+        char *dup = strdup(change.old_text);
+        if (!dup) {
+            allocation_failed("strdup failed");
+        } else {
+            push(&fs->undo_stack, (Change){ change.line, dup, NULL });
+        }
         lb_delete(&fs->buffer, change.line);
         free(change.old_text);
     } else if (!change.old_text && change.new_text) { /* Insertion */
@@ -144,11 +169,26 @@ void redo(FileState *fs) {
             allocation_failed("realloc failed");
         fs->buffer.lines[change.line] = p;
         fs->buffer.lines[change.line][fs->line_capacity - 1] = '\0';
-        push(&fs->undo_stack, (Change){ change.line, NULL, strdup(change.new_text) });
+        char *dup = strdup(change.new_text);
+        if (!dup) {
+            allocation_failed("strdup failed");
+        } else {
+            push(&fs->undo_stack, (Change){ change.line, NULL, dup });
+        }
         free(change.new_text);
     } else if (change.old_text && change.new_text) { /* Edit */
-        push(&fs->undo_stack,
-             (Change){ change.line, strdup(change.old_text), strdup(change.new_text) });
+        char *dup_old = strdup(change.old_text);
+        char *dup_new = strdup(change.new_text);
+        if (!dup_old || !dup_new) {
+            if (dup_old)
+                free(dup_old);
+            if (dup_new)
+                free(dup_new);
+            allocation_failed("strdup failed");
+        } else {
+            push(&fs->undo_stack,
+                 (Change){ change.line, dup_old, dup_new });
+        }
         char *line = (char *)lb_get(&fs->buffer, change.line);
         if (line) {
             strncpy(line, change.new_text, fs->line_capacity - 1);
