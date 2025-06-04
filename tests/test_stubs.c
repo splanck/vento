@@ -17,6 +17,7 @@ int fm_add_fail = 0;
 
 int strdup_fail_on = 0;
 int strdup_call_count = 0;
+int allocation_fail_count = 0;
 
 int create_popup_fail = 0;
 int last_curs_set = -2;
@@ -26,7 +27,10 @@ bool __wrap_confirm_switch(void) { return true; }
 void __wrap_clamp_scroll_x(FileState *fs) { (void)fs; }
 void __wrap_redraw(void) {}
 bool confirm_quit(void) { return true; }
-void __wrap_allocation_failed(const char *msg) { fprintf(stderr, "alloc fail: %s\n", msg ? msg : ""); }
+void __wrap_allocation_failed(const char *msg) {
+    allocation_fail_count++;
+    fprintf(stderr, "alloc fail: %s\n", msg ? msg : "");
+}
 void __wrap_draw_text_buffer(FileState *fs, WINDOW *win) { (void)fs; (void)win; }
 int last_status_count = -1;
 void __wrap_update_status_bar(EditorContext *ctx, FileState *fs) {
