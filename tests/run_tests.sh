@@ -77,3 +77,11 @@ gcc goto_dialog_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncurse
     -Wl,--wrap=create_popup_window -Wl,--wrap=curs_set -Wl,--wrap=create_dialog \
     -o goto_dialog_tests
 ./goto_dialog_tests
+gcc help_text_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncursesw \
+    -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar \
+    -Wl,--wrap=confirm_switch -Wl,--wrap=allocation_failed -Wl,--wrap=clamp_scroll_x \
+    -Wl,--wrap=draw_text_buffer -Wl,--wrap=redraw -Wl,--wrap=strdup \
+    -Wl,--wrap=create_popup_window -Wl,--wrap=curs_set -Wl,--wrap=create_dialog \
+    -Wl,--wrap=mvprintw \
+    -o help_text_tests
+./help_text_tests

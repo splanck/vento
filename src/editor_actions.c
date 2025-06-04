@@ -317,7 +317,9 @@ void update_status_bar(EditorContext *ctx, FileState *fs) {
     clrtoeol();
     int actual_line_number = fs ? (fs->cursor_y + fs->start_line) : 0;
     mvprintw(LINES - 1, 0, "Lines: %d  Current Line: %d  Column: %d", fs ? fs->buffer.count : 0, actual_line_number, fs ? fs->cursor_x : 0);
-    mvprintw(LINES - 1, COLS - 15, "CTRL-H - Help");
+    int help_col = COLS - 15;
+    if (help_col < 0) help_col = 0;
+    mvprintw(LINES - 1, help_col, "CTRL-H - Help");
     wnoutrefresh(stdscr);
 }
 
