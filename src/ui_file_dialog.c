@@ -197,6 +197,10 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
             resizeterm(0, 0);
             win_height = LINES - 4;
             win_width = COLS - 4;
+            if (win_height > LINES - 2)
+                win_height = LINES - 2;
+            if (win_height < 2)
+                win_height = 2;
             if (win_width > COLS - 2)
                 win_width = COLS - 2;
             if (win_width < 2)
@@ -204,8 +208,14 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
             wresize(win, win_height, win_width);
             int win_y = (LINES - win_height) / 2;
             int win_x = (COLS - win_width) / 2;
+            if (win_y < 0)
+                win_y = 0;
+            if (win_y > LINES - win_height)
+                win_y = LINES - win_height;
             if (win_x < 0)
                 win_x = 0;
+            if (win_x > COLS - win_width)
+                win_x = COLS - win_width;
             mvwin(win, win_y, win_x);
             werase(win);
             touchwin(win);
