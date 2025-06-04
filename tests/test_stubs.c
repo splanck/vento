@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ncurses.h>
 
 char *__real_strdup(const char *);
+WINDOW *__real_create_popup_window(int, int, WINDOW *);
 
 __attribute__((weak)) FileManager file_manager;
 
@@ -15,6 +17,9 @@ int fm_add_fail = 0;
 
 int strdup_fail_on = 0;
 int strdup_call_count = 0;
+
+int create_popup_fail = 0;
+int last_curs_set = -2;
 
 
 bool __wrap_confirm_switch(void) { return true; }
@@ -60,6 +65,19 @@ char *__wrap_strdup(const char *s) {
     if (strdup_fail_on > 0 && strdup_call_count == strdup_fail_on)
         return NULL;
     return __real_strdup(s);
+}
+
+WINDOW *__wrap_create_popup_window(int h, int w, WINDOW *p) {
+    if (create_popup_fail) {
+        create_popup_fail = 0;
+        return NULL;
+    }
+    return __real_create_popup_window(h, w, p);
+}
+
+int __wrap_curs_set(int vis) {
+    last_curs_set = vis;
+    return 0; /* avoid calling real function */
 }
 
 int __wrap_wgetch(WINDOW *win) {
