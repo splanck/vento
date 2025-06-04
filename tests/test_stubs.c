@@ -80,9 +80,41 @@ int __wrap_curs_set(int vis) {
     return 0; /* avoid calling real function */
 }
 
+static int key_seq[16];
+static int key_seq_count = 0;
+static int key_seq_index = 0;
+
+void set_wgetch_sequence(const int *keys, int count) {
+    if (count > (int)(sizeof(key_seq) / sizeof(key_seq[0])))
+        count = (int)(sizeof(key_seq) / sizeof(key_seq[0]));
+    for (int i = 0; i < count; ++i)
+        key_seq[i] = keys[i];
+    key_seq_count = count;
+    key_seq_index = 0;
+}
+
 int __wrap_wgetch(WINDOW *win) {
     (void)win;
-    return 27; /* ESC to exit immediately */
+    if (key_seq_index < key_seq_count)
+        return key_seq[key_seq_index++];
+    return 27; /* ESC by default */
+}
+
+int last_mvwin_y = -1;
+int last_mvwin_x = -1;
+int last_wresize_h = -1;
+int last_wresize_w = -1;
+int __real_mvwin(WINDOW *, int, int);
+int __real_wresize(WINDOW *, int, int);
+int __wrap_mvwin(WINDOW *win, int y, int x) {
+    last_mvwin_y = y;
+    last_mvwin_x = x;
+    return __real_mvwin(win, y, x);
+}
+int __wrap_wresize(WINDOW *win, int h, int w) {
+    last_wresize_h = h;
+    last_wresize_w = w;
+    return __real_wresize(win, h, w);
 }
 
 int last_mvprintw_y = -1;
