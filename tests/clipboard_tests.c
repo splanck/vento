@@ -82,10 +82,63 @@ static char *test_strdup_failure_new_text() {
     return 0;
 }
 
+static char *test_copy_selection_backward_multiline() {
+    initscr();
+    FileState *fs = initialize_file_state("", 10, 80);
+    mu_assert("fs allocated", fs != NULL);
+    active_file = fs;
+    text_win = fs->text_win;
+
+    strcpy(fs->buffer.lines[0], "abcde");
+    strcpy(fs->buffer.lines[1], "fghij");
+    strcpy(fs->buffer.lines[2], "klmno");
+    fs->buffer.count = 3;
+
+    fs->sel_start_x = 4;
+    fs->sel_start_y = 3;
+    fs->sel_end_x = 2;
+    fs->sel_end_y = 1;
+
+    copy_selection(fs);
+
+    mu_assert("clipboard backward", strcmp(global_clipboard,
+                "bcd\nfghij\nklmno") == 0);
+
+    free_file_state(fs);
+    endwin();
+    return 0;
+}
+
+static char *test_copy_selection_backward_same_line() {
+    initscr();
+    FileState *fs = initialize_file_state("", 10, 80);
+    mu_assert("fs allocated", fs != NULL);
+    active_file = fs;
+    text_win = fs->text_win;
+
+    strcpy(fs->buffer.lines[0], "abcdef");
+    fs->buffer.count = 1;
+
+    fs->sel_start_x = 6;
+    fs->sel_start_y = 1;
+    fs->sel_end_x = 3;
+    fs->sel_end_y = 1;
+
+    copy_selection(fs);
+
+    mu_assert("clipboard same line", strcmp(global_clipboard, "cde") == 0);
+
+    free_file_state(fs);
+    endwin();
+    return 0;
+}
+
 static char *all_tests() {
     mu_run_test(test_paste_cursor_clamped);
     mu_run_test(test_strdup_failure_old_text);
     mu_run_test(test_strdup_failure_new_text);
+    mu_run_test(test_copy_selection_backward_multiline);
+    mu_run_test(test_copy_selection_backward_same_line);
     return 0;
 }
 
