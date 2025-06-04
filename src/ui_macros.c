@@ -90,8 +90,17 @@ void show_manage_macros(EditorContext *ctx) {
             if (win_width < 2)
                 win_width = 2;
             wresize(win, win_height, win_width);
-            mvwin(win, (LINES - win_height) / 2,
-                  (COLS - win_width) / 2 < 0 ? 0 : (COLS - win_width) / 2);
+            int win_y = (LINES - win_height) / 2;
+            int win_x = (COLS - win_width) / 2;
+            if (win_y < 0)
+                win_y = 0;
+            if (win_y > LINES - win_height)
+                win_y = LINES - win_height;
+            if (win_x < 0)
+                win_x = 0;
+            if (win_x > COLS - win_width)
+                win_x = COLS - win_width;
+            mvwin(win, win_y, win_x);
             continue;
         } else if (ch == KEY_UP) {
             if (highlight > 0)
