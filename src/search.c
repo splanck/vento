@@ -271,7 +271,12 @@ void replace_next_occurrence(FileState *fs, const char *search,
 
     *cursor_y = found_line - fs->start_line + 1;
     const char *found_line_text2 = lb_get(&fs->buffer, found_line);
-    *cursor_x = (found_position - found_line_text2) + strlen(replacement) + 1;
+    int desired_x = (found_position - found_line_text2) + strlen(replacement) + 1;
+    int line_len = strlen(found_line_text2);
+    if (desired_x > line_len + 1)
+        *cursor_x = line_len + 1;
+    else
+        *cursor_x = desired_x;
 
     mvprintw(LINES - 2, 0, "Replaced at Line: %d, Column: %d", *cursor_y + fs->start_line + 1, *cursor_x);
     clrtoeol();
