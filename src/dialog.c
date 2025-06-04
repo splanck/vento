@@ -91,8 +91,14 @@ int dialog_prompt(WINDOW *win, int y, int x, char *buf, size_t len) {
             getmaxyx(win, h, w);
             int win_y = (LINES - h) / 2;
             int win_x = (COLS - w) / 2;
+            if (win_y < 0)
+                win_y = 0;
+            if (win_y > LINES - h)
+                win_y = LINES - h;
             if (win_x < 0)
                 win_x = 0;
+            if (win_x > COLS - w)
+                win_x = COLS - w;
             mvwin(win, win_y, win_x);
             box(win, 0, 0);
             mvwprintw(win, y, x, "%s", buf);
