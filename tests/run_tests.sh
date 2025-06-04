@@ -17,12 +17,14 @@ gcc navigation_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncurses
     -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar \
     -Wl,--wrap=confirm_switch -Wl,--wrap=allocation_failed -Wl,--wrap=clamp_scroll_x \
     -Wl,--wrap=draw_text_buffer -Wl,--wrap=redraw -Wl,--wrap=strdup \
+    -Wl,--wrap=create_popup_window -Wl,--wrap=curs_set \
     -o navigation_tests
 ./navigation_tests
 gcc menu_load_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncursesw \
     -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar \
     -Wl,--wrap=confirm_switch -Wl,--wrap=allocation_failed -Wl,--wrap=clamp_scroll_x \
     -Wl,--wrap=draw_text_buffer -Wl,--wrap=redraw -Wl,--wrap=strdup \
+    -Wl,--wrap=create_popup_window -Wl,--wrap=curs_set \
     -o menu_load_tests
 ./menu_load_tests
 
@@ -30,29 +32,41 @@ gcc macro_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncursesw \
     -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar \
     -Wl,--wrap=confirm_switch -Wl,--wrap=allocation_failed -Wl,--wrap=clamp_scroll_x \
     -Wl,--wrap=draw_text_buffer -Wl,--wrap=redraw -Wl,--wrap=strdup \
+    -Wl,--wrap=create_popup_window -Wl,--wrap=curs_set \
     -o macro_tests
 ./macro_tests
 gcc editor_actions_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncursesw \
     -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar \
     -Wl,--wrap=confirm_switch -Wl,--wrap=allocation_failed -Wl,--wrap=clamp_scroll_x \
     -Wl,--wrap=draw_text_buffer -Wl,--wrap=redraw -Wl,--wrap=strdup \
+    -Wl,--wrap=create_popup_window -Wl,--wrap=curs_set \
     -o editor_actions_tests
 ./editor_actions_tests
 gcc clipboard_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncursesw \
     -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar \
     -Wl,--wrap=confirm_switch -Wl,--wrap=allocation_failed -Wl,--wrap=clamp_scroll_x \
     -Wl,--wrap=draw_text_buffer -Wl,--wrap=redraw -Wl,--wrap=strdup \
+    -Wl,--wrap=create_popup_window -Wl,--wrap=curs_set \
     -o clipboard_tests
 ./clipboard_tests
 gcc theme_fd_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncursesw \
     -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar \
     -Wl,--wrap=confirm_switch -Wl,--wrap=allocation_failed -Wl,--wrap=clamp_scroll_x \
     -Wl,--wrap=draw_text_buffer -Wl,--wrap=redraw -Wl,--wrap=strdup -Wl,--wrap=wgetch \
+    -Wl,--wrap=create_popup_window -Wl,--wrap=curs_set \
     -o theme_fd_tests
 ./theme_fd_tests
 gcc search_replace_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncursesw \
     -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar \
     -Wl,--wrap=confirm_switch -Wl,--wrap=allocation_failed -Wl,--wrap=clamp_scroll_x \
     -Wl,--wrap=draw_text_buffer -Wl,--wrap=redraw -Wl,--wrap=strdup \
+    -Wl,--wrap=create_popup_window -Wl,--wrap=curs_set \
     -o search_replace_tests
 ./search_replace_tests
+gcc dialog_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncursesw \
+    -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar \
+    -Wl,--wrap=confirm_switch -Wl,--wrap=allocation_failed -Wl,--wrap=clamp_scroll_x \
+    -Wl,--wrap=draw_text_buffer -Wl,--wrap=redraw -Wl,--wrap=strdup \
+    -Wl,--wrap=create_popup_window -Wl,--wrap=curs_set \
+    -o dialog_tests
+./dialog_tests

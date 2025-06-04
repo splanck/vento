@@ -23,8 +23,10 @@
 WINDOW *dialog_open(int height, int width, const char *title) {
     curs_set(0);
     WINDOW *win = create_popup_window(height, width, NULL);
-    if (!win)
+    if (!win) {
+        curs_set(1);
         return NULL;
+    }
     keypad(win, TRUE);
     wbkgd(win, enable_color ? COLOR_PAIR(SYNTAX_BG) : A_NORMAL);
     wrefresh(stdscr);
