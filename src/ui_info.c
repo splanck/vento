@@ -123,15 +123,24 @@ void show_about(EditorContext *ctx) {
 
     if (ctx->enable_color)
         wattron(about_win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
-    mvwprintw(about_win, 1, (win_width - (int)strlen(lines[0])) / 2, "%s", lines[0]);
+    int len = (int)strlen(lines[0]);
+    int col = (win_width - len) / 2;
+    if (col < 0) col = 0;
+    mvwprintw(about_win, 1, col, "%s", lines[0]);
     if (ctx->enable_color)
         wattroff(about_win, COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD);
 
-    for (int i = 1; i < count; ++i)
-        mvwprintw(about_win, i + 1, (win_width - (int)strlen(lines[i])) / 2, "%s", lines[i]);
+    for (int i = 1; i < count; ++i) {
+        len = (int)strlen(lines[i]);
+        col = (win_width - len) / 2;
+        if (col < 0) col = 0;
+        mvwprintw(about_win, i + 1, col, "%s", lines[i]);
+    }
 
-    mvwprintw(about_win, win_height - 2,
-              (win_width - (int)strlen(footer)) / 2, "%s", footer);
+    len = (int)strlen(footer);
+    col = (win_width - len) / 2;
+    if (col < 0) col = 0;
+    mvwprintw(about_win, win_height - 2, col, "%s", footer);
 
     wrefresh(about_win);
     wgetch(about_win);
@@ -157,9 +166,18 @@ void show_warning_dialog(EditorContext *ctx) {
     char *message2 = "It is under development and not intended for production use.";
     char *message3 = "(Press any key to dismiss)";
 
-    mvwprintw(warning_win, 2, (win_width - strlen(message1)) / 2, "%s", message1);
-    mvwprintw(warning_win, 3, (win_width - strlen(message2)) / 2, "%s", message2);
-    mvwprintw(warning_win, 5, (win_width - strlen(message3)) / 2, "%s", message3);
+    int len = (int)strlen(message1);
+    int col = (win_width - len) / 2;
+    if (col < 0) col = 0;
+    mvwprintw(warning_win, 2, col, "%s", message1);
+    len = (int)strlen(message2);
+    col = (win_width - len) / 2;
+    if (col < 0) col = 0;
+    mvwprintw(warning_win, 3, col, "%s", message2);
+    len = (int)strlen(message3);
+    col = (win_width - len) / 2;
+    if (col < 0) col = 0;
+    mvwprintw(warning_win, 5, col, "%s", message3);
 
     wrefresh(warning_win);
     wgetch(warning_win);
