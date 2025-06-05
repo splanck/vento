@@ -64,6 +64,13 @@ dialog with changes, the updated configuration is automatically saved back to
 You can override the location of this file by setting the `VENTO_CONFIG`
 environment variable to an alternate path.
 
+- Set `VENTO_MACROS` to override the default macros file (`~/.ventomacros`).
+  For example:
+
+  ```sh
+  VENTO_MACROS=$HOME/custom.macros vento
+  ```
+
 This file is created automatically with default values if it does not exist. Unknown keys are ignored when the file is parsed. You can also change these options interactively using the **Settings** dialog. Open it from *File → Settings* (press `CTRL-T` to open the menu) and navigate with the arrow keys. The recognized keys are:
 - `background_color`
 - `text_color`
