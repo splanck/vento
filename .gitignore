@@ -6,6 +6,9 @@ obj_test/
 *.json
 # Test binaries
 /test_*
+tests/*_tests
+tests/obj_test/
+tests/*.o
 
 # IDE/editor files
 .idea/
