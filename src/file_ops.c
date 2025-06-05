@@ -10,10 +10,7 @@
 #include "file_manager.h"
 #include "ui_common.h"
 #include "editor_state.h"
-#include <limits.h>
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
+#include "path_utils.h"
 #include <stdlib.h>
 char *realpath(const char *path, char *resolved_path);
 
