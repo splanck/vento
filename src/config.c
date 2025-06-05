@@ -6,10 +6,7 @@
 #include <pwd.h>
 #include <dirent.h>
 #include <unistd.h>
-#include <limits.h>
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
+#include "path_utils.h"
 #include "editor.h"
 #include "config.h"
 #include "editor_state.h"

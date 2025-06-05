@@ -3,10 +3,7 @@
 
 #define VERSION "0.1.3"
 
-#include <limits.h>
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
+#include "path_utils.h"
 
 /* Directory containing installed color themes. Can be overridden at compile
  * time by defining THEME_DIR. Defaults to "themes" which resolves to the

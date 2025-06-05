@@ -18,10 +18,7 @@
 #include "editor_state.h"
 #include "line_buffer.h"
 #include "undo.h"
-#include <limits.h>
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
+#include "path_utils.h"
 #include <stddef.h>
 char *realpath(const char *path, char *resolved_path);
 /**
