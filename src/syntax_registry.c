@@ -10,7 +10,7 @@
 #include "files.h"
 #include <string.h>
 
-#define SYNTAX_MODE_COUNT 8
+#define SYNTAX_MODE_COUNT 9
 
 /*
  * Table of available syntax definitions indexed by syntax mode.  Entries are
@@ -140,6 +140,15 @@ static SyntaxRegex SHELL_PATTERNS[] = {
 };
 static const SyntaxDef SHELL_DEF = { ".sh", SHELL_PATTERNS, sizeof(SHELL_PATTERNS)/sizeof(SHELL_PATTERNS[0]) };
 
+#define JSON_KEYWORDS_PATTERN "^(true|false|null)\\b"
+static SyntaxRegex JSON_PATTERNS[] = {
+    { .pattern = "^\"([^\"\\]|\\.)*\"", .attr = COLOR_PAIR(SYNTAX_STRING) | A_BOLD },
+    { .pattern = "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]+)?", .attr = COLOR_PAIR(SYNTAX_TYPE) | A_BOLD },
+    { .pattern = JSON_KEYWORDS_PATTERN, .attr = COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD },
+    { .pattern = "^[{}\[\]:,]", .attr = COLOR_PAIR(SYNTAX_SYMBOL) | A_BOLD },
+};
+static const SyntaxDef JSON_DEF = { ".json", JSON_PATTERNS, sizeof(JSON_PATTERNS)/sizeof(JSON_PATTERNS[0]) };
+
 __attribute__((constructor))
 static void init_registry(void) {
     syntax_register(C_SYNTAX, &C_DEF);
@@ -148,5 +157,6 @@ static void init_registry(void) {
     syntax_register(JS_SYNTAX, &JS_DEF);
     syntax_register(CSS_SYNTAX, &CSS_DEF);
     syntax_register(SHELL_SYNTAX, &SHELL_DEF);
+    syntax_register(JSON_SYNTAX, &JSON_DEF);
 }
 

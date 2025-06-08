@@ -42,7 +42,7 @@ void apply_syntax_highlighting(FileState *fs, WINDOW *win, const char *line, int
  * called during application shutdown to release regex resources.
  */
 void syntax_cleanup(void) {
-    for (int mode = 0; mode < 8; mode++) {
+    for (int mode = 0; mode < 9; mode++) {
         const SyntaxDef *def = syntax_get(mode);
         if (def)
             free_regex_set(def->patterns, def->count);
