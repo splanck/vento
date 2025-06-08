@@ -12,6 +12,7 @@
 #include "editor_state.h"
 #include "path_utils.h"
 #include <stdlib.h>
+#include <errno.h>
 char *realpath(const char *path, char *resolved_path);
 
 /*
@@ -57,7 +58,8 @@ void save_file(EditorContext *ctx, FileState *fs) {
             fs->modified = false;
             mvprintw(LINES - 2, 2, "File saved as %s", fs->filename);
         } else {
-            mvprintw(LINES - 2, 2, "Error saving file!");
+            int err = errno;
+            mvprintw(LINES - 2, 2, "Error saving file: %s", strerror(err));
         }
         clrtoeol();
         refresh();
@@ -101,7 +103,8 @@ void save_file_as(EditorContext *ctx, FileState *fs) {
         fs->modified = false;
         mvprintw(LINES - 2, 2, "File saved as %s", fs->filename);
     } else {
-        mvprintw(LINES - 2, 2, "Error saving file!");
+        int err = errno;
+        mvprintw(LINES - 2, 2, "Error saving file: %s", strerror(err));
     }
 
     clrtoeol();
@@ -193,7 +196,8 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     fs->fp = fopen(filename_canon, "r");
     fs->file_pos = 0;
     if (!fs->fp) {
-        mvprintw(LINES - 2, 2, "Error loading file!");
+        int err = errno;
+        mvprintw(LINES - 2, 2, "Error loading file: %s", strerror(err));
         refresh();
         getch();
         mvprintw(LINES - 2, 2, "                            ");
