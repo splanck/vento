@@ -12,6 +12,7 @@
 #define JS_SYNTAX 5
 #define CSS_SYNTAX 6
 #define SHELL_SYNTAX 7
+#define JSON_SYNTAX 8
 
 typedef enum {
     SYNTAX_BG = 1,

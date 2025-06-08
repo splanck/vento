@@ -475,6 +475,8 @@ int set_syntax_mode(const char *filename) {
             return JS_SYNTAX;
         } else if (strcmp(ext, ".css") == 0) {
             return CSS_SYNTAX;
+        } else if (strcmp(ext, ".json") == 0) {
+            return JSON_SYNTAX;
         }
     }
     FILE *fp = fopen(filename, "r");

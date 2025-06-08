@@ -4,6 +4,7 @@ obj/
 obj_test/
 *.o
 *.json
+!tests/sample.json
 # Test binaries
 /test_*
 tests/*_tests
