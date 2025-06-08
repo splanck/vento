@@ -10,6 +10,7 @@
 
 extern int last_status_count;
 extern char last_mvprintw_buf[];
+extern int fm_add_fail;
 
 int tests_run = 0;
 
@@ -66,9 +67,28 @@ static char *test_load_error_message() {
     return 0;
 }
 
+static char *test_load_add_error_message() {
+    initscr();
+    fm_init(&file_manager);
+    last_mvprintw_buf[0] = '\0';
+    fm_add_fail = 1;
+    errno = ENOMEM;
+    int res = load_file(NULL, NULL, "../README.md");
+    fm_add_fail = 0;
+    mu_assert("load add failed", res < 0);
+    mu_assert("error text add", strstr(last_mvprintw_buf, strerror(ENOMEM)) != NULL);
+    if (file_manager.count > 0) {
+        for (int i = file_manager.count - 1; i >= 0; i--)
+            fm_close(&file_manager, i);
+    }
+    endwin();
+    return 0;
+}
+
 static char *all_tests() {
     mu_run_test(test_menu_load_and_navigation);
     mu_run_test(test_load_error_message);
+    mu_run_test(test_load_add_error_message);
     return 0;
 }
 

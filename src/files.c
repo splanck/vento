@@ -20,6 +20,7 @@
 #include "undo.h"
 #include "path_utils.h"
 #include <stddef.h>
+#include <errno.h>
 /**
  * canonicalize_path - resolve PATH to an absolute form.
  * @path: input file path, may be NULL or empty.
@@ -272,11 +273,13 @@ int load_next_lines(FileState *fs, int count) {
     while (loaded < count && (nread = getline(&line, &len, fs->fp)) != -1) {
         (void)nread;
         if (read_line_into(fs, line) < 0) {
+            int err = errno; /* preserve errno across cleanup */
             free(line);
             if (fs->fp) {
                 fclose(fs->fp);
                 fs->fp = NULL;
             }
+            errno = err;
             fs->file_complete = false;
             return -1;
         }
