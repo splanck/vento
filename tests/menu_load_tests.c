@@ -5,8 +5,11 @@
 #include "editor_state.h"
 #include <ncurses.h>
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
 
 extern int last_status_count;
+extern char last_mvprintw_buf[];
 
 int tests_run = 0;
 
@@ -48,8 +51,24 @@ static char *test_menu_load_and_navigation() {
     return 0;
 }
 
+static char *test_load_error_message() {
+    initscr();
+    fm_init(&file_manager);
+    last_mvprintw_buf[0] = '\0';
+    int res = load_file(NULL, NULL, "/no/such/file");
+    mu_assert("load failed", res < 0);
+    mu_assert("error text", strstr(last_mvprintw_buf, strerror(ENOENT)) != NULL);
+    if (file_manager.count > 0) {
+        for (int i = file_manager.count - 1; i >= 0; i--)
+            fm_close(&file_manager, i);
+    }
+    endwin();
+    return 0;
+}
+
 static char *all_tests() {
     mu_run_test(test_menu_load_and_navigation);
+    mu_run_test(test_load_error_message);
     return 0;
 }
 

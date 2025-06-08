@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <ncurses.h>
 
 char *__real_strdup(const char *);
@@ -123,9 +124,13 @@ int __wrap_wresize(WINDOW *win, int h, int w) {
 
 int last_mvprintw_y = -1;
 int last_mvprintw_x = -1;
+char last_mvprintw_buf[256] = "";
 int __wrap_mvprintw(int y, int x, const char *fmt, ...) {
     last_mvprintw_y = y;
     last_mvprintw_x = x;
-    (void)fmt;
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(last_mvprintw_buf, sizeof(last_mvprintw_buf), fmt, ap);
+    va_end(ap);
     return 0; /* suppress real output */
 }
