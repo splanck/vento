@@ -210,7 +210,8 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     fs->file_complete = false;
     fs->buffer.count = 0;
     if (load_next_lines(fs, INITIAL_LOAD_LINES) < 0) {
-        mvprintw(LINES - 2, 2, "Error loading file!");
+        int err = errno;
+        mvprintw(LINES - 2, 2, "Error loading file: %s", strerror(err));
         refresh();
         getch();
         mvprintw(LINES - 2, 2, "                            ");
@@ -252,7 +253,8 @@ int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
 
     int idx = fm_add(&file_manager, fs);
     if (idx < 0) {
-        mvprintw(LINES - 2, 2, "Error loading file!");
+        int err = errno;
+        mvprintw(LINES - 2, 2, "Error loading file: %s", strerror(err));
         refresh();
         getch();
         mvprintw(LINES - 2, 2, "                            ");
