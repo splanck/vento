@@ -117,7 +117,7 @@ void show_manage_macros(EditorContext *ctx) {
             char name[64] = "";
             create_dialog(ctx, "New Macro:", name, sizeof(name));
             if (name[0]) {
-                Macro *m = macro_create(name);
+                Macro *m = macro_create(name, 0);
                 if (m)
                     highlight = macro_count() - 1;
                 macros_save(&app_config);

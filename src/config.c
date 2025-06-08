@@ -469,7 +469,7 @@ void macros_load(AppConfig *cfg) {
         }
         Macro *m = macro_get(name);
         if (!m)
-            m = macro_create(name);
+            m = macro_create(name, 0);
         if (!m)
             continue;
         m->length = 0;

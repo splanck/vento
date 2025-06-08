@@ -71,7 +71,7 @@ void initialize(EditorContext *ctx) {
     ctx->enable_mouse = enable_mouse;
     apply_colors();
     if (macro_count() == 0) {
-        current_macro = macro_create("default");
+        current_macro = macro_create("default", 0);
         if (current_macro) {
             current_macro->length = 0;
             current_macro->recording = false;

@@ -22,7 +22,7 @@ static char *test_simple_record_play() {
     EditorContext ctx = {0};
     sync_editor_context(&ctx);
 
-    Macro *m1 = macro_create("one");
+    Macro *m1 = macro_create("one", 0);
     mu_assert("m1", m1 != NULL);
     macro_start(m1);
     macro_record_key(m1, L'a');
@@ -30,7 +30,7 @@ static char *test_simple_record_play() {
     macro_record_key(m1, L'c');
     macro_stop(m1);
 
-    Macro *m2 = macro_create("two");
+    Macro *m2 = macro_create("two", 0);
     mu_assert("m2", m2 != NULL);
     macro_start(m2);
     macro_record_key(m2, L'1');
@@ -53,7 +53,7 @@ static char *test_simple_record_play() {
 
 static char *test_create_delete_api() {
     int before = macro_count();
-    Macro *m = macro_create("temp");
+    Macro *m = macro_create("temp", 0);
     mu_assert("macro created", m != NULL);
     mu_assert("count increased", macro_count() == before + 1);
     macro_delete("temp");
@@ -67,7 +67,7 @@ static char *test_shrink_on_delete() {
     char name[16];
     for (int i = 0; i < 8; ++i) {
         snprintf(name, sizeof(name), "m%d", i);
-        mu_assert("create", macro_create(name) != NULL);
+        mu_assert("create", macro_create(name, 0) != NULL);
     }
 
     int cap_before = macro_capacity();

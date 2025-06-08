@@ -17,6 +17,7 @@
 #include "menu.h"
 #include "ui_common.h"
 #include "config.h"
+#include "macro.h"
 #include "editor_state.h"
 #include <stdbool.h>
 #include <ctype.h>
@@ -61,6 +62,8 @@ int main(int argc, char *argv[]) {
     int file_count = 0;
     const char *theme_name = NULL;
     start_line = 0;
+    struct StartupMacro { char name[64]; int key; } macros[16];
+    int macro_count_cli = 0;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
@@ -68,6 +71,8 @@ int main(int argc, char *argv[]) {
             printf("  -h, --help     Show this help and exit\n");
             printf("  -v, --version  Print version information and exit\n");
             printf("  -t, --theme    Load a color theme before opening files\n");
+            printf("  +N, --line=N   Start editing at line N\n");
+            printf("      --macro=<name>=<key>  Create empty macro bound to key\n");
             return 0;
         } else if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
             printf("%s\n", VERSION);
@@ -78,12 +83,32 @@ int main(int argc, char *argv[]) {
             theme_name = argv[++i];
         } else if (strncmp(argv[i], "--line=", 7) == 0) {
             start_line = atoi(argv[i] + 7);
+        } else if (strncmp(argv[i], "--macro=", 8) == 0) {
+            const char *spec = argv[i] + 8;
+            char *eq = strchr(spec, '=');
+            if (eq && macro_count_cli < 16) {
+                size_t len = eq - spec;
+                if (len >= sizeof(macros[0].name))
+                    len = sizeof(macros[0].name) - 1;
+                strncpy(macros[macro_count_cli].name, spec, len);
+                macros[macro_count_cli].name[len] = '\0';
+                macros[macro_count_cli].key = atoi(eq + 1);
+                macro_count_cli++;
+            }
         } else if (argv[i][0] == '+' && isdigit((unsigned char)argv[i][1])) {
             start_line = atoi(argv[i] + 1);
         }
     }
 
     initialize(&editor);
+
+    for (int m = 0; m < macro_count_cli; ++m) {
+        Macro *mac = macro_get(macros[m].name);
+        if (!mac)
+            mac = macro_create(macros[m].name, macros[m].key);
+        else
+            mac->play_key = macros[m].key;
+    }
 
     if (theme_name && *theme_name && load_theme) {
         load_theme(theme_name, &app_config);
@@ -108,6 +133,9 @@ int main(int argc, char *argv[]) {
             continue;
         }
         if (strncmp(argv[i], "--line=", 7) == 0 || (argv[i][0] == '+' && isdigit((unsigned char)argv[i][1]))) {
+            continue;
+        }
+        if (strncmp(argv[i], "--macro=", 8) == 0) {
             continue;
         }
 
