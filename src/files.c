@@ -20,7 +20,6 @@
 #include "undo.h"
 #include "path_utils.h"
 #include <stddef.h>
-char *realpath(const char *path, char *resolved_path);
 /**
  * canonicalize_path - resolve PATH to an absolute form.
  * @path: input file path, may be NULL or empty.
@@ -37,7 +36,7 @@ char *realpath(const char *path, char *resolved_path);
 
 void canonicalize_path(const char *path, char *out, size_t out_size) {
     char resolved[PATH_MAX];
-    if (path && path[0] != '\0' && realpath(path, resolved)) {
+    if (path && path[0] != '\0' && vento_realpath(path, resolved)) {
         strncpy(out, resolved, out_size - 1);
     } else {
         if (!path)

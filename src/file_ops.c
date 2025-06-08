@@ -13,7 +13,6 @@
 #include "path_utils.h"
 #include <stdlib.h>
 #include <errno.h>
-char *realpath(const char *path, char *resolved_path);
 
 /*
  * file_ops.c
