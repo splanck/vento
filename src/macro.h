@@ -18,7 +18,7 @@ typedef struct Macro {
     bool active;
 } Macro;
 
-Macro *macro_create(const char *name);
+Macro *macro_create(const char *name, int play_key);
 void macro_set_current(Macro *m);
 Macro *macro_get(const char *name);
 void macro_delete(const char *name);

@@ -34,7 +34,7 @@ static int ensure_capacity(void) {
  * Create a new macro with the given name and add it to the global list.
  * If this is the first macro created it becomes the current_macro.
  */
-Macro *macro_create(const char *name) {
+Macro *macro_create(const char *name, int play_key) {
     if (!name)
         return NULL;
     if (ensure_capacity() != 0)
@@ -47,7 +47,7 @@ Macro *macro_create(const char *name) {
         free(m);
         return NULL;
     }
-    m->play_key = 0;
+    m->play_key = play_key;
     m->active = false;
     macro_list.items[macro_list.count++] = m;
     if (!current_macro) {

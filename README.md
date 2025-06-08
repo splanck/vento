@@ -226,6 +226,7 @@ vento [options] [file...]
 - `-v`, `--version` &mdash; print the current version number and exit.
 - `-t <name>`, `--theme=<name>` &mdash; load the specified color theme before opening files.
 - `+N`, `--line=N` &mdash; start editing at line `N`.
+- `--macro=<name>=<key>` &mdash; create an empty macro bound to `<key>`.
 
 Any additional arguments are treated as files to load on startup.
 
