@@ -6,6 +6,7 @@
 #include "editor_state.h"
 #include <ncurses.h>
 #include <string.h>
+#include <stdlib.h>
 
 int tests_run = 0;
 
@@ -115,11 +116,34 @@ static char *test_load_overlong_macro() {
     return 0;
 }
 
+static char *test_config_persist_macro_play_key() {
+    const char *cfg_path = "test_ventorc";
+    setenv("VENTO_CONFIG", cfg_path, 1);
+    remove(cfg_path);
+
+    AppConfig cfg = {0};
+    cfg.macro_play_key = 1234;
+    strncpy(cfg.macros_file, "test_macros.tmp", sizeof(cfg.macros_file) - 1);
+    cfg.macros_file[sizeof(cfg.macros_file) - 1] = '\0';
+
+    config_save(&cfg);
+
+    cfg.macro_play_key = 0;
+    config_load(&cfg);
+
+    mu_assert("macro_play_key persisted", cfg.macro_play_key == 1234);
+
+    remove(cfg_path);
+    unsetenv("VENTO_CONFIG");
+    return 0;
+}
+
 static char *all_tests() {
     mu_run_test(test_simple_record_play);
     mu_run_test(test_create_delete_api);
     mu_run_test(test_shrink_on_delete);
     mu_run_test(test_load_overlong_macro);
+    mu_run_test(test_config_persist_macro_play_key);
     return 0;
 }
 
