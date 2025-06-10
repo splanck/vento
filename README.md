@@ -41,7 +41,7 @@ Vento currently supports the following features:
   compile-time `THEME_DIR` path (default `themes/`). Theme names are matched
   case-insensitively, and the picker shows a live preview of the highlighted
   colors while you navigate the list.
-- **Basic Syntax Highlighting**: Simple syntax highlighting for C, HTML, and Python files.
+- **Basic Syntax Highlighting**: Built-in definitions for C, C#, HTML, JS, CSS, Python, shell, and JSON. Other languages are treated as plain text.
 - **Status Bar**: Displays the current line and column number.
 - **Scroll Bar**: Indicates your position within the document.
 - **Optional Line Numbers**: Toggle line numbers in the settings dialog.
