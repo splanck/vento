@@ -12,6 +12,7 @@
 #include "editor_state.h"
 #include "syntax.h"
 #include "macro.h"
+#include "ui_common.h"
 #include <wchar.h>
 
 /*
@@ -146,8 +147,15 @@ void load_theme(const char *name, AppConfig *cfg) {
     }
 
     FILE *f = fopen(path, "r");
-    if (!f)
+    if (!f) {
+        char msg[PATH_MAX + 64];
+        snprintf(msg, sizeof(msg), "Unable to open theme file: %s", path);
+        if (show_message)
+            show_message(msg);
+        else
+            fprintf(stderr, "%s\n", msg);
         return;
+    }
 
     char line[256];
     while (fgets(line, sizeof(line), f)) {
