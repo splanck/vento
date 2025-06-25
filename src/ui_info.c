@@ -95,8 +95,8 @@ void show_about(EditorContext *ctx) {
     const char *lines[] = {
         "Vento Text Editor",
         version_line,
-        "License: GPL v3",
-        "Vento is open-source software licensed under the GPL v3."
+        "License: BSD 2-Clause",
+        "Vento is open-source software licensed under the BSD 2-Clause Simplified License."
     };
     const int count = (int)(sizeof(lines) / sizeof(lines[0]));
     const char *footer = "(Press any key to close)";
