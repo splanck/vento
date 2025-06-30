@@ -30,6 +30,14 @@
  */
 void update_selection_mouse(EditorContext *ctx, FileState *fs, int x, int y) {
     (void)ctx;
+    if (x < 1)
+        x = 1;
+    else if (x > fs->line_capacity)
+        x = fs->line_capacity;
+    if (y < 1)
+        y = 1;
+    else if (y > fs->buffer.count)
+        y = fs->buffer.count;
     fs->sel_end_x = x;
     fs->sel_end_y = y;
 
@@ -60,10 +68,20 @@ void handle_mouse_event(EditorContext *ctx, FileState *fs, MEVENT *ev) {
     int my = ev->y - 1; // account for window border
     int offset = get_line_number_offset(fs);
 
-    if (mx >= offset && mx < COLS - 2 && my >= 0 && my < LINES - BOTTOM_MARGIN) {
-        fs->cursor_x = mx - offset + 1;
-        fs->cursor_y = my + 1;
-    }
+    int x = mx - offset + 1;
+    int y = my + 1;
+
+    if (x < 1)
+        x = 1;
+    else if (x > fs->line_capacity)
+        x = fs->line_capacity;
+    if (y < 1)
+        y = 1;
+    else if (y > fs->buffer.count)
+        y = fs->buffer.count;
+
+    fs->cursor_x = x;
+    fs->cursor_y = y;
 
     if (ev->bstate & BUTTON1_PRESSED) {
         start_selection_mode(fs, fs->cursor_x, fs->cursor_y);
