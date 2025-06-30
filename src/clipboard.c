@@ -264,16 +264,37 @@ void cut_selection(FileState *fs) {
 
     char *first = fs->buffer.lines[start_y - 1 + fs->start_line];
     char *last = fs->buffer.lines[end_y - 1 + fs->start_line];
+    char *old_first = strdup(first);
+    if (!old_first)
+        allocation_failed("strdup failed");
 
     if (start_y == end_y) {
         memmove(&first[start_x - 1], &first[end_x], strlen(first) - end_x + 1);
+        char *new_first = strdup(first);
+        if (!new_first) {
+            free(old_first);
+            allocation_failed("strdup failed");
+        }
+        push(&fs->undo_stack,
+             (Change){ start_y - 1 + fs->start_line, old_first, new_first });
     } else {
         first[start_x - 1] = '\0';
         strncat(first, &last[end_x], fs->line_capacity - strlen(first) - 1);
+        char *new_first = strdup(first);
+        if (!new_first) {
+            free(old_first);
+            allocation_failed("strdup failed");
+        }
+        push(&fs->undo_stack,
+             (Change){ start_y - 1 + fs->start_line, old_first, new_first });
 
         int remove_count = end_y - start_y;
         int del_idx = start_y - 1 + fs->start_line + 1;
         for (int i = 0; i < remove_count; ++i) {
+            char *old_line = strdup(fs->buffer.lines[del_idx]);
+            if (!old_line)
+                allocation_failed("strdup failed");
+            push(&fs->undo_stack, (Change){ del_idx, old_line, NULL });
             lb_delete(&fs->buffer, del_idx);
         }
     }
@@ -281,5 +302,6 @@ void cut_selection(FileState *fs) {
     fs->cursor_x = start_x;
     fs->cursor_y = start_y;
     fs->selection_mode = false;
+    fs->modified = true;
 }
 
