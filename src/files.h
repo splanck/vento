@@ -39,6 +39,7 @@ typedef struct FileState {
     long file_pos;     /* Offset of fp when partially loaded */
     bool file_complete;/* True when the entire file is loaded */
     bool modified;     /* True if the buffer has unsaved changes */
+    int io_errno;      /* Error code from the last failed load */
 } FileState;
 
 FileState *initialize_file_state(const char *filename, int max_lines, int max_cols);
@@ -47,7 +48,7 @@ int load_file_into_buffer(FileState *file_state);
 int ensure_line_capacity(FileState *fs, int min_needed);
 int ensure_col_capacity(FileState *fs, int cols);
 int load_next_lines(FileState *fs, int count);
-void ensure_line_loaded(FileState *fs, int idx);
+int ensure_line_loaded(FileState *fs, int idx);
 void load_all_remaining_lines(FileState *fs);
 void canonicalize_path(const char *path, char *out, size_t out_size);
 
