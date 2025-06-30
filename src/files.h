@@ -7,9 +7,10 @@
 #include <stddef.h>
 #include "editor.h"
 #include "line_buffer.h"
+#include "path_utils.h"
 
 typedef struct FileState {
-    char filename[256];
+    char filename[PATH_MAX];
     LineBuffer buffer;
     int start_line;
     int scroll_x; /* leftmost visible column */

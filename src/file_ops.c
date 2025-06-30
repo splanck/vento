@@ -83,7 +83,7 @@ void save_file(EditorContext *ctx, FileState *fs) {
  */
 void save_file_as(EditorContext *ctx, FileState *fs) {
     (void)ctx;
-    char newpath[256];
+    char newpath[PATH_MAX];
     if (!show_save_file_dialog(ctx, newpath, sizeof(newpath)))
         return;    // user cancelled
     canonicalize_path(newpath, fs->filename, sizeof(fs->filename));
@@ -133,7 +133,7 @@ void save_file_as(EditorContext *ctx, FileState *fs) {
  */
 int load_file(EditorContext *ctx, FileState *fs_unused, const char *filename) {
     (void)fs_unused;
-    char file_to_load[256];
+    char file_to_load[PATH_MAX];
     char canonical[PATH_MAX];
     FileState *previous_active = active_file;
 
