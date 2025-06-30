@@ -200,7 +200,17 @@ void handle_key_delete(EditorContext *ctx, FileState *fs) {
                 strlen(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]) - fs->cursor_x + 1);
     } else if (fs->cursor_y + fs->start_line < fs->buffer.count) {
         int idx = fs->cursor_y - 1 + fs->start_line;
-        strcat(fs->buffer.lines[idx], fs->buffer.lines[idx + 1]);
+        char *current = fs->buffer.lines[idx];
+        char *next = fs->buffer.lines[idx + 1];
+        size_t total_len = strlen(current) + strlen(next);
+        if (total_len >= (size_t)fs->line_capacity) {
+            size_t space = fs->line_capacity - strlen(current) - 1;
+            if (space > 0)
+                strncat(current, next, space);
+            current[fs->line_capacity - 1] = '\0';
+        } else {
+            strcat(current, next);
+        }
         lb_delete(&fs->buffer, idx + 1);
     }
     werase(text_win);
