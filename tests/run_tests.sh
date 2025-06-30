@@ -99,6 +99,13 @@ gcc undo_redo_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncursesw
     -Wl,--wrap=create_popup_window -Wl,--wrap=curs_set -Wl,--wrap=mvwin -Wl,--wrap=wresize \
     -o undo_redo_tests
 ./undo_redo_tests
+gcc delete_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncursesw \
+    -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar \
+    -Wl,--wrap=confirm_switch -Wl,--wrap=allocation_failed -Wl,--wrap=clamp_scroll_x \
+    -Wl,--wrap=draw_text_buffer -Wl,--wrap=redraw -Wl,--wrap=strdup \
+    -Wl,--wrap=create_popup_window -Wl,--wrap=curs_set -Wl,--wrap=mvwin -Wl,--wrap=wresize \
+    -o delete_tests
+./delete_tests
 gcc json_highlight_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncursesw \
     -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar \
     -Wl,--wrap=confirm_switch -Wl,--wrap=allocation_failed -Wl,--wrap=clamp_scroll_x \
