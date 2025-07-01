@@ -221,8 +221,9 @@ int ensure_col_capacity(FileState *fs, int cols) {
         if (!tmp) {
             for (int j = 0; j < i; ++j) {
                 char *restore = realloc(fs->buffer.lines[j], old_capacity);
-                if (restore)
-                    fs->buffer.lines[j] = restore;
+                if (!restore)
+                    return -1;
+                fs->buffer.lines[j] = restore;
             }
             return -1;
         }
