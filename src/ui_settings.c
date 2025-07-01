@@ -620,6 +620,14 @@ after_dir_scan:
         if (win_width < 2)
             win_width = 2;
         win = create_popup_window(win_height, win_width, parent);
+        if (!win) {
+            for (size_t i = 0; i < count; ++i)
+                free(names[i]);
+            free(names);
+            curs_set(1);
+            show_message("Unable to create window");
+            return NULL;
+        }
     } else {
         win_height = LINES - 4;
         win_width = COLS - 4;
@@ -628,15 +636,16 @@ after_dir_scan:
         if (win_width < 2)
             win_width = 2;
         win = create_popup_window(win_height, win_width, NULL);
+        if (!win) {
+            for (size_t i = 0; i < count; ++i)
+                free(names[i]);
+            free(names);
+            curs_set(1);
+            show_message("Unable to create window");
+            return NULL;
+        }
     }
-    if (!win) {
-        for (size_t i = 0; i < count; ++i)
-            free(names[i]);
-        free(names);
-        curs_set(1);
-        show_message("Unable to create window");
-        return NULL;
-    }
+    /* win is valid here */
     keypad(win, TRUE);
 
     while (1) {
