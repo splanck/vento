@@ -8,7 +8,6 @@
 #include "editor.h"
 #include <ncurses.h>
 #include <wchar.h>
-#include <wctype.h>
 #include "undo.h"
 #include <string.h>
 #include <stdlib.h>
@@ -20,6 +19,7 @@
 #include "clipboard.h"
 #include "syntax.h"
 #include "files.h"
+#include <wctype.h>
 
 __attribute__((weak)) AppConfig app_config = {
     .tab_width = 4,
@@ -543,6 +543,25 @@ void handle_default_key(EditorContext *ctx, FileState *fs, wint_t ch) {
  * This routine only moves the cursor; it does not modify the buffer or
  * create undo information and it performs no redraws.
  */
+static int prev_utf8_start(const char *s, int pos) {
+    if (pos <= 0)
+        return -1;
+    int p = pos - 1;
+    while (p > 0 && (s[p] & 0xC0) == 0x80)
+        p--;
+    return p;
+}
+
+static size_t utf8_to_wchar(const char *s, int len, int idx, wchar_t *wc) {
+    mbstate_t st = {0};
+    size_t bytes = mbrtowc(wc, s + idx, len - idx, &st);
+    if (bytes == (size_t)-1 || bytes == (size_t)-2 || bytes == 0) {
+        *wc = (unsigned char)s[idx];
+        return 1;
+    }
+    return bytes;
+}
+
 void move_forward_to_next_word(EditorContext *ctx, FileState *fs) {
     (void)ctx;
     while (fs->cursor_y - 1 + fs->start_line < fs->buffer.count) {
@@ -550,11 +569,21 @@ void move_forward_to_next_word(EditorContext *ctx, FileState *fs) {
         if (!line)
             break;
         int len = strlen(line);
-        while (fs->cursor_x < len && isalnum(line[fs->cursor_x - 1])) {
-            fs->cursor_x++;
+        while (fs->cursor_x < len) {
+            int idx = fs->cursor_x - 1;
+            wchar_t wc;
+            size_t bytes = utf8_to_wchar(line, len, idx, &wc);
+            if (!iswalnum(wc))
+                break;
+            fs->cursor_x += bytes;
         }
-        while (fs->cursor_x < len && !isalnum(line[fs->cursor_x - 1])) {
-            fs->cursor_x++;
+        while (fs->cursor_x < len) {
+            int idx = fs->cursor_x - 1;
+            wchar_t wc;
+            size_t bytes = utf8_to_wchar(line, len, idx, &wc);
+            if (iswalnum(wc))
+                break;
+            fs->cursor_x += bytes;
         }
         if (fs->cursor_x < len) {
             return;
@@ -579,11 +608,26 @@ void move_backward_to_previous_word(EditorContext *ctx, FileState *fs) {
         const char *line = lb_get(&fs->buffer, fs->cursor_y - 1 + fs->start_line);
         if (!line)
             break;
-        while (fs->cursor_x > 1 && isalnum(line[fs->cursor_x - 2])) {
-            fs->cursor_x--;
+        int len = strlen(line);
+        while (fs->cursor_x > 1) {
+            int prev = prev_utf8_start(line, fs->cursor_x - 1);
+            if (prev < 0)
+                break;
+            wchar_t wc;
+            size_t bytes = utf8_to_wchar(line, len, prev, &wc);
+            if (!iswalnum(wc))
+                break;
+            fs->cursor_x -= bytes;
         }
-        while (fs->cursor_x > 1 && !isalnum(line[fs->cursor_x - 2])) {
-            fs->cursor_x--;
+        while (fs->cursor_x > 1) {
+            int prev = prev_utf8_start(line, fs->cursor_x - 1);
+            if (prev < 0)
+                break;
+            wchar_t wc;
+            size_t bytes = utf8_to_wchar(line, len, prev, &wc);
+            if (iswalnum(wc))
+                break;
+            fs->cursor_x -= bytes;
         }
         if (fs->cursor_x > 1) {
             return;
