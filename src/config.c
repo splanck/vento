@@ -150,10 +150,14 @@ void load_theme(const char *name, AppConfig *cfg) {
     if (!f) {
         char msg[PATH_MAX + 64];
         snprintf(msg, sizeof(msg), "Unable to open theme file: %s", path);
+#ifdef USE_WEAK_MESSAGE
         if (show_message)
             show_message(msg);
         else
             fprintf(stderr, "%s\n", msg);
+#else
+        show_message(msg);
+#endif
         return;
     }
 
