@@ -52,7 +52,7 @@ WINDOW *create_centered_window(int height, int width, WINDOW *parent) {
 WINDOW *create_popup_window(int height, int width, WINDOW *parent) {
     WINDOW *win = create_centered_window(height, width, parent);
     if (!win) {
-        show_message("Unable to create window");
+        fprintf(stderr, "Unable to create window\n");
         return NULL;
     }
     return win;
