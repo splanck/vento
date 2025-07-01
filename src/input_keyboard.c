@@ -98,7 +98,14 @@ void handle_key_up(EditorContext *ctx, FileState *fs) {
  * viewport is moved and no undo entry is recorded.
  */
 void handle_key_down(EditorContext *ctx, FileState *fs) {
-    ensure_line_loaded(fs, fs->start_line + fs->cursor_y);
+    if (ensure_line_loaded(fs, fs->start_line + fs->cursor_y) < 0) {
+        mvprintw(LINES - 2, 2, "Error loading file: %s", strerror(fs->io_errno));
+        refresh();
+        getch();
+        mvprintw(LINES - 2, 2, "                            ");
+        refresh();
+        return;
+    }
     if (fs->cursor_y < LINES - BOTTOM_MARGIN && fs->cursor_y < fs->buffer.count) {
         fs->cursor_y++;
     } else if (fs->start_line + fs->cursor_y < fs->buffer.count) {
@@ -341,7 +348,14 @@ void handle_key_page_up(EditorContext *ctx, FileState *fs) {
  */
 void handle_key_page_down(EditorContext *ctx, FileState *fs) {
     (void)ctx;
-    ensure_line_loaded(fs, fs->start_line + (LINES - 4));
+    if (ensure_line_loaded(fs, fs->start_line + (LINES - 4)) < 0) {
+        mvprintw(LINES - 2, 2, "Error loading file: %s", strerror(fs->io_errno));
+        refresh();
+        getch();
+        mvprintw(LINES - 2, 2, "                            ");
+        refresh();
+        return;
+    }
     int max_lines = LINES - 4;
     if (fs->start_line + max_lines < fs->buffer.count) {
         fs->start_line += max_lines;

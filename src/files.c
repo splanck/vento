@@ -124,6 +124,7 @@ FileState *initialize_file_state(const char *filename, int max_lines, int max_co
     file_state->file_pos = 0;
     file_state->file_complete = true;
     file_state->modified = false;
+    file_state->io_errno = 0;
 
     return file_state;
 }
@@ -310,13 +311,13 @@ int load_next_lines(FileState *fs, int count) {
  * Opens the file on demand and reads additional lines as needed using
  * load_next_lines().
  *
- * Returns: none.
+ * Returns: 0 on success, -1 on failure.
  * Side effects: may open fs->fp, read from disk and update file_pos.
  */
 
-void ensure_line_loaded(FileState *fs, int idx) {
+int ensure_line_loaded(FileState *fs, int idx) {
     if (idx < fs->buffer.count)
-        return;
+        return 0;
     int to_load = idx - fs->buffer.count + 1;
     if (to_load < 0)
         to_load = 0;
@@ -324,8 +325,19 @@ void ensure_line_loaded(FileState *fs, int idx) {
         fs->fp = fopen(fs->filename, "r");
         if (fs->fp)
             fseek(fs->fp, fs->file_pos, SEEK_SET);
+        else {
+            fs->io_errno = errno;
+            fs->file_complete = false;
+            return -1;
+        }
     }
-    load_next_lines(fs, to_load);
+    int res = load_next_lines(fs, to_load);
+    if (res < 0) {
+        fs->io_errno = errno;
+        fs->file_complete = false;
+        return -1;
+    }
+    return 0;
 }
 /**
  * load_all_remaining_lines - read the rest of the file into memory.

@@ -630,7 +630,11 @@ void draw_text_buffer(FileState *fs, WINDOW *win) {
     }
 
     // Ensure enough lines are loaded for display
-    ensure_line_loaded(fs, fs->start_line + max_lines);
+    if (ensure_line_loaded(fs, fs->start_line + max_lines) < 0) {
+        mvprintw(LINES - 2, 2, "Error loading file: %s", strerror(fs->io_errno));
+        refresh();
+        return;
+    }
 
     int visible_width = COLS - 2 - offset;
     if (visible_width < 1)
