@@ -47,9 +47,7 @@ void create_dialog(EditorContext *ctx, const char *message, char *output,
         wattroff(dialog_win, COLOR_PAIR(SYNTAX_KEYWORD));
     wrefresh(dialog_win);
 
-    int ok = dialog_prompt(dialog_win, input_y, input_x + 7, output, max_input_len);
-    if (!ok)
-        output[0] = '\0';
+    dialog_prompt(dialog_win, input_y, input_x + 7, output, max_input_len);
 
     dialog_close(dialog_win);
 }
@@ -92,8 +90,6 @@ int show_find_dialog(EditorContext *ctx, char *output, int max_input_len,
     }
 
     int ok = dialog_prompt(dialog_win, input_y, input_x + 7, output, max_input_len);
-    if (!ok)
-        output[0] = '\0';
 
     dialog_close(dialog_win);
     return ok;
