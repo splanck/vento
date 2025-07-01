@@ -231,10 +231,28 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
             if (input_len > 0) {
                 char tmp[2048];
                 if (input[0] == '/') {
+                    if (strlen(input) >= sizeof(tmp)) {
+                        free_dir_contents(choices, n_choices);
+                        wclear(win);
+                        wrefresh(win);
+                        delwin(win);
+                        curs_set(1);
+                        show_message("Path too long");
+                        return 0;
+                    }
                     strncpy(tmp, input, sizeof(tmp) - 1);
                     tmp[sizeof(tmp) - 1] = '\0';
                 } else {
-                    snprintf(tmp, sizeof(tmp), "%s/%s", cwd, input);
+                    int needed = snprintf(tmp, sizeof(tmp), "%s/%s", cwd, input);
+                    if (needed < 0 || needed >= (int)sizeof(tmp)) {
+                        free_dir_contents(choices, n_choices);
+                        wclear(win);
+                        wrefresh(win);
+                        delwin(win);
+                        curs_set(1);
+                        show_message("Path too long");
+                        return 0;
+                    }
                 }
                 strncpy(path, tmp, max_len);
                 path[max_len - 1] = '\0';
@@ -251,9 +269,27 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
             if (n_choices > 0) {
                 struct stat sb;
                 char next_path[2048];
-                snprintf(next_path, sizeof(next_path), "%s/%s", cwd,
-                         choices[highlight]);
+                int needed = snprintf(next_path, sizeof(next_path), "%s/%s", cwd,
+                                     choices[highlight]);
+                if (needed < 0 || needed >= (int)sizeof(next_path)) {
+                    free_dir_contents(choices, n_choices);
+                    wclear(win);
+                    wrefresh(win);
+                    delwin(win);
+                    curs_set(1);
+                    show_message("Path too long");
+                    return 0;
+                }
                 if (stat(next_path, &sb) == 0 && S_ISDIR(sb.st_mode)) {
+                    if (strlen(next_path) >= sizeof(cwd)) {
+                        free_dir_contents(choices, n_choices);
+                        wclear(win);
+                        wrefresh(win);
+                        delwin(win);
+                        curs_set(1);
+                        show_message("Path too long");
+                        return 0;
+                    }
                     strncpy(cwd, next_path, sizeof(cwd));
                     cwd[sizeof(cwd) - 1] = '\0';
                     highlight = 0;
