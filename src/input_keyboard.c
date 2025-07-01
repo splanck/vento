@@ -617,7 +617,9 @@ void move_backward_to_previous_word(EditorContext *ctx, FileState *fs) {
             size_t bytes = utf8_to_wchar(line, len, prev, &wc);
             if (!iswalnum(wc))
                 break;
-            fs->cursor_x -= bytes;
+            if (fs->cursor_x <= 1)
+                break;
+            fs->cursor_x = (fs->cursor_x - bytes < 1) ? 1 : fs->cursor_x - bytes;
         }
         while (fs->cursor_x > 1) {
             int prev = prev_utf8_start(line, fs->cursor_x - 1);
@@ -627,12 +629,15 @@ void move_backward_to_previous_word(EditorContext *ctx, FileState *fs) {
             size_t bytes = utf8_to_wchar(line, len, prev, &wc);
             if (iswalnum(wc))
                 break;
-            fs->cursor_x -= bytes;
+            if (fs->cursor_x <= 1)
+                break;
+            fs->cursor_x = (fs->cursor_x - bytes < 1) ? 1 : fs->cursor_x - bytes;
         }
         if (fs->cursor_x > 1) {
             return;
         }
-        if (fs->cursor_y > 1) {
+        if (fs->cursor_y > 1 &&
+            lb_get(&fs->buffer, fs->cursor_y - 2 + fs->start_line)) {
             fs->cursor_y--;
             line = lb_get(&fs->buffer, fs->cursor_y - 1 + fs->start_line);
             fs->cursor_x = line ? strlen(line) + 1 : 1;
