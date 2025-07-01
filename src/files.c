@@ -188,7 +188,10 @@ int ensure_line_capacity(FileState *fs, int min_needed) {
         if (!fs->buffer.lines[i]) {
             for (int j = fs->buffer.capacity; j < i; ++j)
                 free(fs->buffer.lines[j]);
-            fs->buffer.lines = realloc(fs->buffer.lines, fs->buffer.capacity * sizeof(char *));
+            char **shrink = realloc(fs->buffer.lines,
+                                   fs->buffer.capacity * sizeof(char *));
+            if (shrink)
+                fs->buffer.lines = shrink;
             return -1;
         }
     }
