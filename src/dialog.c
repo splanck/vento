@@ -128,5 +128,7 @@ int dialog_prompt(WINDOW *win, int y, int x, char *buf, size_t len) {
         }
     }
     buf[pos] = '\0';
+    if (cancelled)
+        buf[0] = '\0';
     return cancelled ? 0 : 1;
 }
