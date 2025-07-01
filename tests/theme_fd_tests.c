@@ -5,6 +5,8 @@
 #include <string.h>
 
 extern const char *select_theme(const char *current, WINDOW *parent);
+extern int create_popup_fail;
+extern int last_curs_set;
 
 static int count_fds(void) {
     DIR *d = opendir("/proc/self/fd");
@@ -35,8 +37,24 @@ static char *test_select_theme_fd_leak() {
     return 0;
 }
 
+static char *test_select_theme_window_fail() {
+    setenv("VENTO_THEME_DIR", "../themes", 1);
+    initscr();
+    create_popup_fail = 1;
+    last_curs_set = -2;
+    int before = count_fds();
+    const char *res = select_theme(NULL, NULL);
+    int after = count_fds();
+    endwin();
+    mu_assert("result null", res == NULL);
+    mu_assert("cursor restored", last_curs_set == 1);
+    mu_assert("fd count same", before == after);
+    return 0;
+}
+
 static char *all_tests() {
     mu_run_test(test_select_theme_fd_leak);
+    mu_run_test(test_select_theme_window_fail);
     return 0;
 }
 
