@@ -10,6 +10,8 @@
 
 char *__real_strdup(const char *);
 WINDOW *__real_create_popup_window(int, int, WINDOW *);
+void *__real_calloc(size_t, size_t);
+void *__real_realloc(void *, size_t);
 
 __attribute__((weak)) FileManager file_manager;
 
@@ -19,6 +21,13 @@ int fm_add_fail = 0;
 int strdup_fail_on = 0;
 int strdup_call_count = 0;
 int allocation_fail_count = 0;
+
+int calloc_fail_on = 0;
+int calloc_call_count = 0;
+int calloc_fail_enabled = 0;
+int realloc_fail_on = 0;
+int realloc_call_count = 0;
+int realloc_fail_enabled = 0;
 
 int create_popup_fail = 0;
 int last_curs_set = -2;
@@ -70,6 +79,20 @@ char *__wrap_strdup(const char *s) {
     if (strdup_fail_on > 0 && strdup_call_count == strdup_fail_on)
         return NULL;
     return __real_strdup(s);
+}
+
+void *__wrap_calloc(size_t nmemb, size_t size) {
+    calloc_call_count++;
+    if (calloc_fail_enabled && calloc_fail_on > 0 && calloc_call_count == calloc_fail_on)
+        return NULL;
+    return __real_calloc(nmemb, size);
+}
+
+void *__wrap_realloc(void *ptr, size_t size) {
+    realloc_call_count++;
+    if (realloc_fail_enabled && realloc_fail_on > 0 && realloc_call_count == realloc_fail_on)
+        return NULL;
+    return __real_realloc(ptr, size);
 }
 
 WINDOW *__wrap_create_popup_window(int h, int w, WINDOW *p) {
