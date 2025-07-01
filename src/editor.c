@@ -815,6 +815,9 @@ void perform_resize(void) {
  * @return None
  */
 void clear_text_buffer() {
+    if (!active_file)
+        return;
+
     // Set all elements of the text buffer to 0
     for (int i = 0; i < active_file->buffer.capacity; ++i) {
         memset(active_file->buffer.lines[i], 0, active_file->line_capacity);
