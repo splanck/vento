@@ -97,9 +97,10 @@ void fm_close(FileManager *fm, int index) {
         fm->capacity = 0;
     } else {
         FileState **tmp = realloc(fm->files, sizeof(FileState*) * fm->count);
-        if (tmp)
+        if (tmp) {
             fm->files = tmp;
-        fm->capacity = fm->count;
+            fm->capacity = fm->count;
+        }
         fm->active_index = (index <= fm->active_index && fm->active_index > 0) ? fm->active_index - 1 : fm->active_index;
         if (fm->active_index >= fm->count) fm->active_index = fm->count - 1;
     }
