@@ -582,25 +582,25 @@ void run_editor(EditorContext *ctx) {
  * starts with a clean slate.
  */
 void initialize_buffer() {
-    // Allocate memory for each line in the text buffer
+    if (!active_file)
+        return;
+
+    /* Allocate memory for each line in the text buffer */
     for (int i = 0; i < active_file->buffer.capacity; ++i) {
         if (active_file->buffer.lines[i] != NULL) {
             free(active_file->buffer.lines[i]);
             active_file->buffer.lines[i] = NULL;
         }
-        active_file->buffer.lines[i] = (char *)calloc(active_file->line_capacity, sizeof(char));
+        active_file->buffer.lines[i] =
+            (char *)calloc(active_file->line_capacity, sizeof(char));
         if (active_file->buffer.lines[i] == NULL) {
             allocation_failed("calloc failed in initialize_buffer");
         }
     }
-    
-    // Set the initial line count to 1
-    active_file->buffer.count = 1;
-    
-    // Set the initial start line to 0
-    if (active_file)
-        active_file->start_line = 0;
 
+    /* Set the initial line count and start line */
+    active_file->buffer.count = 1;
+    active_file->start_line = 0;
 }
 
 /*
