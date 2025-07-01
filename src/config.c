@@ -130,8 +130,20 @@ void load_theme(const char *name, AppConfig *cfg) {
             size_t len = dot - ent->d_name;
             if (len == strlen(name) && strncasecmp(ent->d_name, name, len) == 0) {
                 int n = snprintf(path, sizeof(path), "%s/%s", dirs[i], ent->d_name);
-                if (n < 0 || (size_t)n >= sizeof(path))
-                    path[0] = '\0';
+                if (n < 0 || (size_t)n >= sizeof(path)) {
+                    char msg[PATH_MAX + 64];
+                    snprintf(msg, sizeof(msg), "Theme path too long: %s/%s", dirs[i], ent->d_name);
+#ifdef USE_WEAK_MESSAGE
+                    if (show_message)
+                        show_message(msg);
+                    else
+                        fprintf(stderr, "%s\n", msg);
+#else
+                    show_message(msg);
+#endif
+                    closedir(dir);
+                    return;
+                }
                 break;
             }
         }
@@ -142,8 +154,19 @@ void load_theme(const char *name, AppConfig *cfg) {
 
     if (path[0] == '\0') {
         int n = snprintf(path, sizeof(path), "%s/%s.theme", dirs[0], name);
-        if (n < 0 || (size_t)n >= sizeof(path))
-            path[0] = '\0';
+        if (n < 0 || (size_t)n >= sizeof(path)) {
+            char msg[PATH_MAX + 64];
+            snprintf(msg, sizeof(msg), "Theme path too long: %s/%s.theme", dirs[0], name);
+#ifdef USE_WEAK_MESSAGE
+            if (show_message)
+                show_message(msg);
+            else
+                fprintf(stderr, "%s\n", msg);
+#else
+            show_message(msg);
+#endif
+            return;
+        }
     }
 
     FILE *f = fopen(path, "r");
