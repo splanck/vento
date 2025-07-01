@@ -145,7 +145,7 @@ static SyntaxRegex JSON_PATTERNS[] = {
     { .pattern = "^\"([^\"\\]|\\.)*\"", .attr = COLOR_PAIR(SYNTAX_STRING) | A_BOLD },
     { .pattern = "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]+)?", .attr = COLOR_PAIR(SYNTAX_TYPE) | A_BOLD },
     { .pattern = JSON_KEYWORDS_PATTERN, .attr = COLOR_PAIR(SYNTAX_KEYWORD) | A_BOLD },
-    { .pattern = "^[{}\[\]:,]", .attr = COLOR_PAIR(SYNTAX_SYMBOL) | A_BOLD },
+    { .pattern = "^[]\[{}:,]", .attr = COLOR_PAIR(SYNTAX_SYMBOL) | A_BOLD },
 };
 static const SyntaxDef JSON_DEF = { ".json", JSON_PATTERNS, sizeof(JSON_PATTERNS)/sizeof(JSON_PATTERNS[0]) };
 
