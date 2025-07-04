@@ -36,6 +36,36 @@ static char *test_paste_cursor_clamped() {
     return 0;
 }
 
+static char *test_paste_grows_capacity() {
+    initscr();
+    FileState *fs = initialize_file_state("", 5, 8);
+    mu_assert("fs allocated", fs != NULL);
+    active_file = fs;
+    text_win = fs->text_win;
+
+    strcpy(fs->buffer.lines[0], "abc");
+    fs->buffer.count = 1;
+
+    char paste[201];
+    memset(paste, 'x', sizeof(paste) - 1);
+    paste[200] = '\0';
+
+    strncpy(global_clipboard, paste, sizeof(global_clipboard) - 1);
+    global_clipboard[sizeof(global_clipboard) - 1] = '\0';
+
+    int cx = 4;
+    int cy = 1;
+    paste_clipboard(fs, &cx, &cy);
+
+    char expected[256];
+    snprintf(expected, sizeof(expected), "abc%s", paste);
+    mu_assert("long paste", strcmp(fs->buffer.lines[0], expected) == 0);
+
+    free_file_state(fs);
+    endwin();
+    return 0;
+}
+
 static char *test_strdup_failure_old_text() {
     initscr();
     FileState *fs = initialize_file_state("", 10, 80);
@@ -288,6 +318,7 @@ static char *test_cut_selection_lazy_load() {
 
 static char *all_tests() {
     mu_run_test(test_paste_cursor_clamped);
+    mu_run_test(test_paste_grows_capacity);
     mu_run_test(test_strdup_failure_old_text);
     mu_run_test(test_strdup_failure_new_text);
     mu_run_test(test_copy_selection_backward_multiline);
