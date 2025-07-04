@@ -479,8 +479,19 @@ void macros_load(AppConfig *cfg) {
         get_macros_path(cfg->macros_file, sizeof(cfg->macros_file));
     macros_free_all();
     FILE *f = fopen(cfg->macros_file, "r");
-    if (!f)
+    if (!f) {
+        char msg[PATH_MAX + 64];
+        snprintf(msg, sizeof(msg), "Unable to open macros file: %s", cfg->macros_file);
+#ifdef USE_WEAK_MESSAGE
+        if (show_message)
+            show_message(msg);
+        else
+            fprintf(stderr, "%s\n", msg);
+#else
+        show_message(msg);
+#endif
         return;
+    }
     char line[4096];
     Macro *loaded_active = NULL;
     while (fgets(line, sizeof(line), f)) {
