@@ -157,3 +157,14 @@ int __wrap_mvprintw(int y, int x, const char *fmt, ...) {
     va_end(ap);
     return 0; /* suppress real output */
 }
+
+char last_show_message_buf[256] = "";
+int show_message(const char *msg) {
+    if (msg) {
+        strncpy(last_show_message_buf, msg, sizeof(last_show_message_buf) - 1);
+        last_show_message_buf[sizeof(last_show_message_buf) - 1] = '\0';
+    } else {
+        last_show_message_buf[0] = '\0';
+    }
+    return 0;
+}

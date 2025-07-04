@@ -551,10 +551,25 @@ void macros_save(const AppConfig *cfg) {
     if (!cfg)
         return;
     char path[PATH_MAX];
-    if (cfg->macros_file[0] == '\0')
+    if (cfg->macros_file[0] == '\0') {
         get_macros_path(path, sizeof(path));
-    else
-        strncpy(path, cfg->macros_file, sizeof(path) - 1), path[sizeof(path)-1]='\0';
+    } else {
+        if (strlen(cfg->macros_file) >= PATH_MAX) {
+            char msg[PATH_MAX + 64];
+            snprintf(msg, sizeof(msg), "Macros path too long: %s", cfg->macros_file);
+#ifdef USE_WEAK_MESSAGE
+            if (show_message)
+                show_message(msg);
+            else
+                fprintf(stderr, "%s\n", msg);
+#else
+            show_message(msg);
+#endif
+            return;
+        }
+        strncpy(path, cfg->macros_file, sizeof(path) - 1);
+        path[sizeof(path) - 1] = '\0';
+    }
 
     FILE *f = fopen(path, "w");
     if (!f)

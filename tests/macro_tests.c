@@ -138,12 +138,29 @@ static char *test_config_persist_macro_play_key() {
     return 0;
 }
 
+extern char last_show_message_buf[];
+
+static char *test_macros_save_overlong_path() {
+    macros_free_all();
+
+    AppConfig cfg = {0};
+    memset(cfg.macros_file, 'a', sizeof(cfg.macros_file));
+    cfg.macro_record_key = 0;
+    last_show_message_buf[0] = '\0';
+    macros_save(&cfg);
+    mu_assert("warned", strstr(last_show_message_buf, "too long") != NULL);
+
+    macros_free_all();
+    return 0;
+}
+
 static char *all_tests() {
     mu_run_test(test_simple_record_play);
     mu_run_test(test_create_delete_api);
     mu_run_test(test_shrink_on_delete);
     mu_run_test(test_load_overlong_macro);
     mu_run_test(test_config_persist_macro_play_key);
+    mu_run_test(test_macros_save_overlong_path);
     return 0;
 }
 
