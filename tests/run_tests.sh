@@ -8,7 +8,8 @@ for f in $SRC/*.c; do
     bn=$(basename "$f")
     if [ "$bn" != "vento.c" ]; then
         gcc -c "$f" -o obj_test/$(basename "$f" .c).o -I$SRC \
-            -D_POSIX_C_SOURCE=200809L -std=c99 -Wall -Wextra -fcommon
+            -D_POSIX_C_SOURCE=200809L -std=c99 -Wall -Wextra -fcommon \
+            -DUSE_WEAK_MESSAGE
     fi
 done
 ar rcs obj_test/libvento.a obj_test/*.o
