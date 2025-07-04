@@ -296,23 +296,36 @@ void update_status_bar(EditorContext *ctx, FileState *fs) {
     if (fs && fs->filename[0] != '\0') {
         name = fs->filename;
     }
-    char display[512];
-    if (fs && fs->modified)
-        snprintf(display, sizeof(display), "%s* [%d/%d]", name, idx, total);
-    else
-        snprintf(display, sizeof(display), "%s [%d/%d]", name, idx, total);
+    const char *fmt = (fs && fs->modified) ? "%s* [%d/%d]" : "%s [%d/%d]";
+    size_t base_len = snprintf(NULL, 0, fmt, name, idx, total);
+    size_t extra_len = 0;
     if (macro_state.recording)
-        strncat(display, " [REC]", sizeof(display) - strlen(display) - 1);
+        extra_len += strlen(" [REC]");
     else if (macro_state.playing)
-        strncat(display, " [PLAY]", sizeof(display) - strlen(display) - 1);
+        extra_len += strlen(" [PLAY]");
+    if (current_macro && current_macro->name)
+        extra_len += strlen(" {") + strlen(current_macro->name) + strlen("}");
+
+    char *display = malloc(base_len + extra_len + 1);
+    if (!display) {
+        allocation_failed("update_status_bar malloc failed");
+        return;
+    }
+
+    snprintf(display, base_len + 1, fmt, name, idx, total);
+    if (macro_state.recording)
+        strcat(display, " [REC]");
+    else if (macro_state.playing)
+        strcat(display, " [PLAY]");
     if (current_macro && current_macro->name) {
-        strncat(display, " {", sizeof(display) - strlen(display) - 1);
-        strncat(display, current_macro->name, sizeof(display) - strlen(display) - 1);
-        strncat(display, "}", sizeof(display) - strlen(display) - 1);
+        strcat(display, " {");
+        strcat(display, current_macro->name);
+        strcat(display, "}");
     }
     int center_position = (COLS - (int)strlen(display)) / 2;
     if (center_position < 0) center_position = 0;
     mvprintw(1, center_position, "%s", display);
+    free(display);
     move(LINES - 1, 0);
     clrtoeol();
     int actual_line_number = fs ? (fs->cursor_y + fs->start_line) : 0;
