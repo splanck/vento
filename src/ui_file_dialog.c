@@ -116,8 +116,8 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
     curs_set(0);
     int highlight = 0;
     int ch;
-    char cwd[1024];
-    char input[1024] = "";
+    char cwd[PATH_MAX];
+    char input[PATH_MAX] = "";
     int input_len = 0;
     int start = 0;
 
@@ -161,10 +161,13 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
 
         for (int i = 0; i < max_display && i + start < n_choices; ++i) {
             int idx = i + start;
-            char path_buf[2048];
+            char path_buf[PATH_MAX];
             struct stat sb;
-            snprintf(path_buf, sizeof(path_buf), "%s/%s", cwd, choices[idx]);
-            int is_dir = stat(path_buf, &sb) == 0 && S_ISDIR(sb.st_mode);
+            int needed = snprintf(path_buf, sizeof(path_buf), "%s/%s", cwd,
+                                 choices[idx]);
+            int is_dir = 0;
+            if (needed >= 0 && needed < (int)sizeof(path_buf))
+                is_dir = stat(path_buf, &sb) == 0 && S_ISDIR(sb.st_mode);
             char disp[1024];
             if (is_dir)
                 snprintf(disp, sizeof(disp), "%s/", choices[idx]);
@@ -229,7 +232,7 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
                 ++highlight;
         } else if (ch == '\n') {
             if (input_len > 0) {
-                char tmp[2048];
+                char tmp[PATH_MAX];
                 if (input[0] == '/') {
                     if (strlen(input) >= sizeof(tmp)) {
                         free_dir_contents(choices, n_choices);
@@ -268,7 +271,7 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
 
             if (n_choices > 0) {
                 struct stat sb;
-                char next_path[2048];
+                char next_path[PATH_MAX];
                 int needed = snprintf(next_path, sizeof(next_path), "%s/%s", cwd,
                                      choices[highlight]);
                 if (needed < 0 || needed >= (int)sizeof(next_path)) {
@@ -327,7 +330,7 @@ static int file_dialog_loop(EditorContext *ctx, char *path, int max_len,
                     if (ev.bstate & (BUTTON1_RELEASED | BUTTON1_CLICKED)) {
                         if (n_choices > 0) {
                             struct stat sb;
-                            char next_path[2048];
+                            char next_path[PATH_MAX];
                             snprintf(next_path, sizeof(next_path), "%s/%s", cwd,
                                      choices[highlight]);
                             if (stat(next_path, &sb) == 0 && S_ISDIR(sb.st_mode)) {
