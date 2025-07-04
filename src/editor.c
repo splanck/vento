@@ -762,6 +762,8 @@ void perform_resize(void) {
     clear(); // Clear the screen
 
     int new_capacity = COLS - 3;
+    if (new_capacity < 1)
+        new_capacity = 1;
 
     /* Resize all open file windows and buffers */
     for (int i = 0; i < file_manager.count; ++i) {
