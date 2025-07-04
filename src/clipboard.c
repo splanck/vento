@@ -124,24 +124,23 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
     bool first = true;
     while (line) {
         size_t len = strlen(line);
-        char *dest = fs->buffer.lines[*cursor_y - 1 + fs->start_line];
+        int line_idx = *cursor_y - 1 + fs->start_line;
+        char *dest = fs->buffer.lines[line_idx];
         size_t dest_len = strlen(dest);
         char *old_text = NULL;
-        int line_idx = *cursor_y - 1 + fs->start_line;
-
+        
         if (first) {
             old_text = strdup(dest);
             if (!old_text)
                 allocation_failed("strdup failed");
         }
 
-        if (dest_len + len >= (size_t)fs->line_capacity) {
-            if (dest_len >= (size_t)(fs->line_capacity - 1)) {
-                len = 0;  // No space to paste
-            } else {
-                len = fs->line_capacity - dest_len - 1;
-            }
+        if (ensure_col_capacity(fs, (int)(dest_len + len + 1)) < 0) {
+            if (old_text)
+                free(old_text);
+            allocation_failed("ensure_col_capacity failed");
         }
+        dest = fs->buffer.lines[line_idx];
 
         if (*cursor_x > (int)dest_len + 1)
             *cursor_x = dest_len + 1;
