@@ -137,6 +137,9 @@ void cleanup_on_exit(FileManager *fm) {
     fm->files = NULL;
     fm->count = 0;
     fm->active_index = -1;
+    fm->capacity = 0;
+    active_file = NULL;
+    text_win = NULL;
 }
 
 /*
