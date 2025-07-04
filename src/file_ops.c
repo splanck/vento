@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
 #include <stdio.h>
 #include "editor.h"
@@ -463,19 +464,19 @@ bool confirm_switch(void) {
 int set_syntax_mode(const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (ext && ext[1] != '\0') {
-        if (strcmp(ext, ".c") == 0 || strcmp(ext, ".h") == 0) {
+        if (strcasecmp(ext, ".c") == 0 || strcasecmp(ext, ".h") == 0) {
             return C_SYNTAX;
-        } else if (strcmp(ext, ".html") == 0 || strcmp(ext, ".htm") == 0) {
+        } else if (strcasecmp(ext, ".html") == 0 || strcasecmp(ext, ".htm") == 0) {
             return HTML_SYNTAX;
-        } else if (strcmp(ext, ".py") == 0) {
+        } else if (strcasecmp(ext, ".py") == 0) {
             return PYTHON_SYNTAX;
-        } else if (strcmp(ext, ".cs") == 0) {
+        } else if (strcasecmp(ext, ".cs") == 0) {
             return CSHARP_SYNTAX;
-        } else if (strcmp(ext, ".js") == 0) {
+        } else if (strcasecmp(ext, ".js") == 0) {
             return JS_SYNTAX;
-        } else if (strcmp(ext, ".css") == 0) {
+        } else if (strcasecmp(ext, ".css") == 0) {
             return CSS_SYNTAX;
-        } else if (strcmp(ext, ".json") == 0) {
+        } else if (strcasecmp(ext, ".json") == 0) {
             return JSON_SYNTAX;
         }
     }
