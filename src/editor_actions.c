@@ -352,6 +352,8 @@ void go_to_line(EditorContext *ctx, FileState *fs, int line) {
     if (fs->buffer.count == 0)
         return;
 
+    ensure_line_loaded(fs, line - 1);
+
     if (line < 1)
         line = 1;
     if (line > fs->buffer.count)

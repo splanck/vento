@@ -196,6 +196,43 @@ static char *test_status_bar_sync_on_load() {
     return 0;
 }
 
+static char *test_go_to_line_lazy_load() {
+    const char *path = "lazy_goto.txt";
+    FILE *f = fopen(path, "w");
+    mu_assert("file created", f != NULL);
+    for (int i = 0; i < 150; ++i) {
+        fprintf(f, "line %d\n", i);
+    }
+    fclose(f);
+
+    initscr();
+    FileState *fs = initialize_file_state(path, 10, 80);
+    mu_assert("fs allocated", fs != NULL);
+    active_file = fs;
+    text_win = fs->text_win;
+
+    EditorContext ctx = {0};
+    sync_editor_context(&ctx);
+
+    fs->fp = fopen(path, "r");
+    mu_assert("fp open", fs->fp != NULL);
+    fs->file_pos = 0;
+    fs->file_complete = false;
+    fs->buffer.count = 0;
+
+    load_next_lines(fs, 50);
+
+    go_to_line(&ctx, fs, 120);
+
+    mu_assert("jumped to line", fs->start_line + fs->cursor_y == 120);
+    mu_assert("lines loaded", fs->buffer.count > 120);
+
+    free_file_state(fs);
+    endwin();
+    remove(path);
+    return 0;
+}
+
 static char * all_tests() {
     mu_run_test(test_next_file_switch_failure);
     mu_run_test(test_prev_file_switch_failure);
@@ -205,6 +242,7 @@ static char * all_tests() {
     mu_run_test(test_new_file_switch_failure);
     mu_run_test(test_untitled_ignored_in_cycle);
     mu_run_test(test_status_bar_sync_on_load);
+    mu_run_test(test_go_to_line_lazy_load);
     return 0;
 }
 
