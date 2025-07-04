@@ -65,9 +65,34 @@ static char *test_redo_strdup_failure() {
     return 0;
 }
 
+static char *test_clear_text_buffer_frees_stacks() {
+    initscr();
+    FileState *fs = initialize_file_state("", 10, 80);
+    mu_assert("fs allocated", fs != NULL);
+    active_file = fs;
+    text_win = fs->text_win;
+
+    char *undo_text = strdup("old");
+    char *redo_text = strdup("new");
+    mu_assert("allocated", undo_text && redo_text);
+
+    push(&fs->undo_stack, (Change){0, undo_text, NULL});
+    push(&fs->redo_stack, (Change){0, NULL, redo_text});
+
+    clear_text_buffer();
+
+    mu_assert("undo stack cleared", fs->undo_stack == NULL);
+    mu_assert("redo stack cleared", fs->redo_stack == NULL);
+
+    free_file_state(fs);
+    endwin();
+    return 0;
+}
+
 static char *all_tests() {
     mu_run_test(test_undo_strdup_failure);
     mu_run_test(test_redo_strdup_failure);
+    mu_run_test(test_clear_text_buffer_frees_stacks);
     return 0;
 }
 
