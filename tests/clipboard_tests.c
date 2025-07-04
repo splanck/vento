@@ -6,6 +6,7 @@
 #include "undo.h"
 #include <ncurses.h>
 #include <string.h>
+#include <stdio.h>
 
 int tests_run = 0;
 extern int strdup_fail_on;
@@ -202,6 +203,89 @@ static char *test_cut_selection_undo_multiline() {
     return 0;
 }
 
+static char *test_copy_selection_lazy_load() {
+    const char *path = "lazy_copy.txt";
+    FILE *f = fopen(path, "w");
+    mu_assert("file created", f != NULL);
+    for (int i = 1; i <= 10; ++i) {
+        fprintf(f, "line%d\n", i);
+    }
+    fclose(f);
+
+    initscr();
+    FileState *fs = initialize_file_state(path, 10, 20);
+    mu_assert("fs allocated", fs != NULL);
+    active_file = fs;
+    text_win = fs->text_win;
+
+    fs->fp = fopen(path, "r");
+    mu_assert("fp open", fs->fp != NULL);
+    fs->file_pos = 0;
+    fs->file_complete = false;
+    fs->buffer.count = 0;
+
+    load_next_lines(fs, 3);
+
+    fs->sel_start_x = 1;
+    fs->sel_start_y = 2;
+    fs->sel_end_x = 5;
+    fs->sel_end_y = 6;
+
+    copy_selection(fs);
+
+    mu_assert("clipboard lazy copy", strcmp(global_clipboard,
+                "line2\nline3\nline4\nline5\nline6") == 0);
+    mu_assert("lines loaded", fs->buffer.count >= 6);
+
+    free_file_state(fs);
+    endwin();
+    remove(path);
+    return 0;
+}
+
+static char *test_cut_selection_lazy_load() {
+    const char *path = "lazy_cut.txt";
+    FILE *f = fopen(path, "w");
+    mu_assert("file created", f != NULL);
+    for (int i = 1; i <= 10; ++i) {
+        fprintf(f, "line%d\n", i);
+    }
+    fclose(f);
+
+    initscr();
+    FileState *fs = initialize_file_state(path, 10, 20);
+    mu_assert("fs allocated", fs != NULL);
+    active_file = fs;
+    text_win = fs->text_win;
+
+    fs->fp = fopen(path, "r");
+    mu_assert("fp open", fs->fp != NULL);
+    fs->file_pos = 0;
+    fs->file_complete = false;
+    fs->buffer.count = 0;
+
+    load_next_lines(fs, 3);
+
+    fs->selection_mode = true;
+    fs->sel_start_x = 1;
+    fs->sel_start_y = 2;
+    fs->sel_end_x = 5;
+    fs->sel_end_y = 6;
+
+    cut_selection(fs);
+
+    mu_assert("clipboard lazy cut", strcmp(global_clipboard,
+                "line2\nline3\nline4\nline5\nline6") == 0);
+    mu_assert("lines loaded", fs->buffer.count >= 6);
+    mu_assert("line2 after cut", strcmp(fs->buffer.lines[1], "") == 0);
+    mu_assert("line count", fs->buffer.count == 6);
+
+    free_file_state(fs);
+    endwin();
+    remove(path);
+    return 0;
+}
+
 static char *all_tests() {
     mu_run_test(test_paste_cursor_clamped);
     mu_run_test(test_strdup_failure_old_text);
@@ -210,6 +294,8 @@ static char *all_tests() {
     mu_run_test(test_copy_selection_backward_same_line);
     mu_run_test(test_cut_selection_undo_single_line);
     mu_run_test(test_cut_selection_undo_multiline);
+    mu_run_test(test_copy_selection_lazy_load);
+    mu_run_test(test_cut_selection_lazy_load);
     return 0;
 }
 

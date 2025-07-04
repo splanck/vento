@@ -49,7 +49,6 @@ void start_selection_mode(FileState *fs, int cursor_x, int cursor_y) {
  */
 void end_selection_mode(FileState *fs) {
     fs->selection_mode = false;
-    copy_selection(fs);
 }
 
 /*
@@ -79,6 +78,7 @@ void copy_selection(FileState *fs) {
     global_clipboard[0] = '\0';  // Clear clipboard
     size_t clip_len = 0;
     for (int y = start_y; y <= end_y && clip_len < CLIPBOARD_SIZE - 1; y++) {
+        ensure_line_loaded(fs, y - 1 + fs->start_line);
         if (y == start_y) {
             const char *line = lb_get(&fs->buffer, y - 1 + fs->start_line);
             const char *src = line ? line + start_x - 1 : "";
@@ -260,6 +260,8 @@ void cut_selection(FileState *fs) {
         end_x = tmp;
     }
 
+    for (int y = start_y; y <= end_y; ++y)
+        ensure_line_loaded(fs, y - 1 + fs->start_line);
     copy_selection(fs);
 
     char *first = fs->buffer.lines[start_y - 1 + fs->start_line];
