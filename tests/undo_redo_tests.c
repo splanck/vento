@@ -89,10 +89,64 @@ static char *test_clear_text_buffer_frees_stacks() {
     return 0;
 }
 
+static char *test_backspace_undo_redo_character() {
+    initscr();
+    FileState *fs = initialize_file_state("", 5, 80);
+    mu_assert("fs allocated", fs != NULL);
+    active_file = fs;
+    text_win = fs->text_win;
+
+    strcpy(fs->buffer.lines[0], "abcde");
+    fs->buffer.count = 1;
+    fs->cursor_y = 1;
+    fs->cursor_x = 4;
+
+    handle_key_backspace(NULL, fs);
+
+    mu_assert("char removed", strcmp(fs->buffer.lines[0], "abde") == 0);
+
+    undo(fs);
+    mu_assert("undo restored", strcmp(fs->buffer.lines[0], "abcde") == 0);
+    redo(fs);
+    mu_assert("redo applied", strcmp(fs->buffer.lines[0], "abde") == 0);
+
+    free_file_state(fs);
+    endwin();
+    return 0;
+}
+
+static char *test_delete_undo_redo_character() {
+    initscr();
+    FileState *fs = initialize_file_state("", 5, 80);
+    mu_assert("fs allocated", fs != NULL);
+    active_file = fs;
+    text_win = fs->text_win;
+
+    strcpy(fs->buffer.lines[0], "abcde");
+    fs->buffer.count = 1;
+    fs->cursor_y = 1;
+    fs->cursor_x = 3;
+
+    handle_key_delete(NULL, fs);
+
+    mu_assert("char deleted", strcmp(fs->buffer.lines[0], "abde") == 0);
+
+    undo(fs);
+    mu_assert("undo restored", strcmp(fs->buffer.lines[0], "abcde") == 0);
+    redo(fs);
+    mu_assert("redo applied", strcmp(fs->buffer.lines[0], "abde") == 0);
+
+    free_file_state(fs);
+    endwin();
+    return 0;
+}
+
 static char *all_tests() {
     mu_run_test(test_undo_strdup_failure);
     mu_run_test(test_redo_strdup_failure);
     mu_run_test(test_clear_text_buffer_frees_stacks);
+    mu_run_test(test_backspace_undo_redo_character);
+    mu_run_test(test_delete_undo_redo_character);
     return 0;
 }
 

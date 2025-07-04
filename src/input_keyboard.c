@@ -154,16 +154,70 @@ void handle_key_right(EditorContext *ctx, FileState *fs) {
  */
 void handle_key_backspace(EditorContext *ctx, FileState *fs) {
     if (fs->cursor_x > 1) {
+        int idx = fs->cursor_y - 1 + fs->start_line;
+        char *line = fs->buffer.lines[idx];
+        char *old_text = strdup(line);
+        if (!old_text) {
+            allocation_failed("strdup failed");
+            return;
+        }
+
+        char *tmp = strdup(line);
+        if (!tmp) {
+            free(old_text);
+            allocation_failed("strdup failed");
+            return;
+        }
+        memmove(&tmp[fs->cursor_x - 2], &tmp[fs->cursor_x - 1],
+                strlen(tmp) - fs->cursor_x + 2);
+        char *new_text = strdup(tmp);
+        free(tmp);
+        if (!new_text) {
+            free(old_text);
+            allocation_failed("strdup failed");
+            return;
+        }
+        push(&fs->undo_stack, (Change){ idx, old_text, new_text });
+
         fs->cursor_x--;
-        memmove(&fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
-                &fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
-                strlen(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]) - fs->cursor_x + 1);
+        memmove(&line[fs->cursor_x - 1], &line[fs->cursor_x],
+                strlen(line) - fs->cursor_x + 1);
     } else if (fs->cursor_y > 1 || fs->start_line > 0) {
         int idx = fs->cursor_y - 1 + fs->start_line;
         char *prev = fs->buffer.lines[idx - 1];
         char *curr = fs->buffer.lines[idx];
         size_t prev_len = strlen(prev);
         if (prev_len + strlen(curr) < (size_t)fs->line_capacity) {
+            char *old_prev = strdup(prev);
+            char *old_curr = strdup(curr);
+            if (!old_prev || !old_curr) {
+                if (old_prev) free(old_prev);
+                if (old_curr) free(old_curr);
+                allocation_failed("strdup failed");
+                return;
+            }
+
+            char *tmp = malloc(fs->line_capacity);
+            if (!tmp) {
+                free(old_prev);
+                free(old_curr);
+                allocation_failed("malloc failed");
+                return;
+            }
+            strncpy(tmp, prev, fs->line_capacity - 1);
+            tmp[fs->line_capacity - 1] = '\0';
+            strncat(tmp, curr, fs->line_capacity - strlen(tmp) - 1);
+            char *new_prev = strdup(tmp);
+            free(tmp);
+            if (!new_prev) {
+                free(old_prev);
+                free(old_curr);
+                allocation_failed("strdup failed");
+                return;
+            }
+            push(&fs->undo_stack, (Change){ idx - 1, old_prev, new_prev });
+            push(&fs->undo_stack, (Change){ idx, old_curr, NULL });
+
             strcat(prev, curr);
             lb_delete(&fs->buffer, idx);
             if (fs->cursor_y > 1) {
@@ -195,14 +249,75 @@ void handle_key_backspace(EditorContext *ctx, FileState *fs) {
 void handle_key_delete(EditorContext *ctx, FileState *fs) {
     const char *line_curr = lb_get(&fs->buffer, fs->cursor_y - 1 + fs->start_line);
     if (line_curr && fs->cursor_x < (int)strlen(line_curr)) {
-        memmove(&fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->cursor_x - 1],
-                &fs->buffer.lines[fs->cursor_y - 1 + fs->start_line][fs->cursor_x],
-                strlen(fs->buffer.lines[fs->cursor_y - 1 + fs->start_line]) - fs->cursor_x + 1);
+        int idx = fs->cursor_y - 1 + fs->start_line;
+        char *line = fs->buffer.lines[idx];
+        char *old_text = strdup(line);
+        if (!old_text) {
+            allocation_failed("strdup failed");
+            return;
+        }
+        char *tmp = strdup(line);
+        if (!tmp) {
+            free(old_text);
+            allocation_failed("strdup failed");
+            return;
+        }
+        memmove(&tmp[fs->cursor_x - 1], &tmp[fs->cursor_x],
+                strlen(tmp) - fs->cursor_x + 1);
+        char *new_text = strdup(tmp);
+        free(tmp);
+        if (!new_text) {
+            free(old_text);
+            allocation_failed("strdup failed");
+            return;
+        }
+        push(&fs->undo_stack, (Change){ idx, old_text, new_text });
+
+        memmove(&line[fs->cursor_x - 1], &line[fs->cursor_x],
+                strlen(line) - fs->cursor_x + 1);
     } else if (fs->cursor_y + fs->start_line < fs->buffer.count) {
         int idx = fs->cursor_y - 1 + fs->start_line;
         char *current = fs->buffer.lines[idx];
         char *next = fs->buffer.lines[idx + 1];
         size_t total_len = strlen(current) + strlen(next);
+
+        char *old_current = strdup(current);
+        char *old_next = strdup(next);
+        if (!old_current || !old_next) {
+            if (old_current) free(old_current);
+            if (old_next) free(old_next);
+            allocation_failed("strdup failed");
+            return;
+        }
+
+        char *tmp = malloc(fs->line_capacity);
+        if (!tmp) {
+            free(old_current);
+            free(old_next);
+            allocation_failed("malloc failed");
+            return;
+        }
+        strncpy(tmp, current, fs->line_capacity - 1);
+        tmp[fs->line_capacity - 1] = '\0';
+        if (total_len >= (size_t)fs->line_capacity) {
+            size_t space = fs->line_capacity - strlen(current) - 1;
+            if (space > 0)
+                strncat(tmp, next, space);
+            tmp[fs->line_capacity - 1] = '\0';
+        } else {
+            strncat(tmp, next, fs->line_capacity - strlen(tmp) - 1);
+        }
+        char *new_current = strdup(tmp);
+        free(tmp);
+        if (!new_current) {
+            free(old_current);
+            free(old_next);
+            allocation_failed("strdup failed");
+            return;
+        }
+        push(&fs->undo_stack, (Change){ idx, old_current, new_current });
+        push(&fs->undo_stack, (Change){ idx + 1, old_next, NULL });
+
         if (total_len >= (size_t)fs->line_capacity) {
             size_t space = fs->line_capacity - strlen(current) - 1;
             if (space > 0)
