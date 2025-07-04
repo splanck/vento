@@ -170,8 +170,14 @@ void paste_clipboard(FileState *fs, int *cursor_x, int *cursor_y) {
             (*cursor_y)++;
             fs->cursor_x = *cursor_x = 1;
             fs->cursor_y = *cursor_y;
-            if (lb_insert(&fs->buffer, *cursor_y - 1 + fs->start_line, "") < 0)
-                allocation_failed("lb_insert failed");
+            if (ensure_line_capacity(fs, fs->buffer.count + 1) < 0) {
+                show_message("Unable to allocate line");
+                break;
+            }
+            if (lb_insert(&fs->buffer, *cursor_y - 1 + fs->start_line, "") < 0) {
+                show_message("Unable to insert line");
+                break;
+            }
             char *p = realloc(fs->buffer.lines[*cursor_y - 1 + fs->start_line], fs->line_capacity);
             if (!p)
                 allocation_failed("realloc failed");

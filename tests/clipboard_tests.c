@@ -316,6 +316,36 @@ static char *test_cut_selection_lazy_load() {
     return 0;
 }
 
+static char *test_paste_many_new_lines() {
+    initscr();
+    FileState *fs = initialize_file_state("", 2, 16);
+    mu_assert("fs allocated", fs != NULL);
+    active_file = fs;
+    text_win = fs->text_win;
+
+    char clip[256] = "";
+    for (int i = 0; i < 30; ++i) {
+        char tmp[16];
+        snprintf(tmp, sizeof(tmp), "l%d", i + 1);
+        strcat(clip, tmp);
+        if (i < 29)
+            strcat(clip, "\n");
+    }
+    strncpy(global_clipboard, clip, sizeof(global_clipboard) - 1);
+    global_clipboard[sizeof(global_clipboard) - 1] = '\0';
+
+    int cx = 1;
+    int cy = 1;
+    paste_clipboard(fs, &cx, &cy);
+
+    mu_assert("line count", fs->buffer.count == 30);
+    mu_assert("last line", strcmp(fs->buffer.lines[29], "l30") == 0);
+
+    free_file_state(fs);
+    endwin();
+    return 0;
+}
+
 static char *all_tests() {
     mu_run_test(test_paste_cursor_clamped);
     mu_run_test(test_paste_grows_capacity);
@@ -327,6 +357,7 @@ static char *all_tests() {
     mu_run_test(test_cut_selection_undo_multiline);
     mu_run_test(test_copy_selection_lazy_load);
     mu_run_test(test_cut_selection_lazy_load);
+    mu_run_test(test_paste_many_new_lines);
     return 0;
 }
 
