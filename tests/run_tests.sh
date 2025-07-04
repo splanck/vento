@@ -149,3 +149,11 @@ gcc utf8_word_nav_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncur
     -Wl,--wrap=calloc -Wl,--wrap=realloc \
     -o utf8_word_nav_tests
 ./utf8_word_nav_tests
+gcc syntax_mode_tests.c obj_test/test_stubs.o -I$SRC -Lobj_test -lvento -lncursesw \
+    -Wl,--wrap=fm_switch -Wl,--wrap=fm_add -Wl,--wrap=update_status_bar \
+    -Wl,--wrap=confirm_switch -Wl,--wrap=allocation_failed -Wl,--wrap=clamp_scroll_x \
+    -Wl,--wrap=draw_text_buffer -Wl,--wrap=redraw -Wl,--wrap=strdup \
+    -Wl,--wrap=create_popup_window -Wl,--wrap=curs_set -Wl,--wrap=mvwin -Wl,--wrap=wresize \
+    -Wl,--wrap=calloc -Wl,--wrap=realloc \
+    -o syntax_mode_tests
+./syntax_mode_tests
