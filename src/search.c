@@ -260,7 +260,48 @@ void replace_next_occurrence(FileState *fs, const char *search,
     int start_search = *cursor_y + fs->start_line;
 
     int found_line = -1;
-    char *found_position = scan_next(fs, search, start_search, *cursor_x, &found_line);
+    char *found_position = NULL;
+
+    for (int line = start_search;; ++line) {
+        ensure_line_loaded(fs, line);
+        if (line >= fs->buffer.count) {
+            if (fs->file_complete)
+                break;
+            else
+                continue;
+        }
+        char *line_text = (char *)lb_get(&fs->buffer, line);
+        if (app_config.search_ignore_case)
+            found_position = strcasestr_simple(line == start_search ? line_text + *cursor_x : line_text,
+                                               search);
+        else
+            found_position = strstr(line == start_search ? line_text + *cursor_x : line_text,
+                                   search);
+        if (found_position) {
+            found_line = line;
+            break;
+        }
+    }
+
+    if (!found_position) {
+        for (int line = 0; line < start_search; ++line) {
+            ensure_line_loaded(fs, line);
+            if (line >= fs->buffer.count) {
+                if (fs->file_complete)
+                    break;
+                else
+                    continue;
+            }
+            char *line_text = (char *)lb_get(&fs->buffer, line);
+            found_position = app_config.search_ignore_case ?
+                                strcasestr_simple(line_text, search) :
+                                strstr(line_text, search);
+            if (found_position) {
+                found_line = line;
+                break;
+            }
+        }
+    }
 
     if (!found_position) {
         mvprintw(LINES - 2, 0, "Word not found.");
@@ -320,7 +361,14 @@ void replace_next_occurrence(FileState *fs, const char *search,
 void replace_all_occurrences(FileState *fs, const char *search,
                              const char *replacement) {
     bool replaced = false;
-    for (int line = 0; line < fs->buffer.count; ++line) {
+    for (int line = 0; ; ++line) {
+        ensure_line_loaded(fs, line);
+        if (line >= fs->buffer.count) {
+            if (fs->file_complete)
+                break;
+            else
+                continue;
+        }
         char *line_text = (char *)lb_get(&fs->buffer, line);
         char *pos = app_config.search_ignore_case
                         ? strcasestr_simple(line_text, search)
