@@ -827,6 +827,16 @@ void clear_text_buffer() {
     active_file->buffer.count = 1;
     if (active_file)
         active_file->start_line = 0;
+
+    if (active_file->undo_stack) {
+        free_stack(active_file->undo_stack);
+        active_file->undo_stack = NULL;
+    }
+
+    if (active_file->redo_stack) {
+        free_stack(active_file->redo_stack);
+        active_file->redo_stack = NULL;
+    }
     
     // Clear the text window
     werase(text_win);
