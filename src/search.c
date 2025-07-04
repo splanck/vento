@@ -31,6 +31,14 @@
 
 extern char search_text[256];
 
+/*
+ * When searching a lazily loaded file we may need to pull in additional lines
+ * from disk. Loading one line at a time would be inefficient so a small batch
+ * of lines is requested ahead of the current position. This value controls how
+ * many extra lines `scan_next` will ask for when ensuring a line is loaded.
+ */
+#define SEARCH_LOAD_BATCH 256
+
 static char *strcasestr_simple(const char *h, const char *n) {
     if (!*n) return (char *)h;
     for (; *h; ++h) {
@@ -58,7 +66,11 @@ static char *strcasestr_simple(const char *h, const char *n) {
  */
 static char *scan_next(FileState *fs, const char *word, int start_search,
                        int cursor_x, int *found_line) {
-    for (int line = start_search; line < fs->buffer.count; ++line) {
+    for (int line = start_search;; ++line) {
+        ensure_line_loaded(fs, line + SEARCH_LOAD_BATCH - 1);
+        if (line >= fs->buffer.count)
+            break;
+
         char *line_text = (char *)lb_get(&fs->buffer, line);
         char *pos;
         if (app_config.search_ignore_case)
@@ -74,6 +86,9 @@ static char *scan_next(FileState *fs, const char *word, int start_search,
     }
 
     for (int line = 0; line < start_search; ++line) {
+        ensure_line_loaded(fs, line + SEARCH_LOAD_BATCH - 1);
+        if (line >= fs->buffer.count)
+            break;
         char *line_text = (char *)lb_get(&fs->buffer, line);
         char *pos = app_config.search_ignore_case ?
                         strcasestr_simple(line_text, word) : strstr(line_text, word);
